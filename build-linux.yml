@@ -5,7 +5,6 @@ variables:
 pool:
   vmImage: $(vmImage)
 
-
 steps:
 - task: NuGetCommand@2
   inputs:
@@ -21,8 +20,11 @@ steps:
   inputs:
     command: publish
     publishWebProjects: true
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(buildConfiguration) --output $(build.ArtifactStagingDirectory)'
     zipAfterPublish: false
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publishing Build Artifacts...'
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(build.ArtifactStagingDirectory)'
+    artifact: 'AcordaControlOffline'
+    publishLocation: 'pipeline'
