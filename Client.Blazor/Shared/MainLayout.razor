@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using Agridea.ProductInfo
+@inherits LayoutComponentBase
 
 <div class="wrapper">
     <header class="main-header">
@@ -20,6 +21,6 @@
     </div>
 
     <footer class="main-footer">
-        <AppFooter FileVersion="some-file-version" BuildDate="some-build-date" />
+        <AppFooter FileVersion="@ProductInfo.Version" BuildDate="@ProductInfo.BuildDate" />
     </footer>
 </div>
