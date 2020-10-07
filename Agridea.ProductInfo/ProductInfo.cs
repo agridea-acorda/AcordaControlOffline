@@ -1,4 +1,4 @@
-﻿#region  Copyright (c) Agridea
+#region  Copyright (c) Agridea
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //
 // Copyright (c) Agridea                                                       //
@@ -19,9 +19,9 @@ namespace Agridea.ProductInfo
         #region This is changed by the build
 
         public const string Version = "0.1.0.0"; // major.minor.0.0. Minor is prototype number.
-        public const string FileVersion = "0.1.20275.0"; // major.minor.{julian date}.{number of commits since the most recent tag}
-        public const string InformationalVersion = "0.1 master g25d68aea"; // major.minor {branch name} {git commit ID truncated to 8 chars}
-        public const string BuildDate = "2020.10.01 18:00:13";
+        public const string FileVersion = "0.1.20281.0"; // major.minor.{julian date}.{number of commits since the most recent tag}
+        public const string InformationalVersion = "0.1 0 gfe809b8"; // major.minor {branch name} {git commit ID truncated to 8 chars}
+        public const string BuildDate = "2020.10.07 17:27:06";
         public const string Product = "AcordaControlOffline";
 
         #endregion
