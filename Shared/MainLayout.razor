@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="sidebar">
+@*<div class="sidebar">
     <NavMenu />
 </div>
 
@@ -12,4 +12,28 @@
     <div class="content px-4">
         @Body
     </div>
+</div>*@
+
+<div class="wrapper">
+    <header class="main-header">
+        @*@Html.Partial("_Logo")
+        @Html.Partial("_HeaderNavbar", headerNavBarViewModel)*@
+    </header>
+
+    <aside class="main-sidebar">
+        @*@Html.Partial("_SideBar", sideBarViewModel)*@
+    </aside>
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            @*@Html.Partial("_ContentHeader")*@
+        </section>
+        <section class="content">
+            @Body
+        </section>
+    </div>
+
+    <footer class="main-footer">
+        <AcFooter FileVersion="srser" BuildDate="dsdgfdgfg" />
+    </footer>
 </div>

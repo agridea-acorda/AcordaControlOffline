@@ -1,0 +1,14 @@
+﻿<div class="pull-right hidden-xs">
+    <b>version</b> <small>
+        <i>@FileVersion, @BuildDate</i>
+    </small>
+</div>
+
+<strong>&copy; @DateTime.Now.Year <a href="http://agridea.ch">Agridea</a></strong>
+
+@code {
+    [Parameter]
+    public string FileVersion { get; set; }
+    [Parameter]
+    public string BuildDate { get; set; }
+}
