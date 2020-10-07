@@ -1,19 +1,5 @@
 ﻿@inherits LayoutComponentBase
 
-@*<div class="sidebar">
-    <NavMenu />
-</div>
-
-<div class="main">
-    <div class="top-row px-4">
-        <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-    </div>
-
-    <div class="content px-4">
-        @Body
-    </div>
-</div>*@
-
 <div class="wrapper">
     <header class="main-header">
         @*@Html.Partial("_Logo")
@@ -34,6 +20,6 @@
     </div>
 
     <footer class="main-footer">
-        <AcFooter FileVersion="srser" BuildDate="dsdgfdgfg" />
+        <AppFooter FileVersion="some-file-version" BuildDate="some-build-date" />
     </footer>
 </div>
