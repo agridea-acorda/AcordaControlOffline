@@ -1,6 +1,6 @@
 {
-  "name": "Client.Blazor",
-  "short_name": "Client.Blazor",
+  "name": "Acorda.Acorda.AcordaControlOffline.Client.Blazor",
+  "short_name": "AcordaControlOffline",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
