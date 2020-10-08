@@ -5,3 +5,14 @@
 option.fa-font-family {
     font-family: 'FontAwesome', 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
 }
+
+.brand-text-image {
+    float: left;
+    line-height: .8;
+    margin-left: .8rem;
+    margin-right: .5rem;
+    margin-top: -3px;
+    max-height: 33px;
+    width: auto;
+    padding: 10px 0;
+}
