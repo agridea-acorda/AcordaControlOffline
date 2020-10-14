@@ -1,5 +1,6 @@
 ﻿@using Agridea.ProductInfo
 @inherits LayoutComponentBase
+@inject IJSRuntime Js
 
 <div class="wrapper">
     <nav class="main-header navbar navbar-expand navbar-dark navbar-success">
@@ -65,3 +66,15 @@
         <AppFooter FileVersion="@ProductInfo.Version" BuildDate="@ProductInfo.BuildDate" />
     </footer>
 </div>
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Js.InvokeVoidAsync("initAdminlte");
+        }
+    }
+
+}
