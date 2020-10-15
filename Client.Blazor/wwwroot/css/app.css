@@ -1,6 +1,6 @@
-﻿@import url('../lib/admin-lte/css/adminlte.min.css');
+﻿@import url('blazor.css');
 @import url('../lib/font-awesome/css/all.min.css');
-@import url('blazor.css');
+@import url('../lib/admin-lte/css/adminlte.min.css');
 
 option.fa-font-family {
     font-family: 'FontAwesome', 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
