@@ -1,4 +1,5 @@
-﻿@using Agridea.ProductInfo
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
+@using Agridea.ProductInfo
 @inherits LayoutComponentBase
 @inject IJSRuntime Js
 
@@ -17,7 +18,7 @@
                     {
                         <span> @username</span>
                     }
-                    else { <span> ?</span> }
+                    else { <span> @Canton.Unselected</span> }
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <div class="dropdown-header bg-gradient-success">
@@ -54,15 +55,48 @@
                     <i class="fas fa-shield-alt"></i>
                     @if (isCantonChosen)
                     {
-                        <strong> @cantonCode</strong>
+                        <strong> @selectedCanton.Code</strong>
                     }
                     else
                     {
-                        <strong> ?</strong>
+                        <strong> @Canton.Unselected</strong>
                     }
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    some stuff here
+                    <div class="dropdown-header bg-gradient-success">
+                        @if (isCantonChosen)
+                        {
+                            <img src="@selectedCanton.ImgSrcBig" class="img-thumbnail" alt="Drapeau canton"/>
+                            <p>@selectedCanton.FriendlyName</p>    
+                        }
+                        else
+                        {
+                            <span class="fa-stack fa-3x">
+                                <i class="far fa-square fa-stack-2x fa-inverse"></i>
+                                <i class="fas fa-shield-alt fa-stack-1x fa-inverse"></i>
+                            </span>
+                            <p>Choisir le canton</p>
+                        }
+                    </div>
+                    <div class="row m-2">
+                        @foreach (Canton canton in Canton.Cantons)
+                        {
+                            bool selected = isCantonChosen && selectedCanton.Code == canton.Code;
+                            <div class="col-sm-3 text-center">
+                                <a href="#">
+                                    <img src="@(selected ? canton.ImgSrcInactive : canton.ImgSrc)" class="img-rounded" alt="Drapeau @canton.Code petit" />
+                                    <p>@canton.Code</p>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                    @if (isCantonChosen)
+                    {
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-footer text-left">
+                            <button type="button" class="btn btn-default mb-1"><i class="fas fa-door-open"></i> Sortir</button>
+                        </div>
+                    }
                 </div>
             </li>
         </ul>
@@ -113,7 +147,7 @@
     string role = "inspector";
 
     bool isCantonChosen = true;
-    string cantonCode = "JU";
+    Canton selectedCanton = Canton.JU;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Update-ProducInfo.ps1 = Update-ProducInfo.ps1
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agridea.DomainDrivenDesign", "Agridea.DomainDrivenDesign\Agridea.DomainDrivenDesign.csproj", "{A6E2E3DF-478D-4764-BE31-15364295611E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Domain", "Shared.Domain\Shared.Domain.csproj", "{E728F480-BBDD-4B0B-A8B7-5234E097348B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{CFB7652F-CF7F-45EA-AC67-22CB352B9F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFB7652F-CF7F-45EA-AC67-22CB352B9F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFB7652F-CF7F-45EA-AC67-22CB352B9F69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6E2E3DF-478D-4764-BE31-15364295611E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6E2E3DF-478D-4764-BE31-15364295611E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6E2E3DF-478D-4764-BE31-15364295611E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6E2E3DF-478D-4764-BE31-15364295611E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E728F480-BBDD-4B0B-A8B7-5234E097348B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E728F480-BBDD-4B0B-A8B7-5234E097348B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E728F480-BBDD-4B0B-A8B7-5234E097348B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E728F480-BBDD-4B0B-A8B7-5234E097348B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
