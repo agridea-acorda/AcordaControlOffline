@@ -12,7 +12,28 @@
     },
     {
       "library": "jquery@3.5.1",
-      "destination": "wwwroot/lib/jquery/"
+      "destination": "wwwroot/lib/jquery/",
+      "files": [
+        "jquery.min.js",
+        "jquery.js",
+        "jquery.min.map"
+      ]
+    },
+    {
+      "library": "popper.js@2.5.3",
+      "destination": "wwwroot/lib/popper.js/",
+      "files": [
+        "umd/popper.min.js",
+        "umd/popper.min.js.map"
+      ]
+    },
+    {
+      "library": "twitter-bootstrap@4.5.3",
+      "destination": "wwwroot/lib/twitter-bootstrap/",
+      "files": [
+        "js/bootstrap.min.js",
+        "js/bootstrap.min.js.map"
+      ]
     }
   ]
 }
