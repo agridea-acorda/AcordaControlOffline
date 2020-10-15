@@ -12,7 +12,12 @@
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="fas fa-user"></i><span> jmfalbriard@yahoo.fr</span>
+                    <i class="fas fa-user"></i>
+                    @if (isSignedIn)
+                    {
+                        <span> @username</span>
+                    }
+                    else { <span> ?</span> }
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <div class="dropdown-header bg-gradient-success">
@@ -20,26 +25,41 @@
                             <i class="far fa-square fa-stack-2x fa-inverse"></i>
                             <i class="fas fa-user fa-stack-1x fa-inverse"></i>
                         </span>
-                        <p>jmfalbriard@yahoo.fr</p>
-                        <p><small>inspector</small></p>
+                        @if (isSignedIn)
+                        {
+                            <p>@username</p>
+                            <p><small>@role</small></p>
+                        }
+                        else
+                        {
+                            <p>Aucun utilisateur connecté</p>
+                        }
                     </div>
                     <div class="dropdown-divider"></div>
                     <div class="dropdown-footer text-left">
-                        @if (true)
+                        @if (isSignedIn)
                         {
                             <button type="button" class="btn btn-default mb-1"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
                             <button type="button" class="btn btn-default mb-1"><i class="fas fa-lock"></i> Changer mot de passe</button>
                         }
                         else
                         {
-                            <button type="button" class="btn btn-default btn-flat">Connexion</button>
+                            <button type="button" class="btn btn-default mb-1"><i class="fas fa-sign-in-alt"></i> Connexion</button>
                         }
                     </div>
                 </div>
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="fas fa-shield-alt"></i><strong> JU</strong>
+                    <i class="fas fa-shield-alt"></i>
+                    @if (isCantonChosen)
+                    {
+                        <strong> @cantonCode</strong>
+                    }
+                    else
+                    {
+                        <strong> ?</strong>
+                    }
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     some stuff here
@@ -87,6 +107,13 @@
 </div>
 
 @code {
+
+    bool isSignedIn = true;
+    string username = "jmfalbriard@yahoo.fr";
+    string role = "inspector";
+
+    bool isCantonChosen = true;
+    string cantonCode = "JU";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
