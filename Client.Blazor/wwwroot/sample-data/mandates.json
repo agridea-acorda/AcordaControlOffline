@@ -1,0 +1,69 @@
+[
+  { // Mandate
+    "farm": { // Farm
+      "ktidb": "JU67090032",
+      "farmName": "Fleury Jean-Marie",
+      "address": "Grand-Rue 31, 2823 Courcelon",
+      "farmType": "Exploitation à l’année",
+      "email": "email@address.com",
+      "phoneNumber": "+41 79 123 45 67"
+    },
+    "badges": [
+      { // Badge
+        "category": "animal",
+        "name": "UGB UMOS+",
+        "title": "Animaux >3Ugb >0.2Umos"
+      },
+      { // Badge
+        "category": "biodiversity",
+        "name": "R",
+        "title": "Biodiversité Réseau"
+      },
+      { // Badge
+        "category": "biodiversity",
+        "name": "Q2",
+        "title": "Biodiversité Qualité II"
+      },
+      { // Badge
+        "category": "btsraus",
+        "title": "SST",
+        "name": "SST"
+      },
+      { // Badge
+        "category": "btsraus",
+        "title": "SST Année suivante",
+        "name": "SST An+1"
+      },
+      { // Badge
+        "category": "btsraus",
+        "title": "SRPA",
+        "name": "SRPA"
+      },
+      { // Badge
+        "category": "btsraus",
+        "title": "SRPA Année suivante",
+        "name": "SRPA An+1"
+      },
+      { // Badge
+        "category": "landscape",
+        "title": "Contributions Paysage (plaine)",
+        "name": "Paysage"
+      },
+      { // Badge
+        "category": "per",
+        "title": "PER Grandes cultures",
+        "name": "PER Agri"
+      },
+      { // Badge
+        "category": "per",
+        "title": "PER Grandes cultures - année suivante",
+        "name": "PER Agri An+1"
+      },
+      { // Badge
+        "category": "to3ha",
+        "title": "Terres ouvertes >3Ha",
+        "name": "TO >3Ha"
+      }
+    ]
+  }
+]
