@@ -1,68 +1,146 @@
 [
   {
     "farm": {
-      "ktidb": "JU67090032",
-      "farmName": "Fleury Jean-Marie",
-      "address": "Grand-Rue 31, 2823 Courcelon",
-      "farmType": "Exploitation à l'année",
-      "email": "email@address.com",
-      "phoneNumber": "+41 79 123 45 67"
+      "ktidb": "JU36274851",
+      "farmName": "Moon Rene",
+      "address": "Radde Place 13, 8646 Newcastle",
+      "farmType": "Communauté simple",
+      "email": "renemoon@quadeebo.com",
+      "phone": "+41 (891) 492-2892"
     },
     "badges": [
       {
+        "category": "beesfish",
+        "name": "Q2",
+        "title": "Ruchers"
+      },
+      {
+        "category": "beesfish",
+        "name": "Pisci",
+        "title": "SRPA Année suivante"
+      },
+      {
+        "category": "beesfish",
+        "name": "Paysage",
+        "title": "Biodiversité Réseau"
+      },
+      {
         "category": "animal",
-        "name": "UGB UMOS+",
-        "title": "Animaux >3Ugb >0.2Umos"
+        "name": "Ruch",
+        "title": "Ruchers"
       },
       {
         "category": "biodiversity",
-        "name": "R",
+        "name": "SRPA An+1",
+        "title": "SRPA Année suivante"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU12238187",
+      "farmName": "Kim Johnston",
+      "address": "Chestnut Street 57, 8628 Iberia",
+      "farmType": "Communauté simple",
+      "email": "johnstonkim@quadeebo.com",
+      "phone": "+41 (848) 511-3100"
+    },
+    "badges": [
+      {
+        "category": "btsraus",
+        "name": "Ruch",
+        "title": "Biodiversité Qualité II"
+      },
+      {
+        "category": "animal",
+        "name": "UGB UMOS+",
         "title": "Biodiversité Réseau"
+      },
+      {
+        "category": "landscape",
+        "name": "Pisci",
+        "title": "SST"
+      },
+      {
+        "category": "landscape",
+        "name": "SST An+1",
+        "title": "SRPA"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU45577350",
+      "farmName": "Sears Delores",
+      "address": "Caton Place 56, 6916 Muir",
+      "farmType": "Exploitation à l'année",
+      "email": "deloressears@quadeebo.com",
+      "phone": "+41 (904) 462-3245"
+    },
+    "badges": [
+      {
+        "category": "biodiversity",
+        "name": "Ruch",
+        "title": "Contribution paysage (plaine)"
+      },
+      {
+        "category": "biodiversity",
+        "name": "SST An+1",
+        "title": "SST Année suivante"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU86888877",
+      "farmName": "Gillespie Josie",
+      "address": "Dunne Place 77, 3267 Dante",
+      "farmType": "Communauté simple",
+      "email": "josiegillespie@quadeebo.com",
+      "phone": "+41 (998) 402-3853"
+    },
+    "badges": [
+      {
+        "category": "biodiversity",
+        "name": "Ruch",
+        "title": "SRPA Année suivante"
       },
       {
         "category": "biodiversity",
         "name": "Q2",
-        "title": "Biodiversité Qualité II"
+        "title": "Biodiversité Réseau"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU87857627",
+      "farmName": "Conley Letha",
+      "address": "President Street 69, 3547 Turpin",
+      "farmType": "Exploitation à l'année",
+      "email": "lethaconley@quadeebo.com",
+      "phone": "+41 (928) 590-2571"
+    },
+    "badges": [
+      {
+        "category": "biodiversity",
+        "name": "Q2",
+        "title": "Biodiversité Réseau"
+      },
+      {
+        "category": "biodiversity",
+        "name": "SST",
+        "title": "SRPA"
       },
       {
         "category": "btsraus",
-        "title": "SST",
-        "name": "SST"
+        "name": "SST An+1",
+        "title": "SST Année suivante"
       },
       {
         "category": "btsraus",
-        "title": "SST Année suivante",
-        "name": "SST An+1"
-      },
-      {
-        "category": "btsraus",
-        "title": "SRPA",
-        "name": "SRPA"
-      },
-      {
-        "category": "btsraus",
-        "title": "SRPA Année suivante",
-        "name": "SRPA An+1"
-      },
-      {
-        "category": "landscape",
-        "title": "Contributions Paysage (plaine)",
-        "name": "Paysage"
-      },
-      {
-        "category": "per",
-        "title": "PER Grandes cultures",
-        "name": "PER Agri"
-      },
-      {
-        "category": "per",
-        "title": "PER Grandes cultures - année suivante",
-        "name": "PER Agri An+1"
-      },
-      {
-        "category": "to3ha",
-        "title": "Terres ouvertes >3Ha",
-        "name": "TO >3Ha"
+        "name": "Q2",
+        "title": "SRPA"
       }
     ]
   }
