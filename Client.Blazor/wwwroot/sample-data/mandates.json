@@ -1,146 +1,393 @@
 [
   {
     "farm": {
-      "ktidb": "JU36274851",
-      "farmName": "Moon Rene",
-      "address": "Radde Place 13, 8646 Newcastle",
-      "farmType": "Communauté simple",
-      "email": "renemoon@quadeebo.com",
-      "phone": "+41 (891) 492-2892"
+      "ktidb": "JU64464106",
+      "farmName": "Burks Susan",
+      "address": "Sunnyside Avenue 77, 6317 Bradenville",
+      "farmType": "communauté PER",
+      "email": "Shepard.Alvarado@Collaire.ch",
+      "phoneNumber": "+41 (995) 580-2455"
     },
     "badges": [
-      {
-        "category": "beesfish",
-        "name": "Q2",
-        "title": "Ruchers"
-      },
-      {
-        "category": "beesfish",
-        "name": "Pisci",
-        "title": "SRPA Année suivante"
-      },
-      {
-        "category": "beesfish",
-        "name": "Paysage",
-        "title": "Biodiversité Réseau"
-      },
       {
         "category": "animal",
-        "name": "Ruch",
-        "title": "Ruchers"
+        "name": "SRPA",
+        "title": "Animaux >3Ugb >0.2Umos"
       },
       {
-        "category": "biodiversity",
-        "name": "SRPA An+1",
-        "title": "SRPA Année suivante"
-      }
-    ]
-  },
-  {
-    "farm": {
-      "ktidb": "JU12238187",
-      "farmName": "Kim Johnston",
-      "address": "Chestnut Street 57, 8628 Iberia",
-      "farmType": "Communauté simple",
-      "email": "johnstonkim@quadeebo.com",
-      "phone": "+41 (848) 511-3100"
-    },
-    "badges": [
+        "category": "beesfish",
+        "name": "SRPA",
+        "title": "Biodiversité Compléments cantonaux (plaine)"
+      },
       {
         "category": "btsraus",
-        "name": "Ruch",
-        "title": "Biodiversité Qualité II"
+        "name": "SST An+1",
+        "title": "Animaux >3Ugb >0.2Umos"
+      },
+      {
+        "category": "btsraus",
+        "name": "SRPA",
+        "title": "SRPA"
       },
       {
         "category": "animal",
-        "name": "UGB UMOS+",
-        "title": "Biodiversité Réseau"
-      },
-      {
-        "category": "landscape",
         "name": "Pisci",
-        "title": "SST"
+        "title": "Animaux >3Ugb >0.2Umos"
       },
       {
         "category": "landscape",
         "name": "SST An+1",
-        "title": "SRPA"
-      }
-    ]
-  },
-  {
-    "farm": {
-      "ktidb": "JU45577350",
-      "farmName": "Sears Delores",
-      "address": "Caton Place 56, 6916 Muir",
-      "farmType": "Exploitation à l'année",
-      "email": "deloressears@quadeebo.com",
-      "phone": "+41 (904) 462-3245"
-    },
-    "badges": [
-      {
-        "category": "biodiversity",
-        "name": "Ruch",
-        "title": "Contribution paysage (plaine)"
+        "title": "Ruchers"
       },
       {
-        "category": "biodiversity",
-        "name": "SST An+1",
-        "title": "SST Année suivante"
-      }
-    ]
-  },
-  {
-    "farm": {
-      "ktidb": "JU86888877",
-      "farmName": "Gillespie Josie",
-      "address": "Dunne Place 77, 3267 Dante",
-      "farmType": "Communauté simple",
-      "email": "josiegillespie@quadeebo.com",
-      "phone": "+41 (998) 402-3853"
-    },
-    "badges": [
-      {
-        "category": "biodiversity",
-        "name": "Ruch",
-        "title": "SRPA Année suivante"
-      },
-      {
-        "category": "biodiversity",
-        "name": "Q2",
-        "title": "Biodiversité Réseau"
-      }
-    ]
-  },
-  {
-    "farm": {
-      "ktidb": "JU87857627",
-      "farmName": "Conley Letha",
-      "address": "President Street 69, 3547 Turpin",
-      "farmType": "Exploitation à l'année",
-      "email": "lethaconley@quadeebo.com",
-      "phone": "+41 (928) 590-2571"
-    },
-    "badges": [
-      {
-        "category": "biodiversity",
-        "name": "Q2",
-        "title": "Biodiversité Réseau"
+        "category": "landscape",
+        "name": "Paysage",
+        "title": "Animaux >3Ugb >0.2Umos"
       },
       {
         "category": "biodiversity",
         "name": "SST",
+        "title": "Biodiversité Qualité II"
+      },
+      {
+        "category": "landscape",
+        "name": "Q2",
+        "title": "Biodiversité Qualité II"
+      }
+    ],
+    "checklists": [
+      {
+        "domain": "07 - PER",
+        "inspector": "MEMBREZ Alain",
+        "percent": 19,
+        "outcome": "Non",
+        "isClosed": true,
+        "closeDate": "December 6, 2020 3:02 PM"
+      },
+      {
+        "domain": "11 - PLVH",
+        "inspector": "MEMBREZ Alain",
+        "percent": 61,
+        "outcome": "P",
+        "isClosed": false,
+        "closeDate": "May 14, 2020 11:07 AM"
+      },
+      {
+        "domain": "11 - PLVH",
+        "inspector": "MEMBREZ Alain",
+        "percent": 92,
+        "outcome": "NA",
+        "isClosed": false,
+        "closeDate": "March 11, 2020 7:47 AM"
+      },
+      {
+        "domain": "12 - SST/SRPA",
+        "inspector": "MEMBREZ Alain",
+        "percent": 66,
+        "outcome": "Non",
+        "isClosed": true,
+        "closeDate": "May 1, 2020 2:16 AM"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU27474808",
+      "farmName": "Mullen Rena",
+      "address": "Main Street 88, 1467 Chestnut",
+      "farmType": "Exploitation à l'année",
+      "email": "Welch.Guthrie@Applica.ch",
+      "phoneNumber": "+41 (979) 461-3522"
+    },
+    "badges": [
+      {
+        "category": "beesfish",
+        "name": "Q2",
+        "title": "SST Année suivante"
+      },
+      {
+        "category": "animal",
+        "name": "Ruch",
+        "title": "Contribution paysage (plaine)"
+      },
+      {
+        "category": "animal",
+        "name": "Cbe",
+        "title": "Biodiversité Compléments cantonaux (plaine)"
+      },
+      {
+        "category": "btsraus",
+        "name": "SRPA An+1",
+        "title": "Biodiversité Qualité II"
+      },
+      {
+        "category": "biodiversity",
+        "name": "SST An+1",
+        "title": "SST"
+      },
+      {
+        "category": "biodiversity",
+        "name": "SST",
+        "title": "Ruchers"
+      },
+      {
+        "category": "biodiversity",
+        "name": "Pisci",
+        "title": "Biodiversité Qualité II"
+      },
+      {
+        "category": "beesfish",
+        "name": "SRPA",
+        "title": "SRPA Année suivante"
+      },
+      {
+        "category": "animal",
+        "name": "UGB UMOS+",
         "title": "SRPA"
       },
       {
         "category": "btsraus",
+        "name": "SST",
+        "title": "Biodiversité Compléments cantonaux (plaine)"
+      }
+    ],
+    "checklists": [
+      {
+        "domain": "IPS Exigences de base",
+        "inspector": "MEMBREZ Alain",
+        "percent": 47,
+        "outcome": "NA",
+        "isClosed": false,
+        "closeDate": "December 3, 2020 8:02 PM"
+      },
+      {
+        "domain": "01/03 - COB",
+        "inspector": "MEMBREZ Alain",
+        "percent": 80,
+        "outcome": "NC",
+        "isClosed": false,
+        "closeDate": "June 1, 2020 2:50 AM"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU53997050",
+      "farmName": "Malone Duke",
+      "address": "Greenwood Avenue 87, 7254 Wacissa",
+      "farmType": "Communauté simple",
+      "email": "Brianna.Villarreal@Nixelt.ch",
+      "phoneNumber": "+41 (975) 435-2524"
+    },
+    "badges": [
+      {
+        "category": "animal",
+        "name": "Cbe",
+        "title": "Biodiversité Réseau"
+      },
+      {
+        "category": "animal",
         "name": "SST An+1",
+        "title": "Biodiversité Compléments cantonaux (plaine)"
+      }
+    ],
+    "checklists": [
+      {
+        "domain": "12 - SST/SRPA",
+        "inspector": "MEMBREZ Alain",
+        "percent": 90,
+        "outcome": "P",
+        "isClosed": true,
+        "closeDate": "December 31, 2020 12:52 AM"
+      },
+      {
+        "domain": "01/03 - COB",
+        "inspector": "MEMBREZ Alain",
+        "percent": 76,
+        "outcome": "Oui",
+        "isClosed": true,
+        "closeDate": "August 17, 2020 6:19 PM"
+      },
+      {
+        "domain": "07 - PER",
+        "inspector": "MEMBREZ Alain",
+        "percent": 67,
+        "outcome": "NA",
+        "isClosed": true,
+        "closeDate": "December 8, 2020 5:07 AM"
+      },
+      {
+        "domain": "IPS Exigences de base",
+        "inspector": "MEMBREZ Alain",
+        "percent": 75,
+        "outcome": "NA",
+        "isClosed": true,
+        "closeDate": "May 10, 2020 6:28 AM"
+      },
+      {
+        "domain": "11 - PLVH",
+        "inspector": "MEMBREZ Alain",
+        "percent": 71,
+        "outcome": "Oui",
+        "isClosed": true,
+        "closeDate": "December 16, 2020 1:26 PM"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU78835577",
+      "farmName": "Cleveland Foster",
+      "address": "Flatlands Avenue 13, 9745 Freeburn",
+      "farmType": "communauté PER",
+      "email": "Tucker.Hendricks@Limozen.ch",
+      "phoneNumber": "+41 (965) 513-3153"
+    },
+    "badges": [
+      {
+        "category": "btsraus",
+        "name": "Pisci",
         "title": "SST Année suivante"
+      },
+      {
+        "category": "beesfish",
+        "name": "SRPA",
+        "title": "SST"
+      },
+      {
+        "category": "landscape",
+        "name": "Q2",
+        "title": "Animaux >3Ugb >0.2Umos"
+      },
+      {
+        "category": "animal",
+        "name": "SST An+1",
+        "title": "SRPA"
       },
       {
         "category": "btsraus",
         "name": "Q2",
-        "title": "SRPA"
+        "title": "Pisciculture"
+      },
+      {
+        "category": "beesfish",
+        "name": "Pisci",
+        "title": "Biodiversité Réseau"
+      },
+      {
+        "category": "animal",
+        "name": "SRPA",
+        "title": "Animaux >3Ugb >0.2Umos"
+      }
+    ],
+    "checklists": [
+      {
+        "domain": "11 - PLVH",
+        "inspector": "MEMBREZ Alain",
+        "percent": 43,
+        "outcome": "NA",
+        "isClosed": true,
+        "closeDate": "August 2, 2020 2:33 PM"
+      },
+      {
+        "domain": "07 - PER",
+        "inspector": "MEMBREZ Alain",
+        "percent": 42,
+        "outcome": "Non",
+        "isClosed": true,
+        "closeDate": "July 4, 2020 2:41 PM"
+      },
+      {
+        "domain": "01/03 - COB",
+        "inspector": "MEMBREZ Alain",
+        "percent": 14,
+        "outcome": "Non",
+        "isClosed": false,
+        "closeDate": "October 27, 2020 5:29 PM"
+      },
+      {
+        "domain": "07 - PER",
+        "inspector": "MEMBREZ Alain",
+        "percent": 37,
+        "outcome": "NC",
+        "isClosed": false,
+        "closeDate": "February 1, 2020 6:22 PM"
+      }
+    ]
+  },
+  {
+    "farm": {
+      "ktidb": "JU77377101",
+      "farmName": "Hughes Woodard",
+      "address": "Clove Road 39, 3217 Edgewater",
+      "farmType": "communauté PER",
+      "email": "Bridges.Castro@Slumberia.ch",
+      "phoneNumber": "+41 (929) 420-2837"
+    },
+    "badges": [
+      {
+        "category": "landscape",
+        "name": "SST An+1",
+        "title": "Pisciculture"
+      },
+      {
+        "category": "landscape",
+        "name": "R",
+        "title": "Contribution paysage (plaine)"
+      },
+      {
+        "category": "biodiversity",
+        "name": "Paysage",
+        "title": "SST"
+      },
+      {
+        "category": "animal",
+        "name": "UGB UMOS+",
+        "title": "Ruchers"
+      },
+      {
+        "category": "biodiversity",
+        "name": "R",
+        "title": "Biodiversité Qualité II"
+      },
+      {
+        "category": "animal",
+        "name": "R",
+        "title": "Biodiversité Compléments cantonaux (plaine)"
+      }
+    ],
+    "checklists": [
+      {
+        "domain": "11 - PLVH",
+        "inspector": "MEMBREZ Alain",
+        "percent": 63,
+        "outcome": "P",
+        "isClosed": true,
+        "closeDate": "November 15, 2020 3:00 AM"
+      },
+      {
+        "domain": "01/03 - COB",
+        "inspector": "MEMBREZ Alain",
+        "percent": 16,
+        "outcome": "NA",
+        "isClosed": false,
+        "closeDate": "August 22, 2020 2:37 AM"
+      },
+      {
+        "domain": "12 - SST/SRPA",
+        "inspector": "MEMBREZ Alain",
+        "percent": 5,
+        "outcome": "P",
+        "isClosed": true,
+        "closeDate": "July 16, 2020 2:00 AM"
+      },
+      {
+        "domain": "07 - PER",
+        "inspector": "MEMBREZ Alain",
+        "percent": 96,
+        "outcome": "Non",
+        "isClosed": false,
+        "closeDate": "March 31, 2020 9:39 AM"
       }
     ]
   }

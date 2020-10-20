@@ -1,6 +1,8 @@
 ﻿@page "/"
-@inject HttpClient Http
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.DTOs
+@inject IApiClient Api
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 
 <div class="row">
     <div class="col-sm-12">
@@ -33,7 +35,7 @@
                 <div class="card-header">
                     <h3 class="card-title">@mandates.Length exploitation@(mandates.Length > 1 ? "s" : "") à contrôler</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="list-group">
                         @foreach (var mandate in mandates)
                         {
@@ -42,36 +44,39 @@
                                     <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span>
                                 </a>
 
-                                <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.Address</h4>
+                                <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
                                 <p class="list-group-item-text mb-1">
                                     <span><i class="far fa-envelope"></i> @mandate.Farm.Address</span>
                                     <span class="ml-2"><i class="fas fa-tractor"></i> @mandate.Farm.FarmType</span>
                                     <span class="ml-2"><i class="fas fa-at"></i> @mandate.Farm.Email</span>
                                     <span class="ml-2"><i class="fas fa-mobile-alt"></i> @mandate.Farm.PhoneNumber</span>
                                 </p>
-                                <p class="mb-1">
-                                    @foreach (var badge in mandate.Badges)
-                                    {
-                                        <span class="badge badge-round bg-@badge.Category " title="@badge.Title">@badge.Name</span>
-                                    }
-                                </p>
-                                <div class="progress progress-tall mt-2 mb-2">
-                                    <div class="progress-bar p-1" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%"></div>
-                                    <div class="progress-bar-text">
-                                        <span role="label">IPS Exigences de base (FALBRIARD * Jean-Michel)</span>
-                                        <span role="percent" class="ml-2">40%</span>
-                                        <span role="outcome" class="ml-2"></span>
+
+                                @if (mandate.Badges.Any())
+                                {
+                                    <p class="mb-1">
+                                        @foreach (var badge in mandate.Badges)
+                                        {
+                                            <span class="badge badge-round bg-@badge.Category " title="@badge.Title">@badge.Name</span>
+                                        }
+                                    </p>
+                                }
+                                
+                                @foreach (var checklist in mandate.Checklists)
+                                {
+                                    <div class="progress progress-tall mt-2 mb-2">
+                                        <div class="progress-bar @checklist.Outcome.BackgroupCssClass() p-1" role="progressbar" aria-valuenow="@checklist.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @checklist.Percent%"></div>
+                                        <div class="progress-bar-text">
+                                            <span role="label">@checklist.Domain (@checklist.Inspector)</span>
+                                            <span role="percent" class="ml-2">@checklist.Percent%</span>
+                                            <span role="outcome" class="ml-2">@((MarkupString)checklist.Outcome.Icon()) <strong>@checklist.Outcome</strong></span>
+                                            @if (checklist.IsClosed)
+                                            {
+                                                <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le @checklist.CloseDate</span>
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="progress progress-tall mt-2 mb-2">
-                                    <div class="progress-bar bg-gradient-success p-1" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%"></div>
-                                    <div class="progress-bar-text">
-                                        <span role="label">IPS Exigences de base (FALBRIARD * Jean-Michel)</span>
-                                        <span role="percent" class="ml-2">100%</span>
-                                        <span role="outcome" class="ml-2"><i class="far fa-thumbs-up"></i> Ok</span>
-                                        <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le 16.06.2020 11:20:49</span>
-                                    </div>
-                                </div>
+                                }
                             </div>
                         }
                     </div>
@@ -87,7 +92,8 @@
     private Mandate[] mandates;
     protected override async Task OnInitializedAsync()
     {
-        mandates = await Http.GetFromJsonAsync<Mandate[]>("sample-data/mandates.json");
+        var mandatesResult = await Api.FetchMandatesAsync("sample-data/mandates.json");
+        if (mandatesResult.IsSuccess) mandates = mandatesResult.Value;
     }
 
 }
