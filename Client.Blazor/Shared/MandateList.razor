@@ -45,10 +45,7 @@
 
                         <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
                         <p class="list-group-item-text mb-1">
-                            <span><i class="far fa-envelope"></i> @mandate.Farm.Address</span>
-                            <span class="ml-2"><i class="fas fa-tractor"></i> @mandate.Farm.FarmType</span>
-                            <span class="ml-2"><i class="fas fa-at"></i> @mandate.Farm.Email</span>
-                            <span class="ml-2"><i class="fas fa-mobile-alt"></i> @mandate.Farm.PhoneNumber</span>
+                            <FarmBase Farm="@mandate.Farm" />
                         </p>
                         
                         <BadgeBar Badges="@mandate.Badges" />

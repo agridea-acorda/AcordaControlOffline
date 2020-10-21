@@ -54,8 +54,8 @@
       "title": "Biodiversité Qualité II"
     }
   ],
-  "agriculturalArea": "235",
-  "nonAgriculturalArea": "26",
+  "agriculturalArea": "235 ares",
+  "nonAgriculturalArea": "26 ares",
   "bovineStandardUnits": "21.41",
   "bovineStandardUnitsFromBdta": "19.67"
 }
