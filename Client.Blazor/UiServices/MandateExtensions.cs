@@ -11,8 +11,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
                 case InspectionOutcome.Oui: return "<i class=\"far fa-thumbs-up\"></i>";
                 case InspectionOutcome.P: return "<i class=\"far fa-thumbs-up\"></i><i class=\"far fa-thumbs-down\"></i>";
                 case InspectionOutcome.Non: return "<i class=\"far fa-thumbs-down\"></i>";
-                case InspectionOutcome.NA: return "<i class=\"fas fa-genderless\"></i>";
-                case InspectionOutcome.NC: return "<i class=\"fas fa-genderless\"></i>";
+                case InspectionOutcome.NA: return "<i class=\"far fa-circle\"></i>";
+                case InspectionOutcome.NC: return "<i class=\"far fa-circle\"></i>";
             }
 
             return "";

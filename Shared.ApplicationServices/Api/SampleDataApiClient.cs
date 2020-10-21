@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
@@ -18,11 +17,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 
         public async Task<Result<Mandate[]>> FetchMandatesAsync(string uri)
         {
+            return await FetchJsonDataAsync<Mandate[]>(uri);
+        }
+
+        public async Task<Result<FarmSummary>> FetchFarmSummaryAsync(string uri)
+        {
+            return await FetchJsonDataAsync<FarmSummary>(uri);
+        }
+
+        private async Task<Result<T>> FetchJsonDataAsync<T>(string uri)
+        {
             using var httpResponse = await httpClient_.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
             httpResponse.EnsureSuccessStatusCode();
 
             if (httpResponse.Content == null || httpResponse.Content.Headers.ContentType.MediaType != "application/json")
-                return Result.Failure<Mandate[]>("HTTP Response has no content or content is not json.");
+                return Result.Failure<T>("HTTP Response has no content or content is not json.");
 
             var contentStream = await httpResponse.Content.ReadAsStreamAsync();
             using var streamReader = new StreamReader(contentStream);
@@ -30,18 +39,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             var serializer = new JsonSerializer();
             try
             {
-                var data = serializer.Deserialize<Mandate[]>(jsonReader);
+                var data = serializer.Deserialize<T>(jsonReader);
                 return Result.Success(data);
             }
             catch (JsonReaderException)
             {
-                return Result.Failure<Mandate[]>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
+                return Result.Failure<T>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
             }
-        }
-
-        public Task<Result<FarmSummary>> FetchFarmSummaryAsync(string uri)
-        {
-            throw new NotImplementedException();
         }
     }
 }

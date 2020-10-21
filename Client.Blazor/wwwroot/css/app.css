@@ -12,6 +12,11 @@ option.fa-font-family {
     color: #ffffff;
 }
 
+/* stacked icon adjust size */
+.stacked-icon-button {
+    font-size: 0.66rem;
+}
+
 /* progress-bar overrides
 -------------------------------------------------------------*/
 .progress .progress-bar-text [role="label"] {
@@ -126,6 +131,11 @@ option.fa-font-family {
     border-radius: 1rem;
 }
 
+.badge-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
 
 /* List group item colors and overrides
 -------------------------------------------------------------*/
@@ -182,4 +192,15 @@ option.fa-font-family {
 
 .list-group-item.list-group-item-corporation {
     background-color: #ff9f1f;
+}
+
+/* Various utilities */
+.clearleft {
+    clear: left;
+}
+.clearright {
+    clear: right;
+}
+.clearboth {
+    clear: both;
 }

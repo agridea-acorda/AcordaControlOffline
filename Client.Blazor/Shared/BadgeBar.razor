@@ -1,0 +1,16 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+@if (Badges.Any())
+{
+    <p class="mb-1">
+        @foreach (var badge in Badges)
+        {
+            <span class="badge badge-round bg-@badge.Category text-white p-1" title="@badge.Title">@badge.Name</span>
+        }
+    </p>
+}
+
+@code
+{
+    [Parameter]
+    public Badge[] Badges { get; set; }
+}
