@@ -5,6 +5,7 @@
       "farmName": "Burks Susan",
       "address": "Sunnyside Avenue 77, 6317 Bradenville",
       "farmType": "communauté PER",
+      "farmTypeCode": 16,
       "email": "Shepard.Alvarado@Collaire.ch",
       "phoneNumber": "+41 (995) 580-2455"
     },
@@ -96,6 +97,7 @@
       "farmName": "Mullen Rena",
       "address": "Main Street 88, 1467 Chestnut",
       "farmType": "Exploitation à l'année",
+      "farmTypeCode": 1, 
       "email": "Welch.Guthrie@Applica.ch",
       "phoneNumber": "+41 (979) 461-3522"
     },
@@ -176,6 +178,7 @@
       "farmName": "Malone Duke",
       "address": "Greenwood Avenue 87, 7254 Wacissa",
       "farmType": "Communauté simple",
+      "farmTypeCode": 6, 
       "email": "Brianna.Villarreal@Nixelt.ch",
       "phoneNumber": "+41 (975) 435-2524"
     },
@@ -240,6 +243,7 @@
       "farmName": "Cleveland Foster",
       "address": "Flatlands Avenue 13, 9745 Freeburn",
       "farmType": "communauté PER",
+      "farmTypeCode": 16,
       "email": "Tucker.Hendricks@Limozen.ch",
       "phoneNumber": "+41 (965) 513-3153"
     },
@@ -321,6 +325,7 @@
       "farmName": "Hughes Woodard",
       "address": "Clove Road 39, 3217 Edgewater",
       "farmType": "communauté PER",
+      "farmTypeCode": 16,
       "email": "Bridges.Castro@Slumberia.ch",
       "phoneNumber": "+41 (929) 420-2837"
     },

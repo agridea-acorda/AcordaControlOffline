@@ -6,6 +6,7 @@
         "farmName": "{{surname()}} {{firstName()}}",
         "address": "{{street()}} {{integer(1, 99)}}, {{integer(1000, 9999)}} {{city()}}",
         "farmType": "{{random(\"Exploitation à l'année\", \"Communauté simple\", \"communauté PER\")}}",
+        "farmTypeCode": "{{random(1, 6, 16)}}",
         "email": "{{firstName()}}.{{surname()}}@{{company()}}.ch",
         "phoneNumber": "+41 {{phone()}}"
       },

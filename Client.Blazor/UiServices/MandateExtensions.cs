@@ -18,7 +18,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
             return "";
         }
 
-        public static string BackgroupCssClass(this InspectionOutcome outcome)
+        public static string BackgroundCssClass(this InspectionOutcome outcome)
         {
             switch (outcome)
             {
@@ -27,6 +27,25 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
                 case InspectionOutcome.Non: return "bg-gradient-danger";
                 case InspectionOutcome.NA: return "bg-gradient-cyan";
                 case InspectionOutcome.NC: return "bg-gradient-cyan";
+            }
+
+            return "";
+        }
+
+        public static string BackgroundCssClass(this int farmTypeCode)
+        {
+            switch (farmTypeCode)
+            {
+                case 1: return "list-group-item-yearly";
+                case 2: return "list-group-item-production-unit";
+                case 4: return "list-group-item-summering";
+                case 5: return "list-group-item-summering";
+                case 6: return "list-group-item-community";
+                case 14: return "list-group-item-per-partial-community";
+                case 15: return "list-group-item-hobby-breeding";
+                case 16: return "list-group-item-per-partial-community";
+                case 99: return "list-group-item-disabled";
+                case 100: return "list-group-item-disabled";
             }
 
             return "";

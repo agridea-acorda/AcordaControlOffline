@@ -35,7 +35,7 @@
             <div class="list-group">
                 @foreach (var mandate in mandates)
                 {
-                    <div id="" class="list-group-item list-group-item-yearly">
+                    <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                         <button class="btn btn-default btn-sm float-right ml-1" @onclick="@NavigateToDetail">
                             <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span>
                         </button>
@@ -53,7 +53,7 @@
                         @foreach (var checklist in mandate.Checklists)
                         {
                             <div class="progress progress-tall mt-2 mb-2">
-                                <div class="progress-bar @checklist.Outcome.BackgroupCssClass() p-1" role="progressbar" aria-valuenow="@checklist.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @checklist.Percent%"></div>
+                                <div class="progress-bar @checklist.Outcome.BackgroundCssClass() p-1" role="progressbar" aria-valuenow="@checklist.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @checklist.Percent%"></div>
                                 <div class="progress-bar-text">
                                     <span role="label">@checklist.Domain (@checklist.Inspector)</span>
                                     <span role="percent" class="ml-2">@checklist.Percent%</span>

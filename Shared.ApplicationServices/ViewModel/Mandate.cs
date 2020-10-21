@@ -16,6 +16,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public string FarmName { get; set; }
         public string Address { get; set; }
         public string FarmType { get; set; }
+        public int FarmTypeCode { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
     }
