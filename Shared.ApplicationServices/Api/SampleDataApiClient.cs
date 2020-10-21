@@ -38,5 +38,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
                 return Result.Failure<Mandate[]>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
             }
         }
+
+        public Task<Result<FarmSummary>> FetchFarmSummaryAsync(string uri)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

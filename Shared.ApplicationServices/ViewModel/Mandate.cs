@@ -5,12 +5,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
 {
     public class Mandate: ViewModel
     {
-        public Farm Farm { get; set; }
+        public FarmBase Farm { get; set; }
         public Badge[] Badges { get; set; }
         public CheckList[] Checklists { get; set; }
     }
 
-    public class Farm : ViewModel
+    public class FarmBase : ViewModel
     {
         public string Ktidb { get; set; }
         public string FarmName { get; set; }

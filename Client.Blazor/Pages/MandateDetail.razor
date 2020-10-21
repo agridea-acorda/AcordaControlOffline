@@ -1,0 +1,15 @@
+﻿@page "/MandateDetail"
+@inject IApiClient Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+
+<card></card>
+
+@code {
+    private FarmSummary farmSummary_;
+    protected override async Task OnInitializedAsync()
+    {
+        var farmSummaryResult = await Api.FetchFarmSummaryAsync("sample-data/farm.json");
+        if (farmSummaryResult.IsSuccess) farmSummary_ = farmSummaryResult.Value;
+    }
+}
