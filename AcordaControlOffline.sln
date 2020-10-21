@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agridea.DomainDrivenDesign"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Domain", "Shared.Domain\Shared.Domain.csproj", "{E728F480-BBDD-4B0B-A8B7-5234E097348B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.ApplicationServices", "Shared.ApplicationServices\Shared.ApplicationServices.csproj", "{54E3D2E2-5904-431C-8EED-C6D3943F2437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.ApplicationServices", "Shared.ApplicationServices\Shared.ApplicationServices.csproj", "{54E3D2E2-5904-431C-8EED-C6D3943F2437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

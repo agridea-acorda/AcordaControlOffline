@@ -1,0 +1,94 @@
+﻿@inject IApiClient Api
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Filtre</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm bg-gray-light" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <p>This is some content</p>
+        <p>This is some content</p>
+        <p>This is some content</p>
+        <p>This is some content</p>
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+    </div>
+</div>
+
+<div class="card">
+    @if (mandates == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <div class="card-header">
+            <h3 class="card-title">@mandates.Length exploitation@(mandates.Length > 1 ? "s" : "") à contrôler</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="list-group">
+                @foreach (var mandate in mandates)
+                {
+                    <div id="" class="list-group-item list-group-item-yearly" href="#">
+                        <a class="btn btn-default btn-sm float-right" href="#">
+                            <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span>
+                        </a>
+
+                        <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
+                        <p class="list-group-item-text mb-1">
+                            <span><i class="far fa-envelope"></i> @mandate.Farm.Address</span>
+                            <span class="ml-2"><i class="fas fa-tractor"></i> @mandate.Farm.FarmType</span>
+                            <span class="ml-2"><i class="fas fa-at"></i> @mandate.Farm.Email</span>
+                            <span class="ml-2"><i class="fas fa-mobile-alt"></i> @mandate.Farm.PhoneNumber</span>
+                        </p>
+
+                        @if (mandate.Badges.Any())
+                        {
+                            <p class="mb-1">
+                                @foreach (var badge in mandate.Badges)
+                                {
+                                    <span class="badge badge-round bg-@badge.Category " title="@badge.Title">@badge.Name</span>
+                                }
+                            </p>
+                        }
+
+                        @foreach (var checklist in mandate.Checklists)
+                        {
+                            <div class="progress progress-tall mt-2 mb-2">
+                                <div class="progress-bar @checklist.Outcome.BackgroupCssClass() p-1" role="progressbar" aria-valuenow="@checklist.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @checklist.Percent%"></div>
+                                <div class="progress-bar-text">
+                                    <span role="label">@checklist.Domain (@checklist.Inspector)</span>
+                                    <span role="percent" class="ml-2">@checklist.Percent%</span>
+                                    <span role="outcome" class="ml-2">@((MarkupString)checklist.Outcome.Icon()) <strong>@checklist.Outcome</strong></span>
+                                    @if (checklist.IsClosed)
+                                    {
+                                        <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le @checklist.CloseDate</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    <div class="card-footer"></div>
+</div>
+@code {
+
+    private Mandate[] mandates;
+    protected override async Task OnInitializedAsync()
+    {
+        var mandatesResult = await Api.FetchMandatesAsync("sample-data/mandates.json");
+        if (mandatesResult.IsSuccess) mandates = mandatesResult.Value;
+    }
+
+}
