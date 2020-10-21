@@ -37,45 +37,48 @@
             <div class="list-group">
                 @foreach (var mandate in mandates)
                 {
-                    <div id="" class="list-group-item list-group-item-yearly" href="#">
-                        <a class="btn btn-default btn-sm float-right" href="#">
-                            <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span>
-                        </a>
+                <div id="" class="list-group-item list-group-item-yearly" href="#">
+                    <a class="btn btn-default btn-sm float-right ml-1" href="#">
+                        <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span>
+                    </a>
+                    <a class="btn btn-default btn-sm float-right ml-1" href="#">
+                        <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span>
+                    </a>
 
-                        <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
-                        <p class="list-group-item-text mb-1">
-                            <span><i class="far fa-envelope"></i> @mandate.Farm.Address</span>
-                            <span class="ml-2"><i class="fas fa-tractor"></i> @mandate.Farm.FarmType</span>
-                            <span class="ml-2"><i class="fas fa-at"></i> @mandate.Farm.Email</span>
-                            <span class="ml-2"><i class="fas fa-mobile-alt"></i> @mandate.Farm.PhoneNumber</span>
+                    <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
+                    <p class="list-group-item-text mb-1">
+                        <span><i class="far fa-envelope"></i> @mandate.Farm.Address</span>
+                        <span class="ml-2"><i class="fas fa-tractor"></i> @mandate.Farm.FarmType</span>
+                        <span class="ml-2"><i class="fas fa-at"></i> @mandate.Farm.Email</span>
+                        <span class="ml-2"><i class="fas fa-mobile-alt"></i> @mandate.Farm.PhoneNumber</span>
+                    </p>
+
+                    @if (mandate.Badges.Any())
+                    {
+                        <p class="mb-1">
+                            @foreach (var badge in mandate.Badges)
+                            {
+                                <span class="badge badge-round bg-@badge.Category " title="@badge.Title">@badge.Name</span>
+                            }
                         </p>
+                    }
 
-                        @if (mandate.Badges.Any())
-                        {
-                            <p class="mb-1">
-                                @foreach (var badge in mandate.Badges)
+                    @foreach (var checklist in mandate.Checklists)
+                    {
+                        <div class="progress progress-tall mt-2 mb-2">
+                            <div class="progress-bar @checklist.Outcome.BackgroupCssClass() p-1" role="progressbar" aria-valuenow="@checklist.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @checklist.Percent%"></div>
+                            <div class="progress-bar-text">
+                                <span role="label">@checklist.Domain (@checklist.Inspector)</span>
+                                <span role="percent" class="ml-2">@checklist.Percent%</span>
+                                <span role="outcome" class="ml-2">@((MarkupString)checklist.Outcome.Icon()) <strong>@checklist.Outcome</strong></span>
+                                @if (checklist.IsClosed)
                                 {
-                                    <span class="badge badge-round bg-@badge.Category " title="@badge.Title">@badge.Name</span>
+                                    <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le @checklist.CloseDate</span>
                                 }
-                            </p>
-                        }
-
-                        @foreach (var checklist in mandate.Checklists)
-                        {
-                            <div class="progress progress-tall mt-2 mb-2">
-                                <div class="progress-bar @checklist.Outcome.BackgroupCssClass() p-1" role="progressbar" aria-valuenow="@checklist.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @checklist.Percent%"></div>
-                                <div class="progress-bar-text">
-                                    <span role="label">@checklist.Domain (@checklist.Inspector)</span>
-                                    <span role="percent" class="ml-2">@checklist.Percent%</span>
-                                    <span role="outcome" class="ml-2">@((MarkupString)checklist.Outcome.Icon()) <strong>@checklist.Outcome</strong></span>
-                                    @if (checklist.IsClosed)
-                                    {
-                                        <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le @checklist.CloseDate</span>
-                                    }
-                                </div>
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
+                </div>
                 }
             </div>
         </div>
