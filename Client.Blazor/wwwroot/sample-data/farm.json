@@ -57,5 +57,14 @@
   "agriculturalArea": "235 ares",
   "nonAgriculturalArea": "26 ares",
   "bovineStandardUnits": "21.41",
-  "bovineStandardUnitsFromBdta": "19.67"
+  "bovineStandardUnitsFromBdta": "19.67",
+  "checkList": {
+    "domain": "07 - PER",
+    "inspector": "MEMBREZ Alain",
+    "percent": 43,
+    "outcome": "NA",
+    "isClosed": false,
+    "closeDate": "",
+    "campaign":  "Campagne hiver 2020" 
+  } 
 }

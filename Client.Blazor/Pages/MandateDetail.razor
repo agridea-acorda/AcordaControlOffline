@@ -1,10 +1,11 @@
 ﻿@page "/MandateDetail/{FarmId:int}"
 @inject IApiClient Api
 @inject NavigationManager Navigation
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 
-@if (farmSummary_ == null)
+@if (mandate == null)
 {
     <p>Loading...</p>
 }
@@ -13,7 +14,7 @@ else
     <div class="card">
         <div class="card-header">
 
-            <h3 class="card-title">@farmSummary_.Farm.Ktidb @farmSummary_.Farm.FarmName</h3>
+            <h3 class="card-title">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h3>
 
             <div class="card-tools">
                 <button type="button" class="btn btn-default">
@@ -25,19 +26,19 @@ else
             </div>
 
             <p class="clearboth mb-0">
-                <FarmBase Farm="@farmSummary_.Farm" />
+                <FarmBase Farm="@mandate.Farm" />
             </p>
 
         </div>
         <div class="card-body">
             
             <p class="mb-1">
-                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farmSummary_.AgriculturalArea</span>
-                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farmSummary_.NonAgriculturalArea</span>
-                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farmSummary_.BovineStandardUnits</span>
-                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farmSummary_.BovineStandardUnitsFromBdta</span>
+                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.AgriculturalArea</span>
+                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.NonAgriculturalArea</span>
+                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.BovineStandardUnits</span>
+                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.BovineStandardUnitsFromBdta</span>
             </p>
-            <BadgeBar Badges="@farmSummary_.Badges" />
+            <BadgeBar Badges="@mandate.Badges" />
         </div>
     </div>
 
@@ -53,13 +54,34 @@ else
         <div class="card-body p-0">
             <div class="list-group">
                 <div class="list-group-item">
-                    <h4 class="list-group-item-heading">IPS Exigences de base</h4>
-                    <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> Campagne hiver 2020</span></p>
+                    <h4 class="list-group-item-heading">@mandate.CheckList.Domain</h4>
+                    <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @mandate.CheckList.Campaign</span></p>
                     <button class="btn btn-app h-auto">
                         <i class="far fa-calendar-alt"></i>
-                        <span style="white-space: pre-wrap">(non agendé)</span>
+                        <span class="d-block">(non agendé)</span>
+                        <span class="d-block">Rendez-vous le 25.10.2020</span>
+                        <span class="d.d-block">Contacté le 19.10.2020</span>
                         <span class="text-red d-block"><i class="fas fa-exclamation"></i> Inopiné</span>
                     </button>
+                    <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
+                    <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
+                    <button class="btn btn-app h-auto">
+                        <i class="far fa-comment-dots text-warning"></i>
+                        <span style="white-space:pre-wrap">Remarque pour la gérance</span>
+                    </button>
+                    <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
+                    <div class="progress progress-tall mt-2 mb-2">
+                        <div class="progress-bar @mandate.CheckList.Outcome.BackgroundCssClass() p-1" role="progressbar" aria-valuenow="@mandate.CheckList.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @mandate.CheckList.Percent%"></div>
+                        <div class="progress-bar-text">
+                            <span role="label">@mandate.CheckList.Domain (@mandate.CheckList.Inspector)</span>
+                            <span role="percent" class="ml-2">@mandate.CheckList.Percent%</span>
+                            <span role="outcome" class="ml-2">@((MarkupString)mandate.CheckList.Outcome.Icon()) <strong>@mandate.CheckList.Outcome</strong></span>
+                            @if (mandate.CheckList.IsClosed)
+                            {
+                                <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le @mandate.CheckList.CloseDate</span>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -68,10 +90,10 @@ else
 
 @code {
     [Parameter] public int FarmId { get; set; }
-    private FarmSummary farmSummary_;
+    private Mandate mandate;
     protected override async Task OnInitializedAsync()
     {
-        var farmSummaryResult = await Api.FetchFarmSummaryAsync("sample-data/farm.json");
-        if (farmSummaryResult.IsSuccess) farmSummary_ = farmSummaryResult.Value;
+        var result = await Api.FetchFarmSummaryAsync("sample-data/farm.json");
+        if (result.IsSuccess) mandate = result.Value;
     }
 }

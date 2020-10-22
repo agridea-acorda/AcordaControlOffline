@@ -1,16 +1,16 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 {
     public class Mandate: ViewModel
     {
-        public FarmBase Farm { get; set; }
+        public Farm Farm { get; set; }
         public Badge[] Badges { get; set; }
         public CheckList[] Checklists { get; set; }
     }
 
-    public class FarmBase : ViewModel
+    public class Farm : ViewModel
     {
         public int Id { get; set; }
         public string Ktidb { get; set; }

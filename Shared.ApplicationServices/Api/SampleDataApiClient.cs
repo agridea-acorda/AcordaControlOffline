@@ -2,8 +2,11 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
+using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 {
@@ -15,14 +18,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             httpClient_ = httpClient;
         }
 
-        public async Task<Result<Mandate[]>> FetchMandatesAsync(string uri)
+        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandatesAsync(string uri)
         {
-            return await FetchJsonDataAsync<Mandate[]>(uri);
+            return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri);
         }
 
-        public async Task<Result<FarmSummary>> FetchFarmSummaryAsync(string uri)
+        public async Task<Result<Mandate>> FetchFarmSummaryAsync(string uri)
         {
-            return await FetchJsonDataAsync<FarmSummary>(uri);
+            return await FetchJsonDataAsync<Mandate>(uri);
         }
 
         private async Task<Result<T>> FetchJsonDataAsync<T>(string uri)
