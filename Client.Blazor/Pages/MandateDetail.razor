@@ -1,4 +1,4 @@
-﻿@page "/MandateDetail"
+﻿@page "/MandateDetail/{FarmId:int}"
 @inject IApiClient Api
 @inject NavigationManager Navigation
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
@@ -67,6 +67,7 @@ else
 }
 
 @code {
+    [Parameter] public int FarmId { get; set; }
     private FarmSummary farmSummary_;
     protected override async Task OnInitializedAsync()
     {

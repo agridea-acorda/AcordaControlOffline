@@ -12,6 +12,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
 
     public class FarmBase : ViewModel
     {
+        public int Id { get; set; }
         public string Ktidb { get; set; }
         public string FarmName { get; set; }
         public string Address { get; set; }

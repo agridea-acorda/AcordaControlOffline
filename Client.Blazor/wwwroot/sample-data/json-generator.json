@@ -2,6 +2,7 @@
   {
     "repeat(5, 7)": {
       "farm": {
+        "id": "{{index(1)}}",
         "ktidb": "JU{{integer(10000000, 99999999)}}",
         "farmName": "{{surname()}} {{firstName()}}",
         "address": "{{street()}} {{integer(1, 99)}}, {{integer(1000, 9999)}} {{city()}}",

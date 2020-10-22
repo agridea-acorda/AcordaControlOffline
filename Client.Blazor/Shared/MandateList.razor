@@ -36,7 +36,7 @@
                 @foreach (var mandate in mandates)
                 {
                     <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
-                        <button class="btn btn-default btn-sm float-right ml-1" @onclick='() => Navigation.NavigateTo("/MandateDetail")'>
+                        <button class="btn btn-default btn-sm float-right ml-1" @onclick='() => NavigateToMandateDetail(mandate.Farm.Id)'>
                             <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span>
                         </button>
                         <button class="btn btn-default btn-sm float-right ml-1" href="#">
@@ -79,5 +79,14 @@
     {
         var mandatesResult = await Api.FetchMandatesAsync("sample-data/mandates.json");
         if (mandatesResult.IsSuccess) mandates = mandatesResult.Value;
+    }
+
+
+    void NavigateToMandateDetail(int id)
+    {
+        if (id > 0)
+        {
+            Navigation.NavigateTo($"MandateDetail/{id}");
+        }
     }
 }
