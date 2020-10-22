@@ -1,9 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
-using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail;
-using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
 using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate;

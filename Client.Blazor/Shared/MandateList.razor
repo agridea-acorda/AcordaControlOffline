@@ -37,7 +37,7 @@
                 @foreach (var mandate in mandates)
                 {
                     <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
-                        <button class="btn btn-success btn-sm float-right ml-1" @onclick='() => NavigateToMandateDetail(mandate.Farm.Id)'>
+                        <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
                             <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
                         </button>
                         <button class="btn btn-primary btn-sm float-right ml-1" href="#">

@@ -31,12 +31,12 @@ else
         <div class="card-body">
             
             <p class="mb-1">
-                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.AgriculturalArea</span>
-                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.NonAgriculturalArea</span>
-                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.BovineStandardUnits</span>
-                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.BovineStandardUnitsFromBdta</span>
+                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.Farm.AgriculturalArea</span>
+                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.Farm.NonAgriculturalArea</span>
+                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.Farm.BovineStandardUnits</span>
+                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.Farm.BovineStandardUnitsFromBdta</span>
             </p>
-            <BadgeBar Badges="@mandate.Badges" />
+            <BadgeBar Badges="@mandate.Farm.Badges" />
         </div>
     </div>
 
@@ -51,57 +51,60 @@ else
         </div>
         <div class="card-body p-0">
             <div class="list-group">
-                <div class="list-group-item">
-                    <button type="button" class="btn btn-success btn-sm float-right" @onclick='() => Navigation.NavigateTo("/Checklist/1")'>
-                        <i class="fas fa-arrow-right"></i> Check-Liste
-                    </button>
-                    <h4 class="list-group-item-heading">@mandate.CheckList.Domain</h4>
-                    <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @mandate.CheckList.Campaign</span></p>
-                    <button class="btn btn-app h-auto">
-                        <i class="far fa-calendar-alt"></i>
-                        <span class="d-block">(non agendé)</span>
-                        <span class="d-block">Rendez-vous le 25.10.2020</span>
-                        <span class="d.d-block">Contacté le 19.10.2020</span>
-                        <span class="text-red d-block"><i class="fas fa-exclamation"></i> Inopiné</span>
-                    </button>
-                    <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
-                    <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
-                    <button class="btn btn-app h-auto">
-                        <i class="far fa-comment-dots text-warning"></i>
-                        <span style="white-space:pre-wrap">Remarque pour la gérance</span>
-                    </button>
-                    <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
-                    <ProgressBar Progress="@mandate.CheckList" />
-                    @if (hasComplianceRequirements)
-                    {
-                        <p class="mb-1">
-                            <strong>Délai de mise en conformité jusqu'au: @complianceDeadline</strong>
-                            <span class="text-yellow"> @Late</span>
-                            <span class="text-green"><i class="far fa-thumbs-up"></i> @Compliant</span>
-                            <span class="text-red"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
-                        </p>
-                    }
-                    @if (canGeneratePdfReport)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
-                    }
-                    @if (canDisplayPdfReport)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
-                    }
-                    @if (canClose)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
-                    }
-                    @if (isClosed)
-                    {
-                        <p class="mb-1"><strong>Clôturé le @closeDate par @closedBy.</strong></p>
-                    }
-                    @if (canReopen)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
-                    }
-                </div>
+                @foreach (var checklist in mandate.CheckLists)
+                {
+                    <div class="list-group-item">
+                        <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(checklist.FarmInspectionId)">
+                            <i class="fas fa-arrow-right"></i> Check-Liste
+                        </button>
+                        <h4 class="list-group-item-heading">@checklist.Domain</h4>
+                        <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @checklist.Campaign</span></p>
+                        <button class="btn btn-app h-auto">
+                            <i class="far fa-calendar-alt"></i>
+                            <span class="d-block">(non agendé)</span>
+                            <span class="d-block">Rendez-vous le 25.10.2020</span>
+                            <span class="d.d-block">Contacté le 19.10.2020</span>
+                            <span class="text-red d-block"><i class="fas fa-exclamation"></i> Inopiné</span>
+                        </button>
+                        <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
+                        <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
+                        <button class="btn btn-app h-auto">
+                            <i class="far fa-comment-dots text-warning"></i>
+                            <span style="white-space: pre-wrap">Remarque pour la gérance</span>
+                        </button>
+                        <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
+                        <ProgressBar Progress="@checklist"/>
+                        @if (checklist.HasComplianceRequirements)
+                        {
+                            <p class="mb-1">
+                                <strong>Délai de mise en conformité jusqu'au: @checklist.ComplianceDeadline</strong>
+                                <span class="text-yellow"> @Late</span>
+                                <span class="text-green"><i class="far fa-thumbs-up"></i> @Compliant</span>
+                                <span class="text-red"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
+                            </p>
+                        }
+                        @if (checklist.CanGeneratePdfReport)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
+                        }
+                        @if (checklist.CanDisplayPdfReport)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
+                        }
+                        @if (checklist.CanClose)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
+                        }
+                        @if (checklist.isClosed)
+                        {
+                            <p class="mb-1"><strong>Clôturé le @checklist.closeDate par @checklist.closedBy.</strong></p>
+                        }
+                        @if (checklist.CanReopen)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
+                        }
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -113,22 +116,23 @@ else
     public const string Compliant = "Délai respecté";
 
     [Parameter] public int FarmId { get; set; }
+
     private Mandate mandate;
-    bool hasComplianceRequirements = true;
-    string complianceDeadline = "30.10.2020";
-
-    bool isClosed = true;
-    string closeDate = "25.10.20";
-    string closedBy = "MEMBREZ Alain";
-
-    bool canGeneratePdfReport = true;
-    bool canDisplayPdfReport = true;
-    bool canClose = true;
-    bool canReopen = true;
-
     protected override async Task OnInitializedAsync()
     {
         var result = await Api.FetchFarmSummaryAsync("sample-data/farm.json");
-        if (result.IsSuccess) mandate = result.Value;
+        if (result.IsSuccess)
+        {
+            Console.WriteLine("Api call was successful.");
+            mandate = result.Value;
+        }
+    }
+
+    void NavigateToChecklist(int farmInspectionId)
+    {
+        if (farmInspectionId > 0)
+        {
+            Navigation.NavigateTo($"Checklist/{farmInspectionId}");
+        }
     }
 }

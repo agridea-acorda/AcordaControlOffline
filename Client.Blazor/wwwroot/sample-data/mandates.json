@@ -61,34 +61,34 @@
       {
         "domain": "07 - PER",
         "inspector": "MEMBREZ Alain",
-        "percent": 19,
+        "percent": 100,
         "outcome": "Non",
         "isClosed": true,
-        "closeDate": "December 6, 2020 3:02 PM"
+        "closeDate": "25.10.20"
       },
       {
         "domain": "11 - PLVH",
         "inspector": "MEMBREZ Alain",
         "percent": 61,
-        "outcome": "P",
+        "outcome": "NA",
         "isClosed": false,
-        "closeDate": "May 14, 2020 11:07 AM"
+        "closeDate": ""
       },
       {
-        "domain": "11 - PLVH",
+        "domain": "IPS Exigences de base",
         "inspector": "MEMBREZ Alain",
         "percent": 92,
         "outcome": "NA",
         "isClosed": false,
-        "closeDate": "March 11, 2020 7:47 AM"
+        "closeDate": ""
       },
       {
         "domain": "12 - SST/SRPA",
         "inspector": "MEMBREZ Alain",
-        "percent": 66,
-        "outcome": "Non",
+        "percent": 100,
+        "outcome": "Oui",
         "isClosed": true,
-        "closeDate": "May 1, 2020 2:16 AM"
+        "closeDate": "25.10.2020"
       }
     ]
   },
