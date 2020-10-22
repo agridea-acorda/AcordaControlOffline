@@ -1,0 +1,181 @@
+﻿@page "/FarmDetail/{FarmId:int}"
+@inject IApiClient Api
+@inject NavigationManager Navigation
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.FarmDetail
+
+@if (farm == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">@farm.Ktidb @farm.FarmName</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-default" @onclick="() => NavigateToMandateDetail(farm.Id)">
+                    <i class="fas fa-arrow-left"></i>
+                    Mandat
+                </button>
+            </div>
+            <p class="clearboth mb-0">
+                <FarmBase Farm="@farm"/>
+            </p>
+        </div>
+        <div class="card-body">
+            <p class="mb-1">
+                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farm.AgriculturalArea</span>
+                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farm.NonAgriculturalArea</span>
+                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farm.BovineStandardUnits</span>
+                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farm.BovineStandardUnitsFromBdta</span>
+            </p>
+            <BadgeBar Badges="@farm.Badges"/>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Données de structure et inscriptions programmes</h3>
+        </div>
+        <div class="card-body">
+            <p>Content here</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Manquements antérieurs</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <p>Content here</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Identifiants et numéros</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Content here</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Adresse et coordonnées (Acorda)</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Content here</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Contact</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Content here</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Composition</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Content here</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Localisation géographique</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Content here</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Adhésion à l'organisation de contrôle</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Content here</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Fiches</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Content here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int FarmId { get; set; }
+
+    Farm farm;
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Api.FetchFarmDetailAsync("sample-data/farm.json");
+        if (result.IsSuccess)
+        {
+            Console.WriteLine("Api call was successful.");
+            farm = result.Value;
+        }
+    }
+
+    void NavigateToMandateDetail(int farmId)
+    {
+        if (farmId > 0)
+        {
+            Navigation.NavigateTo($"MandateDetail/{farmId}");
+        }
+    }
+}

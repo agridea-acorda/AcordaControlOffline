@@ -1,6 +1,6 @@
-﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
-@if (Badges.Any())
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
+
+@if (Badges != null && Badges.Any())
 {
     <p class="mb-1">
         @foreach (var badge in Badges)

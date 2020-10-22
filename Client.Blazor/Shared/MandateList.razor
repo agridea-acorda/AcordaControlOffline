@@ -2,7 +2,6 @@
 @inject NavigationManager Navigation
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 
 <div class="card">
@@ -67,7 +66,7 @@
     private Mandate[] mandates;
     protected override async Task OnInitializedAsync()
     {
-        var mandatesResult = await Api.FetchMandatesAsync("sample-data/mandates.json");
+        var mandatesResult = await Api.FetchMandateListAsync("sample-data/mandates.json");
         if (mandatesResult.IsSuccess) mandates = mandatesResult.Value;
     }
 

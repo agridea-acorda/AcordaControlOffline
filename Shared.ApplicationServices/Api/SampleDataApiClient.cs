@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -16,14 +15,19 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             httpClient_ = httpClient;
         }
 
-        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandatesAsync(string uri)
+        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandateListAsync(string uri)
         {
             return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri);
         }
 
-        public async Task<Result<Mandate>> FetchFarmSummaryAsync(string uri)
+        public async Task<Result<Mandate>> FetchMandateDetailAsync(string uri)
         {
             return await FetchJsonDataAsync<Mandate>(uri);
+        }
+
+        public async Task<Result<ViewModel.FarmDetail.Farm>> FetchFarmDetailAsync(string uri)
+        {
+            return await FetchJsonDataAsync<ViewModel.FarmDetail.Farm>(uri);
         }
 
         private async Task<Result<T>> FetchJsonDataAsync<T>(string uri)

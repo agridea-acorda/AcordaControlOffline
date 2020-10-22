@@ -16,7 +16,7 @@ else
             <h3 class="card-title">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h3>
 
             <div class="card-tools">
-                <button type="button" class="btn btn-default">
+                <button type="button" class="btn btn-default" @onclick="() => NavigateToFarmDetail(mandate.Farm.Id)">
                     <span class="fa-stack stacked-icon-button">
                         <i class="far fa-circle fa-stack-2x"></i>
                         <i class="fas fa-info fa-stack-1x"></i>
@@ -120,7 +120,7 @@ else
     private Mandate mandate;
     protected override async Task OnInitializedAsync()
     {
-        var result = await Api.FetchFarmSummaryAsync("sample-data/farm.json");
+        var result = await Api.FetchMandateDetailAsync("sample-data/farm.json");
         if (result.IsSuccess)
         {
             Console.WriteLine("Api call was successful.");
@@ -133,6 +133,14 @@ else
         if (farmInspectionId > 0)
         {
             Navigation.NavigateTo($"Checklist/{farmInspectionId}");
+        }
+    }
+
+    void NavigateToFarmDetail(int farmId)
+    {
+        if (farmId > 0)
+        {
+            Navigation.NavigateTo($"FarmDetail/{farmId}");
         }
     }
 }
