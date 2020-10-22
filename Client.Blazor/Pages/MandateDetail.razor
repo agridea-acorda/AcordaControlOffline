@@ -1,7 +1,6 @@
 ﻿@page "/MandateDetail/{FarmId:int}"
 @inject IApiClient Api
 @inject NavigationManager Navigation
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 
@@ -71,6 +70,15 @@ else
                     </button>
                     <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
                     <ProgressBar Progress="@mandate.CheckList" />
+                    @if (hasComplianceRequirements)
+                    {
+                        <p class="list-group-item-text">
+                            <strong>Délai de mise en conformité jusqu'au: 30.10.2020</strong>
+                            <span class="text-yellow"> @Late</span>
+                            <span class="text-green"><i class="far fa-thumbs-up"></i> @Compliant</span>
+                            <span class="text-red"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
+                        </p>
+                    }
                 </div>
             </div>
         </div>
@@ -78,8 +86,14 @@ else
 }
 
 @code {
+    public const string LateOrNotCompliant = "Hors délai ou non conforme";
+    public const string Late = "!! expiré !!";
+    public const string Compliant = "Délai respecté";
+
     [Parameter] public int FarmId { get; set; }
     private Mandate mandate;
+    bool hasComplianceRequirements = true;
+
     protected override async Task OnInitializedAsync()
     {
         var result = await Api.FetchFarmSummaryAsync("sample-data/farm.json");
