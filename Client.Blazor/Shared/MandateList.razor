@@ -53,18 +53,7 @@
                         
                         @foreach (var checklist in mandate.Checklists)
                         {
-                            <div class="progress progress-tall mt-2 mb-2">
-                                <div class="progress-bar @checklist.Outcome.BackgroundCssClass() p-1" role="progressbar" aria-valuenow="@checklist.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @checklist.Percent%"></div>
-                                <div class="progress-bar-text">
-                                    <span role="label">@checklist.Domain (@checklist.Inspector)</span>
-                                    <span role="percent" class="ml-2">@checklist.Percent%</span>
-                                    <span role="outcome" class="ml-2">@((MarkupString)checklist.Outcome.Icon()) <strong>@checklist.Outcome</strong></span>
-                                    @if (checklist.IsClosed)
-                                    {
-                                        <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le @checklist.CloseDate</span>
-                                    }
-                                </div>
-                            </div>
+                            <ProgressBar Progress="@checklist" />
                         }
                     </div>
                 }

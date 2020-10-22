@@ -70,18 +70,7 @@ else
                         <span style="white-space:pre-wrap">Remarque pour la gérance</span>
                     </button>
                     <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
-                    <div class="progress progress-tall mt-2 mb-2">
-                        <div class="progress-bar @mandate.CheckList.Outcome.BackgroundCssClass() p-1" role="progressbar" aria-valuenow="@mandate.CheckList.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @mandate.CheckList.Percent%"></div>
-                        <div class="progress-bar-text">
-                            <span role="label">@mandate.CheckList.Domain (@mandate.CheckList.Inspector)</span>
-                            <span role="percent" class="ml-2">@mandate.CheckList.Percent%</span>
-                            <span role="outcome" class="ml-2">@((MarkupString)mandate.CheckList.Outcome.Icon()) <strong>@mandate.CheckList.Outcome</strong></span>
-                            @if (mandate.CheckList.IsClosed)
-                            {
-                                <span role="lock" class="ml-2"><i class="fas fa-lock"></i> Clôturé le @mandate.CheckList.CloseDate</span>
-                            }
-                        </div>
-                    </div>
+                    <ProgressBar Progress="@mandate.CheckList" />
                 </div>
             </div>
         </div>
