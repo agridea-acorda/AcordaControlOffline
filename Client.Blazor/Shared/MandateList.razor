@@ -37,11 +37,11 @@
                 @foreach (var mandate in mandates)
                 {
                     <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
-                        <button class="btn btn-default btn-sm float-right ml-1" @onclick='() => NavigateToMandateDetail(mandate.Farm.Id)'>
-                            <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span>
+                        <button class="btn btn-success btn-sm float-right ml-1" @onclick='() => NavigateToMandateDetail(mandate.Farm.Id)'>
+                            <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
                         </button>
-                        <button class="btn btn-default btn-sm float-right ml-1" href="#">
-                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span>
+                        <button class="btn btn-primary btn-sm float-right ml-1" href="#">
+                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> Télécharger 
                         </button>
 
                         <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>

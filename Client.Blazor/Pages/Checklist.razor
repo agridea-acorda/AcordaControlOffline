@@ -1,0 +1,49 @@
+﻿@page "/Checklist/{FarmInspectionId:int}"
+@inject NavigationManager Navigation
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Récapitulatif</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo("/MandateDetail/1")'>
+                <i class="fas fa-arrow-left"></i>
+                Retour Mandat
+            </button>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo("/Signatures/1")'>
+                <i class="fas fa-arrow-right"></i>
+                Signatures
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <p>Content here</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Manquements antérieurs</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <p>Content here</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Exigences</h3>
+    </div>
+    <div class="card-body">
+        <p>Content here</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int FarmInspectionId { get; set; }
+}

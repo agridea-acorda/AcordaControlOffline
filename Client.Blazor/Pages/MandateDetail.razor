@@ -27,7 +27,6 @@ else
             <p class="clearboth mb-0">
                 <FarmBase Farm="@mandate.Farm" />
             </p>
-
         </div>
         <div class="card-body">
             
@@ -45,7 +44,7 @@ else
         <div class="card-header">
             <h3 class="card-title">Check-listes</h3>
             <div class="card-tools">
-            <button type="button" class="btn btn-default" @onclick='() => Navigation.NavigateTo("/")'>
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo("/")'>
                 <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
             </button>
             </div>
@@ -53,6 +52,9 @@ else
         <div class="card-body p-0">
             <div class="list-group">
                 <div class="list-group-item">
+                    <button type="button" class="btn btn-success btn-sm float-right" @onclick='() => Navigation.NavigateTo("/Checklist/1")'>
+                        <i class="fas fa-arrow-right"></i> Check-Liste
+                    </button>
                     <h4 class="list-group-item-heading">@mandate.CheckList.Domain</h4>
                     <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @mandate.CheckList.Campaign</span></p>
                     <button class="btn btn-app h-auto">
@@ -72,12 +74,32 @@ else
                     <ProgressBar Progress="@mandate.CheckList" />
                     @if (hasComplianceRequirements)
                     {
-                        <p class="list-group-item-text">
-                            <strong>Délai de mise en conformité jusqu'au: 30.10.2020</strong>
+                        <p class="mb-1">
+                            <strong>Délai de mise en conformité jusqu'au: @complianceDeadline</strong>
                             <span class="text-yellow"> @Late</span>
                             <span class="text-green"><i class="far fa-thumbs-up"></i> @Compliant</span>
                             <span class="text-red"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
                         </p>
+                    }
+                    @if (canGeneratePdfReport)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
+                    }
+                    @if (canDisplayPdfReport)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
+                    }
+                    @if (canClose)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
+                    }
+                    @if (isClosed)
+                    {
+                        <p class="mb-1"><strong>Clôturé le @closeDate par @closedBy.</strong></p>
+                    }
+                    @if (canReopen)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
                     }
                 </div>
             </div>
@@ -93,6 +115,16 @@ else
     [Parameter] public int FarmId { get; set; }
     private Mandate mandate;
     bool hasComplianceRequirements = true;
+    string complianceDeadline = "30.10.2020";
+
+    bool isClosed = true;
+    string closeDate = "25.10.20";
+    string closedBy = "MEMBREZ Alain";
+
+    bool canGeneratePdfReport = true;
+    bool canDisplayPdfReport = true;
+    bool canClose = true;
+    bool canReopen = true;
 
     protected override async Task OnInitializedAsync()
     {
