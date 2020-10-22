@@ -45,9 +45,9 @@ else
         <div class="card-header">
             <h3 class="card-title">Check-listes</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-default" @onclick="@NavigateToIndex">
-                    <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
-                </button>
+            <button type="button" class="btn btn-default" @onclick='() => Navigation.NavigateTo("/")'>
+                <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
+            </button>
             </div>
         </div>
         <div class="card-body p-0">
@@ -72,10 +72,5 @@ else
     {
         var farmSummaryResult = await Api.FetchFarmSummaryAsync("sample-data/farm.json");
         if (farmSummaryResult.IsSuccess) farmSummary_ = farmSummaryResult.Value;
-    }
-
-    private void NavigateToIndex()
-    {
-        Navigation.NavigateTo("/");
     }
 }
