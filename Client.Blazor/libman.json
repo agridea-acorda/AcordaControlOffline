@@ -57,6 +57,14 @@
         "webfonts/fa-solid-900.woff",
         "webfonts/fa-solid-900.woff2"
       ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "placeholder-loading@0.2.6",
+      "destination": "wwwroot/lib/placeholder-loading/",
+      "files": [
+        "dist/css/placeholder-loading.min.css"
+      ]
     }
   ]
 }

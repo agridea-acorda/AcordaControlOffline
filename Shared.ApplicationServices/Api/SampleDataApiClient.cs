@@ -15,9 +15,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             httpClient_ = httpClient;
         }
 
-        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandateListAsync(string uri)
+        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandateListAsync(string uri, int delayInMs = 0)
         {
-            return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri);
+            return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri, delayInMs);
         }
 
         public async Task<Result<Mandate>> FetchMandateDetailAsync(string uri)
@@ -30,8 +30,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await FetchJsonDataAsync<ViewModel.FarmDetail.Farm>(uri);
         }
 
-        private async Task<Result<T>> FetchJsonDataAsync<T>(string uri)
+        private async Task<Result<T>> FetchJsonDataAsync<T>(string uri, int delayInMs = 0)
         {
+            if (delayInMs > 0)
+            {
+                await Task.Delay(delayInMs);
+            }
+            
             using var httpResponse = await httpClient_.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
             httpResponse.EnsureSuccessStatusCode();
 

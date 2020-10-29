@@ -22,51 +22,72 @@
 </div>
 
 <div class="card">
-    @if (mandates == null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else
-    {
-        <div class="card-header">
-            <h3 class="card-title">@mandates.Length exploitation@(mandates.Length > 1 ? "s" : "") à contrôler</h3>
-        </div>
-        <div class="card-body p-0">
-            <div class="list-group">
-                @foreach (var mandate in mandates)
+    <div class="card-header">
+        <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group">
+            @if (loading)
+            {
+                <div class="container-fluid m-0 p-0">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <div class="ph-item">
+                            <div class="ph-col-12">
+                                <div class="ph-picture"></div>
+                                <div class="ph-row">
+                                    <div class="ph-col-8 big"></div>
+                                    <div class="ph-col-4 empty big"></div>
+                                    <div class="ph-col-4 big"></div>
+                                    <div class="ph-col-8 empty big"></div>
+                                    <div class="ph-col-6 big"></div>
+                                    <div class="ph-col-6 empty big"></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                foreach (var mandate in mandates)
                 {
                     <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                         <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
                             <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
                         </button>
                         <button class="btn btn-primary btn-sm float-right ml-1" href="#">
-                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> Télécharger 
+                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> Télécharger
                         </button>
 
                         <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
                         <p class="list-group-item-text mb-1">
-                            <FarmBase Farm="@mandate.Farm" />
+                            <FarmBase Farm="@mandate.Farm"/>
                         </p>
-                        
-                        <BadgeBar Badges="@mandate.Badges" />
-                        
+
+                        <BadgeBar Badges="@mandate.Badges"/>
+
                         @foreach (var checklist in mandate.Checklists)
                         {
-                            <ProgressBar Progress="@checklist" />
+                            <ProgressBar Progress="@checklist"/>
                         }
                     </div>
                 }
-            </div>
+            }
         </div>
-    }
-    <div class="card-footer"></div>
+    </div>
 </div>
 @code {
 
     private Mandate[] mandates;
+    bool loading => mandates == null;
+    string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    string plural => mandates == null ? "s" : 
+                     mandates.Length > 1 ? "s" 
+                     : "";
     protected override async Task OnInitializedAsync()
     {
-        var mandatesResult = await Api.FetchMandateListAsync("sample-data/mandates.json");
+        var mandatesResult = await Api.FetchMandateListAsync("sample-data/mandates.json", 2000);
         if (mandatesResult.IsSuccess) mandates = mandatesResult.Value;
     }
 

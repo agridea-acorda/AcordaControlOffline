@@ -1,6 +1,7 @@
 ﻿@import url('blazor.css');
 @import url('../lib/font-awesome/css/all.min.css');
 @import url('../lib/admin-lte/css/adminlte.min.css');
+@import url('../lib/placeholder-loading/dist/css/placeholder-loading.min.css');
 
 /* Default font */
 option.fa-font-family {
