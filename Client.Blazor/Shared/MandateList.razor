@@ -1,8 +1,10 @@
 ﻿@inject IApiClient Api
 @inject NavigationManager Navigation
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 
 <div class="card">
@@ -66,13 +68,27 @@
                 foreach (var mandate in mandates)
                 {
                     <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
-                        <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
-                            <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
-                        </button>
-                        <button class="btn btn-primary btn-sm float-right ml-1" href="#">
-                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> Télécharger
-                        </button>
+                        @if (mandate.SyncStatus == SyncStatus.Loaded)
+                        {
+                            <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
+                                <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
+                            </button>
+                        }
+                        @if (mandate.SyncStatus == SyncStatus.Unavailable)
+                        {
+                            <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
+                                @if (mandate.SyncStatus != SyncStatus.Loading)
+                                {
+                                    <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> <span>Télécharger</span>
+                                }
 
+                                @if (mandate.SyncStatus == SyncStatus.Loading)
+                                {
+                                    <i class="fas fa-spinner"></i>
+                                }
+                            </button>
+                        }
+                        
                         <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
                         <p class="list-group-item-text mb-1">
                             <FarmBase Farm="@mandate.Farm" />
@@ -92,8 +108,7 @@
 </div>
 
 @code {
-        
-    const string MandatesLocalStorageKey = "mandates";
+
     private Mandate[] mandates;
     bool loading => mandates == null;
     string numMandates => mandates == null ? "" : $"{mandates.Length} ";
@@ -102,15 +117,27 @@
                      : "";
     protected override async Task OnInitializedAsync()
     {
-        //await localStorage.SetItemAsync("name", "John Smith");
-        mandates = await LocalStorage.GetItemAsync<Mandate[]>(MandatesLocalStorageKey);
-        if (mandates != null) return;
-
-        var mandatesResult = await Api.FetchMandateListAsync("sample-data/mandates.json", 3000);
-        if (mandatesResult.IsSuccess)
+        mandates = await LocalStorage.GetItemAsync<Mandate[]>(LocalStorageKeys.Mandates);
+        if (mandates == null)
         {
-            mandates = mandatesResult.Value;
-            await LocalStorage.SetItemAsync(MandatesLocalStorageKey, mandates);
+            var mandatesResult = await Api.FetchMandateListAsync("sample-data/mandates.json");
+            if (mandatesResult.IsSuccess)
+            {
+                mandates = mandatesResult.Value;
+                await LocalStorage.SetItemAsync(LocalStorageKeys.Mandates, mandates);
+            }
+            else
+            {
+                Console.WriteLine("Failed to fetch mandates from api. Reason: " + mandatesResult.Error);
+            }
+        }
+        if (mandates == null) return;
+
+        foreach (var mandate in mandates)
+        {
+            string key = LocalStorageKeys.MandateDetailKey(mandate.Farm.Id);
+            var detail = await LocalStorage.GetItemAsync<AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate>(key);
+            mandate.SyncStatus = detail != null ? SyncStatus.Loaded : SyncStatus.Unavailable;
         }
     }
 
@@ -120,5 +147,22 @@
         {
             Navigation.NavigateTo($"MandateDetail/{id}");
         }
+    }
+
+    async Task DownloadMandate(Mandate mandate, int id)
+    {
+        var syncStatus = mandate.SyncStatus;
+        mandate.SyncStatus = SyncStatus.Loading;
+        var result = await Api.FetchMandateDetailAsync("sample-data/farm.json");
+        if (result.IsFailure)
+        {
+            Console.WriteLine($"Api call to {nameof(Api.FetchMandateDetailAsync)} failed.");
+            mandate.SyncStatus = syncStatus;
+        }
+
+        var mandateDetail = result.Value;
+        string key = LocalStorageKeys.MandateDetailKey(id);
+        await LocalStorage.SetItemAsync(key, mandateDetail);
+        mandate.SyncStatus = SyncStatus.Loaded;
     }
 }

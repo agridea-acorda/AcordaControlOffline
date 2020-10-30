@@ -1,7 +1,7 @@
 ﻿@page "/MandateDetail/{FarmId:int}"
-@inject IApiClient Api
 @inject NavigationManager Navigation
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 
 @if (mandate == null)
@@ -29,7 +29,7 @@ else
             </p>
         </div>
         <div class="card-body">
-            
+
             <p class="mb-1">
                 <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.Farm.AgriculturalArea</span>
                 <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.Farm.NonAgriculturalArea</span>
@@ -44,9 +44,9 @@ else
         <div class="card-header">
             <h3 class="card-title">Check-listes</h3>
             <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo("/")'>
-                <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
-            </button>
+                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo("/")'>
+                    <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
+                </button>
             </div>
         </div>
         <div class="card-body p-0">
@@ -73,7 +73,7 @@ else
                             <span style="white-space: pre-wrap">Remarque pour la gérance</span>
                         </button>
                         <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
-                        <ProgressBar Progress="@checklist"/>
+                        <ProgressBar Progress="@checklist" />
                         @if (checklist.HasComplianceRequirements)
                         {
                             <p class="mb-1">
@@ -114,18 +114,14 @@ else
     public const string LateOrNotCompliant = "Hors délai ou non conforme";
     public const string Late = "!! expiré !!";
     public const string Compliant = "Délai respecté";
-
+    
     [Parameter] public int FarmId { get; set; }
 
     private Mandate mandate;
     protected override async Task OnInitializedAsync()
     {
-        var result = await Api.FetchMandateDetailAsync("sample-data/farm.json");
-        if (result.IsSuccess)
-        {
-            Console.WriteLine("Api call was successful.");
-            mandate = result.Value;
-        }
+        string key = LocalStorageKeys.MandateDetailKey(FarmId);
+        mandate = await LocalStorage.GetItemAsync<Mandate>(key);
     }
 
     void NavigateToChecklist(int farmInspectionId)

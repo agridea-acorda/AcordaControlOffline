@@ -8,6 +8,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public Farm Farm { get; set; }
         public Badge[] Badges { get; set; }
         public CheckList[] Checklists { get; set; }
+        public string SyncStatus { get; set; }
+
+        public Mandate()
+        {
+            SyncStatus = ApplicationServices.ViewModel.SyncStatus.Unknown;
+        }
     }
 
     public class Farm : ViewModel

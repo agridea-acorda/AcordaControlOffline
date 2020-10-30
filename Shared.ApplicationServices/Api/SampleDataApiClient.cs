@@ -9,15 +9,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 {
     public class SampleDataApiClient : IApiClient
     {
+        private const int DefaultDelayInMs = 3000;
         private readonly HttpClient httpClient_;
         public SampleDataApiClient(HttpClient httpClient)
         {
             httpClient_ = httpClient;
         }
 
-        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandateListAsync(string uri, int delayInMs = 0)
+        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandateListAsync(string uri)
         {
-            return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri, delayInMs);
+            return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri);
         }
 
         public async Task<Result<Mandate>> FetchMandateDetailAsync(string uri)
@@ -30,7 +31,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await FetchJsonDataAsync<ViewModel.FarmDetail.Farm>(uri);
         }
 
-        private async Task<Result<T>> FetchJsonDataAsync<T>(string uri, int delayInMs = 0)
+        private async Task<Result<T>> FetchJsonDataAsync<T>(string uri, int delayInMs = DefaultDelayInMs)
         {
             if (delayInMs > 0)
             {
