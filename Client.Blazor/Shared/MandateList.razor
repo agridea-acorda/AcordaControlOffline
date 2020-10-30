@@ -1,5 +1,6 @@
 ﻿@inject IApiClient Api
 @inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
@@ -32,31 +33,31 @@
                 <div class="container-fluid m-0 p-0">
                     @for (int i = 0; i < 5; i++)
                     {
-                    <div class="ph-item">
-                        <div class="ph-col-8">
-                            <div class="ph-picture"></div>
-                        </div>
-                        <div class="ph-col-2">
-                        </div>
-                        <div>
-                            <div class="ph-row">
-                                <div class="ph-col-2 big empty"></div>
-                                <div class="ph-col-4 big"></div>
-                                <div class="ph-col-2 big empty"></div>
-                                <div class="ph-col-4 big"></div>
+                        <div class="ph-item">
+                            <div class="ph-col-8">
+                                <div class="ph-picture"></div>
+                            </div>
+                            <div class="ph-col-2">
+                            </div>
+                            <div>
+                                <div class="ph-row">
+                                    <div class="ph-col-2 big empty"></div>
+                                    <div class="ph-col-4 big"></div>
+                                    <div class="ph-col-2 big empty"></div>
+                                    <div class="ph-col-4 big"></div>
+                                </div>
+                            </div>
+                            <div class="ph-col-12">
+                                <div class="ph-row">
+                                    <div class="ph-col-10"></div>
+                                    <div class="ph-col-2 empty"></div>
+                                    <div class="ph-col-4"></div>
+                                    <div class="ph-col-8 empty"></div>
+                                    <div class="ph-col-6"></div>
+                                    <div class="ph-col-6 empty"></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="ph-col-12">
-                            <div class="ph-row">
-                                <div class="ph-col-10"></div>
-                                <div class="ph-col-2 empty"></div>
-                                <div class="ph-col-4"></div>
-                                <div class="ph-col-8 empty"></div>
-                                <div class="ph-col-6"></div>
-                                <div class="ph-col-6 empty"></div>
-                            </div>
-                        </div>
-                    </div>
                     }
                 </div>
             }
@@ -74,14 +75,14 @@
 
                         <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
                         <p class="list-group-item-text mb-1">
-                            <FarmBase Farm="@mandate.Farm"/>
+                            <FarmBase Farm="@mandate.Farm" />
                         </p>
 
-                        <BadgeBar Badges="@mandate.Badges"/>
+                        <BadgeBar Badges="@mandate.Badges" />
 
                         @foreach (var checklist in mandate.Checklists)
                         {
-                            <ProgressBar Progress="@checklist"/>
+                            <ProgressBar Progress="@checklist" />
                         }
                     </div>
                 }
@@ -89,18 +90,28 @@
         </div>
     </div>
 </div>
-@code {
 
+@code {
+        
+    const string MandatesLocalStorageKey = "mandates";
     private Mandate[] mandates;
     bool loading => mandates == null;
     string numMandates => mandates == null ? "" : $"{mandates.Length} ";
-    string plural => mandates == null ? "s" : 
-                     mandates.Length > 1 ? "s" 
+    string plural => mandates == null ? "s" :
+                     mandates.Length > 1 ? "s"
                      : "";
     protected override async Task OnInitializedAsync()
     {
+        //await localStorage.SetItemAsync("name", "John Smith");
+        mandates = await LocalStorage.GetItemAsync<Mandate[]>(MandatesLocalStorageKey);
+        if (mandates != null) return;
+
         var mandatesResult = await Api.FetchMandateListAsync("sample-data/mandates.json", 3000);
-        if (mandatesResult.IsSuccess) mandates = mandatesResult.Value;
+        if (mandatesResult.IsSuccess)
+        {
+            mandates = mandatesResult.Value;
+            await LocalStorage.SetItemAsync(MandatesLocalStorageKey, mandates);
+        }
     }
 
 
