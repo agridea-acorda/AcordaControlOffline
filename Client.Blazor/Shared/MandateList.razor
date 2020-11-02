@@ -1,6 +1,6 @@
-﻿@inject IApiClient Api
-@inject NavigationManager Navigation
+﻿@inject NavigationManager Navigation
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IApiClient Api
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
@@ -74,7 +74,7 @@
                             </button>
                         }
                         @if (mandate.SyncStatus == SyncStatus.Unavailable ||
-                             mandate.SyncStatus == SyncStatus.Loading)
+                            mandate.SyncStatus == SyncStatus.Loading)
                         {
                             <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
                                 @if (mandate.SyncStatus != SyncStatus.Loading)
@@ -88,7 +88,7 @@
                                 }
                             </button>
                         }
-                        
+
                         <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
                         <p class="list-group-item-text mb-1">
                             <FarmBase Farm="@mandate.Farm" />
