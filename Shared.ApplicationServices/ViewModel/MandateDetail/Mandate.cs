@@ -14,9 +14,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public string Campaign { get; set; }
         public bool HasComplianceRequirements { get; set; }
         public string ComplianceDeadline { get; set; }
-        public bool isClosed { get; set; }
-        public string closeDate { get; set; }
-        public string closedBy { get; set; }
+        public string ClosedBy { get; set; }
         public bool CanGeneratePdfReport { get; set; }
         public bool CanDisplayPdfReport { get; set; }
         public bool CanClose { get; set; }
