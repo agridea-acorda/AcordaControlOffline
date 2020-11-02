@@ -74,7 +74,8 @@
                                 <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
                             </button>
                         }
-                        @if (mandate.SyncStatus == SyncStatus.Unavailable)
+                        @if (mandate.SyncStatus == SyncStatus.Unavailable ||
+                             mandate.SyncStatus == SyncStatus.Loading)
                         {
                             <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
                                 @if (mandate.SyncStatus != SyncStatus.Loading)
@@ -84,7 +85,7 @@
 
                                 @if (mandate.SyncStatus == SyncStatus.Loading)
                                 {
-                                    <i class="fas fa-spinner"></i>
+                                    <i class="fas fa-spinner fa-spin"></i> <span>Téléchargement en cours...</span>
                                 }
                             </button>
                         }
