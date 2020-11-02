@@ -21,12 +21,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public bool CanReopen { get; set; }
     }
 
-    public class Farm : MandateList.Farm
+    public class Farm : MandateList.Farm, IFarm<Badge>
     {
         public string AgriculturalArea { get; set; }
         public string NonAgriculturalArea { get; set; }
         public string BovineStandardUnits { get; set; }
         public string BovineStandardUnitsFromBdta { get; set; }
         public Badge[] Badges { get; set; }
+    }
+
+    public interface IFarm<T> : MandateList.IFarm where T:IBadge
+    {
+        string AgriculturalArea { get; set; }
+        string NonAgriculturalArea { get; set; }
+        string BovineStandardUnits { get; set; }
+        string BovineStandardUnitsFromBdta { get; set; }
+        T[] Badges { get; set; }
     }
 }

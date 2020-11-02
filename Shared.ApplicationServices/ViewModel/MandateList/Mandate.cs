@@ -16,7 +16,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         }
     }
 
-    public class Farm : ViewModel
+    public class Farm : ViewModel, IFarm
     {
         public int Id { get; set; }
         public string Ktidb { get; set; }
@@ -28,11 +28,30 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public string PhoneNumber { get; set; }
     }
 
-    public class Badge : ViewModel
+    public interface IFarm
+    {
+        int Id { get; set; }
+        string Ktidb { get; set; }
+        string FarmName { get; set; }
+        string Address { get; set; }
+        string FarmType { get; set; }
+        int FarmTypeCode { get; set; }
+        string Email { get; set; }
+        string PhoneNumber { get; set; }
+    }
+
+    public class Badge : ViewModel, IBadge
     {
         public string Category { get; set; }
         public string Name { get; set; }
         public string Title { get; set; }
+    }
+
+    public interface IBadge
+    {
+        string Category { get; set; }
+        string Name { get; set; }
+        string Title { get; set; }
     }
 
     public class CheckList : ViewModel

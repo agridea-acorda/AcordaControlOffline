@@ -1,7 +1,6 @@
 ﻿@inject IApiClient Api
 @inject NavigationManager Navigation
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
@@ -137,8 +136,8 @@
         foreach (var mandate in mandates)
         {
             string key = LocalStorageKeys.MandateDetailKey(mandate.Farm.Id);
-            var detail = await LocalStorage.GetItemAsync<AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate>(key);
-            mandate.SyncStatus = detail != null ? SyncStatus.Loaded : SyncStatus.Unavailable;
+            bool exists = await LocalStorage.ContainKeyAsync(key);
+            mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
         }
     }
 
@@ -146,7 +145,7 @@
     {
         if (id > 0)
         {
-            Navigation.NavigateTo($"MandateDetail/{id}");
+            Navigation.NavigateTo($"/MandateDetail/{id}");
         }
     }
 

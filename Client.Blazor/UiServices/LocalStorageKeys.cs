@@ -4,7 +4,7 @@
     {
         public const string Mandates = "mandates";
         public const string MandateDetail = "mandateDetail";
-
+        
         public static string MandateDetailKey(int farmId)
         {
             return $"{MandateDetail}_{farmId}";

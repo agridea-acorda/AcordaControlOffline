@@ -6,7 +6,7 @@
 
 @if (mandate == null)
 {
-    <p>Loading...</p>
+    <p>Loading...</p> // No need for skeleton-loading since data is read from local store.
 }
 else
 {
@@ -128,7 +128,7 @@ else
     {
         if (farmInspectionId > 0)
         {
-            Navigation.NavigateTo($"Checklist/{farmInspectionId}");
+            Navigation.NavigateTo($"/Checklist/{farmInspectionId}");
         }
     }
 
@@ -136,7 +136,7 @@ else
     {
         if (farmId > 0)
         {
-            Navigation.NavigateTo($"FarmDetail/{farmId}");
+            Navigation.NavigateTo($"/FarmDetail/{farmId}");
         }
     }
 }
