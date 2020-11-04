@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +23,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
                                                                               // for real api: client.DefaultRequestHeaders.Add("api-key", apiSettings.ApiKey);
                                                                           });
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
+            builder.Services.AddScoped<IRepository, LocalStorageRepository>();
+            builder.Services.AddSingleton<Messages>();
             await builder.Build().RunAsync();
         }
     }

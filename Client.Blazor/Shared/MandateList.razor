@@ -1,8 +1,9 @@
 ﻿@inject NavigationManager Navigation
-@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IRepository Repository
 @inject IApiClient Api
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 
@@ -117,26 +118,25 @@
                      : "";
     protected override async Task OnInitializedAsync()
     {
-        mandates = await LocalStorage.GetItemAsync<Mandate[]>(LocalStorageKeys.Mandates);
+        mandates = await Repository.ReadAllMandatesAsync();
         if (mandates == null)
         {
-            var mandatesResult = await Api.FetchMandateListAsync("sample-data/mandates.json");
+            var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates.json");
             if (mandatesResult.IsSuccess)
             {
                 mandates = mandatesResult.Value;
-                await LocalStorage.SetItemAsync(LocalStorageKeys.Mandates, mandates);
+                await Repository.SaveMandatesAsync(mandates);
             }
             else
             {
                 Console.WriteLine("Failed to fetch mandates from api. Reason: " + mandatesResult.Error);
+                return;
             }
         }
-        if (mandates == null) return;
-
+        
         foreach (var mandate in mandates)
         {
-            string key = LocalStorageKeys.MandateDetailKey(mandate.Farm.Id);
-            bool exists = await LocalStorage.ContainKeyAsync(key);
+            bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);
             mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
         }
     }
@@ -149,7 +149,7 @@
         }
     }
 
-    async Task DownloadMandate(Mandate mandate, int id)
+    async Task DownloadMandate(Mandate mandate, int farmId)
     {
         var syncStatus = mandate.SyncStatus;
         mandate.SyncStatus = SyncStatus.Loading;
@@ -161,8 +161,7 @@
         }
 
         var mandateDetail = result.Value;
-        string key = LocalStorageKeys.MandateDetailKey(id);
-        await LocalStorage.SetItemAsync(key, mandateDetail);
+        await Repository.SaveMandateAsync(mandateDetail, farmId);
         mandate.SyncStatus = SyncStatus.Loaded;
     }
 }

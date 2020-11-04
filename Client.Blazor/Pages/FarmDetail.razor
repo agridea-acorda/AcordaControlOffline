@@ -1,10 +1,9 @@
 ﻿@page "/FarmDetail/{FarmId:int}"
-@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IRepository Repository
 @inject NavigationManager Navigation
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
-@using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
 
 @if (farm == null)
 {
@@ -165,8 +164,7 @@ else
     IFarm<Badge> farm;
     protected override async Task OnInitializedAsync()
     {
-        string key = LocalStorageKeys.MandateDetailKey(FarmId);
-        var mandate = await LocalStorage.GetItemAsync<Mandate>(key);
+        var mandate = await Repository.ReadMandateAsync(FarmId);
         farm = mandate.Farm;
     }
 

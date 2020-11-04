@@ -16,7 +16,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             httpClient_ = httpClient;
         }
 
-        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchMandateListAsync(string uri)
+        public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchAllMandatesAsync(string uri)
         {
             return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri);
         }
