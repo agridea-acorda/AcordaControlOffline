@@ -1,9 +1,12 @@
 ﻿@inject NavigationManager Navigation
 @inject IRepository Repository
+@*@inject Messages Messages*@
 @inject IApiClient Api
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Queries
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 
@@ -119,6 +122,8 @@
     protected override async Task OnInitializedAsync()
     {
         mandates = await Repository.ReadAllMandatesAsync();
+        //mandates = await Messages.Dispatch(new MandateListQuery());
+        
         if (mandates == null)
         {
             var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates.json");
@@ -133,7 +138,7 @@
                 return;
             }
         }
-        
+
         foreach (var mandate in mandates)
         {
             bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);

@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Queries;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +26,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
                                                                           });
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
-            builder.Services.AddSingleton<Messages>();
+            //builder.Services.AddHandlers();
+            //builder.Services.AddTransient<IQueryHandler<MandateListQuery, ValueTask<Mandate[]>>, MandateListQuery.MandateListQueryHandler>(x => new MandateListQuery.MandateListQueryHandler(x.GetService<IRepository>()));
+            //builder.Services.AddSingleton<Messages>();
             await builder.Build().RunAsync();
         }
     }
