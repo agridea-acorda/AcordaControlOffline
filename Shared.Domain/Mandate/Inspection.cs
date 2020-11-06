@@ -10,9 +10,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
         public Domain Domain { get; }
         public Campaign Campaign { get; }
         public InspectionReason Reason { get; }
-        
-        public InspectionMode Mode { get; private set; }
-        public string Comment { get; private set; }
+        public string Comment { get; }
+
+        public Appointment Appointment { get; private set; }
         public string CommentForFarmer { get; private set; }
         public string CommentForOffice { get; private set; }
         public InspectionStatus Status { get; private set; }
@@ -26,6 +26,29 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
         public FinishStatus FinishStatus { get; private set; }
         public CloseStatus CloseStatus { get; private set; }
         public ReopenStatus ReopenStatus { get; private set; }
+    }
+
+    public class Appointment : ValueObject
+    {
+        public Appointment(DateTime? date, DateTime? firstContactDate)
+        {
+            bool IsEmpty() => !date.HasValue && !firstContactDate.HasValue;
+            if (!IsEmpty() && !date.HasValue)
+                throw new ArgumentNullException($"{nameof(date)} must not be empty.");
+
+            Date = date;
+            FirstContactDate = firstContactDate;
+        }
+        public InspectionMode Mode => Date.HasValue ? InspectionMode.Scheduled : InspectionMode.Unscheduled;
+        public DateTime? FirstContactDate { get; }
+        public DateTime? Date { get; }
+
+        public static Appointment None => new Appointment(null, null);
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Date;
+            yield return FirstContactDate;
+        }
     }
 
     public class Campaign : ValueObject
