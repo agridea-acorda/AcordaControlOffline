@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
-    public class Checklist: Entity
+    public class Inspection: Entity
     {
         public string Comment { get; set; }
         public string CommentForFarmer { get; set; }
@@ -19,37 +20,111 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
         public InspectionOutcome OutcomeComputed { get; set; }
         public double PercentComputed { get; set; }
         public FinishStatus FinishStatus { get; set; }
+        public CloseStatus CloseStatus { get; set; }
+        public ReopenStatus ReopenStatus { get; set; }
         public Compliance Compliance { get; set; }
+        public InspectionStatus Status { get; set; }
         public InspectionReason Reason { get; set; }
     }
 
     public class FinishStatus : ValueObject
     {
-        public DateTime? ReopenDate { get; set; }
-        public string ReopenedBy { get; set; }
-        public DateTime? CloseDate { get; set; }
-        public string ClosedBy { get; set; }
-        public string DoneByInspector { get; set; }
-        public string DoneByOrganization { get; set; }
-        public DateTime? DoneOn { get; set; }
-        public InspectionStatus Status { get; set; }
+        public string DoneByInspector { get; }
+        public DateTime? DoneOn { get; }
+        public bool IsFinished => DoneOn.HasValue;
+
+        public static FinishStatus NotFinished => new FinishStatus(null, "");
+
+        public FinishStatus(DateTime? doneOn, string doneByInspector)
+        {
+            if (doneOn.HasValue != !string.IsNullOrWhiteSpace(DoneByInspector))
+                throw new InvalidOperationException("Done-date and -inspector must be either both set or both empty.");
+
+            DoneOn = doneOn;
+            DoneByInspector = doneByInspector;
+        }
+        
         protected override IEnumerable<object> GetEqualityComponents()
         {
-            throw new NotImplementedException();
+            yield return DoneOn;
+            yield return DoneByInspector;
+        }
+    }
+
+    public class CloseStatus : ValueObject
+    {
+        public DateTime? CloseDate { get; }
+        public string ClosedBy { get; }
+        public bool IsClosed => CloseDate.HasValue;
+
+        public static CloseStatus NotClosed = new CloseStatus(null, "");
+
+        public CloseStatus(DateTime? closeDate, string closedBy)
+        {
+            if (closeDate.HasValue != !string.IsNullOrWhiteSpace(closedBy))
+                throw new InvalidOperationException("Close-date and -by must be either both set or both empty.");
+
+            CloseDate = closeDate;
+            ClosedBy = closedBy;
+        }
+        
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return CloseDate;
+            yield return ClosedBy;
+        }
+    }
+
+    public class ReopenStatus : ValueObject
+    {
+        public DateTime? ReopenDate { get; }
+        public string ReopenedBy { get; }
+        public bool IsReopened => ReopenDate.HasValue;
+        
+        public static ReopenStatus NotReopened = new ReopenStatus(null, "");
+        
+        public ReopenStatus(DateTime? reopenDate, string reopenedBy)
+        {
+            if (reopenDate.HasValue != !string.IsNullOrWhiteSpace(reopenedBy))
+                throw new InvalidOperationException("Reopen-date and -by must be either both set or both empty.");
+            
+            ReopenDate = reopenDate;
+            ReopenedBy = reopenedBy;
+        }
+        
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return ReopenDate;
+            yield return ReopenedBy;
         }
     }
 
     public class Compliance : ValueObject
     {
-        public string ActionsOrDocuments { get; set; }
-        public DateTime? DueDate { get; set; }
-        public bool DueDateNotRespected { get; set; }
-        public bool DueDateRespected { get; set; }
-        public bool FurtherInvestigationNeeded { get; set; }
-        public bool IncompleteOrNonCompliant { get; set; }
+        public string ActionsOrDocuments { get; }
+        public DateTime? DueDate { get; }
+        public bool DueDateNotRespected { get; }
+        public bool DueDateRespected { get; }
+        public bool FurtherInvestigationNeeded { get; }
+        public bool IncompleteOrNonCompliant { get; }
+        public Compliance(string actionsOrDocuments, DateTime? dueDate, bool dueDateNotRespected, bool dueDateRespected, bool furtherInvestigationNeeded, bool incompleteOrNonCompliant)
+        {
+            ActionsOrDocuments = actionsOrDocuments;
+            DueDate = dueDate;
+            DueDateNotRespected = dueDateNotRespected;
+            DueDateRespected = dueDateRespected;
+            FurtherInvestigationNeeded = furtherInvestigationNeeded;
+            IncompleteOrNonCompliant = incompleteOrNonCompliant;
+        }
+        
         protected override IEnumerable<object> GetEqualityComponents()
         {
-            throw new NotImplementedException();
+            yield return ActionsOrDocuments;
+            yield return DueDate;
+            yield return DueDateNotRespected;
+            yield return DueDateRespected;
+            yield return FurtherInvestigationNeeded;
+            yield return IncompleteOrNonCompliant;
         }
     }
 
@@ -57,6 +132,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
     {
         public CodeNameValueObject(int code, string name)
         {
+            if (code < 0)
+                throw new ArgumentOutOfRangeException(nameof(Code), $"{nameof(Code)} must be >= 0.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentOutOfRangeException(nameof(Name), $"{nameof(Name)} must be non-empty.");
+
             Code = code;
             Name = name;
         }

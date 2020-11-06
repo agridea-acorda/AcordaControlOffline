@@ -7,7 +7,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
     public class Mandate : AggregateRoot
     {
-        public Mandate(IReadOnlyList<Checklist> checklists, Farm farm)
+        public Mandate(IReadOnlyList<Inspection> checklists, Farm farm)
         {
             Checklists = checklists;
             Farm = farm;
@@ -16,6 +16,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
         private Mandate() { }
 
         private Farm Farm { get; }
-        private IReadOnlyList<Checklist> Checklists { get; }
+        private IReadOnlyList<Inspection> Checklists { get; }
     }
 }
