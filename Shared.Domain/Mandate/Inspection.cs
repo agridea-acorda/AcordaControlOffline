@@ -6,6 +6,26 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
     public class Inspection: Entity
     {
+        public Inspection(Guid inspectionId, Domain domain, Campaign campaign, InspectionReason reason, string comment)
+        {
+            if (inspectionId == Guid.Empty)
+                throw new ArgumentNullException($"{nameof(inspectionId)} must be non-empty.");
+
+            if (domain == null)
+                throw new ArgumentNullException($"{nameof(domain)} must be defined.");
+
+            if (campaign == null)
+                throw new ArgumentNullException($"{nameof(campaign)} must be defined.");
+
+            if (reason == null)
+                throw new ArgumentNullException($"{nameof(reason)} must be defined.");
+
+            InspectionId = inspectionId;
+            Domain = domain;
+            Campaign = campaign;
+            Reason = reason;
+            Comment = comment;
+        }
         public Guid InspectionId { get; }
         public Domain Domain { get; }
         public Campaign Campaign { get; }
