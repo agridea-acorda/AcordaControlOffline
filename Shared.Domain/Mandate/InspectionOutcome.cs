@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Agridea.DomainDrivenDesign;
 
-namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain
+namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
     public class InspectionOutcome : ValueObject
     {
