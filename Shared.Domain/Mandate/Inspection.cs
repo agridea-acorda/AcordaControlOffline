@@ -3,7 +3,7 @@ using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
-    public class Inspection: Entity
+    public class Inspection: AggregateRoot
     {
         public Inspection(Guid inspectionId, Domain domain, Campaign campaign, InspectionReason reason, string comment)
         {

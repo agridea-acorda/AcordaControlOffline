@@ -7,12 +7,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain {
     {
         public CodeNameValueObject(int code, string name)
         {
-            if (code < 0)
-                throw new ArgumentOutOfRangeException(nameof(Code), $"{nameof(Code)} must be >= 0.");
-
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentOutOfRangeException(nameof(Name), $"{nameof(Name)} must be non-empty.");
-
+            ValidateCtorParams(code, name);
             Code = code;
             Name = name;
         }
@@ -21,6 +16,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain {
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return Code;
+        }
+
+        protected virtual void ValidateCtorParams(int code, string name)
+        {
+            if (code < 0)
+                throw new ArgumentOutOfRangeException(nameof(Code), $"{nameof(Code)} must be >= 0.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentOutOfRangeException(nameof(Name), $"{nameof(Name)} must be non-empty.");
         }
     }
 }
