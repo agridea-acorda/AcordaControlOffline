@@ -1,31 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
     public class Inspection: Entity
     {
-        public Guid InspectionId { get; set; }
-        public InspectionMode Mode { get; set; }
-        public InspectionReason Reason { get; set; }
-        public string Comment { get; set; }
-        public string CommentForFarmer { get; set; }
-        public string CommentForOffice { get; set; }
+        public Guid InspectionId { get; }
+        public Domain Domain { get; }
+        public Campaign Campaign { get; }
+        public InspectionReason Reason { get; }
+        
+        public InspectionMode Mode { get; private set; }
+        public string Comment { get; private set; }
+        public string CommentForFarmer { get; private set; }
+        public string CommentForOffice { get; private set; }
+        public InspectionStatus Status { get; private set; }
+        public double PercentComputed { get; private set; }
+        public DateTime DateComputed { get; private set; }
+        public InspectionOutcome OutcomeComputed { get; private set; }
+        public Signature InspectorSignature { get; private set; }
+        public Signature Inspector2Signature { get; private set; }
+        public Signature FarmerSignature { get; private set; }
+        public Compliance Compliance { get; private set; }
+        public FinishStatus FinishStatus { get; private set; }
+        public CloseStatus CloseStatus { get; private set; }
+        public ReopenStatus ReopenStatus { get; private set; }
+    }
 
-        public InspectionStatus Status { get; set; }
-        public DateTime DateComputed { get; set; }
-        public InspectionOutcome OutcomeComputed { get; set; }
-        public Signature InspectorSignature { get; set; }
-        public Signature Inspector2Signature { get; set; }
-        public Signature FarmerSignature { get; set; }
-        public double PercentComputed { get; set; }
-        public FinishStatus FinishStatus { get; set; }
-        public CloseStatus CloseStatus { get; set; }
-        public ReopenStatus ReopenStatus { get; set; }
-        public Compliance Compliance { get; set; }
+    public class Campaign : ValueObject
+    {
+        public Campaign(int id, string name)
+        {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), $"{nameof(id)} must be > 0");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException($"{nameof(name)} must be non-empty");
+
+            Id = id;
+            Name = name;
+        }
+        public int Id { get; }
+        public string Name { get; }
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Id;
+            yield return Name;
+        }
+    }
+
+    public class Domain : ValueObject
+    {
+        public Domain(int id, string shortName)
+        {
+            if (id <= 0)
+                throw new ArgumentOutOfRangeException(nameof(id), $"{nameof(id)} must be > 0");
+
+            if (string.IsNullOrWhiteSpace(shortName))
+                throw new ArgumentException($"{nameof(shortName)} must be non-empty");
+
+            Id = id;
+            ShortName = shortName;
+        }
+        public int Id { get; }
+        public string ShortName { get; }
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Id;
+            yield return ShortName;
+        }
     }
 
     public class FinishStatus : ValueObject
