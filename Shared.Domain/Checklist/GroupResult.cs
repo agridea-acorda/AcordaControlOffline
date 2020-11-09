@@ -4,14 +4,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public class GroupResult : Result
     {
-        public GroupResult(string conjunctElementCode, string name, string elementCode, string shortName) 
-            : base(conjunctElementCode, name, elementCode, shortName)
+        public GroupResult(string conjunctElementCode, string elementCode, string shortName, string name = "") 
+            : base(conjunctElementCode, elementCode, shortName, name)
         { }
 
-        public GroupResult TryAddChild<T>(string sortKey, T child)
+        public GroupResult AddChild<T>(string sortKey, T child)
             where T : ITreeNode
         {
-            base.TryAddChild(sortKey, child);
+            base.AddChild(sortKey, child);
             return this;
         }
 

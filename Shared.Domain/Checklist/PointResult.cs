@@ -4,8 +4,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public class PointResult : LeafResult
     {
-        public PointResult(string conjunctElementCode, string name, string elementCode, string shortName) 
-            : base(conjunctElementCode, name, elementCode, shortName)
+        public PointResult(string conjunctElementCode, string elementCode, string shortName, string name = "") 
+            : base(conjunctElementCode, elementCode, shortName, name)
         { }
 
         public Defect Defect { get; private set; }

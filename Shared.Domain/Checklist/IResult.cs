@@ -5,6 +5,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public interface IResult
     {
+        string ConjunctElementCode { get; }
+        string Name { get; }
+        string ElementCode { get; }
+        string ShortName { get; }
+
         InspectionOutcome Outcome { get; }
         string InspectorComment { get; }
         string FarmerComment { get; }

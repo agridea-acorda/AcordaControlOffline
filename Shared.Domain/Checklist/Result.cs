@@ -22,7 +22,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public IList<DefectAction> DefectActions { get; private set; }
         public double Percent { get; private set; }
 
-        protected Result(string conjunctElementCode, string name, string elementCode, string shortName)
+        protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")
         {
             Children = new SortedList<string, ITreeNode>();
             DefectActions = new List<DefectAction>();
@@ -32,13 +32,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             ShortName = shortName;
         }
 
-        protected virtual Result SetParent(ITreeNode parent)
+        public virtual void SetParent(ITreeNode parent)
         {
             Parent = parent ?? throw new ArgumentNullException();
-            return this;
         }
 
-        protected virtual Result TryAddChild(string sortKey, ITreeNode child)
+        protected virtual Result AddChild(string sortKey, ITreeNode child)
         {
             if (string.IsNullOrWhiteSpace(sortKey))
                 throw new ArgumentNullException($"{nameof(sortKey)} must not be empty.");
@@ -47,6 +46,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
                 throw new ArgumentNullException();
             
             Children.TryAdd(sortKey, child);
+            child.SetParent(this);
 
             return this;
         }

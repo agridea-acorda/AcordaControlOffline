@@ -4,11 +4,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public abstract class LeafResult : Result
     {
-        protected LeafResult(string conjunctElementCode, string name, string elementCode, string shortName)
-            : base(conjunctElementCode, name, elementCode, shortName)
+        protected LeafResult(string conjunctElementCode, string elementCode, string shortName, string name = "")
+            : base(conjunctElementCode, elementCode, shortName, name)
         { }
 
-        protected override Result TryAddChild(string sortKey, ITreeNode child)
+        protected override Result AddChild(string sortKey, ITreeNode child)
         {
             return this;
         }
