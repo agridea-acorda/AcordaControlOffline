@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
 {
-    public class Serialization
+    public class SerializationTests
     {
         [Fact]
         public void NewtonSoftJson_Can_Deserialize_Then_Serialize_Mandate()

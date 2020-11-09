@@ -5,14 +5,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public interface IResult
     {
-        InspectionOutcome Outcome { get; set; }
-        string InspectorComment { get; set; }
-        string FarmerComment { get; set; }
-        string DefectDescription { get; set; }
-        double? Size { get; set; }
-        DefectSeriousness Seriousness { get; set; }
+        InspectionOutcome Outcome { get; }
+        string InspectorComment { get; }
+        string FarmerComment { get; }
+        string DefectDescription { get; }
+        double? Size { get; }
+        DefectSeriousness Seriousness { get; }
         //IList<File> Photos { get; set; }
         //IList<File> Attachments { get; set; }
-        IList<DefectAction> DefectActions { get; set; }
+        IList<DefectAction> DefectActions { get; }
     }
 }
