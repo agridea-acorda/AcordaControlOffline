@@ -8,7 +8,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             : base(conjunctElementCode, elementCode, shortName, name)
         { }
 
-        public override void SetParent(ITreeNode parent)
+        public override void SetParent(ITreeNode<Result> parent)
         { }
     }
 }

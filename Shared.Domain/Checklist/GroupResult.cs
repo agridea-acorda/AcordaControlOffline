@@ -9,16 +9,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         { }
 
         public GroupResult AddChild<T>(string sortKey, T child)
-            where T : ITreeNode
+            where T : Result
         {
             base.AddChild(sortKey, child);
-            return this;
-        }
-
-        public GroupResult SetParent<T>(T parent)
-            where T: ITreeNode
-        {
-            base.SetParent(parent);
             return this;
         }
     }

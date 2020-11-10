@@ -6,13 +6,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public class Checklist : AggregateRoot
     {
-        private readonly SortedList<string, RubricResult> rubrics_ = new SortedList<string, RubricResult>();
-
-        public SortedList<string, RubricResult> Rubrics => rubrics_;
+        public SortedList<string, RubricResult> Rubrics { get; } = new SortedList<string, RubricResult>();
 
         public Checklist AddRubric(string key, RubricResult rubricResult)
         {
-            rubrics_.TryAdd(key, rubricResult);
+            Rubrics.TryAdd(key, rubricResult);
             return this;
         }
 

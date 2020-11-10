@@ -8,7 +8,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             : base(conjunctElementCode, elementCode, shortName, name)
         { }
 
-        protected override Result AddChild(string sortKey, ITreeNode child)
+        protected override Result AddChild(string sortKey, ITreeNode<Result> treeNode)
         {
             return this;
         }

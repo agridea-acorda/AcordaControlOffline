@@ -8,14 +8,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             : base(conjunctElementCode, elementCode, shortName, name)
         { }
 
-        public Defect Defect { get; private set; }
-
-        public PointResult SetParent<T>(T parent)
-            where T : ITreeNode
+        protected override Result AddChild(string sortKey, ITreeNode<Result> treeNode)
         {
-            base.SetParent(parent);
+            base.AddChild(sortKey, treeNode);
             return this;
         }
+
+        public Defect Defect { get; private set; }
 
         public PointResult SetDefect(Defect defect)
         {
