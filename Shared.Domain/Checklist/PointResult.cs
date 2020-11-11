@@ -4,6 +4,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public class PointResult : LeafResult
     {
+        public PredefinedDefect PredefinedDefect { get; private set; }
+
         public PointResult(string conjunctElementCode, string elementCode, string shortName, string name = "") 
             : base(conjunctElementCode, elementCode, shortName, name)
         { }
@@ -14,11 +16,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return this;
         }
 
-        public Defect Defect { get; private set; }
-
-        public PointResult SetDefect(Defect defect)
+        public PointResult SetDefect(PredefinedDefect predefinedDefect)
         {
-            Defect = defect ?? throw new ArgumentNullException();
+            PredefinedDefect = predefinedDefect ?? throw new ArgumentNullException();
             return this;
         }
     }

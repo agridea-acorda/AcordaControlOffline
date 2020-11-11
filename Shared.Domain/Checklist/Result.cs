@@ -18,15 +18,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public InspectionOutcome Outcome { get; set; }
         public string InspectorComment { get; set; }
         public string FarmerComment { get; set; }
-        public string DefectDescription { get; set; }
-        public double? Size { get; set; }
+        public Defect Defect { get; private set; }
         public DefectSeriousness Seriousness { get; set; }
-        public IList<DefectAction> DefectActions { get; private set; }
         public double Percent { get; private set; }
 
         protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")
         {
-            DefectActions = new List<DefectAction>();
             ConjunctElementCode = conjunctElementCode;
             Name = name;
             ElementCode = elementCode;

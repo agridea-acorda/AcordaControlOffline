@@ -13,11 +13,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         InspectionOutcome Outcome { get; }
         string InspectorComment { get; }
         string FarmerComment { get; }
-        string DefectDescription { get; }
-        double? Size { get; }
+        Defect Defect { get; }
         DefectSeriousness Seriousness { get; }
         //IList<File> Photos { get; set; }
         //IList<File> Attachments { get; set; }
-        IList<DefectAction> DefectActions { get; }
     }
 }
