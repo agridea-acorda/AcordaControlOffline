@@ -12,14 +12,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public SortedList<string, ITreeNode<Result>> Children { get; } = new SortedList<string, ITreeNode<Result>>();
 
         public string ConjunctElementCode { get; }
-        public string Name { get; }
         public string ElementCode { get; }
         public string ShortName { get; }
+        public string Name { get; }
+
         public InspectionOutcome Outcome { get; set; }
         public string InspectorComment { get; set; }
         public string FarmerComment { get; set; }
+        
         public Defect Defect { get; private set; }
         public DefectSeriousness Seriousness { get; set; }
+
         public double Percent { get; private set; }
 
         protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")

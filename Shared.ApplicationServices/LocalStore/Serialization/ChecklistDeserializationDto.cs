@@ -8,7 +8,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public class Result
         {
-            public Result Parent { get; set; }
             public SortedList<string, Result> Children { get; set; }
 
             public string ConjunctElementCode { get; set; }
