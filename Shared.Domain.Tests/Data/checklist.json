@@ -1,0 +1,245 @@
+{
+  "Rubrics": {
+    "R1": {
+      "Parent": null,
+      "Children": {
+        "R1,P1": {
+          "PredefinedDefect": null,
+          "Children": {},
+          "ConjunctElementCode": "R1,P1",
+          "Name": "",
+          "ElementCode": "P1",
+          "ShortName": "P1",
+          "Outcome": null,
+          "InspectorComment": null,
+          "FarmerComment": null,
+          "Defect": null,
+          "Seriousness": null,
+          "Percent": 0.0
+        },
+        "R1,P2": {
+          "PredefinedDefect": null,
+          "Children": {},
+          "ConjunctElementCode": "R1,P2",
+          "Name": "",
+          "ElementCode": "P2",
+          "ShortName": "P2",
+          "Outcome": null,
+          "InspectorComment": null,
+          "FarmerComment": null,
+          "Defect": null,
+          "Seriousness": null,
+          "Percent": 0.0
+        }
+      },
+      "ConjunctElementCode": "R1",
+      "Name": "",
+      "ElementCode": "R1",
+      "ShortName": "R1",
+      "Outcome": null,
+      "InspectorComment": null,
+      "FarmerComment": null,
+      "Defect": null,
+      "Seriousness": null,
+      "Percent": 0.0
+    },
+    "R2": {
+      "Parent": null,
+      "Children": {
+        "R2,G1": {
+          "Children": {
+            "R2,G1,P1": {
+              "PredefinedDefect": null,
+              "Children": {},
+              "ConjunctElementCode": "R2,G1,P1",
+              "Name": "",
+              "ElementCode": "P1",
+              "ShortName": "P1",
+              "Outcome": null,
+              "InspectorComment": null,
+              "FarmerComment": null,
+              "Defect": null,
+              "Seriousness": null,
+              "Percent": 0.0
+            },
+            "R2,G1,P2": {
+              "PredefinedDefect": null,
+              "Children": {},
+              "ConjunctElementCode": "R2,G1,P2",
+              "Name": "",
+              "ElementCode": "P2",
+              "ShortName": "P2",
+              "Outcome": null,
+              "InspectorComment": null,
+              "FarmerComment": null,
+              "Defect": null,
+              "Seriousness": null,
+              "Percent": 0.0
+            },
+            "R2,G1,P3": {
+              "PredefinedDefect": null,
+              "Children": {},
+              "ConjunctElementCode": "R2,G1,P3",
+              "Name": "",
+              "ElementCode": "P3",
+              "ShortName": "P3",
+              "Outcome": null,
+              "InspectorComment": null,
+              "FarmerComment": null,
+              "Defect": null,
+              "Seriousness": null,
+              "Percent": 0.0
+            }
+          },
+          "ConjunctElementCode": "R2,G1",
+          "Name": "",
+          "ElementCode": "G1",
+          "ShortName": "G1",
+          "Outcome": null,
+          "InspectorComment": null,
+          "FarmerComment": null,
+          "Defect": null,
+          "Seriousness": null,
+          "Percent": 0.0
+        },
+        "R2,G2": {
+          "Children": {
+            "R2,G2,SG1": {
+              "Children": {
+                "R2,G2,SG1,P1": {
+                  "PredefinedDefect": null,
+                  "Children": {},
+                  "ConjunctElementCode": "R2,G2,SG1,P1",
+                  "Name": "",
+                  "ElementCode": "P1",
+                  "ShortName": "P1",
+                  "Outcome": null,
+                  "InspectorComment": null,
+                  "FarmerComment": null,
+                  "Defect": null,
+                  "Seriousness": null,
+                  "Percent": 0.0
+                },
+                "R2,G2,SG1,P2": {
+                  "PredefinedDefect": null,
+                  "Children": {},
+                  "ConjunctElementCode": "R2,G2,SG1,P2",
+                  "Name": "",
+                  "ElementCode": "P2",
+                  "ShortName": "P2",
+                  "Outcome": null,
+                  "InspectorComment": null,
+                  "FarmerComment": null,
+                  "Defect": null,
+                  "Seriousness": null,
+                  "Percent": 0.0
+                },
+                "R2,G2,SG1,P3": {
+                  "PredefinedDefect": null,
+                  "Children": {},
+                  "ConjunctElementCode": "R2,G2,SG1,P3",
+                  "Name": "",
+                  "ElementCode": "P3",
+                  "ShortName": "P3",
+                  "Outcome": null,
+                  "InspectorComment": null,
+                  "FarmerComment": null,
+                  "Defect": null,
+                  "Seriousness": null,
+                  "Percent": 0.0
+                },
+                "R2,G2,SG1,P4": {
+                  "PredefinedDefect": null,
+                  "Children": {},
+                  "ConjunctElementCode": "R2,G2,SG1,P4",
+                  "Name": "",
+                  "ElementCode": "P4",
+                  "ShortName": "P4",
+                  "Outcome": null,
+                  "InspectorComment": null,
+                  "FarmerComment": null,
+                  "Defect": null,
+                  "Seriousness": null,
+                  "Percent": 0.0
+                }
+              },
+              "ConjunctElementCode": "R2,G2,SG1",
+              "Name": "",
+              "ElementCode": "SG1",
+              "ShortName": "SG1",
+              "Outcome": null,
+              "InspectorComment": null,
+              "FarmerComment": null,
+              "Defect": null,
+              "Seriousness": null,
+              "Percent": 0.0
+            },
+            "R2,G2,SG2": {
+              "Children": {
+                "R2,G2,SG2,P1": {
+                  "PredefinedDefect": null,
+                  "Children": {},
+                  "ConjunctElementCode": "R2,G2,SG2,P1",
+                  "Name": "",
+                  "ElementCode": "P1",
+                  "ShortName": "P1",
+                  "Outcome": null,
+                  "InspectorComment": null,
+                  "FarmerComment": null,
+                  "Defect": null,
+                  "Seriousness": null,
+                  "Percent": 0.0
+                },
+                "R2,G2,SG2,P2": {
+                  "PredefinedDefect": null,
+                  "Children": {},
+                  "ConjunctElementCode": "R2,G2,SG2,P2",
+                  "Name": "",
+                  "ElementCode": "P2",
+                  "ShortName": "P2",
+                  "Outcome": null,
+                  "InspectorComment": null,
+                  "FarmerComment": null,
+                  "Defect": null,
+                  "Seriousness": null,
+                  "Percent": 0.0
+                }
+              },
+              "ConjunctElementCode": "R2,G2,SG2",
+              "Name": "",
+              "ElementCode": "SG2",
+              "ShortName": "SG2",
+              "Outcome": null,
+              "InspectorComment": null,
+              "FarmerComment": null,
+              "Defect": null,
+              "Seriousness": null,
+              "Percent": 0.0
+            }
+          },
+          "ConjunctElementCode": "R2,G2",
+          "Name": "",
+          "ElementCode": "G2",
+          "ShortName": "G2",
+          "Outcome": null,
+          "InspectorComment": null,
+          "FarmerComment": null,
+          "Defect": null,
+          "Seriousness": null,
+          "Percent": 0.0
+        }
+      },
+      "ConjunctElementCode": "R2",
+      "Name": "",
+      "ElementCode": "R2",
+      "ShortName": "R2",
+      "Outcome": null,
+      "InspectorComment": null,
+      "FarmerComment": null,
+      "Defect": null,
+      "Seriousness": null,
+      "Percent": 0.0
+    }
+  },
+  "Id": 0
+}
