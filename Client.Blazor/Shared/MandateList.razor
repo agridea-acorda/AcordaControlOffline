@@ -71,7 +71,7 @@
                     <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                         @if (mandate.SyncStatus == SyncStatus.Loaded)
                         {
-                            <button class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="tooltip" data-placement="top" @*title="Renvoyer les données de mandat saisies"*@>
+                            <button class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="modal" data-target="#exampleModal">
                                 <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span> Renvoyer
                             </button>
                             <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
@@ -108,6 +108,31 @@
                     </div>
                 }
             }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Envoyer le mandat vers le serveur</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Attention: les données du mandat (checklist, signatures, suivi, ...) seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
+                    Assurez-vous d'avoir une bonne connexion à internet.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-cloud-upload-alt"></i> J'ai compris, envoyer
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            </div>
         </div>
     </div>
 </div>
