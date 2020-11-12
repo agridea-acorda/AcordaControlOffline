@@ -50,5 +50,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 
             return "";
         }
+
+        public static string CurateAsElementId(this string elementCode)
+        {
+            return elementCode.Replace(" ", "_").Replace(".", "_").Replace(",", "_");
+        }
+
+        public static string CurateAsReadableText(this string pointDescription)
+        {
+            return pointDescription.Replace("\\n", "<br/>") // curate newline characters
+                                   .Replace("¿", "'"); // curate upside-down question mark characters
+        }
     }
 }

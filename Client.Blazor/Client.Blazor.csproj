@@ -33,6 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="wwwroot\sample-data\checklist.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\sample-data\farm.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
