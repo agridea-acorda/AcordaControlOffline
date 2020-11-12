@@ -68,44 +68,44 @@
             {
                 foreach (var mandate in mandates)
                 {
-        <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
-            @if (mandate.SyncStatus == SyncStatus.Loaded)
-            {
-                <button class="btn btn-outline-primary btn-sm float-right ml-1">
-                    <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Envoyer les données saisies</span> Renvoyer
-                </button>
-                <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
-                    <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
-                </button>
-            }
-            @if (mandate.SyncStatus == SyncStatus.Unavailable ||
-              mandate.SyncStatus == SyncStatus.Loading)
-            {
-                <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
-                    @if (mandate.SyncStatus != SyncStatus.Loading)
-                    {
-                        <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> <span>Télécharger</span>
-                    }
+                    <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
+                        @if (mandate.SyncStatus == SyncStatus.Loaded)
+                        {
+                            <button class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="tooltip" data-placement="top" @*title="Renvoyer les données de mandat saisies"*@>
+                                <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span> Renvoyer
+                            </button>
+                            <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
+                                <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
+                            </button>
+                        }
+                        @if (mandate.SyncStatus == SyncStatus.Unavailable ||
+                             mandate.SyncStatus == SyncStatus.Loading)
+                        {
+                            <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
+                                @if (mandate.SyncStatus != SyncStatus.Loading)
+                                {
+                                    <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> <span>Télécharger</span>
+                                }
 
-                    @if (mandate.SyncStatus == SyncStatus.Loading)
-                    {
-                        <i class="fas fa-spinner fa-spin"></i> <span>Téléchargement en cours...</span>
-                    }
-                </button>
-            }
+                                @if (mandate.SyncStatus == SyncStatus.Loading)
+                                {
+                                    <i class="fas fa-spinner fa-spin"></i> <span>Téléchargement en cours...</span>
+                                }
+                            </button>
+                        }
 
-            <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
-            <p class="list-group-item-text mb-1">
-                <FarmBase Farm="@mandate.Farm" />
-            </p>
+                        <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
+                        <p class="list-group-item-text mb-1">
+                            <FarmBase Farm="@mandate.Farm" />
+                        </p>
 
-            <BadgeBar Badges="@mandate.Badges" />
+                        <BadgeBar Badges="@mandate.Badges" />
 
-            @foreach (var checklist in mandate.Checklists)
-            {
-                <ProgressBar Progress="@checklist" />
-            }
-        </div>
+                        @foreach (var checklist in mandate.Checklists)
+                        {
+                            <ProgressBar Progress="@checklist" />
+                        }
+                    </div>
                 }
             }
         </div>
