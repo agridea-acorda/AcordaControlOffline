@@ -67,6 +67,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
 
     public enum InspectionOutcome
     {
+        Unset,
         Oui,
         P,
         Non,
