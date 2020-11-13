@@ -1,10 +1,9 @@
 ﻿@page "/Checklist/{FarmInspectionId:int}"
-@using System.IO
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using CSharpFunctionalExtensions
-@using Newtonsoft.Json
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist
 @inject NavigationManager Navigation
-@inject HttpClient Http
+@inject IRepository Repository
 
 <div class="card">
     <div class="card-header">
@@ -44,7 +43,7 @@
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
-        @if (per != null)
+        @if (checklist != null)
         {
             <div class="mb-2">
                 <a href="#">Déplier tous</a> |
@@ -54,7 +53,7 @@
             </div>
             <div id="checklist">
                 <div class="list-group">
-                    @foreach (var item in per)
+                    @foreach (var item in checklist.Rubrics)
                     {
                         <div id="@item.ConjuntElementCode.CurateAsElementId()" class="list-group-item" href="#">
                             <i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2" data-toggle="collapse" data-target="#01_1_2018 > .sub-elements"></i>
@@ -79,58 +78,10 @@
     [Parameter]
     public int FarmInspectionId { get; set; }
 
-    Data[] per;
-
-    class Data
-    {
-        public Data(string conjuntElementCode, string title, int numGroups, int numPoints)
-        {
-            ConjuntElementCode = conjuntElementCode;
-            Title = title;
-            NumGroups = numGroups;
-            NumPoints = numPoints;
-        }
-
-        public string ConjuntElementCode { get; }
-        public string Title { get; }
-        public int NumGroups { get; }
-        public int NumPoints { get; }
-    }
+    ChecklistSample checklist;
 
     protected override async Task OnInitializedAsync()
     {
-        var readResult = await QuickAndDirtyReadJsonDataAsync<Data[]>("sample-data/checklist.json");
-        if (readResult.IsSuccess)
-        {
-            per = readResult.Value;
-        }
-        else
-        {
-            Console.WriteLine("Failed to fetch sample checklist data from json file. Reason: " + readResult.Error);
-            return;
-        }
-    }
-
-    private async Task<Result<T>> QuickAndDirtyReadJsonDataAsync<T>(string uri)
-    {
-        using var httpResponse = await Http.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
-        httpResponse.EnsureSuccessStatusCode();
-
-        if (httpResponse.Content == null || httpResponse.Content.Headers.ContentType.MediaType != "application/json")
-            return Result.Failure<T>("HTTP Response has no content or content is not json.");
-
-        var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-        using var streamReader = new StreamReader(contentStream);
-        using var jsonReader = new JsonTextReader(streamReader);
-        var serializer = new JsonSerializer();
-        try
-        {
-            var data = serializer.Deserialize<T>(jsonReader);
-            return Result.Success(data);
-        }
-        catch (JsonReaderException)
-        {
-            return Result.Failure<T>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
-        }
+        checklist = await Repository.ReadChecklistSampleAsync();
     }
 }
