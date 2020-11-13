@@ -1,6 +1,7 @@
 ﻿@page "/MandateDetail/{FarmId:int}"
 @inject NavigationManager Navigation
 @inject IRepository Repository
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 
@@ -44,7 +45,7 @@ else
         <div class="card-header">
             <h3 class="card-title">Check-listes</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo("/AcordaControlOffline/")'>
+                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'>
                     <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
                 </button>
             </div>
@@ -127,7 +128,7 @@ else
     {
         if (farmInspectionId > 0)
         {
-            Navigation.NavigateTo($"/AcordaControlOffline/Checklist/{farmInspectionId}");
+            Navigation.NavigateTo($"{Config.BaseUrl}/Checklist/{farmInspectionId}");
         }
     }
 
@@ -135,7 +136,7 @@ else
     {
         if (farmId > 0)
         {
-            Navigation.NavigateTo($"/AcordaControlOffline/FarmDetail/{farmId}");
+            Navigation.NavigateTo($"{Config.BaseUrl}/FarmDetail/{farmId}");
         }
     }
 }

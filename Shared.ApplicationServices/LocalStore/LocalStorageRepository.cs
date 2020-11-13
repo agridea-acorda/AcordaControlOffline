@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Blazored.LocalStorage;
 
@@ -8,6 +9,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     {
         public const string Mandates = "mandates";
         public const string MandateDetail = "mandateDetail";
+        public const string Checklist = "checklist";
 
         private readonly ILocalStorageService localStorage_;
         public LocalStorageRepository(ILocalStorageService localStorage)
@@ -42,6 +44,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             id = id == default ? mandate.Farm.Id : id;
             string key = MandateDetailKey(id);
             await localStorage_.SetItemAsync(key, mandate);
+        }
+
+        public async ValueTask SaveChecklistSampleAsync(ChecklistSample checklist)
+        {
+            await localStorage_.SetItemAsync(Checklist, checklist);
+        }
+
+        public async ValueTask<ChecklistSample> ReadChecklistSampleAsync()
+        {
+            return await localStorage_.GetItemAsync<ChecklistSample>(Checklist);
         }
 
         private static string MandateDetailKey(int farmId)

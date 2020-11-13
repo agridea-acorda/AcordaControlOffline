@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
 using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate;
@@ -29,6 +30,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
         public async Task<Result<ViewModel.FarmDetail.Farm>> FetchFarmDetailAsync(string uri)
         {
             return await FetchJsonDataAsync<ViewModel.FarmDetail.Farm>(uri);
+        }
+
+        public async Task<Result<ChecklistSample>> FetchChecklistSampleAsync(string uri)
+        {
+            return await FetchJsonDataAsync<ChecklistSample>(uri);
         }
 
         private async Task<Result<T>> FetchJsonDataAsync<T>(string uri, int delayInMs = DefaultDelayInMs)

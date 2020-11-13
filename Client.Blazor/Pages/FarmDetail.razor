@@ -1,6 +1,7 @@
 ﻿@page "/FarmDetail/{FarmId:int}"
 @inject IRepository Repository
 @inject NavigationManager Navigation
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
@@ -172,7 +173,7 @@ else
     {
         if (farmId > 0)
         {
-            Navigation.NavigateTo($"/AcordaControlOffline/MandateDetail/{farmId}");
+            Navigation.NavigateTo($"{Config.BaseUrl}/MandateDetail/{farmId}");
         }
     }
 }

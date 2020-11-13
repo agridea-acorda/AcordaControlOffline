@@ -9,6 +9,8 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Queries
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using CSharpFunctionalExtensions
 
 <div class="card">
     <div class="card-header">
@@ -124,7 +126,7 @@
             <div class="modal-body">
                 <div class="alert alert-danger" role="alert">
                     Attention: les données du mandat (checklist, signatures, suivi, ...) seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
-                    Assurez-vous d'avoir une bonne connexion à internet.
+                    Assurez-vous d'avoir une bonne connexion internet.
                 </div>
             </div>
             <div class="modal-footer">
@@ -149,7 +151,7 @@
     {
         mandates = await Repository.ReadAllMandatesAsync();
         //mandates = await Messages.Dispatch(new MandateListQuery());
-        
+
         if (mandates == null)
         {
             var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates.json");
@@ -176,7 +178,7 @@
     {
         if (id > 0)
         {
-            Navigation.NavigateTo($"/AcordaControlOffline/MandateDetail/{id}");
+            Navigation.NavigateTo($"{Config.BaseUrl}/MandateDetail/{id}");
         }
     }
 
@@ -184,15 +186,32 @@
     {
         var syncStatus = mandate.SyncStatus;
         mandate.SyncStatus = SyncStatus.Loading;
-        var result = await Api.FetchMandateDetailAsync("sample-data/farm.json");
-        if (result.IsFailure)
+
+        if (!await TryFetchAndSave(() => Api.FetchMandateDetailAsync("sample-data/farm.json"),
+                                    data => Repository.SaveMandateAsync(data)))
         {
-            Console.WriteLine($"Api call to {nameof(Api.FetchMandateDetailAsync)} failed.");
             mandate.SyncStatus = syncStatus;
         }
 
-        var mandateDetail = result.Value;
-        await Repository.SaveMandateAsync(mandateDetail, farmId);
+        if (!await TryFetchAndSave(() => Api.FetchChecklistSampleAsync("sample-data/checklist.json"),
+                                data => Repository.SaveChecklistSampleAsync(data)))
+        {
+            mandate.SyncStatus = syncStatus;
+        }
+
         mandate.SyncStatus = SyncStatus.Loaded;
+    }
+
+    async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
+    {
+        var result = await fetchFunc();
+        if (result.IsFailure)
+        {
+            Console.WriteLine("Fetch operation failed.");
+            return false;
+        }
+        var data = result.Value;
+        await saveFunc(data);
+        return true;
     }
 }
