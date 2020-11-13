@@ -1,4 +1,5 @@
-﻿@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
 @using Agridea.ProductInfo
 @using Blazored.LocalStorage
 @inherits LayoutComponentBase
@@ -110,7 +111,7 @@
     </nav>
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <a href="#" class="brand-link navbar-success" @onclick='() => Navigation.NavigateTo("/AcordaControlOffline/")'>
+        <a href="#" class="brand-link navbar-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'>
             <img src="logo.png" alt="AcordaControl logo" class="brand-image img-rounded elevation-2" style="margin-top: -1px; margin-left: 9px;" />
             <span class="brand-text font-weight-normal"><b>Acorda</b>Control</span>
         </a>
@@ -167,7 +168,7 @@
     async void Reset()
     {
         await LocalStorage.ClearAsync();
-        Navigation.NavigateTo("/AcordaControlOffline/", true);
+        Navigation.NavigateTo(Config.BaseUrl + "/", true);
     }
 
 }
