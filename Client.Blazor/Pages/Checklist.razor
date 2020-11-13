@@ -100,13 +100,15 @@
                "btn-default";
     }
 
-    public void SetOutcome(ChecklistSample.ListItem rubric, InspectionOutcome outcome)
+    async void SetOutcome(ChecklistSample.ListItem rubric, InspectionOutcome outcome)
     {
         rubric.Outcome = outcome;
+        await Repository.SaveChecklistSampleAsync(checklist);
     }
 
-    public void ResetOutcome(ChecklistSample.ListItem rubric)
+    async void ResetOutcome(ChecklistSample.ListItem rubric)
     {
         rubric.Outcome = InspectionOutcome.Unset;
+        await Repository.SaveChecklistSampleAsync(checklist);
     }
 }
