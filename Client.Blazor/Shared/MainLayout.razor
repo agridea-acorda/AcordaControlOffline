@@ -110,7 +110,7 @@
     </nav>
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <a href="#" class="brand-link navbar-success" @onclick='() => Navigation.NavigateTo("/")'>
+        <a href="#" class="brand-link navbar-success" @onclick='() => Navigation.NavigateTo("/AcordaControlOffline/")'>
             <img src="logo.png" alt="AcordaControl logo" class="brand-image img-rounded elevation-2" style="margin-top: -1px; margin-left: 9px;" />
             <span class="brand-text font-weight-normal"><b>Acorda</b>Control</span>
         </a>
@@ -167,7 +167,7 @@
     async void Reset()
     {
         await LocalStorage.ClearAsync();
-        Navigation.NavigateTo("/", true);
+        Navigation.NavigateTo("/AcordaControlOffline/", true);
     }
 
 }
