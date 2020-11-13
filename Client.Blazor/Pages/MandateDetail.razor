@@ -44,7 +44,7 @@ else
         <div class="card-header">
             <h3 class="card-title">Check-listes</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo("/")'>
+                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo("/AcordaControlOffline/")'>
                     <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
                 </button>
             </div>
@@ -127,7 +127,7 @@ else
     {
         if (farmInspectionId > 0)
         {
-            Navigation.NavigateTo($"/Checklist/{farmInspectionId}");
+            Navigation.NavigateTo($"/AcordaControlOffline/Checklist/{farmInspectionId}");
         }
     }
 
@@ -135,7 +135,7 @@ else
     {
         if (farmId > 0)
         {
-            Navigation.NavigateTo($"/FarmDetail/{farmId}");
+            Navigation.NavigateTo($"/AcordaControlOffline/FarmDetail/{farmId}");
         }
     }
 }
