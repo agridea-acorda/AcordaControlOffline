@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist
 {
@@ -13,6 +11,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             public string Title { get; set; }
             public int NumGroups { get; set; }
             public int NumPoints { get; set; }
+            public InspectionOutcome Outcome { get; set; }
         }
     }
 }
