@@ -11,6 +11,8 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using CSharpFunctionalExtensions
+@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
+@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
 
 <div class="card">
     <div class="card-header">
@@ -81,7 +83,7 @@
                             </button>
                         }
                         @if (mandate.SyncStatus == SyncStatus.Unavailable ||
-                             mandate.SyncStatus == SyncStatus.Loading)
+                           mandate.SyncStatus == SyncStatus.Loading)
                         {
                             <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
                                 @if (mandate.SyncStatus != SyncStatus.Loading)

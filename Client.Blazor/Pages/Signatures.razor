@@ -1,36 +1,110 @@
 ﻿@page "/Signatures/{FarmInspectionId:int}"
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
 @inject NavigationManager Navigation
+@inject IRepository Repository
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Remarques / Documents / Mesures</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist/1")'>
-                <i class="fas fa-arrow-left"></i>
-                Retour Check-Liste
-            </button>
-            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/1")'>
-                <i class="fas fa-arrow-right"></i>
-                Mandat
-            </button>
+@if (actionsOrDocumentEditModel_ != null)
+{
+    <EditForm Model="@actionsOrDocumentEditModel_" OnSubmit="@FormSubmitted">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Remarques / Documents / Mesures</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist/1")'>
+                        <i class="fas fa-arrow-left"></i>
+                        Retour Check-Liste
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/1")'>
+                        <i class="fas fa-arrow-right"></i>
+                        Mandat
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="form-group"></div>
+                <div class="form-group">
+                    <label for="@nameof(actionsOrDocumentEditModel_.CommentForFarmer)">Remarque générale</label>
+                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel_.CommentForFarmer" TextChanged="@OnCommentForFarmerChanged" id="@nameof(actionsOrDocumentEditModel_.CommentForFarmer)" />
+                </div>
+                <div class="form-group">
+                    <label for="@nameof(actionsOrDocumentEditModel_.ActionsOrDocuments)">Documents à livrer / mesures à prendre</label>
+                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel_.ActionsOrDocuments" TextChanged="@OnActionsOrDocumentsChanged" id="@nameof(actionsOrDocumentEditModel_.ActionsOrDocuments)" />
+                </div>
+                <div class="form-group">
+                    <label for="@nameof(actionsOrDocumentEditModel_.DueDate)">Délai</label>
+                    <Blazorise.DateEdit TValue="DateTime?" Date="@actionsOrDocumentEditModel_.DueDate" DateChanged="@OnDueDateChanged" id="@nameof(actionsOrDocumentEditModel_.DueDate)" />
+                </div>
+            </div>
+            <div class="card-footer">
+                @if (needsSaving)
+                {
+                    <button type="submit" class="btn btn-primary"><i class="far fa-save"></i> Enregistrer</button>
+                }
+                <button class="btn btn-default"><i class="far fa-file-pdf"></i> Rapport de contrôle provisoire</button>
+            </div>
         </div>
-    </div>
-    <div class="card-body">
-        <p>Content here</p>
-    </div>
-</div>
+    </EditForm>
+}
 
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Signatures</h3>
     </div>
     <div class="card-body">
-        <p>Content here</p>
+        <div class="callout callout-info">
+            <p>L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle. En cas de contestation, une réclamation écrite avec les points contestés peut être adressée dans les trois jours ouvrables suivant le contrôle à l'organisme d'inspection ayant effectué le contrôle.</p>
+        </div>
+        <div class="form-group">
+            <label>Le contrôleur n'a pas encore signé</label>
+            <button class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+        </div>
+        <div class="form-group">
+            <label>L'exploitant n'a pas encore signé</label>
+            <button class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+        </div>
+        <p>
+            <a href="" @onclick:preventDefault>Cliquer ici pour un contrôleur additionnel</a>
+        </p>
     </div>
 </div>
 
 @code {
     [Parameter]
     public int FarmInspectionId { get; set; }
+
+    ActionsOrDocumentEditModel actionsOrDocumentEditModel_;
+    bool needsSaving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        actionsOrDocumentEditModel_ = await Repository.ReadActionsOrDocumentsAsync() ?? new ActionsOrDocumentEditModel();
+        await base.OnInitializedAsync();
+    }
+
+    async void FormSubmitted(EditContext editContext)
+    {
+        needsSaving = false;
+        await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);
+    }
+
+    void OnDueDateChanged(DateTime? date)
+    {
+        actionsOrDocumentEditModel_.DueDate = date;
+        needsSaving = true;
+    }
+
+    void OnCommentForFarmerChanged(string value)
+    {
+        actionsOrDocumentEditModel_.CommentForFarmer = value;
+        needsSaving = true;
+    }
+
+    void OnActionsOrDocumentsChanged(string value)
+    {
+        actionsOrDocumentEditModel_.ActionsOrDocuments = value;
+        needsSaving = true;
+    }
 }

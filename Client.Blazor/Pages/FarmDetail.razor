@@ -1,10 +1,10 @@
 ﻿@page "/FarmDetail/{FarmId:int}"
 @inject IRepository Repository
 @inject NavigationManager Navigation
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
+@using Badge = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Badge
 
 @if (farm == null)
 {
