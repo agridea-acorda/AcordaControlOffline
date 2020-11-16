@@ -35,7 +35,7 @@
                 </div>
                 <div class="form-group">
                     <label for="@nameof(actionsOrDocumentEditModel_.DueDate)">Délai</label>
-                    <input type="date" @bind-value="@actionsOrDocumentEditModel_.DueDate" @bind-value:event="oninput" class="form-control" id="@nameof(actionsOrDocumentEditModel_.DueDate)" />
+                    <Blazorise.DateEdit TValue="DateTime?" Date="@actionsOrDocumentEditModel_.DueDate" DateChanged="@OnDateChanged" id="@nameof(actionsOrDocumentEditModel_.DueDate)" />
                 </div>
                 <div class="form-group">
                     Current date: @actionsOrDocumentEditModel_.DueDate
@@ -84,5 +84,11 @@
     {
         needsSaving = false;
         await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);
+    }
+
+    void OnDateChanged(DateTime? date)
+    {
+        actionsOrDocumentEditModel_.DueDate = date;
+        needsSaving = true;
     }
 }

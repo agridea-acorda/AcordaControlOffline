@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
 using Blazored.LocalStorage;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,13 +34,27 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
-            
+
             // Attempts at CQRS commands and queries handlers but cannot get it to work
             //builder.Services.AddHandlers();
             //builder.Services.AddTransient<IQueryHandler<MandateListQuery, ValueTask<Mandate[]>>, MandateListQuery.MandateListQueryHandler>(x => new MandateListQuery.MandateListQueryHandler(x.GetService<IRepository>()));
             //builder.Services.AddSingleton<Messages>();
-            
-            await builder.Build().RunAsync();
+
+            builder.Services
+                   .AddBlazorise(options =>
+                   {
+                       options.ChangeTextOnKeyPress = true;
+                   })
+                   .AddBootstrapProviders()
+                   .AddFontAwesomeIcons();
+
+            var host = builder.Build();
+
+            host.Services
+                .UseBootstrapProviders()
+                .UseFontAwesomeIcons();
+
+            await host.RunAsync();
         }
     }
 }
