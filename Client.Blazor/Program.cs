@@ -44,6 +44,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
                    .AddBlazorise(options =>
                    {
                        options.ChangeTextOnKeyPress = true;
+                       options.DelayTextOnKeyPressInterval = 300;
                    })
                    .AddBootstrapProviders()
                    .AddFontAwesomeIcons();

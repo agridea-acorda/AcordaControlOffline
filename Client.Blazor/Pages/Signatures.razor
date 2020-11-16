@@ -7,7 +7,7 @@
 
 @if (actionsOrDocumentEditModel_ != null)
 {
-    <EditForm EditContext="actionsOrDocumentsEditContext_" OnSubmit="@FormSubmitted">
+    <EditForm Model="@actionsOrDocumentEditModel_" OnSubmit="@FormSubmitted">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Remarques / Documents / Mesures</h3>
@@ -27,18 +27,15 @@
                 <div class="form-group"></div>
                 <div class="form-group">
                     <label for="@nameof(actionsOrDocumentEditModel_.CommentForFarmer)">Remarque générale</label>
-                    <InputTextArea2 @bind-Value="@actionsOrDocumentEditModel_.CommentForFarmer" class="form-control" id="@nameof(actionsOrDocumentEditModel_.CommentForFarmer)"/>
+                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel_.CommentForFarmer" TextChanged="@OnCommentForFarmerChanged" id="@nameof(actionsOrDocumentEditModel_.CommentForFarmer)" />
                 </div>
                 <div class="form-group">
                     <label for="@nameof(actionsOrDocumentEditModel_.ActionsOrDocuments)">Documents à livrer / mesures à prendre</label>
-                    <InputTextArea2 @bind-Value="@actionsOrDocumentEditModel_.ActionsOrDocuments" class="form-control" id="@nameof(actionsOrDocumentEditModel_.ActionsOrDocuments)"/>
+                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel_.ActionsOrDocuments" TextChanged="@OnActionsOrDocumentsChanged" id="@nameof(actionsOrDocumentEditModel_.ActionsOrDocuments)" />
                 </div>
                 <div class="form-group">
                     <label for="@nameof(actionsOrDocumentEditModel_.DueDate)">Délai</label>
-                    <Blazorise.DateEdit TValue="DateTime?" Date="@actionsOrDocumentEditModel_.DueDate" DateChanged="@OnDateChanged" id="@nameof(actionsOrDocumentEditModel_.DueDate)" />
-                </div>
-                <div class="form-group">
-                    Current date: @actionsOrDocumentEditModel_.DueDate
+                    <Blazorise.DateEdit TValue="DateTime?" Date="@actionsOrDocumentEditModel_.DueDate" DateChanged="@OnDueDateChanged" id="@nameof(actionsOrDocumentEditModel_.DueDate)" />
                 </div>
             </div>
             <div class="card-footer">
@@ -66,17 +63,11 @@
     public int FarmInspectionId { get; set; }
 
     ActionsOrDocumentEditModel actionsOrDocumentEditModel_;
-    EditContext actionsOrDocumentsEditContext_;
     bool needsSaving = false;
 
     protected override async Task OnInitializedAsync()
     {
         actionsOrDocumentEditModel_ = await Repository.ReadActionsOrDocumentsAsync() ?? new ActionsOrDocumentEditModel();
-        actionsOrDocumentsEditContext_ = new EditContext(actionsOrDocumentEditModel_);
-        actionsOrDocumentsEditContext_.OnFieldChanged += (sender, args) =>
-        {
-            needsSaving = true;
-        };
         await base.OnInitializedAsync();
     }
 
@@ -86,9 +77,21 @@
         await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);
     }
 
-    void OnDateChanged(DateTime? date)
+    void OnDueDateChanged(DateTime? date)
     {
         actionsOrDocumentEditModel_.DueDate = date;
+        needsSaving = true;
+    }
+
+    void OnCommentForFarmerChanged(string value)
+    {
+        actionsOrDocumentEditModel_.CommentForFarmer = value;
+        needsSaving = true;
+    }
+
+    void OnActionsOrDocumentsChanged(string value)
+    {
+        actionsOrDocumentEditModel_.ActionsOrDocuments = value;
         needsSaving = true;
     }
 }
