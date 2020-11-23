@@ -42,7 +42,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
-        public void Can_deserialize()
+        public void Can_deserialize_step_1()
         {
             var json = File.ReadAllText("./Data/checklist.json");
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
@@ -83,7 +83,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
-        public void Can_parse_result_from_dto()
+        public void Can_deserialize_step_1_then_step_2()
         {
             var json = File.ReadAllText("./Data/checklist.json");
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
