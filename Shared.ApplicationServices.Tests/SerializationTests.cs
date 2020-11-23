@@ -87,8 +87,55 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         {
             var json = File.ReadAllText("./Data/checklist.json");
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
-            var result = ResultFactory.Parse(dto.Rubrics.FirstOrDefault().Value);
-            result.Should().NotBeNull();
+            var r1 = ResultFactory.Parse(dto.Rubrics["R1"]);
+            r1.Should().NotBeNull();
+            r1.Children.Count.Should().Be(2);
+            r1.Children.Should().ContainKeys("R1,P1", "R1,P2");
+            
+            r1.Children["R1,P1"].ConjunctElementCode.Should().Be("R1,P1");
+            r1.Children["R1,P1"].ElementCode.Should().Be("P1");
+            r1.Children["R1,P1"].ShortName.Should().Be("P1");
+            r1.Children["R1,P1"].Parent.Should().NotBeNull();
+            r1.Children["R1,P1"].Parent.ConjunctElementCode.Should().Be("R1");
+            r1.Children["R1,P1"].Parent.ElementCode.Should().Be("R1");
+            r1.Children["R1,P1"].Parent.ShortName.Should().Be("R1");
+            r1.Children["R1,P2"].ConjunctElementCode.Should().Be("R1,P2");
+            r1.Children["R1,P2"].ElementCode.Should().Be("P2");
+            r1.Children["R1,P2"].ShortName.Should().Be("P2");
+            r1.Children["R1,P2"].Parent.Should().NotBeNull();
+            r1.Children["R1,P2"].Parent.ConjunctElementCode.Should().Be("R1");
+            r1.Children["R1,P2"].Parent.ElementCode.Should().Be("R1");
+            r1.Children["R1,P2"].Parent.ShortName.Should().Be("R1");
+
+            var r2 = ResultFactory.Parse(dto.Rubrics["R2"]);
+            r2.Should().NotBeNull();
+            r2.Children.Count.Should().Be(2);
+            r2.Children.Should().ContainKeys("R2,G1", "R2,G2");
+            
+            r2.Children["R2,G1"].ConjunctElementCode.Should().Be("R2,G1");
+            r2.Children["R2,G1"].ElementCode.Should().Be("G1");
+            r2.Children["R2,G1"].ShortName.Should().Be("G1");
+            r2.Children["R2,G1"].Parent.Should().NotBeNull();
+            r2.Children["R2,G1"].Parent.ConjunctElementCode.Should().Be("R2");
+            r2.Children["R2,G1"].Parent.ElementCode.Should().Be("R2");
+            r2.Children["R2,G1"].Parent.ShortName.Should().Be("R2");
+            r2.Children["R2,G1"].Children.Count.Should().Be(3);
+            r2.Children["R2,G1"].Children.Should().ContainKeys("R2,G1,P1", "R2,G1,P2", "R2,G1,P3");
+
+            r2.Children["R2,G2"].ConjunctElementCode.Should().Be("R2,G2");
+            r2.Children["R2,G2"].ElementCode.Should().Be("G2");
+            r2.Children["R2,G2"].ShortName.Should().Be("G2");
+            r2.Children["R2,G2"].Parent.Should().NotBeNull();
+            r2.Children["R2,G2"].Parent.ConjunctElementCode.Should().Be("R2");
+            r2.Children["R2,G2"].Parent.ElementCode.Should().Be("R2");
+            r2.Children["R2,G2"].Parent.ShortName.Should().Be("R2");
+            r2.Children["R2,G2"].Children.Count.Should().Be(2);
+            r2.Children["R2,G2"].Children.Should().ContainKeys("R2,G2,SG1", "R2,G2,SG2");
+
+            r2.Children["R2,G2"].Children["R2,G2,SG1"].Children.Count.Should().Be(4);
+            r2.Children["R2,G2"].Children["R2,G2,SG1"].Children.Should().ContainKeys("R2,G2,SG1,P1", "R2,G2,SG1,P2", "R2,G2,SG1,P3", "R2,G2,SG1,P4");
+            r2.Children["R2,G2"].Children["R2,G2,SG2"].Children.Count.Should().Be(2);
+            r2.Children["R2,G2"].Children["R2,G2,SG2"].Children.Should().ContainKeys("R2,G2,SG2,P1", "R2,G2,SG2,P2");
         }
 
         private static Checklist BuildChecklist()

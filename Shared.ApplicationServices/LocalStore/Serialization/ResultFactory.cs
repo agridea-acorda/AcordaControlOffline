@@ -13,7 +13,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     {
         private static readonly List<PropertyInfo> SourceProperties;
         private static readonly Dictionary<string, PropertyInfo> TargetProperties;
-        private static readonly PropertyInfo ParentProperty;
         
         static ResultFactory()
         {
@@ -26,10 +25,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                                .Where(prop => prop.Name != nameof(Result.Children))
                                .ToDictionary(x => x.Name, x => x);
-
-            ParentProperty = typeof(Result)
-                             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                             .FirstOrDefault(prop => prop.Name != nameof(Result.Parent));
         }
 
         public static Result Parse(ChecklistDeserializationDto.Result dto, Result parent = null, int depth = 0)
@@ -45,19 +40,23 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                 {
                     var value = sourceProp.GetValue(dto);
                     Console.WriteLine($"... to target property {targetProp.Name} with value {value}.");
-                    //targetProp.SetValue(targetInstance, sourceProp.GetValue(dto));
                     var field = typeof(Result).GetField($"<{targetProp.Name}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
                     field.SetValue(targetInstance, value);
                 }
             }
 
+            var target = (Result)targetInstance;
+            if (dto.Children.Any() && target.Children == null)
+            {
+                var childrenField = typeof(Result).GetField($"<{nameof(Result.Children)}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+                childrenField.SetValue(target, new SortedList<string, ITreeNode<Result>>());
+            }
             foreach (var child in dto.Children)
             {
-                ((Result)targetInstance).Children.TryAdd(child.Key, Parse(child.Value, (Result)targetInstance, ++depth));
+                target.Children.TryAdd(child.Key, Parse(child.Value, (Result)targetInstance, ++depth));
             }
 
-            //ParentProperty.SetValue(targetInstance, parent);
-            var parentField = typeof(Result).GetField($"<{ParentProperty.Name}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+            var parentField = typeof(Result).GetField($"<{nameof(Result.Parent)}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
             parentField.SetValue(targetInstance, parent);
             return (Result) targetInstance;
         }
