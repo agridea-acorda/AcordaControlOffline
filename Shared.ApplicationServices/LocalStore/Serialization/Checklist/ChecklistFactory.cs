@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Newtonsoft.Json;
 
-namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization
+namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 {
     public class ChecklistFactory
     {
@@ -26,11 +26,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                                .ToDictionary(x => x.Name, x => x);
         }
 
-        public static Checklist Parse(ChecklistDeserializationDto dto)
+        public static Domain.Checklist.Checklist Parse(ChecklistDeserializationDto dto)
         {
             if (dto == null) return null;
             
-            var checklist = new Checklist();
+            var checklist = new Domain.Checklist.Checklist();
             foreach (var dtoRubric in dto.Rubrics)
             {
                 if (ParseResult(dtoRubric.Value) is RubricResult rubricResult)
@@ -40,7 +40,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return checklist;
         }
 
-        public static Checklist Parse(string json)
+        public static Domain.Checklist.Checklist Parse(string json)
         {
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
             return Parse(dto);

@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests;
-using Agridea.DomainDrivenDesign;
 using FluentAssertions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,8 +19,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         public SerializationTests(ITestOutputHelper testOutputHelper)
         {
             testOutputHelper_ = testOutputHelper;
-            var converter = new Converter(testOutputHelper_);
-            Console.SetOut(converter);
+            Console.SetOut(new TestOutputWriter(testOutputHelper_));
             checklist_ = ChecklistTestHelper.BuildChecklist();
         }
 
@@ -146,53 +141,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
             var checklist = ChecklistFactory.Parse(dto);
             ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
-        }
-    }
-
-    class Converter : TextWriter
-    {
-        readonly ITestOutputHelper output_;
-        public Converter(ITestOutputHelper output)
-        {
-            output_ = output;
-        }
-        public override Encoding Encoding => Encoding.UTF8;
-
-        public override void WriteLine(string message)
-        {
-            output_.WriteLine(message);
-        }
-        public override void WriteLine(string format, params object[] args)
-        {
-            output_.WriteLine(format, args);
-        }
-    }
-
-    public class EntityContractResolver : DefaultContractResolver
-    {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
-        {
-            IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
-            return props.Where(p =>
-                                   p.PropertyName != nameof(Entity.CreatedBy) &&
-                                   p.PropertyName != nameof(Entity.CreationDate) &&
-                                   p.PropertyName != nameof(Entity.ModifiedBy) &&
-                                   p.PropertyName != nameof(Entity.ModificationDate)
-                        )
-                        .ToList();
-        }
-    }
-
-    public class ChecklistContractResolver : EntityContractResolver
-    {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
-        {
-            IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
-            return props.Where(p =>
-                                   p.PropertyName != nameof(Checklist.DomainEvents) &&
-                                   p.PropertyName != nameof(Result.Parent)
-                        )
-                        .ToList();
         }
     }
 }
