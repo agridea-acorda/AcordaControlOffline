@@ -88,7 +88,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         {
             var json = File.ReadAllText("./Data/checklist.json");
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
-            var r1 = ResultFactory.Parse(dto.Rubrics["R1"]);
+            var r1 = ChecklistFactory.ParseResult(dto.Rubrics["R1"]);
             r1.Should().NotBeNull();
             r1.Children.Count.Should().Be(2);
             r1.Children.Should().ContainKeys("R1,P1", "R1,P2");
@@ -108,7 +108,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             r1.Children["R1,P2"].Parent.ElementCode.Should().Be("R1");
             r1.Children["R1,P2"].Parent.ShortName.Should().Be("R1");
 
-            var r2 = ResultFactory.Parse(dto.Rubrics["R2"]);
+            var r2 = ChecklistFactory.ParseResult(dto.Rubrics["R2"]);
             r2.Should().NotBeNull();
             r2.Children.Count.Should().Be(2);
             r2.Children.Should().ContainKeys("R2,G1", "R2,G2");

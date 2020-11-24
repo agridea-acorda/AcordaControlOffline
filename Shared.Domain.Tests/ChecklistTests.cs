@@ -1,5 +1,4 @@
-﻿using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Xunit;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
