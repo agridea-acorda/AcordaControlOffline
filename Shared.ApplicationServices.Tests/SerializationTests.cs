@@ -24,122 +24,27 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
-        public void Can_serialize()
+        public void Can_serialize_checklist()
         {
-            string json = JsonConvert.SerializeObject(checklist_,
-                                                      Formatting.Indented,
-                                                      new JsonSerializerSettings
-                                                      {
-                                                          ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                                                          ContractResolver = new ChecklistContractResolver()
-                                                      });
+            string json = ChecklistFactory.Serialize(checklist_);
             json.Should().NotBeEmpty();
             File.WriteAllText(Path.Combine(Path.GetTempPath(), "checklist.json"), json);
-        }
-
-        [Fact]
-        public void Can_deserialize_checklist()
-        {
-            var json = File.ReadAllText("./Data/checklist.json");
-            var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
-            dto.Should().NotBeNull();
-
-            dto.Rubrics.Should().NotBeEmpty();
-            dto.Rubrics.Count.Should().Be(2);
-            dto.Rubrics["R1"].Should().NotBeNull();
-            dto.Rubrics["R2"].Should().NotBeNull();
-            dto.Rubrics["R1"].Children.Count.Should().Be(2);
-            dto.Rubrics["R1"].Children.Should().ContainKeys("R1,P1", "R1,P2");
-            dto.Rubrics["R2"].Children.Count.Should().Be(2);
-            dto.Rubrics["R2"].Children.Should().ContainKeys("R2,G1", "R2,G2");
-
-            dto.Rubrics["R1"].Children["R1,P1"].ConjunctElementCode.Should().Be("R1,P1");
-            dto.Rubrics["R1"].Children["R1,P1"].ElementCode.Should().Be("P1");
-            dto.Rubrics["R1"].Children["R1,P1"].ShortName.Should().Be("P1");
-            dto.Rubrics["R1"].Children["R1,P2"].ConjunctElementCode.Should().Be("R1,P2");
-            dto.Rubrics["R1"].Children["R1,P2"].ElementCode.Should().Be("P2");
-            dto.Rubrics["R1"].Children["R1,P2"].ShortName.Should().Be("P2");
-
-            dto.Rubrics["R2"].Children["R2,G1"].ConjunctElementCode.Should().Be("R2,G1");
-            dto.Rubrics["R2"].Children["R2,G1"].ElementCode.Should().Be("G1");
-            dto.Rubrics["R2"].Children["R2,G1"].ShortName.Should().Be("G1");
-            dto.Rubrics["R2"].Children["R2,G1"].Children.Count.Should().Be(3);
-            dto.Rubrics["R2"].Children["R2,G1"].Children.Should().ContainKeys("R2,G1,P1", "R2,G1,P2", "R2,G1,P3");
-
-            dto.Rubrics["R2"].Children["R2,G2"].ConjunctElementCode.Should().Be("R2,G2");
-            dto.Rubrics["R2"].Children["R2,G2"].ElementCode.Should().Be("G2");
-            dto.Rubrics["R2"].Children["R2,G2"].ShortName.Should().Be("G2");
-            dto.Rubrics["R2"].Children["R2,G2"].Children.Count.Should().Be(2);
-            dto.Rubrics["R2"].Children["R2,G2"].Children.Should().ContainKeys("R2,G2,SG1", "R2,G2,SG2");
-
-            dto.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG1"].Children.Count.Should().Be(4);
-            dto.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG1"].Children.Should().ContainKeys("R2,G2,SG1,P1", "R2,G2,SG1,P2", "R2,G2,SG1,P3", "R2,G2,SG1,P4");
-            dto.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].Children.Count.Should().Be(2);
-            dto.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].Children.Should().ContainKeys("R2,G2,SG2,P1", "R2,G2,SG2,P2");
-        }
-
-        [Fact]
-        public void Can_parse_result()
-        {
-            var json = File.ReadAllText("./Data/checklist.json");
-            var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
-            var r1 = ChecklistFactory.ParseResult(dto.Rubrics["R1"]);
-            r1.Should().NotBeNull();
-            r1.Children.Count.Should().Be(2);
-            r1.Children.Should().ContainKeys("R1,P1", "R1,P2");
-            
-            r1.Children["R1,P1"].ConjunctElementCode.Should().Be("R1,P1");
-            r1.Children["R1,P1"].ElementCode.Should().Be("P1");
-            r1.Children["R1,P1"].ShortName.Should().Be("P1");
-            r1.Children["R1,P1"].Parent.Should().NotBeNull();
-            r1.Children["R1,P1"].Parent.ConjunctElementCode.Should().Be("R1");
-            r1.Children["R1,P1"].Parent.ElementCode.Should().Be("R1");
-            r1.Children["R1,P1"].Parent.ShortName.Should().Be("R1");
-            r1.Children["R1,P2"].ConjunctElementCode.Should().Be("R1,P2");
-            r1.Children["R1,P2"].ElementCode.Should().Be("P2");
-            r1.Children["R1,P2"].ShortName.Should().Be("P2");
-            r1.Children["R1,P2"].Parent.Should().NotBeNull();
-            r1.Children["R1,P2"].Parent.ConjunctElementCode.Should().Be("R1");
-            r1.Children["R1,P2"].Parent.ElementCode.Should().Be("R1");
-            r1.Children["R1,P2"].Parent.ShortName.Should().Be("R1");
-
-            var r2 = ChecklistFactory.ParseResult(dto.Rubrics["R2"]);
-            r2.Should().NotBeNull();
-            r2.Children.Count.Should().Be(2);
-            r2.Children.Should().ContainKeys("R2,G1", "R2,G2");
-            
-            r2.Children["R2,G1"].ConjunctElementCode.Should().Be("R2,G1");
-            r2.Children["R2,G1"].ElementCode.Should().Be("G1");
-            r2.Children["R2,G1"].ShortName.Should().Be("G1");
-            r2.Children["R2,G1"].Parent.Should().NotBeNull();
-            r2.Children["R2,G1"].Parent.ConjunctElementCode.Should().Be("R2");
-            r2.Children["R2,G1"].Parent.ElementCode.Should().Be("R2");
-            r2.Children["R2,G1"].Parent.ShortName.Should().Be("R2");
-            r2.Children["R2,G1"].Children.Count.Should().Be(3);
-            r2.Children["R2,G1"].Children.Should().ContainKeys("R2,G1,P1", "R2,G1,P2", "R2,G1,P3");
-
-            r2.Children["R2,G2"].ConjunctElementCode.Should().Be("R2,G2");
-            r2.Children["R2,G2"].ElementCode.Should().Be("G2");
-            r2.Children["R2,G2"].ShortName.Should().Be("G2");
-            r2.Children["R2,G2"].Parent.Should().NotBeNull();
-            r2.Children["R2,G2"].Parent.ConjunctElementCode.Should().Be("R2");
-            r2.Children["R2,G2"].Parent.ElementCode.Should().Be("R2");
-            r2.Children["R2,G2"].Parent.ShortName.Should().Be("R2");
-            r2.Children["R2,G2"].Children.Count.Should().Be(2);
-            r2.Children["R2,G2"].Children.Should().ContainKeys("R2,G2,SG1", "R2,G2,SG2");
-
-            r2.Children["R2,G2"].Children["R2,G2,SG1"].Children.Count.Should().Be(4);
-            r2.Children["R2,G2"].Children["R2,G2,SG1"].Children.Should().ContainKeys("R2,G2,SG1,P1", "R2,G2,SG1,P2", "R2,G2,SG1,P3", "R2,G2,SG1,P4");
-            r2.Children["R2,G2"].Children["R2,G2,SG2"].Children.Count.Should().Be(2);
-            r2.Children["R2,G2"].Children["R2,G2,SG2"].Children.Should().ContainKeys("R2,G2,SG2,P1", "R2,G2,SG2,P2");
         }
 
         [Fact]
         public void Can_parse_checklist()
         {
             var json = File.ReadAllText("./Data/checklist.json");
-            var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
-            var checklist = ChecklistFactory.Parse(dto);
+            var checklist = ChecklistFactory.Parse(json);
+            ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
+        }
+
+        [Fact]
+        public void Can_serialize_then_parse_checklist()
+        {
+            ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist_);
+            string json = ChecklistFactory.Serialize(checklist_);
+            var checklist = ChecklistFactory.Parse(json);
             ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
         }
     }

@@ -46,7 +46,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return Parse(dto);
         }
 
-        public static Result ParseResult(ChecklistDeserializationDto.Result dto, Result parent = null, int depth = 0)
+        public static string Serialize(Domain.Checklist.Checklist checklist)
+        {
+            return JsonConvert.SerializeObject(checklist,
+                                               Formatting.Indented,
+                                               new JsonSerializerSettings
+                                               {
+                                                   ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                                                   ContractResolver = new ChecklistContractResolver()
+                                               });
+        }
+
+        private static Result ParseResult(ChecklistDeserializationDto.Result dto, Result parent = null, int depth = 0)
         {
             var targetType = depth == 0 ? typeof(RubricResult) :
                              dto.Children.Any() ? typeof(GroupResult) :
