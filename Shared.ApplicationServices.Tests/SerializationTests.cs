@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests;
 using Agridea.DomainDrivenDesign;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -24,7 +25,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             testOutputHelper_ = testOutputHelper;
             var converter = new Converter(testOutputHelper_);
             Console.SetOut(converter);
-            checklist_ = BuildChecklist();
+            checklist_ = ChecklistTestHelper.BuildChecklist();
         }
 
         [Fact]
@@ -42,7 +43,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
-        public void Can_deserialize_step_1()
+        public void Can_deserialize_checklist()
         {
             var json = File.ReadAllText("./Data/checklist.json");
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
@@ -83,7 +84,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
-        public void Can_deserialize_step_1_then_step_2()
+        public void Can_parse_result()
         {
             var json = File.ReadAllText("./Data/checklist.json");
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
@@ -138,27 +139,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             r2.Children["R2,G2"].Children["R2,G2,SG2"].Children.Should().ContainKeys("R2,G2,SG2,P1", "R2,G2,SG2,P2");
         }
 
-        private static Checklist BuildChecklist()
+        [Fact]
+        public void Can_parse_checklist()
         {
-            var checklist = new Checklist()
-                            .AddRubric("R1", new RubricResult("R1", "R1", "R1")
-                                             .AddChild("R1,P1", new PointResult("R1,P1", "P1", "P1"))
-                                             .AddChild("R1,P2", new PointResult("R1,P2", "P2", "P2")))
-                            .AddRubric("R2", new RubricResult("R2", "R2", "R2")
-                                             .AddChild("R2,G1", new GroupResult("R2,G1", "G1", "G1")
-                                                                .AddChild("R2,G1,P1", new PointResult("R2,G1,P1", "P1", "P1"))
-                                                                .AddChild("R2,G1,P2", new PointResult("R2,G1,P2", "P2", "P2"))
-                                                                .AddChild("R2,G1,P3", new PointResult("R2,G1,P3", "P3", "P3")))
-                                             .AddChild("R2,G2", new GroupResult("R2,G2", "G2", "G2")
-                                                                .AddChild("R2,G2,SG1", new GroupResult("R2,G2,SG1", "SG1", "SG1")
-                                                                                       .AddChild("R2,G2,SG1,P1", new PointResult("R2,G2,SG1,P1", "P1", "P1"))
-                                                                                       .AddChild("R2,G2,SG1,P2", new PointResult("R2,G2,SG1,P2", "P2", "P2"))
-                                                                                       .AddChild("R2,G2,SG1,P3", new PointResult("R2,G2,SG1,P3", "P3", "P3"))
-                                                                                       .AddChild("R2,G2,SG1,P4", new PointResult("R2,G2,SG1,P4", "P4", "P4")))
-                                                                .AddChild("R2,G2,SG2", new GroupResult("R2,G2,SG2", "SG2", "SG2")
-                                                                                       .AddChild("R2,G2,SG2,P1", new PointResult("R2,G2,SG2,P1", "P1", "P1"))
-                                                                                       .AddChild("R2,G2,SG2,P2", new PointResult("R2,G2,SG2,P2", "P2", "P2")))));
-            return checklist;
+            var json = File.ReadAllText("./Data/checklist.json");
+            var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
+            var checklist = ChecklistFactory.Parse(dto);
+            ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
         }
     }
 
