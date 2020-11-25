@@ -38,10 +38,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
 
-            // Attempts at CQRS commands and queries handlers but cannot get it to work
-            //builder.Services.AddHandlers();
-            //builder.Services.AddTransient<IQueryHandler<MandateListQuery, ValueTask<Mandate[]>>, MandateListQuery.MandateListQueryHandler>(x => new MandateListQuery.MandateListQueryHandler(x.GetService<IRepository>()));
-            //builder.Services.AddSingleton<Messages>();
+            // Events
             builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
             builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
