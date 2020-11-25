@@ -73,6 +73,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return null;
         }
 
+        public IResult Find(string conjunctElementCode)
+        {
+            if (ConjunctElementCode == conjunctElementCode) return this;
+            if (Children.TryGetValue(conjunctElementCode, out var found)) return found;
+            return Children.Select(child => child.Value.Find(conjunctElementCode))
+                           .FirstOrDefault(found2 => found2 != null);
+        }
+
         internal virtual Result SetOutcome(InspectionOutcome outcome)
         {
             Outcome = outcome;

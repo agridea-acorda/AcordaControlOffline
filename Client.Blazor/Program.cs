@@ -1,12 +1,15 @@
 using System;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
+using Agridea.DomainDrivenDesign;
 using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using MediatR;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -39,6 +42,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             //builder.Services.AddHandlers();
             //builder.Services.AddTransient<IQueryHandler<MandateListQuery, ValueTask<Mandate[]>>, MandateListQuery.MandateListQueryHandler>(x => new MandateListQuery.MandateListQueryHandler(x.GetService<IRepository>()));
             //builder.Services.AddSingleton<Messages>();
+            builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
+            builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
             builder.Services
                    .AddBlazorise(options =>

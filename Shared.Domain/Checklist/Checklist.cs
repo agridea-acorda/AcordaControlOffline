@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate;
 using Agridea.DomainDrivenDesign;
 
@@ -12,6 +13,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         {
             Rubrics.TryAdd(key, rubricResult);
             return this;
+        }
+
+        public IResult Find(string conjunctElementCode)
+        {
+            return Rubrics.Select(rubric => rubric.Value.Find(conjunctElementCode))
+                          .FirstOrDefault(found => found != null);
         }
 
         public void SetOutcome<T>(InspectionOutcome outcome, T result) where T: Result

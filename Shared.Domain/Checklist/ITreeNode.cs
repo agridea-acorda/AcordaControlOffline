@@ -11,5 +11,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         void SetParent(ITreeNode<T> parent);
         void Traverse(Action<ITreeNode<T>> action);
         IResult Find(Func<ITreeNode<Result>, bool> condition);
+        IResult Find(string conjunctElementCode);
     }
 }

@@ -25,6 +25,22 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist_.Rubrics["R2"].Find(x => x.ConjunctElementCode == "R2").ConjunctElementCode.Should().Be("R2");
             checklist_.Rubrics["R2"].Find(x => x.ConjunctElementCode == "R2,G2").Should().NotBeNull();
             checklist_.Rubrics["R2"].Find(x => x.ConjunctElementCode == "R2,G2").ConjunctElementCode.Should().Be("R2,G2");
+            checklist_.Rubrics["R2"].Find(x => x.ConjunctElementCode == "R2,G1,P2").ConjunctElementCode.Should().Be("R2,G1,P2");
+            checklist_.Rubrics["R2"].Find(x => x.ConjunctElementCode == "R2,G2,SG1,P4").ConjunctElementCode.Should().Be("R2,G2,SG1,P4");
+
+            checklist_.Rubrics["R2"].Find("R2").Should().NotBeNull();
+            checklist_.Rubrics["R2"].Find("R2").ConjunctElementCode.Should().Be("R2");
+            checklist_.Rubrics["R2"].Find("R2,G2").Should().NotBeNull();
+            checklist_.Rubrics["R2"].Find("R2,G2").ConjunctElementCode.Should().Be("R2,G2");
+            checklist_.Rubrics["R2"].Find("R2,G1,P2").ConjunctElementCode.Should().Be("R2,G1,P2");
+            checklist_.Rubrics["R2"].Find("R2,G2,SG1,P4").ConjunctElementCode.Should().Be("R2,G2,SG1,P4");
+
+            checklist_.Find("R2").Should().NotBeNull();
+            checklist_.Find("R2").ConjunctElementCode.Should().Be("R2");
+            checklist_.Find("R2,G2").Should().NotBeNull();
+            checklist_.Find("R2,G2").ConjunctElementCode.Should().Be("R2,G2");
+            checklist_.Find("R2,G1,P2").ConjunctElementCode.Should().Be("R2,G1,P2");
+            checklist_.Find("R2,G2,SG1,P4").ConjunctElementCode.Should().Be("R2,G2,SG1,P4");
         }
     }
 }
