@@ -61,14 +61,24 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return this;
         }
 
-        public IResult Find(string key)
+        public IResult Find(Func<ITreeNode<Result>, bool> condition)
         {
-            IResult match = null;
-            Traverse(x =>
+            if (condition(this)) return this;
+            foreach (var child in Children)
             {
-                if (ConjunctElementCode == key) match = x;
-            });
-            return match;
+                var found = child.Value.Find(condition);
+                if (found != null) return found;
+            }
+
+            return null;
+        }
+
+        public IResult Find(string conjunctElementCode)
+        {
+            if (ConjunctElementCode == conjunctElementCode) return this;
+            if (Children.TryGetValue(conjunctElementCode, out var found)) return found;
+            return Children.Select(child => child.Value.Find(conjunctElementCode))
+                           .FirstOrDefault(found2 => found2 != null);
         }
 
         internal virtual Result SetOutcome(InspectionOutcome outcome)

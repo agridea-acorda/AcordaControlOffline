@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Blazored.LocalStorage;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
@@ -58,6 +62,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(Checklist, checklist);
         }
 
+        public async ValueTask SaveChecklistAsync(Checklist checklist, Func<Checklist, string> serialize)
+        {
+            string json = serialize(checklist);
+            await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
+        }
+
+        public async ValueTask<Checklist> ReadChecklistAsync(int farmInspectionId, Func<string, Checklist> deserialize)
+        {
+            string json = await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
+            return deserialize(json);
+        }
+
         public async ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync()
         {
             return await localStorage_.GetItemAsync<ActionsOrDocumentEditModel>(ActionsOrDocuments);
@@ -71,6 +87,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         private static string MandateDetailKey(int farmId)
         {
             return $"{MandateDetail}_{farmId}";
+        }
+
+        private static string ChecklistKey(Checklist checklist)
+        {
+            // int farmInspectionId = checklist.FarmInspectionId; // todo implement this
+            int farmInspectionId = 0;
+            return ChecklistKey(farmInspectionId);
+        }
+
+        private static string ChecklistKey(int farmInspectionId)
+        {
+            return $"{Checklist}_{farmInspectionId}";
         }
     }
 }

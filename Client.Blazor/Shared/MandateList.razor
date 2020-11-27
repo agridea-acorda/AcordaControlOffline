@@ -1,12 +1,10 @@
 ﻿@inject NavigationManager Navigation
 @inject IRepository Repository
-@*@inject Messages Messages*@
 @inject IApiClient Api
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Queries
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
@@ -147,12 +145,12 @@
     bool loading => mandates == null;
     string numMandates => mandates == null ? "" : $"{mandates.Length} ";
     string plural => mandates == null ? "s" :
-                     mandates.Length > 1 ? "s"
-                     : "";
+                         mandates.Length > 1 ? "s"
+                             : "";
+
     protected override async Task OnInitializedAsync()
     {
         mandates = await Repository.ReadAllMandatesAsync();
-        //mandates = await Messages.Dispatch(new MandateListQuery());
 
         if (mandates == null)
         {
@@ -190,13 +188,13 @@
         mandate.SyncStatus = SyncStatus.Loading;
 
         if (!await TryFetchAndSave(() => Api.FetchMandateDetailAsync("sample-data/farm.json"),
-                                    data => Repository.SaveMandateAsync(data)))
+                                   data => Repository.SaveMandateAsync(data)))
         {
             mandate.SyncStatus = syncStatus;
         }
 
         if (!await TryFetchAndSave(() => Api.FetchChecklistSampleAsync("sample-data/checklist.json"),
-                                data => Repository.SaveChecklistSampleAsync(data)))
+                                   data => Repository.SaveChecklistSampleAsync(data)))
         {
             mandate.SyncStatus = syncStatus;
         }
@@ -216,4 +214,5 @@
         await saveFunc(data);
         return true;
     }
+
 }

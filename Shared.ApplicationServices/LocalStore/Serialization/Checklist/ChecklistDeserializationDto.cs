@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization
+namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 {
     public class ChecklistDeserializationDto
     {
