@@ -22,10 +22,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
             
-            // Below is just a temporary hack for the /checklist page, still in demo state.
-            //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            
-            // This is the real api
+            // Acordacontrol api
             builder.Services.AddHttpClient<IApiClient, SampleDataApiClient>(nameof(SampleDataApiClient),
                                                                           client =>
                                                                           {
