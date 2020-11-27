@@ -5,8 +5,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
     public class Inspection: AggregateRoot
     {
-        public Inspection(Guid inspectionId, Domain domain, Campaign campaign, InspectionReason reason, string comment)
+        public Inspection(int farmInspectionId, Guid inspectionId, Domain domain, Campaign campaign, InspectionReason reason, string comment, long checklistId)
         {
+            if (farmInspectionId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(farmInspectionId), $"{nameof(farmInspectionId)} must be > 0");
+
             if (inspectionId == Guid.Empty)
                 throw new ArgumentNullException($"{nameof(inspectionId)} must be non-empty.");
 
@@ -19,13 +22,32 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
             if (reason == null)
                 throw new ArgumentNullException($"{nameof(reason)} must be defined.");
 
+            if (checklistId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(checklistId), $"{nameof(checklistId)} must be > 0");
+
+            FarmInspectionId = farmInspectionId;
             InspectionId = inspectionId;
             Domain = domain;
             Campaign = campaign;
             Reason = reason;
             Comment = comment;
+            ChecklistId = checklistId;
+
+            Appointment = Appointment.None;
+            CommentForFarmer = CommentForOffice = "";
+            Status = InspectionStatus.Planned;
+            InspectorSignature = Inspector2Signature = FarmerSignature = Signature.None;
+            Compliance = Compliance.Empty;
+            FinishStatus = FinishStatus.NotFinished;
+            CloseStatus = CloseStatus.NotClosed;
+            ReopenStatus = ReopenStatus.NotReopened;
+            PercentComputed = 0;
+            DateComputed = DateTime.MinValue;
+            OutcomeComputed = InspectionOutcome.NotInspected;
         }
+        public int FarmInspectionId { get; }
         public Guid InspectionId { get; }
+        public long ChecklistId { get; set; } 
         public Domain Domain { get; }
         public Campaign Campaign { get; }
         public InspectionReason Reason { get; }
@@ -45,5 +67,29 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
         public FinishStatus FinishStatus { get; private set; }
         public CloseStatus CloseStatus { get; private set; }
         public ReopenStatus ReopenStatus { get; private set; }
+
+        public Inspection SetAppointment(Appointment appointment)
+        {
+            Appointment = appointment;
+            return this;
+        }
+
+        public Inspection SetCommentForFarmer(string comment)
+        {
+            CommentForFarmer = comment;
+            return this;
+        }
+
+        public Inspection SetCommentForOffice(string comment)
+        {
+            CommentForOffice = comment;
+            return this;
+        }
+
+        public Inspection InspectorSigns(Signature signature)
+        {
+            InspectorSignature = signature;
+            return this;
+        }
     }
 }

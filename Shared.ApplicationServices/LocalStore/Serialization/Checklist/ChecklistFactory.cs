@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Newtonsoft.Json;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 {
-    public class ChecklistFactory
+    public class ChecklistFactory : AggregateRootFactoryBase<Domain.Checklist.Checklist>
     {
         private static readonly List<PropertyInfo> SourceProperties;
         private static readonly Dictionary<string, PropertyInfo> TargetProperties;
@@ -26,7 +27,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                                .ToDictionary(x => x.Name, x => x);
         }
 
-        public static Domain.Checklist.Checklist Parse(ChecklistDeserializationDto dto)
+        public override Domain.Checklist.Checklist Parse(string json)
+        {
+            var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
+            return Parse(dto);
+        }
+
+        public Domain.Checklist.Checklist Parse(ChecklistDeserializationDto dto)
         {
             if (dto == null) return null;
             
@@ -40,13 +47,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return checklist;
         }
 
-        public static Domain.Checklist.Checklist Parse(string json)
-        {
-            var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
-            return Parse(dto);
-        }
-
-        public static string Serialize(Domain.Checklist.Checklist checklist)
+        public override string Serialize(Domain.Checklist.Checklist checklist)
         {
             return JsonConvert.SerializeObject(checklist,
                                                Formatting.Indented,
@@ -57,7 +58,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                                                });
         }
 
-        private static Result ParseResult(ChecklistDeserializationDto.Result dto, Result parent = null, int depth = 0)
+        private Result ParseResult(ChecklistDeserializationDto.Result dto, Result parent = null, int depth = 0)
         {
             var targetType = depth == 0 ? typeof(RubricResult) :
                              dto.Children.Any() ? typeof(GroupResult) :
@@ -83,25 +84,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
             SetPropertyValueViaBackingField(nameof(Result.Parent), targetInstance, parent);
             return targetInstance;
-        }
-
-        private static void SetPropertyValueViaBackingField<T, TProp>(string propertyName, T instance, TProp propertyValue)
-        {
-            SetPropertyValueViaBackingField(typeof(T), propertyName, instance, propertyValue);
-        }
-
-        private static void SetPropertyValueViaBackingField(Type targetType, string propertyName, object instance, object propertyValue)
-        {
-            var backingField = targetType.GetField(BackingField(propertyName), BindingFlags.Instance | BindingFlags.NonPublic);
-            if (backingField == null)
-                throw new InvalidOperationException($"Failed to extract backing field for property {propertyName} of type {targetType.Name}. Cannot proceed to set value.");
-
-            backingField.SetValue(instance, propertyValue);
-        }
-
-        public static string BackingField(string propertyName)
-        {
-            return $"<{propertyName}>k__BackingField";
         }
     }
 }

@@ -7,15 +7,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 {
     public class Mandate : AggregateRoot
     {
-        public Mandate(IReadOnlyList<Inspection> inspections, Farm farm)
+        public Mandate(int farmId)
         {
-            Inspections = inspections;
-            Farm = farm;
+            if (farmId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(FarmId), $"{nameof(FarmId)} must be > 0");
+
+            FarmId = farmId;
         }
-
-        private Mandate() { }
-
-        private Farm Farm { get; }
-        private IReadOnlyList<Inspection> Inspections { get; }
+        public int FarmId { get; }
+        public IReadOnlyList<Inspection> Inspections { get; }
     }
 }

@@ -2,12 +2,10 @@
 @inject IRepository Repository
 @inject IApiClient Api
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
-@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using CSharpFunctionalExtensions
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
@@ -145,8 +143,8 @@
     bool loading => mandates == null;
     string numMandates => mandates == null ? "" : $"{mandates.Length} ";
     string plural => mandates == null ? "s" :
-                         mandates.Length > 1 ? "s"
-                             : "";
+                     mandates.Length > 1 ? "s"
+                     : "";
 
     protected override async Task OnInitializedAsync()
     {

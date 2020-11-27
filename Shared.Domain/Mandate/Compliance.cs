@@ -11,6 +11,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate {
         public bool DueDateRespected { get; }
         public bool FurtherInvestigationNeeded { get; }
         public bool IncompleteOrNonCompliant { get; }
+
+        public static Compliance Empty => new Compliance("", null, false, false, false, false);
         public Compliance(string actionsOrDocuments, DateTime? dueDate, bool dueDateNotRespected, bool dueDateRespected, bool furtherInvestigationNeeded, bool incompleteOrNonCompliant)
         {
             ActionsOrDocuments = actionsOrDocuments;
