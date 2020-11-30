@@ -9,13 +9,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
 
         public ChecklistTests()
         {
-            checklist_ = ChecklistTestHelper.BuildChecklist();
+            checklist_ = TestDataHelper.BuildChecklist();
         }
 
         [Fact]
         public void Checklist_tree_structure_should_be_consistent()
         {
-            ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist_);
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist_);
         }
 
         [Fact]

@@ -1,9 +1,11 @@
-﻿using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+﻿using System;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate;
 using FluentAssertions;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
 {
-    public class ChecklistTestHelper
+    public class TestDataHelper
     {
         public static Checklist.Checklist BuildChecklist()
         {
@@ -77,6 +79,28 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG1"].Children.Should().ContainKeys("R2,G2,SG1,P1", "R2,G2,SG1,P2", "R2,G2,SG1,P3", "R2,G2,SG1,P4");
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].Children.Count.Should().Be(2);
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].Children.Should().ContainKeys("R2,G2,SG2,P1", "R2,G2,SG2,P2");
+        }
+
+        public const int FarmInspectionId = 1;
+        public static readonly Guid InspectionId = Guid.NewGuid();
+        public const long ChecklistId = 1;
+        public static readonly Mandate.Domain Domaine_PER_Grandes_Cultures = new Mandate.Domain(1, "PER grandes cultures");
+        public static readonly Campaign Campagne_été_2020 = new Campaign(1, "Campagne été 2020");
+        public const string EmptyComment = "";
+        
+        public static Inspection ConstructInspection()
+        {
+            return new Inspection(FarmInspectionId, InspectionId, Domaine_PER_Grandes_Cultures, Campagne_été_2020, InspectionReason.Routine, EmptyComment, ChecklistId);
+        }
+
+        public static void InspectionShouldBeSuchAsConstructed(Inspection inspection)
+        {
+            inspection.Should().NotBeNull();
+            inspection.FarmInspectionId.Should().Be(FarmInspectionId);
+            inspection.Domain.Should().Be(Domaine_PER_Grandes_Cultures);
+            inspection.Campaign.Should().Be(Campagne_été_2020);
+            inspection.Reason.Should().Be(InspectionReason.Routine);
+            inspection.ChecklistId.Should().Be(ChecklistId);
         }
     }
 }

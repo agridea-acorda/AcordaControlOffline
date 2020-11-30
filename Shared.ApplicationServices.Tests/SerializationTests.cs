@@ -18,7 +18,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         {
             testOutputHelper_ = testOutputHelper;
             Console.SetOut(new TestOutputWriter(testOutputHelper_));
-            checklist_ = ChecklistTestHelper.BuildChecklist();
+            checklist_ = TestDataHelper.BuildChecklist();
         }
 
         [Fact]
@@ -34,17 +34,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         {
             var json = File.ReadAllText("./Data/checklist.json");
             var checklist = new ChecklistFactory().Parse(json);
-            ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
         }
 
         [Fact]
         public void Can_serialize_then_parse_checklist()
         {
-            ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist_);
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist_);
             var checklistFactory = new ChecklistFactory();
             string json = checklistFactory.Serialize(checklist_);
             var checklist = checklistFactory.Parse(json);
-            ChecklistTestHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
         }
     }
 }
