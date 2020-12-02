@@ -17,7 +17,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         protected void SetPropertyValueViaBackingField(Type targetType, string propertyName, object instance, object propertyValue)
         {
-            //var backingField = targetType.GetField(BackingField(propertyName), BindingFlags.Instance | BindingFlags.NonPublic);
             var backingField = FindBackingFieldInType(targetType, propertyName);
             if (backingField == null)
                 throw new InvalidOperationException($"Failed to extract backing field for property {propertyName} of type {targetType.Name}. Cannot proceed to set value.");
