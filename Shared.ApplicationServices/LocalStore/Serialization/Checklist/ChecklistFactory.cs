@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Newtonsoft.Json;
 
