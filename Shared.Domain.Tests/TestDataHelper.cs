@@ -7,7 +7,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
 {
     public class TestDataHelper
     {
-        public static Checklist.Checklist BuildChecklist()
+        public static Checklist.Checklist ConstructChecklist()
         {
             var checklist = new Checklist.Checklist()
                             .AddRubric("R1", new RubricResult("R1", "R1", "R1")
@@ -113,6 +113,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             inspection.Campaign.Should().Be(Campagne_été_2020);
             inspection.Reason.Should().Be(InspectionReason.Routine);
             inspection.ChecklistId.Should().Be(ChecklistId);
+        }
+
+        public static Farm.Farm ConstructFarm()
+        {
+            return new Farm.Farm();
+        }
+
+        public static void FarmShouldBeSuchAsConstructed(Farm.Farm farm)
+        {
+            farm.Should().NotBeNull();
         }
     }
 }

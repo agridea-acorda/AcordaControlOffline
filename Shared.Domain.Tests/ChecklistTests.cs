@@ -9,7 +9,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
 
         public ChecklistTests()
         {
-            checklist_ = TestDataHelper.BuildChecklist();
+            checklist_ = TestDataHelper.ConstructChecklist();
         }
 
         [Fact]
