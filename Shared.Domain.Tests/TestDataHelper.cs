@@ -1,6 +1,6 @@
 ﻿using System;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
-using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using FluentAssertions;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
@@ -84,15 +84,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
         public const int FarmInspectionId = 1;
         public static readonly Guid InspectionId = Guid.NewGuid();
         public const long ChecklistId = 1;
-        public static readonly Mandate.Domain Domaine_PER_Grandes_Cultures = new Mandate.Domain(1, "PER grandes cultures");
+        public static readonly Inspection.Domain Domaine_PER_Grandes_Cultures = new Inspection.Domain(1, "PER grandes cultures");
         public static readonly Campaign Campagne_été_2020 = new Campaign(1, "Campagne été 2020");
         public const string EmptyComment = "";
         public const long FarmId = 1;
         
-        public static Inspection ConstructInspection()
+        public static Inspection.Inspection ConstructInspection()
         {
-            return new Inspection(
-                new Inspection.InitObject
+            return new Inspection.Inspection(
+                new Inspection.Inspection.InitObject
                 {
                     FarmInspectionId = FarmInspectionId,
                     InspectionId = InspectionId,
@@ -105,7 +105,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
                 });
         }
 
-        public static void InspectionShouldBeSuchAsConstructed(Inspection inspection)
+        public static void InspectionShouldBeSuchAsConstructed(Inspection.Inspection inspection)
         {
             inspection.Should().NotBeNull();
             inspection.FarmInspectionId.Should().Be(FarmInspectionId);

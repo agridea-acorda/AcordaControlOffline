@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {

@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 using Agridea.DomainDrivenDesign;
 
-namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate {
-    public class Campaign : ValueObject
+namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
+    public class Domain : ValueObject
     {
-        public Campaign(int id, string name)
+        public Domain(int id, string shortName)
         {
             if (id <= 0)
                 throw new ArgumentOutOfRangeException(nameof(id), $"{nameof(id)} must be > 0");
 
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException($"{nameof(name)} must be non-empty");
+            if (string.IsNullOrWhiteSpace(shortName))
+                throw new ArgumentException($"{nameof(shortName)} must be non-empty");
 
             Id = id;
-            Name = name;
+            ShortName = shortName;
         }
         public int Id { get; }
-        public string Name { get; }
+        public string ShortName { get; }
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return Id;
-            yield return Name;
+            yield return ShortName;
         }
     }
 }

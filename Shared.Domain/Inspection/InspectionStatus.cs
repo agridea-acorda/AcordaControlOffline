@@ -1,4 +1,4 @@
-﻿namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate {
+﻿namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
     public class InspectionStatus : CodeNameValueObject
     {
         public InspectionStatus(int code, string name) : base(code, name) { }
