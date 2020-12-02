@@ -87,10 +87,22 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
         public static readonly Mandate.Domain Domaine_PER_Grandes_Cultures = new Mandate.Domain(1, "PER grandes cultures");
         public static readonly Campaign Campagne_été_2020 = new Campaign(1, "Campagne été 2020");
         public const string EmptyComment = "";
+        public const long FarmId = 1;
         
         public static Inspection ConstructInspection()
         {
-            return new Inspection(FarmInspectionId, InspectionId, Domaine_PER_Grandes_Cultures, Campagne_été_2020, InspectionReason.Routine, EmptyComment, ChecklistId);
+            return new Inspection(
+                new Inspection.InitObject
+                {
+                    FarmInspectionId = FarmInspectionId,
+                    InspectionId = InspectionId,
+                    Domain = Domaine_PER_Grandes_Cultures,
+                    Campaign = Campagne_été_2020,
+                    Reason = InspectionReason.Routine,
+                    Comment = EmptyComment,
+                    ChecklistId = ChecklistId,
+                    FarmId = FarmId
+                });
         }
 
         public static void InspectionShouldBeSuchAsConstructed(Inspection inspection)
