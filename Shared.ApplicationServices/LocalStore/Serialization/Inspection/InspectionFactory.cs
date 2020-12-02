@@ -29,6 +29,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             if (dto == null) return null;
 
             var targetInstance = (Domain.Inspection.Inspection) FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.Inspection));
+            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Id), targetInstance, dto.Id);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.FarmInspectionId), targetInstance, dto.FarmInspectionId);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.InspectionId), targetInstance, Guid.Parse(dto.InspectionId));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.ChecklistId), targetInstance, dto.ChecklistId);
@@ -38,7 +39,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.CommentForOffice), targetInstance, dto.CommentForOffice);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.PercentComputed), targetInstance, dto.PercentComputed);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.DateComputed), targetInstance, dto.DateComputed);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Id), targetInstance, dto.Id);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Domain), targetInstance, Parse(dto.Domain));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Campaign), targetInstance, Parse(dto.Campaign));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Reason), targetInstance, Parse(dto.Reason));

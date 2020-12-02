@@ -6,6 +6,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 {
     class FarmDeserializationDto
     {
-        public class Root { }
+        public class Root
+        {
+            public long Id { get; set; }
+        }
     }
 }

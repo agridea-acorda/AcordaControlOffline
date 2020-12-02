@@ -31,6 +31,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             if (dto == null) return null;
 
             var targetInstance = (Domain.Farm.Farm)FormatterServices.GetUninitializedObject(typeof(Domain.Farm.Farm));
+            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Id), targetInstance, dto.Id);
             return targetInstance;
         }
     }
