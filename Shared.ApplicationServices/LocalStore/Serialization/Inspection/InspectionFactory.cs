@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Inspection
 {
@@ -13,7 +12,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public override string Serialize(Domain.Inspection.Inspection aggregateRoot)
         {
-            throw new NotImplementedException();
+            return JsonConvert.SerializeObject(aggregateRoot,
+                                               Formatting.Indented,
+                                               new JsonSerializerSettings
+                                               {
+                                                   ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                                                   ContractResolver = new AggregateRootContractResolver()
+                                               });
         }
     }
 }
