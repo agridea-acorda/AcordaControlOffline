@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;

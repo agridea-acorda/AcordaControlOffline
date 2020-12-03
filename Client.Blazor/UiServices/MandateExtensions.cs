@@ -1,4 +1,4 @@
-﻿using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
+﻿using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 {

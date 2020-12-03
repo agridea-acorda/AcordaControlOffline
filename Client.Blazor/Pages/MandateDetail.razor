@@ -1,11 +1,9 @@
 ﻿@page "/MandateDetail/{FarmId:int}"
 @inject NavigationManager Navigation
 @inject IRepository Repository
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
-@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
 
 @if (mandate == null)
 {
@@ -54,7 +52,7 @@ else
         </div>
         <div class="card-body p-0">
             <div class="list-group">
-                @foreach (var checklist in mandate.CheckLists)
+                @foreach (var checklist in mandate.Inspections)
                 {
                     <div class="list-group-item">
                         <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(checklist.FarmInspectionId)">

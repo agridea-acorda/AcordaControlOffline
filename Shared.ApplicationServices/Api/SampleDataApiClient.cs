@@ -27,9 +27,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await FetchJsonDataAsync<Mandate>(uri);
         }
 
-        public async Task<Result<ViewModel.FarmDetail.Farm>> FetchFarmDetailAsync(string uri)
+        public async Task<Result<ViewModel.Farm.Farm>> FetchFarmDetailAsync(string uri)
         {
-            return await FetchJsonDataAsync<ViewModel.FarmDetail.Farm>(uri);
+            return await FetchJsonDataAsync<ViewModel.Farm.Farm>(uri);
         }
 
         public async Task<Result<ChecklistSample>> FetchChecklistSampleAsync(string uri)

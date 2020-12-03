@@ -99,11 +99,11 @@
                             <FarmBase Farm="@mandate.Farm" />
                         </p>
 
-                        <BadgeBar Badges="@mandate.Badges" />
+                        <BadgeBar Badges="@mandate.Farm.Badges" />
 
-                        @foreach (var checklist in mandate.Checklists)
+                        @foreach (var inspection in mandate.Inspections)
                         {
-                            <ProgressBar Progress="@checklist" />
+                            <ProgressBar Progress="@inspection" />
                         }
                     </div>
                 }
@@ -185,7 +185,7 @@
         var syncStatus = mandate.SyncStatus;
         mandate.SyncStatus = SyncStatus.Loading;
 
-        if (!await TryFetchAndSave(() => Api.FetchMandateDetailAsync("sample-data/farm.json"),
+        if (!await TryFetchAndSave(() => Api.FetchMandateDetailAsync("sample-data/mandate.json"),
                                    data => Repository.SaveMandateAsync(data)))
         {
             mandate.SyncStatus = syncStatus;

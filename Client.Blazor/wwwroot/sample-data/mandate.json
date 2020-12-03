@@ -59,7 +59,7 @@
       }
     ]
   },
-  "checkLists": [
+  "inspections": [
     {
       "farmInspectionId": 1, 
       "campaign": "Campagne hiver 2020",
