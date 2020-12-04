@@ -152,7 +152,7 @@
 
         if (mandates == null)
         {
-            var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates.json");
+            var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates-from-api.json");
             if (mandatesResult.IsSuccess)
             {
                 mandates = mandatesResult.Value;

@@ -2,7 +2,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 
 <div class="progress progress-tall mt-2 mb-2">
-    <div class="progress-bar @Progress.Outcome.BackgroundCssClass() p-1" role="progressbar" aria-valuenow="@Progress.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @Progress.Percent%"></div>
+    <div class="progress-bar @Progress.Outcome.BackgroundCssClass()" role="progressbar" aria-valuenow="@Progress.Percent" aria-valuemin="0" aria-valuemax="100" style="width: @Progress.Percent%"></div>
     <div class="progress-bar-text">
         <span role="label">@Progress.Domain (@Progress.Inspector)</span>
         <span role="percent" class="ml-2">@Progress.Percent%</span>
