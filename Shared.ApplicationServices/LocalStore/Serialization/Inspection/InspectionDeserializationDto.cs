@@ -73,20 +73,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public class FinishStatus
         {
             public string DoneByInspector { get; set; }
-            public object DoneOn { get; set; }
+            public DateTime? DoneOn { get; set; }
             public bool IsFinished { get; set; }
         }
 
         public class CloseStatus
         {
-            public object CloseDate { get; set; }
+            public DateTime? CloseDate { get; set; }
             public string ClosedBy { get; set; }
             public bool IsClosed { get; set; }
         }
 
         public class ReopenStatus
         {
-            public object ReopenDate { get; set; }
+            public DateTime? ReopenDate { get; set; }
             public string ReopenedBy { get; set; }
             public bool IsReopened { get; set; }
         }
