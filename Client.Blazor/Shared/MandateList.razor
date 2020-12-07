@@ -185,8 +185,8 @@
         var syncStatus = mandate.SyncStatus;
         mandate.SyncStatus = SyncStatus.Loading;
 
-        if (!await TryFetchAndSave(() => Api.FetchMandateDetailAsync("sample-data/mandate.json"),
-                                   data => Repository.SaveMandateAsync(data)))
+        if (!await TryFetchAndSave(() => Api.FetchMandateDetailJsonAsync("sample-data/mandateDetail_141.json"),
+                                   json => Repository.SaveMandateJsonAsync(json, farmId)))
         {
             mandate.SyncStatus = syncStatus;
         }

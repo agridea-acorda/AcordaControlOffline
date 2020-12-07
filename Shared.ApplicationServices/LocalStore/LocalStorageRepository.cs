@@ -52,6 +52,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(key, mandate);
         }
 
+        public async ValueTask SaveMandateJsonAsync(string json, int id)
+        {
+            string key = MandateDetailKey(id);
+            await localStorage_.SetItemAsync(key, json);
+        }
+
         public async ValueTask<ChecklistSample> ReadChecklistSampleAsync()
         {
             return await localStorage_.GetItemAsync<ChecklistSample>(Checklist);
