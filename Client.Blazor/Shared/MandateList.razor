@@ -185,14 +185,20 @@
         var syncStatus = mandate.SyncStatus;
         mandate.SyncStatus = SyncStatus.Loading;
 
-        if (!await TryFetchAndSave(() => Api.FetchMandateDetailJsonAsync("sample-data/mandateDetail_141.json"),
+        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync("sample-data/mandate_FarmId141.json"),
                                    json => Repository.SaveMandateJsonAsync(json, farmId)))
         {
             mandate.SyncStatus = syncStatus;
         }
 
+        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync("sample-data/farm_Id141.json"),
+                                   json => Repository.SaveFarmJsonAsync(json, farmId)))
+        {
+            mandate.SyncStatus = syncStatus;
+        }
+
         if (!await TryFetchAndSave(() => Api.FetchChecklistSampleAsync("sample-data/checklist.json"),
-                                   data => Repository.SaveChecklistSampleAsync(data)))
+                               data => Repository.SaveChecklistSampleAsync(data)))
         {
             mandate.SyncStatus = syncStatus;
         }

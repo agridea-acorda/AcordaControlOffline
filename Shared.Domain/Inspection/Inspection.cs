@@ -5,18 +5,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 {
     public class Inspection: AggregateRoot
     {
-        public class InitObject
-        {
-            public int FarmInspectionId { get; set; }
-            public Guid InspectionId { get; set; }
-            public long ChecklistId { get; set; }
-            public long FarmId { get; set; }
-            public Domain Domain { get; set; }
-            public Campaign Campaign { get; set; }
-            public InspectionReason Reason { get; set; }
-            public string Comment { get; set; }
-        }
-
         public Inspection(InitObject initValues)
         {
             if (initValues.FarmInspectionId <= 0)
@@ -152,6 +140,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
         {
             InspectorSignature = signature;
             return this;
+        }
+
+        public class InitObject
+        {
+            public int FarmInspectionId { get; set; }
+            public Guid InspectionId { get; set; }
+            public long ChecklistId { get; set; }
+            public long FarmId { get; set; }
+            public Domain Domain { get; set; }
+            public Campaign Campaign { get; set; }
+            public InspectionReason Reason { get; set; }
+            public string Comment { get; set; }
         }
     }
 }

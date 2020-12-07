@@ -1,0 +1,15 @@
+﻿{
+  "Id": 141,
+  "Ktidb": "JU67060010",
+  "FarmName": "Frund Vincent",
+  "Address": "Petit-Bâle, 4, 2825 Courchapoix",
+  "FarmType": "Exploitation à l’année",
+  "FarmTypeCode": 1,
+  "Email": "isabelle.lobsiger@gmail.com",
+  "PhoneNumber": "079 343 04 52",
+  "AgriculturalArea": "0",
+  "NonAgriculturalArea": "0",
+  "BovineStandardUnits": "0.0",
+  "BovineStandardUnitsFromBdta": "0.0",
+  "Badges": []
+}

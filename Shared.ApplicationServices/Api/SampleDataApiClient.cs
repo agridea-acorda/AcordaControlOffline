@@ -27,7 +27,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await FetchTypedAsync<Mandate>(uri);
         }
 
-        public async Task<Result<string>> FetchMandateDetailJsonAsync(string uri)
+        public async Task<Result<string>> FetchRawJsonAsync(string uri)
         {
             return await FetchJsonAsync(uri);
         }

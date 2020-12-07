@@ -43,6 +43,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             string key = MandateDetailKey(farmId);
             return await localStorage_.GetItemAsync<ViewModel.MandateDetail.Mandate>(key);
+
+            
         }
 
         public async ValueTask SaveMandateAsync(ViewModel.MandateDetail.Mandate mandate, int id = 0)
@@ -55,6 +57,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public async ValueTask SaveMandateJsonAsync(string json, int id)
         {
             string key = MandateDetailKey(id);
+            await localStorage_.SetItemAsync(key, json);
+        }
+
+        public async ValueTask SaveFarmJsonAsync(string json, int id)
+        {
+            string key = FarmKey(id);
             await localStorage_.SetItemAsync(key, json);
         }
 
@@ -92,7 +100,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         private static string MandateDetailKey(int farmId)
         {
-            return $"{MandateDetail}_{farmId}";
+            return $"mandate_FarmId{farmId}";
+        }
+
+        private static string FarmKey(int farmId)
+        {
+            return $"farm_Id{farmId}";
         }
 
         private static string ChecklistKey(Checklist checklist)
