@@ -15,5 +15,15 @@
         public string BovineStandardUnits { get; set; }
         public string BovineStandardUnitsFromBdta { get; set; }
         public Badge.Badge[] Badges { get; set; }
+
+        public static Farm FromDomain(Domain.Farm.Farm farm)
+        {
+            var model = new Farm
+            {
+                Id = (int) farm.Id,
+                // todo continue this
+            };
+            return model;
+        }
     }
 }

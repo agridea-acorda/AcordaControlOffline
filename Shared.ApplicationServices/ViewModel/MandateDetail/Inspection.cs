@@ -11,5 +11,14 @@
         public bool CanDisplayPdfReport { get; set; }
         public bool CanClose { get; set; }
         public bool CanReopen { get; set; }
+
+        public static Inspection FromDomain(Domain.Inspection.Inspection inspection)
+        {
+            var model = new Inspection
+            {
+                // todo fill this
+            };
+            return model;
+        }
     }
 }

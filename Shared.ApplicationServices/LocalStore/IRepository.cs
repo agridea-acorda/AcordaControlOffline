@@ -4,6 +4,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.C
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore {
     public interface IRepository
@@ -11,10 +12,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask SaveMandatesAsync(Mandate[] mandates);
         ValueTask<Mandate[]> ReadAllMandatesAsync();
         ValueTask<bool> HasMandateAsync(int farmId);
-        ValueTask<ViewModel.MandateDetail.Mandate> ReadMandateAsync(int farmId);
+        ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId);
         ValueTask SaveMandateAsync(ViewModel.MandateDetail.Mandate mandate, int id = 0);
         ValueTask SaveMandateJsonAsync(string json, int id);
         ValueTask SaveFarmJsonAsync(string json, int id);
+        ValueTask<Farm> ReadFarmAsync(int farmId);
         ValueTask<ChecklistSample> ReadChecklistSampleAsync();
         ValueTask SaveChecklistSampleAsync(ChecklistSample checklist);
         ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync();

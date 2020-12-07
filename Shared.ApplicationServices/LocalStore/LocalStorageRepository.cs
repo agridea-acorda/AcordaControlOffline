@@ -2,10 +2,13 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Farm;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 using Blazored.LocalStorage;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
@@ -39,12 +42,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return await localStorage_.ContainKeyAsync(key);
         }
 
-        public async ValueTask<ViewModel.MandateDetail.Mandate> ReadMandateAsync(int farmId)
+        public async ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId)
         {
-            string key = MandateDetailKey(farmId);
-            return await localStorage_.GetItemAsync<ViewModel.MandateDetail.Mandate>(key);
+            string json = await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+            return new MandateFactory().Parse(json);
+        }
 
-            
+        public async ValueTask<Farm> ReadFarmAsync(int farmId)
+        {
+            string json = await localStorage_.GetItemAsStringAsync(FarmKey(farmId));
+            return new FarmFactory().Parse(json);
         }
 
         public async ValueTask SaveMandateAsync(ViewModel.MandateDetail.Mandate mandate, int id = 0)

@@ -6,7 +6,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm
 @using Badge = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Badge.Badge
 
-@if (farm == null)
+@if (farmViewModel == null)
 {
     <p>Loading...</p>
 }
@@ -14,25 +14,25 @@ else
 {
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">@farm.Ktidb @farm.FarmName</h3>
+            <h3 class="card-title">@farmViewModel.Ktidb @farmViewModel.FarmName</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-default" @onclick="() => NavigateToMandateDetail(farm.Id)">
+                <button type="button" class="btn btn-default" @onclick="() => NavigateToMandateDetail(farmViewModel.Id)">
                     <i class="fas fa-arrow-left"></i>
                     Mandat
                 </button>
             </div>
             <p class="clearboth mb-0">
-                <FarmBase Farm="@farm" />
+                <FarmBase Farm="@farmViewModel" />
             </p>
         </div>
         <div class="card-body">
             <p class="mb-1">
-                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farm.AgriculturalArea</span>
-                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farm.NonAgriculturalArea</span>
-                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farm.BovineStandardUnits</span>
-                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farm.BovineStandardUnitsFromBdta</span>
+                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farmViewModel.AgriculturalArea</span>
+                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@farmViewModel.NonAgriculturalArea</span>
+                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farmViewModel.BovineStandardUnits</span>
+                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farmViewModel.BovineStandardUnitsFromBdta</span>
             </p>
-            <BadgeBar Badges="@farm.Badges" />
+            <BadgeBar Badges="@farmViewModel.Badges" />
         </div>
     </div>
 
@@ -162,11 +162,11 @@ else
     [Parameter]
     public int FarmId { get; set; }
 
-    IFarm<Badge> farm;
+    IFarm<Badge> farmViewModel;
     protected override async Task OnInitializedAsync()
     {
-        var mandate = await Repository.ReadMandateAsync(FarmId);
-        farm = mandate.Farm;
+        var farm = await Repository.ReadFarmAsync(FarmId);
+        farmViewModel = Farm.FromDomain(farm);
     }
 
     void NavigateToMandateDetail(int farmId)

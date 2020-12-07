@@ -2,10 +2,12 @@
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
+@using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
+@using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Inspection
 
-@if (mandate == null)
+@if (mandateViewModel == null)
 {
     <p>Loading...</p> // No need for skeleton-loading since data is read from local store.
 }
@@ -14,10 +16,10 @@ else
     <div class="card">
         <div class="card-header">
 
-            <h3 class="card-title">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h3>
+            <h3 class="card-title">@mandateViewModel.Farm.Ktidb @mandateViewModel.Farm.FarmName</h3>
 
             <div class="card-tools">
-                <button type="button" class="btn btn-default" @onclick="() => NavigateToFarmDetail(mandate.Farm.Id)">
+                <button type="button" class="btn btn-default" @onclick="() => NavigateToFarmDetail(mandateViewModel.Farm.Id)">
                     <span class="fa-stack stacked-icon-button">
                         <i class="far fa-circle fa-stack-2x"></i>
                         <i class="fas fa-info fa-stack-1x"></i>
@@ -26,18 +28,18 @@ else
             </div>
 
             <p class="clearboth mb-0">
-                <FarmBase Farm="@mandate.Farm" />
+                <FarmBase Farm="@mandateViewModel.Farm" />
             </p>
         </div>
         <div class="card-body">
 
             <p class="mb-1">
-                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.Farm.AgriculturalArea</span>
-                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandate.Farm.NonAgriculturalArea</span>
-                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.Farm.BovineStandardUnits</span>
-                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandate.Farm.BovineStandardUnitsFromBdta</span>
+                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.AgriculturalArea</span>
+                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.NonAgriculturalArea</span>
+                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandateViewModel.Farm.BovineStandardUnits</span>
+                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandateViewModel.Farm.BovineStandardUnitsFromBdta</span>
             </p>
-            <BadgeBar Badges="@mandate.Farm.Badges" />
+            <BadgeBar Badges="@mandateViewModel.Farm.Badges" />
         </div>
     </div>
 
@@ -52,7 +54,7 @@ else
         </div>
         <div class="card-body p-0">
             <div class="list-group">
-                @foreach (var checklist in mandate.Inspections)
+                @foreach (var checklist in mandateViewModel.Inspections)
                 {
                     <div class="list-group-item">
                         <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(checklist.FarmInspectionId)">
@@ -118,10 +120,18 @@ else
 
     [Parameter] public int FarmId { get; set; }
 
-    private Mandate mandate;
+    private Mandate mandateViewModel;
+    private Farm farm;
+    private AcordaControlOffline.Shared.Domain.Mandate.Mandate mandate;
     protected override async Task OnInitializedAsync()
     {
+        farm = await Repository.ReadFarmAsync(FarmId);
         mandate = await Repository.ReadMandateAsync(FarmId);
+        mandateViewModel = new Mandate
+        {
+            Farm = AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm.Farm.FromDomain(farm),
+            Inspections = mandate.Inspections.Select(Inspection.FromDomain).ToArray()
+        };
     }
 
     void NavigateToChecklist(int farmInspectionId)
