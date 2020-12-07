@@ -24,7 +24,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                                                });
         }
 
-        private Domain.Inspection.Inspection Parse(InspectionDeserializationDto.Root dto)
+        internal Domain.Inspection.Inspection Parse(InspectionDeserializationDto.Root dto)
         {
             if (dto == null) return null;
 
