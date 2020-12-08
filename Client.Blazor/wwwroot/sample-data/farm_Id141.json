@@ -11,5 +11,51 @@
   "NonAgriculturalArea": "0",
   "BovineStandardUnits": "0.0",
   "BovineStandardUnitsFromBdta": "0.0",
-  "Badges": []
+  "Badges": [
+    {
+      "category": "animal",
+      "name": "SRPA",
+      "title": "Animaux >3Ugb >0.2Umos"
+    },
+    {
+      "category": "beesfish",
+      "name": "SRPA",
+      "title": "Biodiversité Compléments cantonaux (plaine)"
+    },
+    {
+      "category": "btsraus",
+      "name": "SST An+1",
+      "title": "Animaux >3Ugb >0.2Umos"
+    },
+    {
+      "category": "btsraus",
+      "name": "SRPA",
+      "title": "SRPA"
+    },
+    {
+      "category": "animal",
+      "name": "Pisci",
+      "title": "Animaux >3Ugb >0.2Umos"
+    },
+    {
+      "category": "landscape",
+      "name": "SST An+1",
+      "title": "Ruchers"
+    },
+    {
+      "category": "landscape",
+      "name": "Paysage",
+      "title": "Animaux >3Ugb >0.2Umos"
+    },
+    {
+      "category": "biodiversity",
+      "name": "SST",
+      "title": "Biodiversité Qualité II"
+    },
+    {
+      "category": "landscape",
+      "name": "Q2",
+      "title": "Biodiversité Qualité II"
+    }
+  ]
 }

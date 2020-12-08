@@ -10,7 +10,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 {
     public class SampleDataApiClient : IApiClient
     {
-        private const int DefaultDelayInMs = 3000;
+        private const int DefaultDelayInMs = 2000;
         private readonly HttpClient httpClient_;
         public SampleDataApiClient(HttpClient httpClient)
         {

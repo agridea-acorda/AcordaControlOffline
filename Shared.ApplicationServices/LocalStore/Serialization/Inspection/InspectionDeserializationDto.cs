@@ -70,6 +70,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public bool IncompleteOrNonCompliant { get; set; }
         }
 
+        public class PdfReport
+        {
+            public byte[] Bytes { get; set; }
+        }
+
         public class FinishStatus
         {
             public string DoneByInspector { get; set; }
@@ -112,6 +117,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public Signature Inspector2Signature { get; set; }
             public Signature FarmerSignature { get; set; }
             public Compliance Compliance { get; set; }
+            public PdfReport PdfReport { get; set; }
             public FinishStatus FinishStatus { get; set; }
             public CloseStatus CloseStatus { get; set; }
             public ReopenStatus ReopenStatus { get; set; }

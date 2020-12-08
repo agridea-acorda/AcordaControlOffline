@@ -1,4 +1,6 @@
-﻿namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm
+﻿using System.Linq;
+
+namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm
 {
     public class Farm : ViewModel, IFarm<Badge.Badge>
     {
@@ -21,7 +23,18 @@
             var model = new Farm
             {
                 Id = (int) farm.Id,
-                // todo continue this
+                Ktidb = farm.Ktidb,
+                FarmName = farm.FarmName,
+                Address = farm.Address,
+                FarmType = farm.FarmType,
+                FarmTypeCode = farm.FarmTypeCode,
+                Email = farm.Email,
+                PhoneNumber = farm.PhoneNumber,
+                AgriculturalArea = farm.AgriculturalArea,
+                NonAgriculturalArea = farm.NonAgriculturalArea,
+                BovineStandardUnits = farm.BovineStandardUnits,
+                BovineStandardUnitsFromBdta = farm.BovineStandardUnitsFromBdta,
+                Badges = farm.Badges?.Select(Badge.Badge.FromDomain).ToArray()
             };
             return model;
         }

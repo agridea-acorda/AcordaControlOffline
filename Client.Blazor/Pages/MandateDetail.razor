@@ -54,14 +54,14 @@ else
         </div>
         <div class="card-body p-0">
             <div class="list-group">
-                @foreach (var checklist in mandateViewModel.Inspections)
+                @foreach (var inspection in mandateViewModel.Inspections)
                 {
                     <div class="list-group-item">
-                        <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(checklist.FarmInspectionId)">
+                        <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId)">
                             <i class="fas fa-arrow-right"></i> Check-Liste
                         </button>
-                        <h4 class="list-group-item-heading">@checklist.Domain</h4>
-                        <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @checklist.Campaign</span></p>
+                        <h4 class="list-group-item-heading">@inspection.Domain</h4>
+                        <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
                         <button class="btn btn-app h-auto">
                             <i class="far fa-calendar-alt"></i>
                             <span class="d-block">(non agendé)</span>
@@ -76,33 +76,33 @@ else
                             <span style="white-space: pre-wrap">Pour la gérance</span>
                         </button>
                         <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
-                        <ProgressBar Progress="@checklist" />
-                        @if (checklist.HasComplianceRequirements)
+                        <ProgressBar Progress="@inspection" />
+                        @if (inspection.HasComplianceRequirements)
                         {
                             <p class="mb-1">
-                                <strong>Délai de mise en conformité jusqu'au: @checklist.ComplianceDeadline</strong>
+                                <strong>Délai de mise en conformité jusqu'au: @inspection.ComplianceDeadline</strong>
                                 <span class="text-yellow"> @Late</span>
                                 <span class="text-green"><i class="far fa-thumbs-up"></i> @Compliant</span>
                                 <span class="text-red"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
                             </p>
                         }
-                        @if (checklist.CanGeneratePdfReport)
+                        @if (inspection.CanGeneratePdfReport)
                         {
                             <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
                         }
-                        @if (checklist.CanDisplayPdfReport)
+                        @if (inspection.CanDisplayPdfReport)
                         {
                             <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
                         }
-                        @if (checklist.CanClose)
+                        @if (inspection.CanClose)
                         {
                             <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
                         }
-                        @if (checklist.IsClosed)
+                        @if (inspection.IsClosed)
                         {
-                            <p class="mb-1"><strong>Clôturé le @checklist.CloseDate par @checklist.ClosedBy.</strong></p>
+                            <p class="mb-1"><strong>Clôturé le @inspection.CloseDate par @inspection.ClosedBy.</strong></p>
                         }
-                        @if (checklist.CanReopen)
+                        @if (inspection.CanReopen)
                         {
                             <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
                         }

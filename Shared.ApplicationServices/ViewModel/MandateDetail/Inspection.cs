@@ -1,4 +1,6 @@
-﻿namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
+﻿using System;
+
+namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 {
     public class Inspection: MandateList.Inspection
     {
@@ -16,8 +18,22 @@
         {
             var model = new Inspection
             {
-                // todo fill this
-            };
+                FarmInspectionId = inspection.FarmInspectionId,
+                Campaign = inspection.Campaign.Name,
+                HasComplianceRequirements = inspection.HasComplianceRequirements(),
+                ComplianceDeadline = inspection.Compliance.DueDate?.ToShortDateString() ?? "",
+                ClosedBy = inspection.CloseStatus.IsClosed ? inspection.CloseStatus.ClosedBy : "",
+                CanGeneratePdfReport = inspection.CanGeneratePdfReport(),
+                CanDisplayPdfReport = inspection.CanDisplayPdfReport(),
+                CanClose = inspection.CanClose(),
+                CanReopen = inspection.CanReopen(),
+                Domain = inspection.Domain.ShortName,
+                Inspector = "Mr Bean",
+                Percent = (int)Math.Round(inspection.PercentComputed),
+                Outcome = inspection.OutcomeComputed.ToViewModel(),
+                IsClosed = inspection.CloseStatus.IsClosed,
+                CloseDate = inspection.CloseStatus.CloseDate?.ToShortDateString() ?? ""
+    };
             return model;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using FluentAssertions;
 
@@ -117,12 +118,49 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
 
         public static Farm.Farm ConstructFarm()
         {
-            return new Farm.Farm();
+            return new Farm.Farm(141)
+            {
+                Ktidb = "JU67060010",
+                FarmName = "Frund Vincent",
+                Address = "Petit-Bâle, 4, 2825 Courchapoix",
+                FarmType = "Exploitation à l’année",
+                FarmTypeCode = 1,
+                Email = "isabelle.lobsiger@gmail.com",
+                PhoneNumber = "079 343 04 52",
+                AgriculturalArea = "0",
+                NonAgriculturalArea = "0",
+                BovineStandardUnits = "0.0",
+                BovineStandardUnitsFromBdta = "0.0",
+                Badges = new[]
+                {
+                    new Badge { Category = "btsraus", Name = "SST", Title = "SST" },
+                    new Badge { Category = "btsraus", Name = "SRPA", Title = "SRPA" },
+                }
+            };
         }
 
         public static void FarmShouldBeSuchAsConstructed(Farm.Farm farm)
         {
             farm.Should().NotBeNull();
+            farm.Id.Should().Be(141);
+            farm.Ktidb.Should().Be("JU67060010");
+            farm.FarmName.Should().Be("Frund Vincent");
+            farm.Address.Should().Be("Petit-Bâle, 4, 2825 Courchapoix");
+            farm.FarmType.Should().Be("Exploitation à l’année");
+            farm.FarmTypeCode.Should().Be(1);
+            farm.Email.Should().Be("isabelle.lobsiger@gmail.com");
+            farm.PhoneNumber.Should().Be("079 343 04 52");
+            farm.AgriculturalArea.Should().Be("0");
+            farm.NonAgriculturalArea.Should().Be("0");
+            farm.BovineStandardUnits.Should().Be("0.0");
+            farm.BovineStandardUnitsFromBdta.Should().Be("0.0");
+            farm.Badges.Should().HaveCount(2);
+            farm.Badges[0].Category.Should().Be("btsraus");
+            farm.Badges[0].Name.Should().Be("SST");
+            farm.Badges[0].Title.Should().Be("SST");
+            farm.Badges[1].Category.Should().Be("btsraus");
+            farm.Badges[1].Name.Should().Be("SRPA");
+            farm.Badges[1].Title.Should().Be("SRPA");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Newtonsoft.Json;
 using Formatting = Newtonsoft.Json.Formatting;
 
@@ -49,6 +50,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Inspector2Signature), targetInstance, Parse(dto.Inspector2Signature));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.FarmerSignature), targetInstance, Parse(dto.FarmerSignature));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Compliance), targetInstance, Parse(dto.Compliance));
+            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.PdfReport), targetInstance, Parse(dto.PdfReport));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.FinishStatus), targetInstance, Parse(dto.FinishStatus));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.CloseStatus), targetInstance, Parse(dto.CloseStatus));
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.ReopenStatus), targetInstance, Parse(dto.ReopenStatus));
@@ -64,102 +66,110 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return targetInstance;
         }
 
-        private Domain.Inspection.Campaign Parse(InspectionDeserializationDto.Campaign dto)
+        private Campaign Parse(InspectionDeserializationDto.Campaign dto)
         {
             if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.Campaign)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.Campaign));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Campaign), nameof(Domain.Inspection.Campaign.Id), targetInstance, dto.Id);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Campaign), nameof(Domain.Inspection.Campaign.Name), targetInstance, dto.Name);
+            var targetInstance = (Campaign)FormatterServices.GetUninitializedObject(typeof(Campaign));
+            SetPropertyValueViaBackingField(typeof(Campaign), nameof(Campaign.Id), targetInstance, dto.Id);
+            SetPropertyValueViaBackingField(typeof(Campaign), nameof(Campaign.Name), targetInstance, dto.Name);
             return targetInstance;
         }
 
-        private Domain.Inspection.InspectionReason Parse(InspectionDeserializationDto.Reason dto)
+        private InspectionReason Parse(InspectionDeserializationDto.Reason dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.InspectionReason)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.InspectionReason));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.InspectionReason), nameof(Domain.Inspection.InspectionReason.Code), targetInstance, dto.Code);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.InspectionReason), nameof(Domain.Inspection.InspectionReason.Name), targetInstance, dto.Name);
+            if (dto == null) return InspectionReason.Unknown;
+            var targetInstance = (InspectionReason)FormatterServices.GetUninitializedObject(typeof(InspectionReason));
+            SetPropertyValueViaBackingField(typeof(InspectionReason), nameof(InspectionReason.Code), targetInstance, dto.Code);
+            SetPropertyValueViaBackingField(typeof(InspectionReason), nameof(InspectionReason.Name), targetInstance, dto.Name);
             return targetInstance;
         }
 
-        private Domain.Inspection.Appointment Parse(InspectionDeserializationDto.Appointment dto)
+        private Appointment Parse(InspectionDeserializationDto.Appointment dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.Appointment)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.Appointment));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Appointment), nameof(Domain.Inspection.Appointment.Date), targetInstance, dto.Date);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Appointment), nameof(Domain.Inspection.Appointment.FirstContactDate), targetInstance, dto.FirstContactDate);
+            if (dto == null) return Appointment.None;
+            var targetInstance = (Appointment)FormatterServices.GetUninitializedObject(typeof(Appointment));
+            SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.Date), targetInstance, dto.Date);
+            SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.FirstContactDate), targetInstance, dto.FirstContactDate);
             return targetInstance;
         }
 
-        private Domain.Inspection.InspectionStatus Parse(InspectionDeserializationDto.Status dto)
+        private InspectionStatus Parse(InspectionDeserializationDto.Status dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.InspectionStatus)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.InspectionStatus));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.InspectionStatus), nameof(Domain.Inspection.InspectionStatus.Code), targetInstance, dto.Code);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.InspectionStatus), nameof(Domain.Inspection.InspectionStatus.Name), targetInstance, dto.Name);
+            if (dto == null) return InspectionStatus.Planned;
+            var targetInstance = (InspectionStatus)FormatterServices.GetUninitializedObject(typeof(InspectionStatus));
+            SetPropertyValueViaBackingField(typeof(InspectionStatus), nameof(InspectionStatus.Code), targetInstance, dto.Code);
+            SetPropertyValueViaBackingField(typeof(InspectionStatus), nameof(InspectionStatus.Name), targetInstance, dto.Name);
             return targetInstance;
         }
 
-        private Domain.Inspection.InspectionOutcome Parse(InspectionDeserializationDto.OutcomeComputed dto)
+        private InspectionOutcome Parse(InspectionDeserializationDto.OutcomeComputed dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.InspectionOutcome)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.InspectionOutcome));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.InspectionOutcome), nameof(Domain.Inspection.InspectionOutcome.Code), targetInstance, dto.Code);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.InspectionOutcome), nameof(Domain.Inspection.InspectionOutcome.Value), targetInstance, dto.Value);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.InspectionOutcome), nameof(Domain.Inspection.InspectionOutcome.Text), targetInstance, dto.Text);
+            if (dto == null) return InspectionOutcome.NotInspected;
+            var targetInstance = (InspectionOutcome)FormatterServices.GetUninitializedObject(typeof(InspectionOutcome));
+            SetPropertyValueViaBackingField(typeof(InspectionOutcome), nameof(InspectionOutcome.Code), targetInstance, dto.Code);
+            SetPropertyValueViaBackingField(typeof(InspectionOutcome), nameof(InspectionOutcome.Value), targetInstance, dto.Value);
+            SetPropertyValueViaBackingField(typeof(InspectionOutcome), nameof(InspectionOutcome.Text), targetInstance, dto.Text);
             return targetInstance;
         }
 
-        private Domain.Inspection.Signature Parse(InspectionDeserializationDto.Signature dto)
+        private Signature Parse(InspectionDeserializationDto.Signature dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.Signature)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.Signature));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Signature), nameof(Domain.Inspection.Signature.Signatory), targetInstance, dto.Signatory);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Signature), nameof(Domain.Inspection.Signature.Proxy), targetInstance, dto.Proxy);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Signature), nameof(Domain.Inspection.Signature.Data), targetInstance, dto.Data);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Signature), nameof(Domain.Inspection.Signature.DataUrl), targetInstance, dto.DataUrl);
+            if (dto == null) return Signature.None;
+            var targetInstance = (Signature)FormatterServices.GetUninitializedObject(typeof(Signature));
+            SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Signatory), targetInstance, dto.Signatory);
+            SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Proxy), targetInstance, dto.Proxy);
+            SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Data), targetInstance, dto.Data);
+            SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.DataUrl), targetInstance, dto.DataUrl);
             return targetInstance;
         }
 
-        private Domain.Inspection.Compliance Parse(InspectionDeserializationDto.Compliance dto)
+        private Compliance Parse(InspectionDeserializationDto.Compliance dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.Compliance)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.Compliance));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Compliance), nameof(Domain.Inspection.Compliance.ActionsOrDocuments), targetInstance, dto.ActionsOrDocuments);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Compliance), nameof(Domain.Inspection.Compliance.DueDate), targetInstance, dto.DueDate);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Compliance), nameof(Domain.Inspection.Compliance.DueDateRespected), targetInstance, dto.DueDateRespected);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Compliance), nameof(Domain.Inspection.Compliance.DueDateNotRespected), targetInstance, dto.DueDateNotRespected);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Compliance), nameof(Domain.Inspection.Compliance.IncompleteOrNonCompliant), targetInstance, dto.IncompleteOrNonCompliant);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Compliance), nameof(Domain.Inspection.Compliance.FurtherInvestigationNeeded), targetInstance, dto.FurtherInvestigationNeeded);
+            if (dto == null) return Compliance.Empty;
+            var targetInstance = (Compliance)FormatterServices.GetUninitializedObject(typeof(Compliance));
+            SetPropertyValueViaBackingField(typeof(Compliance), nameof(Compliance.ActionsOrDocuments), targetInstance, dto.ActionsOrDocuments);
+            SetPropertyValueViaBackingField(typeof(Compliance), nameof(Compliance.DueDate), targetInstance, dto.DueDate);
+            SetPropertyValueViaBackingField(typeof(Compliance), nameof(Compliance.DueDateRespected), targetInstance, dto.DueDateRespected);
+            SetPropertyValueViaBackingField(typeof(Compliance), nameof(Compliance.DueDateNotRespected), targetInstance, dto.DueDateNotRespected);
+            SetPropertyValueViaBackingField(typeof(Compliance), nameof(Compliance.IncompleteOrNonCompliant), targetInstance, dto.IncompleteOrNonCompliant);
+            SetPropertyValueViaBackingField(typeof(Compliance), nameof(Compliance.FurtherInvestigationNeeded), targetInstance, dto.FurtherInvestigationNeeded);
             return targetInstance;
         }
 
-        private Domain.Inspection.FinishStatus Parse(InspectionDeserializationDto.FinishStatus dto)
+        private PdfReport Parse(InspectionDeserializationDto.PdfReport dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.FinishStatus)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.FinishStatus));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.FinishStatus), nameof(Domain.Inspection.FinishStatus.DoneOn), targetInstance, dto.DoneOn);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.FinishStatus), nameof(Domain.Inspection.FinishStatus.DoneByInspector), targetInstance, dto.DoneByInspector);
+            if (dto == null) return PdfReport.None;
+            var targetInstance = (PdfReport)FormatterServices.GetUninitializedObject(typeof(PdfReport));
+            SetPropertyValueViaBackingField(typeof(PdfReport), nameof(PdfReport.Bytes), targetInstance, dto.Bytes);
+            return targetInstance;
+        }
+
+        private FinishStatus Parse(InspectionDeserializationDto.FinishStatus dto)
+        {
+            if (dto == null) return FinishStatus.NotFinished;
+            var targetInstance = (FinishStatus)FormatterServices.GetUninitializedObject(typeof(FinishStatus));
+            SetPropertyValueViaBackingField(typeof(FinishStatus), nameof(FinishStatus.DoneOn), targetInstance, dto.DoneOn);
+            SetPropertyValueViaBackingField(typeof(FinishStatus), nameof(FinishStatus.DoneByInspector), targetInstance, dto.DoneByInspector);
             
             return targetInstance;
         }
 
-        private Domain.Inspection.CloseStatus Parse(InspectionDeserializationDto.CloseStatus dto)
+        private CloseStatus Parse(InspectionDeserializationDto.CloseStatus dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.CloseStatus)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.CloseStatus));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.CloseStatus), nameof(Domain.Inspection.CloseStatus.CloseDate), targetInstance, dto.CloseDate);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.CloseStatus), nameof(Domain.Inspection.CloseStatus.ClosedBy), targetInstance, dto.ClosedBy);
+            if (dto == null) return CloseStatus.NotClosed;
+            var targetInstance = (CloseStatus)FormatterServices.GetUninitializedObject(typeof(CloseStatus));
+            SetPropertyValueViaBackingField(typeof(CloseStatus), nameof(CloseStatus.CloseDate), targetInstance, dto.CloseDate);
+            SetPropertyValueViaBackingField(typeof(CloseStatus), nameof(CloseStatus.ClosedBy), targetInstance, dto.ClosedBy);
 
             return targetInstance;
         }
 
-        private Domain.Inspection.ReopenStatus Parse(InspectionDeserializationDto.ReopenStatus dto)
+        private ReopenStatus Parse(InspectionDeserializationDto.ReopenStatus dto)
         {
-            if (dto == null) return null;
-            var targetInstance = (Domain.Inspection.ReopenStatus)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.ReopenStatus));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.ReopenStatus), nameof(Domain.Inspection.ReopenStatus.ReopenDate), targetInstance, dto.ReopenDate);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.ReopenStatus), nameof(Domain.Inspection.ReopenStatus.ReopenedBy), targetInstance, dto.ReopenedBy);
+            if (dto == null) return ReopenStatus.NotReopened;
+            var targetInstance = (ReopenStatus)FormatterServices.GetUninitializedObject(typeof(ReopenStatus));
+            SetPropertyValueViaBackingField(typeof(ReopenStatus), nameof(ReopenStatus.ReopenDate), targetInstance, dto.ReopenDate);
+            SetPropertyValueViaBackingField(typeof(ReopenStatus), nameof(ReopenStatus.ReopenedBy), targetInstance, dto.ReopenedBy);
 
             return targetInstance;
         }

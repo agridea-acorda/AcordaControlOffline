@@ -9,6 +9,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
     {
         public SortedList<string, RubricResult> Rubrics { get; } = new SortedList<string, RubricResult>();
 
+        public Checklist(long id) : base(id) { }
+        public Checklist() { }
+
         public Checklist AddRubric(string key, RubricResult rubricResult)
         {
             Rubrics.TryAdd(key, rubricResult);

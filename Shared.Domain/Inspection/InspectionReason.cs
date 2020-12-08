@@ -13,6 +13,7 @@
         public static InspectionReason Defect => new InspectionReason(7, "Saisie manquement (jusqu'à 2019)");
         public static InspectionReason FollowUpShortTerm => new InspectionReason(9, "Suivi à court terme (Contrôle intermédiaire dynamique)");
         public static InspectionReason Riskier => new InspectionReason(10, "Risques accrus (dès 2020)");
+        public static InspectionReason Unknown => new InspectionReason(0, "Motif inconnu");
 
     }
 }
