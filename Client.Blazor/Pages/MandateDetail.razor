@@ -63,18 +63,6 @@ else
                         </button>
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
                         <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
-                        @*<button class="btn btn-app h-auto" onclick="() => ShowAppointmentModal()">
-                            <i class="far fa-calendar-alt"></i>
-                            <span class="d-block">@inspection.VisitDate</span>
-                            @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
-                            {
-                                <span class="d-block">@inspection.AppointmentDate</span>
-                            }
-                            @if (inspection.IsUnexpected)
-                            {
-                                <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
-                            }
-                        </button>*@
                         <Blazorise.Button class="btn-app h-auto" Clicked="@ShowAppointmentModal">
                             <i class="far fa-calendar-alt"></i>
                             <span class="d-block">@inspection.VisitDate</span>
@@ -135,22 +123,32 @@ else
     <Blazorise.ModalBackdrop />
     <Blazorise.ModalContent IsCentered="true">
         <Blazorise.ModalHeader>
-            <Blazorise.ModalTitle>Employee edit</Blazorise.ModalTitle>
+            <Blazorise.ModalTitle>Prendre rendez-vous avec l'exploitant</Blazorise.ModalTitle>
             <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
         </Blazorise.ModalHeader>
         <Blazorise.ModalBody>
-            <Blazorise.Field>
-                <Blazorise.FieldLabel>Name</Blazorise.FieldLabel>
-                <Blazorise.TextEdit Placeholder="Enter name..." />
-            </Blazorise.Field>
-            <Blazorise.Field>
-                <Blazorise.FieldLabel>Surname</Blazorise.FieldLabel>
-                <Blazorise.TextEdit Placeholder="Enter surname..." />
-            </Blazorise.Field>
+            <EditForm Model="@appointmentModel" OnSubmit="@SaveAppointementDetails">
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Téléphone</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit ReadOnly Placeholder="079 123 45 67" />
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Téléphone (autre)</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit ReadOnly Placeholder="032 987 65 43" />
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Courriel</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit ReadOnly Placeholder="hello@lacompagnie.ch" />
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Date de premier contact</Blazorise.FieldLabel>
+                    <Blazorise.DateEdit TValue="DateTime?" Date="@appointmentModel.Date" DateChanged="@AppointmentDateChanged" />
+                </Blazorise.Field>
+            </EditForm>
         </Blazorise.ModalBody>
         <Blazorise.ModalFooter>
-            <Blazorise.Button Color="Blazorise.Color.Secondary" Clicked="@HideAppointmentModal">Close</Blazorise.Button>
-            <Blazorise.Button Color="Blazorise.Color.Primary" Clicked="@HideAppointmentModal">Save Changes</Blazorise.Button>
+            <Blazorise.Button class="float-left mr-2 btn-primary" Type="Blazorise.ButtonType.Submit"><i class="far fa-save"></i> Enregistrer</Blazorise.Button>
+            <Blazorise.Button class="float-left mr-2 btn-default" Clicked="@HideAppointmentModal">Annuler</Blazorise.Button>
         </Blazorise.ModalFooter>
     </Blazorise.ModalContent>
 </Blazorise.Modal>
@@ -166,6 +164,7 @@ else
     private Farm farm;
     private AcordaControlOffline.Shared.Domain.Mandate.Mandate mandate;
     private Blazorise.Modal appointmentModal;
+    private AppointmentModel appointmentModel;
 
     protected override async Task OnInitializedAsync()
     {
@@ -196,11 +195,36 @@ else
 
     private void ShowAppointmentModal()
     {
+        appointmentModel = new AppointmentModel
+        {
+            // todo fill viewmodel from AR
+            Date = null,
+            FirstContactDate = null,
+            Mode = "Inopiné"
+        };
         appointmentModal.Show();
     }
 
     private void HideAppointmentModal()
     {
         appointmentModal.Hide();
+    }
+
+    void AppointmentDateChanged(DateTime? date)
+    {
+        appointmentModel.Date = date;
+    }
+
+    void SaveAppointementDetails(EditContext editContext)
+    {
+        // todo save
+        appointmentModal.Hide();
+    }
+
+    class AppointmentModel
+    {
+        public DateTime? Date { get; set; }
+        public DateTime? FirstContactDate { get; set; }
+        public string Mode { get; set; }
     }
 }
