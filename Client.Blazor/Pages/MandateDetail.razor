@@ -63,7 +63,7 @@ else
                         </button>
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
                         <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
-                        <button class="btn btn-app h-auto">
+                        @*<button class="btn btn-app h-auto" onclick="() => ShowAppointmentModal()">
                             <i class="far fa-calendar-alt"></i>
                             <span class="d-block">@inspection.VisitDate</span>
                             @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
@@ -74,7 +74,19 @@ else
                             {
                                 <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
                             }
-                        </button>
+                        </button>*@
+                        <Blazorise.Button class="btn-app h-auto" Clicked="@ShowAppointmentModal">
+                            <i class="far fa-calendar-alt"></i>
+                            <span class="d-block">@inspection.VisitDate</span>
+                            @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
+                            {
+                                <span class="d-block">@inspection.AppointmentDate</span>
+                            }
+                            @if (inspection.IsUnexpected)
+                            {
+                                <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
+                            }
+                        </Blazorise.Button>
                         <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
                         <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
                         <button class="btn btn-app h-auto">
@@ -119,6 +131,30 @@ else
     </div>
 }
 
+<Blazorise.Modal @ref="appointmentModal">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent IsCentered="true">
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Employee edit</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>Name</Blazorise.FieldLabel>
+                <Blazorise.TextEdit Placeholder="Enter name..." />
+            </Blazorise.Field>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>Surname</Blazorise.FieldLabel>
+                <Blazorise.TextEdit Placeholder="Enter surname..." />
+            </Blazorise.Field>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <Blazorise.Button Color="Blazorise.Color.Secondary" Clicked="@HideAppointmentModal">Close</Blazorise.Button>
+            <Blazorise.Button Color="Blazorise.Color.Primary" Clicked="@HideAppointmentModal">Save Changes</Blazorise.Button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 @code {
     public const string LateOrNotCompliant = "Hors délai ou non conforme";
     public const string Late = "!! expiré !!";
@@ -129,6 +165,8 @@ else
     private Mandate mandateViewModel;
     private Farm farm;
     private AcordaControlOffline.Shared.Domain.Mandate.Mandate mandate;
+    private Blazorise.Modal appointmentModal;
+
     protected override async Task OnInitializedAsync()
     {
         farm = await Repository.ReadFarmAsync(FarmId);
@@ -140,7 +178,7 @@ else
         };
     }
 
-    void NavigateToChecklist(int farmInspectionId)
+    private void NavigateToChecklist(int farmInspectionId)
     {
         if (farmInspectionId > 0)
         {
@@ -148,11 +186,21 @@ else
         }
     }
 
-    void NavigateToFarmDetail(int farmId)
+    private void NavigateToFarmDetail(int farmId)
     {
         if (farmId > 0)
         {
             Navigation.NavigateTo($"{Config.BaseUrl}/FarmDetail/{farmId}");
         }
+    }
+
+    private void ShowAppointmentModal()
+    {
+        appointmentModal.Show();
+    }
+
+    private void HideAppointmentModal()
+    {
+        appointmentModal.Hide();
     }
 }
