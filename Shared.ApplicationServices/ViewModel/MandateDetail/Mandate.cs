@@ -7,10 +7,4 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public Farm.Farm Farm { get; set; }
         public Inspection[] Inspections { get; set; }
     }
-
-    public class Mandate2 : ViewModel
-    {
-        public Farm.Farm Farm { get; set; }
-        public InspectionDeserializationDto[] Inspections { get; set; }
-    }
 }

@@ -3,6 +3,7 @@
 @inject IRepository Repository
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
 @using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Inspection
@@ -64,10 +65,15 @@ else
                         <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
                         <button class="btn btn-app h-auto">
                             <i class="far fa-calendar-alt"></i>
-                            <span class="d-block">(non agendé)</span>
-                            <span class="d-block">Rendez-vous le 25.10.2020</span>
-                            <span class="d.d-block">Contacté le 19.10.2020</span>
-                            <span class="text-red d-block"><i class="fas fa-exclamation"></i> Inopiné</span>
+                            <span class="d-block">@inspection.VisitDate</span>
+                            @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
+                            {
+                                <span class="d-block">@inspection.AppointmentDate</span>
+                            }
+                            @if (inspection.IsUnexpected)
+                            {
+                                <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
+                            }
                         </button>
                         <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
                         <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
