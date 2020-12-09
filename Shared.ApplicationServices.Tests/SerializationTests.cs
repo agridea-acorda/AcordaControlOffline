@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Inspection;
@@ -7,6 +8,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests;
 using FluentAssertions;
+using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -88,6 +90,44 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             string json = factory.Serialize(farm_);
             var farm = factory.Parse(json);
             TestDataHelper.FarmShouldBeSuchAsConstructed(farm);
+        }
+
+        [Fact]
+        public void Can_serialize_empty_byte_array()
+        {
+            var bytes = Enumerable.Empty<byte[]>().ToArray();
+            var json = JsonConvert.SerializeObject(bytes);
+            json.Should().Be("[]");
+        }
+
+        [Fact]
+        public void Can_Serialize_PdfReport_None()
+        {
+            var pdfReport = PdfReport.None;
+            var json = JsonConvert.SerializeObject(pdfReport);
+            json.Should().Be("{\"Bytes\":\"\"}");
+        }
+
+        [Fact]
+        public void Can_deserialize_PdfReport_None()
+        {
+            string json = "{\"Bytes\":\"\"}";
+            var pdfReport = JsonConvert.DeserializeObject<PdfReport>(json);
+            pdfReport.Should().NotBeNull();
+            pdfReport.Bytes.Should().NotBeNull();
+            pdfReport.Bytes.Should().HaveCount(0);
+            pdfReport.Should().Be(PdfReport.None);
+        }
+
+        [Fact]
+        public void Can_deserialize_PdfReport_with_empty_byte_array_alternative_json()
+        {
+            string json = "{\"Bytes\":[]}";
+            var pdfReport = JsonConvert.DeserializeObject<PdfReport>(json);
+            pdfReport.Should().NotBeNull();
+            pdfReport.Bytes.Should().NotBeNull();
+            pdfReport.Bytes.Should().HaveCount(0);
+            pdfReport.Should().Be(PdfReport.None);
         }
     }
 }

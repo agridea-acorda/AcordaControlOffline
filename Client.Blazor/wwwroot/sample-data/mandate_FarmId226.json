@@ -72,6 +72,9 @@
         "FurtherInvestigationNeeded": false,
         "IncompleteOrNonCompliant": false
       },
+      "PdfReport": {
+        "Bytes": ""
+      },
       "FinishStatus": {
         "DoneByInspector": null,
         "DoneOn": null,
@@ -160,6 +163,9 @@
         "FurtherInvestigationNeeded": false,
         "IncompleteOrNonCompliant": false
       },
+      "PdfReport": {
+        "Bytes": ""
+      },
       "FinishStatus": {
         "DoneByInspector": null,
         "DoneOn": null,
@@ -247,6 +253,9 @@
         "DueDateRespected": false,
         "FurtherInvestigationNeeded": false,
         "IncompleteOrNonCompliant": false
+      },
+      "PdfReport": {
+        "Bytes": ""
       },
       "FinishStatus": {
         "DoneByInspector": null,

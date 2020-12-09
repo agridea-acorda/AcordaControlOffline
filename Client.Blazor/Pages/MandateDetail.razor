@@ -2,12 +2,10 @@
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
-@using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Inspection
 
 @if (mandateViewModel != null)
 {
@@ -230,7 +228,7 @@
         public string Email { get; set; }
         //public IEnumerable<InspectionMode> ComboInspectionModes { get; set; }
 
-        public static AppointmentModel FromDomain(Farm farm, AcordaControlOffline.Shared.Domain.Inspection.Inspection inspection, int index = 0)
+        public static AppointmentModel FromDomain(Farm farm, Inspection inspection, int index = 0)
         {
             return new AppointmentModel
             {
