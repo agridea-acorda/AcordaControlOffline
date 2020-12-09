@@ -21,13 +21,13 @@
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="fas fa-user"></i>
+                    <i class="fas fa-user mr-1"></i>
                     @if (isSignedIn)
                     {
-                        <span> @username</span>
+                        <span>@username</span>
                     }
                     else
-                    { <span> @Canton.Unselected</span>}
+                    { <span>@Canton.Unselected</span>}
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <div class="dropdown-header bg-gradient-success">
@@ -61,14 +61,14 @@
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="fas fa-shield-alt"></i>
+                    <i class="fas fa-shield-alt mr-1"></i>
                     @if (isCantonChosen)
                     {
-                        <strong> @selectedCanton.Code</strong>
+                        <strong>@selectedCanton.Code</strong>
                     }
                     else
                     {
-                        <strong> @Canton.Unselected</strong>
+                        <strong>@Canton.Unselected</strong>
                     }
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
