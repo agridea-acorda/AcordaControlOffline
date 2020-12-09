@@ -8,11 +8,7 @@
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
 @using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Inspection
 
-@if (mandateViewModel == null)
-{
-    <p>Loading...</p> // No need for skeleton-loading since data is read from local store.
-}
-else
+@if (mandateViewModel != null)
 {
     <div class="card">
         <div class="card-header">
@@ -63,7 +59,7 @@ else
                         </button>
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
                         <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
-                        <Blazorise.Button class="btn-app h-auto" Clicked="@ShowAppointmentModal">
+                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(inspection.FarmInspectionId)">
                             <i class="far fa-calendar-alt"></i>
                             <span class="d-block">@inspection.VisitDate</span>
                             @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
@@ -119,40 +115,43 @@ else
     </div>
 }
 
-<Blazorise.Modal @ref="appointmentModal">
-    <Blazorise.ModalBackdrop />
-    <EditForm Model="appointmentModel" OnSubmit="@SaveAppointementDetails">
-        <Blazorise.ModalContent IsCentered="true">
-            <Blazorise.ModalHeader>
-                <Blazorise.ModalTitle>Prendre rendez-vous avec l'exploitant</Blazorise.ModalTitle>
-                <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
-            </Blazorise.ModalHeader>
-            <Blazorise.ModalBody>
+@if (appointmentModel != null)
+{
+    <Blazorise.Modal @ref="appointmentModal">
+        <Blazorise.ModalBackdrop />
+        <EditForm Model="appointmentModel" OnSubmit="@SaveAppointementDetails">
+            <Blazorise.ModalContent IsCentered="true">
+                <Blazorise.ModalHeader>
+                    <Blazorise.ModalTitle>Prendre rendez-vous avec l'exploitant</Blazorise.ModalTitle>
+                    <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
+                </Blazorise.ModalHeader>
+                <Blazorise.ModalBody>
 
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Téléphone</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Phone" />
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Courriel</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Email" />
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Date de premier contact</Blazorise.FieldLabel>
-                    <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.FirstContactDate" />
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
-                    <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.Date" />
-                </Blazorise.Field>
-            </Blazorise.ModalBody>
-            <Blazorise.ModalFooter>
-                <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
-                <button class="btn btn-default float-left mr-2" @onclick="@HideAppointmentModal">Annuler</button>
-            </Blazorise.ModalFooter>
-        </Blazorise.ModalContent>
-    </EditForm>
-</Blazorise.Modal>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Téléphone</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Phone" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Courriel</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Email" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Date de premier contact</Blazorise.FieldLabel>
+                        <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.FirstContactDate" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
+                        <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.Date" />
+                    </Blazorise.Field>
+                </Blazorise.ModalBody>
+                <Blazorise.ModalFooter>
+                    <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
+                    <button class="btn btn-default float-left mr-2" @onclick="@HideAppointmentModal">Annuler</button>
+                </Blazorise.ModalFooter>
+            </Blazorise.ModalContent>
+        </EditForm>
+    </Blazorise.Modal>
+}
 
 @code {
     public const string LateOrNotCompliant = "Hors délai ou non conforme";
@@ -195,8 +194,9 @@ else
         }
     }
 
-    private void ShowAppointmentModal()
+    private void ShowAppointmentModal(int farmInspectionId)
     {
+        appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections.FirstOrDefault(i => i.FarmInspectionId == farmInspectionId));
         appointmentModal.Show();
     }
 
