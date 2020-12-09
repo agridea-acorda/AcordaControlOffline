@@ -1,4 +1,4 @@
-﻿using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Inspection;
+﻿using System.Linq;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 {
@@ -6,5 +6,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
     {
         public Farm.Farm Farm { get; set; }
         public Inspection[] Inspections { get; set; }
+
+        public static Mandate FromDomain(Domain.Farm.Farm farm, Domain.Mandate.Mandate mandate)
+        {
+            return new Mandate
+            {
+                Farm = ApplicationServices.ViewModel.Farm.Farm.FromDomain(farm),
+                Inspections = mandate.Inspections.Select(Inspection.FromDomain).ToArray()
+            };
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask<Mandate[]> ReadAllMandatesAsync();
         ValueTask<bool> HasMandateAsync(int farmId);
         ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId);
-        ValueTask SaveMandateAsync(ViewModel.MandateDetail.Mandate mandate, int id = 0);
+        ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id);
         ValueTask SaveMandateJsonAsync(string json, int id);
         ValueTask SaveFarmJsonAsync(string json, int id);
         ValueTask<Farm> ReadFarmAsync(int farmId);

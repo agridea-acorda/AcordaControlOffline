@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
@@ -51,7 +52,7 @@
         </div>
         <div class="card-body p-0">
             <div class="list-group">
-                @foreach (var inspection in mandateViewModel.Inspections)
+                @foreach (var (inspection, index) in mandateViewModel.Inspections.Select((item, index) => (item, index)))
                 {
                     <div class="list-group-item">
                         <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId)">
@@ -59,7 +60,7 @@
                         </button>
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
                         <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
-                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(inspection.FarmInspectionId)">
+                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(index)">
                             <i class="far fa-calendar-alt"></i>
                             <span class="d-block">@inspection.VisitDate</span>
                             @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
@@ -126,7 +127,6 @@
                     <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
-
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Téléphone</Blazorise.FieldLabel>
                         <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Phone" />
@@ -143,6 +143,15 @@
                         <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
                         <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.Date" />
                     </Blazorise.Field>
+                    @*<Blazorise.Field>
+                        <Blazorise.FieldLabel>Annoncé / Inopiné</Blazorise.FieldLabel>
+                        <Blazorise.Select @bind-SelectedValue="@appointmentModel.Mode">
+                            @foreach (var mode in appointmentModel.ComboInspectionModes)
+                            {
+                                <Blazorise.SelectItem Value="@mode.Value">@mode.Text</Blazorise.SelectItem>
+                            }
+                        </Blazorise.Select>
+                    </Blazorise.Field>*@
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
                     <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
@@ -170,11 +179,7 @@
     {
         farm = await Repository.ReadFarmAsync(FarmId);
         mandate = await Repository.ReadMandateAsync(FarmId);
-        mandateViewModel = new Mandate
-        {
-            Farm = AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm.Farm.FromDomain(farm),
-            Inspections = mandate.Inspections.Select(Inspection.FromDomain).ToArray()
-        };
+        mandateViewModel = Mandate.FromDomain(farm, mandate);
         appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections.First());
     }
 
@@ -194,9 +199,9 @@
         }
     }
 
-    private void ShowAppointmentModal(int farmInspectionId)
+    private void ShowAppointmentModal(int index)
     {
-        appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections.FirstOrDefault(i => i.FarmInspectionId == farmInspectionId));
+        appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections[index], index);
         appointmentModal.Show();
     }
 
@@ -205,29 +210,37 @@
         appointmentModal.Hide();
     }
 
-    void SaveAppointementDetails(EditContext editContext)
+    async void SaveAppointementDetails(EditContext editContext)
     {
-        // todo save to local store
+        var model = (AppointmentModel) editContext.Model;
+        mandate.Inspections[model.InspectionIndex].SetAppointment(new Appointment(model.Date, model.FirstContactDate));
+        mandateViewModel = Mandate.FromDomain(farm, mandate);
+        StateHasChanged();
         appointmentModal.Hide();
+        await Repository.SaveMandateAsync(mandate, FarmId);
     }
 
     public class AppointmentModel
     {
+        public int InspectionIndex { get; set; }
         public DateTime? Date { get; set; }
         public DateTime? FirstContactDate { get; set; }
-        public string Mode { get; set; }
+        public int Mode { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
+        //public IEnumerable<InspectionMode> ComboInspectionModes { get; set; }
 
-        public static AppointmentModel FromDomain(Farm farm, AcordaControlOffline.Shared.Domain.Inspection.Inspection inspection)
+        public static AppointmentModel FromDomain(Farm farm, AcordaControlOffline.Shared.Domain.Inspection.Inspection inspection, int index = 0)
         {
             return new AppointmentModel
             {
+                InspectionIndex = index,
                 Email = farm.Email,
                 Date = inspection.Appointment.Date,
                 FirstContactDate = inspection.Appointment.FirstContactDate,
-                Mode = inspection.Appointment.Mode.Text,
-                Phone = farm.PhoneNumber
+                Mode = inspection.Appointment.Mode.Value,
+                Phone = farm.PhoneNumber,
+                //ComboInspectionModes = new []{ InspectionMode.Scheduled, InspectionMode.Unscheduled }
             };
         }
     }

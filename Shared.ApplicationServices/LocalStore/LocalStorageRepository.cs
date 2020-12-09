@@ -54,11 +54,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return new FarmFactory().Parse(json);
         }
 
-        public async ValueTask SaveMandateAsync(ViewModel.MandateDetail.Mandate mandate, int id = 0)
+        public async ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id)
         {
-            id = id == default ? mandate.Farm.Id : id;
-            string key = MandateDetailKey(id);
-            await localStorage_.SetItemAsync(key, mandate);
+            string key = MandateDetailKey(id); 
+            await localStorage_.SetItemAsync(key, new MandateFactory().Serialize(mandate));
         }
 
         public async ValueTask SaveMandateJsonAsync(string json, int id)
