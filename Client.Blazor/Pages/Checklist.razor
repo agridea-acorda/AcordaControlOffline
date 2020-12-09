@@ -3,6 +3,8 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using InspectionOutcome = AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @inject NavigationManager Navigation
 @inject IRepository Repository
 
@@ -54,19 +56,20 @@
             </div>
             <div id="checklist">
                 <div class="list-group">
-                    @foreach (var item in checklist.Rubrics)
+                    @foreach (var kvp in checklist.Rubrics)
                     {
-                        <div id="@item.ConjuntElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                        var item = kvp.Value;
+                        <div id="@item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
                             <i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2" data-toggle="collapse" data-target="#01_1_2018 > .sub-elements"></i>
                             <span class="badge bg-indigo disabled float-right mr-1">@item.NumGroups</span>
                             <span class="badge bg-indigo disabled float-right mr-1">@item.NumPoints</span>
-                            <h4 class="list-group-item-heading">@item.Title</h4>
-                            <p class="list-group-item-text mb-2">@item.ConjuntElementCode</p>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.Oui)" @onclick="() => SetOutcome(item, InspectionOutcome.Oui)"><i class="far fa-thumbs-up"></i></button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.P)  " @onclick="() => SetOutcome(item, InspectionOutcome.P)"  >P</button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.Non)" @onclick="() => SetOutcome(item, InspectionOutcome.Non)"><i class="far fa-thumbs-down"></i></button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NC) " @onclick="() => SetOutcome(item, InspectionOutcome.NC)" >NC</button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NA) " @onclick="() => SetOutcome(item, InspectionOutcome.NA)" >NA</button>
+                            <h4 class="list-group-item-heading">@item.ShortName</h4>
+                            <p class="list-group-item-text mb-2">@item.ConjunctElementCode</p>
+                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.Ok)" @onclick="() => SetOutcome(item, InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.PartiallyOk)  " @onclick="() => SetOutcome(item, InspectionOutcome.PartiallyOk)"  >P</button>
+                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NotOk)" @onclick="() => SetOutcome(item, InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NotInspected) " @onclick="() => SetOutcome(item, InspectionOutcome.NotInspected)" >NC</button>
+                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(item, InspectionOutcome.NotApplicable)" >NA</button>
                             @if (item.Outcome != InspectionOutcome.Unset)
                             {
                                 <button @onclick="() => ResetOutcome(item)" class="btn btn-circle btn-circle-sm btn-default"><i class="far fa-trash-alt"></i></button>
@@ -83,32 +86,32 @@
     [Parameter]
     public int FarmInspectionId { get; set; }
 
-    ChecklistSample checklist;
+    Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
 
     protected override async Task OnInitializedAsync()
     {
         checklist = await Repository.ReadChecklistSampleAsync();
     }
 
-    public string OutcomeCssClass(ChecklistSample.ListItem rubric, InspectionOutcome outcome)
+    public string OutcomeCssClass(IResult rubric, InspectionOutcome outcome)
     {
-        return rubric.Outcome == outcome && outcome == InspectionOutcome.Oui ? "btn-success" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.P ? "btn-warning" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.Non ? "btn-danger" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.NC ? "btn-primary" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.NA ? "btn-primary" :
+        return rubric.Outcome == outcome && outcome == InspectionOutcome.Ok ? "btn-success" :
+               rubric.Outcome == outcome && outcome == InspectionOutcome.PartiallyOk ? "btn-warning" :
+               rubric.Outcome == outcome && outcome == InspectionOutcome.NotOk ? "btn-danger" :
+               rubric.Outcome == outcome && outcome == InspectionOutcome.NotInspected ? "btn-primary" :
+               rubric.Outcome == outcome && outcome == InspectionOutcome.NotApplicable ? "btn-primary" :
                "btn-default";
     }
 
-    async void SetOutcome(ChecklistSample.ListItem rubric, InspectionOutcome outcome)
+    async void SetOutcome(Result result, InspectionOutcome outcome)
     {
-        rubric.Outcome = outcome;
+        result.Outcome = outcome;
         await Repository.SaveChecklistSampleAsync(checklist);
     }
 
-    async void ResetOutcome(ChecklistSample.ListItem rubric)
+    async void ResetOutcome(Result result)
     {
-        rubric.Outcome = InspectionOutcome.Unset;
+        result.Outcome = InspectionOutcome.Unset;
         await Repository.SaveChecklistSampleAsync(checklist);
     }
 }

@@ -16,6 +16,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
         public static InspectionOutcome NotOk => new InspectionOutcome(2, "NOk", Resources.InspectionOutcomeNotOk);
         public static InspectionOutcome NotInspected => new InspectionOutcome(3, "NotInspected", Resources.InspectionOutcomeNotInspected);
         public static InspectionOutcome NotApplicable => new InspectionOutcome(4, "NotApplicable", Resources.InspectionOutcomeNotApplicable);
+        public static InspectionOutcome Unset => new InspectionOutcome(-1, "Unset", "Inconnu");
 
         public string Text { get; }
         public int Value { get; }
