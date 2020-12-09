@@ -38,9 +38,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist.Rubrics.Count.Should().Be(2);
             checklist.Rubrics["R1"].Children.Count.Should().Be(2);
             checklist.Rubrics["R1"].Children.Should().ContainKeys("R1,P1", "R1,P2");
+            checklist.Rubrics["R1"].NumGroups.Should().Be(0);
+            checklist.Rubrics["R1"].NumPoints.Should().Be(2);
             checklist.Rubrics["R2"].Children.Count.Should().Be(2);
             checklist.Rubrics["R2"].Children.Should().ContainKeys("R2,G1", "R2,G2");
+            checklist.Rubrics["R2"].NumGroups.Should().Be(2);
+            checklist.Rubrics["R2"].NumPoints.Should().Be(0);
 
+            checklist.Rubrics["R1"].Children["R1,P1"].NumGroups.Should().Be(0);
+            checklist.Rubrics["R1"].Children["R1,P1"].NumPoints.Should().Be(0);
             checklist.Rubrics["R1"].Children["R1,P1"].ConjunctElementCode.Should().Be("R1,P1");
             checklist.Rubrics["R1"].Children["R1,P1"].ElementCode.Should().Be("P1");
             checklist.Rubrics["R1"].Children["R1,P1"].ShortName.Should().Be("P1");
@@ -48,6 +54,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist.Rubrics["R1"].Children["R1,P1"].Parent.ConjunctElementCode.Should().Be("R1");
             checklist.Rubrics["R1"].Children["R1,P1"].Parent.ElementCode.Should().Be("R1");
             checklist.Rubrics["R1"].Children["R1,P1"].Parent.ShortName.Should().Be("R1");
+            checklist.Rubrics["R1"].Children["R1,P2"].NumGroups.Should().Be(0);
+            checklist.Rubrics["R1"].Children["R1,P2"].NumPoints.Should().Be(0);
             checklist.Rubrics["R1"].Children["R1,P2"].ConjunctElementCode.Should().Be("R1,P2");
             checklist.Rubrics["R1"].Children["R1,P2"].ElementCode.Should().Be("P2");
             checklist.Rubrics["R1"].Children["R1,P2"].ShortName.Should().Be("P2");
@@ -56,6 +64,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist.Rubrics["R1"].Children["R1,P2"].Parent.ElementCode.Should().Be("R1");
             checklist.Rubrics["R1"].Children["R1,P2"].Parent.ShortName.Should().Be("R1");
 
+            checklist.Rubrics["R2"].Children["R2,G1"].NumGroups.Should().Be(0);
+            checklist.Rubrics["R2"].Children["R2,G1"].NumPoints.Should().Be(3);
             checklist.Rubrics["R2"].Children["R2,G1"].ConjunctElementCode.Should().Be("R2,G1");
             checklist.Rubrics["R2"].Children["R2,G1"].ElementCode.Should().Be("G1");
             checklist.Rubrics["R2"].Children["R2,G1"].ShortName.Should().Be("G1");
@@ -66,6 +76,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist.Rubrics["R2"].Children["R2,G1"].Children.Count.Should().Be(3);
             checklist.Rubrics["R2"].Children["R2,G1"].Children.Should().ContainKeys("R2,G1,P1", "R2,G1,P2", "R2,G1,P3");
 
+            checklist.Rubrics["R2"].Children["R2,G2"].NumGroups.Should().Be(2);
+            checklist.Rubrics["R2"].Children["R2,G2"].NumPoints.Should().Be(0);
             checklist.Rubrics["R2"].Children["R2,G2"].ConjunctElementCode.Should().Be("R2,G2");
             checklist.Rubrics["R2"].Children["R2,G2"].ElementCode.Should().Be("G2");
             checklist.Rubrics["R2"].Children["R2,G2"].ShortName.Should().Be("G2");
@@ -76,8 +88,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist.Rubrics["R2"].Children["R2,G2"].Children.Count.Should().Be(2);
             checklist.Rubrics["R2"].Children["R2,G2"].Children.Should().ContainKeys("R2,G2,SG1", "R2,G2,SG2");
 
+            checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG1"].NumGroups.Should().Be(0);
+            checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG1"].NumPoints.Should().Be(4);
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG1"].Children.Count.Should().Be(4);
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG1"].Children.Should().ContainKeys("R2,G2,SG1,P1", "R2,G2,SG1,P2", "R2,G2,SG1,P3", "R2,G2,SG1,P4");
+            checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].NumGroups.Should().Be(0);
+            checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].NumPoints.Should().Be(2);
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].Children.Count.Should().Be(2);
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].Children.Should().ContainKeys("R2,G2,SG2,P1", "R2,G2,SG2,P2");
         }

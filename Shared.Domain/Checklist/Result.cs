@@ -25,6 +25,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 
         public double Percent { get; private set; }
 
+        public int NumGroups => Children?.Count(x => x.Value?.Children?.Any() ?? false) ?? 0;
+        public int NumPoints => Children?.Count(x => !x.Value?.Children?.Any() ?? true) ?? 0;
+
         protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")
         {
             ConjunctElementCode = conjunctElementCode;
