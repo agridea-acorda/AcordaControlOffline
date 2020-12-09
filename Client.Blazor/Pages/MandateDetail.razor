@@ -121,36 +121,37 @@ else
 
 <Blazorise.Modal @ref="appointmentModal">
     <Blazorise.ModalBackdrop />
-    <Blazorise.ModalContent IsCentered="true">
-        <Blazorise.ModalHeader>
-            <Blazorise.ModalTitle>Prendre rendez-vous avec l'exploitant</Blazorise.ModalTitle>
-            <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
-        </Blazorise.ModalHeader>
-        <Blazorise.ModalBody>
-            <EditForm Model="@appointmentModel" OnSubmit="@SaveAppointementDetails">
+    <EditForm Model="appointmentModel" OnSubmit="@SaveAppointementDetails">
+        <Blazorise.ModalContent IsCentered="true">
+            <Blazorise.ModalHeader>
+                <Blazorise.ModalTitle>Prendre rendez-vous avec l'exploitant</Blazorise.ModalTitle>
+                <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
+            </Blazorise.ModalHeader>
+            <Blazorise.ModalBody>
+
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Téléphone</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit ReadOnly Placeholder="079 123 45 67" />
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Téléphone (autre)</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit ReadOnly Placeholder="032 987 65 43" />
+                    <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Phone" />
                 </Blazorise.Field>
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Courriel</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit ReadOnly Placeholder="hello@lacompagnie.ch" />
+                    <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Email" />
                 </Blazorise.Field>
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Date de premier contact</Blazorise.FieldLabel>
-                    <Blazorise.DateEdit TValue="DateTime?" Date="@appointmentModel.Date" DateChanged="@AppointmentDateChanged" />
+                    <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.FirstContactDate" />
                 </Blazorise.Field>
-            </EditForm>
-        </Blazorise.ModalBody>
-        <Blazorise.ModalFooter>
-            <Blazorise.Button class="float-left mr-2 btn-primary" Type="Blazorise.ButtonType.Submit"><i class="far fa-save"></i> Enregistrer</Blazorise.Button>
-            <Blazorise.Button class="float-left mr-2 btn-default" Clicked="@HideAppointmentModal">Annuler</Blazorise.Button>
-        </Blazorise.ModalFooter>
-    </Blazorise.ModalContent>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
+                    <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.Date" />
+                </Blazorise.Field>
+            </Blazorise.ModalBody>
+            <Blazorise.ModalFooter>
+                <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
+                <button class="btn btn-default float-left mr-2" @onclick="@HideAppointmentModal">Annuler</button>
+            </Blazorise.ModalFooter>
+        </Blazorise.ModalContent>
+    </EditForm>
 </Blazorise.Modal>
 
 @code {
@@ -175,6 +176,7 @@ else
             Farm = AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm.Farm.FromDomain(farm),
             Inspections = mandate.Inspections.Select(Inspection.FromDomain).ToArray()
         };
+        appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections.First());
     }
 
     private void NavigateToChecklist(int farmInspectionId)
@@ -195,13 +197,6 @@ else
 
     private void ShowAppointmentModal()
     {
-        appointmentModel = new AppointmentModel
-        {
-            // todo fill viewmodel from AR
-            Date = null,
-            FirstContactDate = null,
-            Mode = "Inopiné"
-        };
         appointmentModal.Show();
     }
 
@@ -210,21 +205,30 @@ else
         appointmentModal.Hide();
     }
 
-    void AppointmentDateChanged(DateTime? date)
-    {
-        appointmentModel.Date = date;
-    }
-
     void SaveAppointementDetails(EditContext editContext)
     {
-        // todo save
+        // todo save to local store
         appointmentModal.Hide();
     }
 
-    class AppointmentModel
+    public class AppointmentModel
     {
         public DateTime? Date { get; set; }
         public DateTime? FirstContactDate { get; set; }
         public string Mode { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+
+        public static AppointmentModel FromDomain(Farm farm, AcordaControlOffline.Shared.Domain.Inspection.Inspection inspection)
+        {
+            return new AppointmentModel
+            {
+                Email = farm.Email,
+                Date = inspection.Appointment.Date,
+                FirstContactDate = inspection.Appointment.FirstContactDate,
+                Mode = inspection.Appointment.Mode.Text,
+                Phone = farm.PhoneNumber
+            };
+        }
     }
 }
