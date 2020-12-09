@@ -72,10 +72,10 @@
                         </Blazorise.Button>
                         <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
                         <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
-                        <button class="btn btn-app h-auto">
-                            <i class="far fa-comment-dots text-warning"></i>
+                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowCommentForOfficeModal(index)">
+                            <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
                             <span style="white-space: pre-wrap">Pour la gérance</span>
-                        </button>
+                        </Blazorise.Button>
                         <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
                         <ProgressBar Progress="@inspection" />
                         @if (inspection.HasComplianceRequirements)
@@ -142,18 +142,42 @@
                         <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.Date" />
                     </Blazorise.Field>
                     @*<Blazorise.Field>
-                        <Blazorise.FieldLabel>Annoncé / Inopiné</Blazorise.FieldLabel>
-                        <Blazorise.Select @bind-SelectedValue="@appointmentModel.Mode">
-                            @foreach (var mode in appointmentModel.ComboInspectionModes)
-                            {
-                                <Blazorise.SelectItem Value="@mode.Value">@mode.Text</Blazorise.SelectItem>
-                            }
-                        </Blazorise.Select>
-                    </Blazorise.Field>*@
+                            <Blazorise.FieldLabel>Annoncé / Inopiné</Blazorise.FieldLabel>
+                            <Blazorise.Select @bind-SelectedValue="@appointmentModel.Mode">
+                                @foreach (var mode in appointmentModel.ComboInspectionModes)
+                                {
+                                    <Blazorise.SelectItem Value="@mode.Value">@mode.Text</Blazorise.SelectItem>
+                                }
+                            </Blazorise.Select>
+                        </Blazorise.Field>*@
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
                     <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
                     <button class="btn btn-default float-left mr-2" @onclick="@HideAppointmentModal">Annuler</button>
+                </Blazorise.ModalFooter>
+            </Blazorise.ModalContent>
+        </EditForm>
+    </Blazorise.Modal>
+}
+
+@if (commentForOfficeModel != null)
+{
+    <Blazorise.Modal @ref="commentForOfficeModal">
+        <Blazorise.ModalBackdrop />
+        <EditForm Model="commentForOfficeModel" OnSubmit="@SaveCommentForOffice">
+            <Blazorise.ModalContent IsCentered="true">
+                <Blazorise.ModalHeader>
+                    <Blazorise.ModalTitle>Commentaires et détails à l'attention de la gérance</Blazorise.ModalTitle>
+                    <Blazorise.CloseButton Clicked="@HideCommentForOfficeModal" />
+                </Blazorise.ModalHeader>
+                <Blazorise.ModalBody>
+                    <Blazorise.Field>
+                        <Blazorise.MemoEdit Rows="5" @bind-Text="@commentForOfficeModel.CommentForOffice" />
+                    </Blazorise.Field>
+                </Blazorise.ModalBody>
+                <Blazorise.ModalFooter>
+                    <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
+                    <button class="btn btn-default float-left mr-2" @onclick="@HideCommentForOfficeModal">Annuler</button>
                 </Blazorise.ModalFooter>
             </Blazorise.ModalContent>
         </EditForm>
@@ -172,6 +196,8 @@
     private AcordaControlOffline.Shared.Domain.Mandate.Mandate mandate;
     private Blazorise.Modal appointmentModal;
     private AppointmentModel appointmentModel;
+    private Blazorise.Modal commentForOfficeModal;
+    private CommentForOfficeModel commentForOfficeModel;
 
     protected override async Task OnInitializedAsync()
     {
@@ -179,6 +205,7 @@
         mandate = await Repository.ReadMandateAsync(FarmId);
         mandateViewModel = Mandate.FromDomain(farm, mandate);
         appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections.First());
+        commentForOfficeModel = CommentForOfficeModel.FromDomain(mandate.Inspections.First());
     }
 
     private void NavigateToChecklist(int farmInspectionId)
@@ -210,12 +237,48 @@
 
     async void SaveAppointementDetails(EditContext editContext)
     {
-        var model = (AppointmentModel) editContext.Model;
+        var model = (AppointmentModel)editContext.Model;
         mandate.Inspections[model.InspectionIndex].SetAppointment(new Appointment(model.Date, model.FirstContactDate));
         mandateViewModel = Mandate.FromDomain(farm, mandate);
         StateHasChanged();
         appointmentModal.Hide();
         await Repository.SaveMandateAsync(mandate, FarmId);
+    }
+
+    private void ShowCommentForOfficeModal(int index)
+    {
+        commentForOfficeModel = CommentForOfficeModel.FromDomain(mandate.Inspections[index], index);
+        commentForOfficeModal.Show();
+    }
+
+    private void HideCommentForOfficeModal()
+    {
+        commentForOfficeModal.Hide();
+    }
+
+    async void SaveCommentForOffice(EditContext editContext)
+    {
+        var model = (CommentForOfficeModel)editContext.Model;
+        mandate.Inspections[model.InspectionIndex].SetCommentForOffice(model.CommentForOffice);
+        mandateViewModel = Mandate.FromDomain(farm, mandate);
+        StateHasChanged();
+        commentForOfficeModal.Hide();
+        await Repository.SaveMandateAsync(mandate, FarmId);
+    }
+
+    public class CommentForOfficeModel
+    {
+        public int InspectionIndex { get; set; }
+        public string CommentForOffice { get; set; }
+
+        public static CommentForOfficeModel FromDomain(Inspection inspection, int index = 0)
+        {
+            return  new CommentForOfficeModel
+            {
+                InspectionIndex = index,
+                CommentForOffice = inspection.CommentForOffice
+            };
+        }
     }
 
     public class AppointmentModel
