@@ -93,6 +93,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             return this;
         }
 
+        public Inspection SetCompliance(Compliance compliance)
+        {
+            Compliance = compliance;
+            return this;
+        }
+
         public Inspection InspectorSigns(Signature signature)
         {
             InspectorSignature = signature;

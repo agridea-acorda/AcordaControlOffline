@@ -19,6 +19,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public string VisitDate { get; set; }
         public string AppointmentDate { get; set; }
         public bool IsUnexpected { get; set; }
+        public bool IsPastDeadline { get; set; }
+        public bool DueDateRespected { get; set; }
+        public bool IsLateOrNotCompliant { get; set; }
         
         public static Inspection FromDomain(Domain.Inspection.Inspection inspection)
         {
@@ -46,7 +49,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 AppointmentDate = inspection.Appointment.FirstContactDate.HasValue
                                       ? string.Format(DomainStrings.AppointmentContactDateString, inspection.Appointment.FirstContactDate.Value.ToShortDateString())
                                       : "",
-                IsUnexpected = inspection.Appointment.Mode == InspectionMode.Unscheduled
+                IsUnexpected = inspection.Appointment.Mode == InspectionMode.Unscheduled,
+                IsPastDeadline = inspection.Compliance.IsPastDeadline,
+                DueDateRespected = inspection.Compliance.DueDateRespected,
+                IsLateOrNotCompliant = inspection.Compliance.IsLateOrNotCompliant
             };
             return model;
         }

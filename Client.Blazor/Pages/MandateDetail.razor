@@ -52,73 +52,85 @@
             <div class="list-group">
                 @foreach (var (inspection, index) in mandateViewModel.Inspections.Select((item, index) => (item, index)))
                 {
-                    <div class="list-group-item">
-                        <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId)">
-                            <i class="fas fa-arrow-right"></i> Check-Liste
-                        </button>
-                        <h4 class="list-group-item-heading">@inspection.Domain</h4>
-                        <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
-                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(index)">
-                            <i class="far fa-calendar-alt"></i>
-                            <span class="d-block">@inspection.VisitDate</span>
-                            @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
+                <div class="list-group-item">
+                    <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId)">
+                        <i class="fas fa-arrow-right"></i> Check-Liste
+                    </button>
+                    <h4 class="list-group-item-heading">@inspection.Domain</h4>
+                    <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
+                    <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(index)">
+                        <i class="far fa-calendar-alt"></i>
+                        <span class="d-block">@inspection.VisitDate</span>
+                        @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
+                        {
+                            <span class="d-block">@inspection.AppointmentDate</span>
+                        }
+                        @if (inspection.IsUnexpected)
+                        {
+                            <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
+                        }
+                    </Blazorise.Button>
+                    <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
+                    <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
+                    <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowCommentForOfficeModal(index)">
+                        <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
+                        <span style="white-space: pre-wrap">Pour la gérance</span>
+                    </Blazorise.Button>
+                    @{ string complianceButtonColor = inspection.HasComplianceRequirements ? "text-danger" : ""; }
+                    <button class="btn btn-app h-auto @complianceButtonColor" @onclick="() => ShowComplianceModal(index)">
+                        <i class="far fa-copy"></i>Suivi documents
+                    </button>
+                    <ProgressBar Progress="@inspection" />
+                    @if (inspection.HasComplianceRequirements)
+                    {
+                        <p class="mb-1">
+                            <strong class="mr-3">Délai de mise en conformité jusqu'au: @inspection.ComplianceDeadline</strong>
+                            @if (inspection.IsPastDeadline)
                             {
-                                <span class="d-block">@inspection.AppointmentDate</span>
+                                <span class="text-yellow mr-3"> @PastDeadlineMessage</span>
                             }
-                            @if (inspection.IsUnexpected)
+                            @if (inspection.DueDateRespected)
                             {
-                                <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
+                                <span class="text-green mr-3"><i class="far fa-thumbs-up"></i> @DueDateRespectedMessage</span>
                             }
-                        </Blazorise.Button>
-                        <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
-                        <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
-                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowCommentForOfficeModal(index)">
-                            <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
-                            <span style="white-space: pre-wrap">Pour la gérance</span>
-                        </Blazorise.Button>
-                        <button class="btn btn-app h-auto"><i class="far fa-copy text-danger"></i>Suivi documents</button>
-                        <ProgressBar Progress="@inspection" />
-                        @if (inspection.HasComplianceRequirements)
-                        {
-                            <p class="mb-1">
-                                <strong>Délai de mise en conformité jusqu'au: @inspection.ComplianceDeadline</strong>
-                                <span class="text-yellow"> @Late</span>
-                                <span class="text-green"><i class="far fa-thumbs-up"></i> @Compliant</span>
-                                <span class="text-red"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
-                            </p>
-                        }
-                        @if (inspection.CanGeneratePdfReport)
-                        {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
-                        }
-                        @if (inspection.CanDisplayPdfReport)
-                        {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
-                        }
-                        @if (inspection.CanClose)
-                        {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
-                        }
-                        @if (inspection.IsClosed)
-                        {
-                            <p class="mb-1"><strong>Clôturé le @inspection.CloseDate par @inspection.ClosedBy.</strong></p>
-                        }
-                        @if (inspection.CanReopen)
-                        {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
-                        }
-                    </div>
+                            @if (inspection.IsLateOrNotCompliant)
+                            {
+                                <span class="text-red mr-3"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
+                            }
+                        </p>
+                    }
+                    @if (inspection.CanGeneratePdfReport)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
+                    }
+                    @if (inspection.CanDisplayPdfReport)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
+                    }
+                    @if (inspection.CanClose)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
+                    }
+                    @if (inspection.IsClosed)
+                    {
+                        <p class="mb-1"><strong>Clôturé le @inspection.CloseDate par @inspection.ClosedBy.</strong></p>
+                    }
+                    @if (inspection.CanReopen)
+                    {
+                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
+                    }
+                </div>
                 }
             </div>
         </div>
     </div>
 }
 
-@if (appointmentModel != null)
+@if (appointment != null)
 {
     <Blazorise.Modal @ref="appointmentModal">
         <Blazorise.ModalBackdrop />
-        <EditForm Model="appointmentModel" OnSubmit="@SaveAppointementDetails">
+        <EditForm Model="appointment" OnSubmit="@SaveAppointementDetails">
             <Blazorise.ModalContent IsCentered="true">
                 <Blazorise.ModalHeader>
                     <Blazorise.ModalTitle>Prendre rendez-vous avec l'exploitant</Blazorise.ModalTitle>
@@ -127,24 +139,24 @@
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Téléphone</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Phone" />
+                        <Blazorise.TextEdit ReadOnly @bind-Text="@appointment.Phone" />
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Courriel</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit ReadOnly @bind-Text="@appointmentModel.Email" />
+                        <Blazorise.TextEdit ReadOnly @bind-Text="@appointment.Email" />
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Date de premier contact</Blazorise.FieldLabel>
-                        <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.FirstContactDate" />
+                        <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointment.FirstContactDate" />
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
-                        <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointmentModel.Date" />
+                        <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointment.Date" />
                     </Blazorise.Field>
                     @*<Blazorise.Field>
                             <Blazorise.FieldLabel>Annoncé / Inopiné</Blazorise.FieldLabel>
-                            <Blazorise.Select @bind-SelectedValue="@appointmentModel.Mode">
-                                @foreach (var mode in appointmentModel.ComboInspectionModes)
+                            <Blazorise.Select @bind-SelectedValue="@appointment.Mode">
+                                @foreach (var mode in appointment.ComboInspectionModes)
                                 {
                                     <Blazorise.SelectItem Value="@mode.Value">@mode.Text</Blazorise.SelectItem>
                                 }
@@ -160,11 +172,11 @@
     </Blazorise.Modal>
 }
 
-@if (commentForOfficeModel != null)
+@if (commentForOffice != null)
 {
     <Blazorise.Modal @ref="commentForOfficeModal">
         <Blazorise.ModalBackdrop />
-        <EditForm Model="commentForOfficeModel" OnSubmit="@SaveCommentForOffice">
+        <EditForm Model="commentForOffice" OnSubmit="@SaveCommentForOffice">
             <Blazorise.ModalContent IsCentered="true">
                 <Blazorise.ModalHeader>
                     <Blazorise.ModalTitle>Commentaires et détails à l'attention de la gérance</Blazorise.ModalTitle>
@@ -172,7 +184,7 @@
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
-                        <Blazorise.MemoEdit Rows="5" @bind-Text="@commentForOfficeModel.CommentForOffice" />
+                        <Blazorise.MemoEdit Rows="5" @bind-Text="@commentForOffice.CommentForOffice" />
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
@@ -184,10 +196,55 @@
     </Blazorise.Modal>
 }
 
+@if (compliance != null)
+{
+    <Blazorise.Modal @ref="complianceModal">
+        <Blazorise.ModalBackdrop />
+        <EditForm Model="compliance" OnSubmit="@SaveCompliance">
+            <Blazorise.ModalContent IsCentered="true">
+                <Blazorise.ModalHeader>
+                    <Blazorise.ModalTitle>Suivi documents et délai</Blazorise.ModalTitle>
+                    <Blazorise.CloseButton Clicked="@HideComplianceModal" />
+                </Blazorise.ModalHeader>
+                <Blazorise.ModalBody>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Documents à livrer / Mesures à prendre</Blazorise.FieldLabel>
+                        <Blazorise.MemoEdit Rows="3" @bind-Text="@compliance.ActionsOrDocuments" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Délai de mise en conformité</Blazorise.FieldLabel>
+                        <Blazorise.DateEdit TValue="DateTime?" @bind-date="@compliance.DueDate"></Blazorise.DateEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Délai respecté, documents livrés complets et conformes</Blazorise.FieldLabel>
+                        <Blazorise.Switch TValue="bool" @bind-Checked="@compliance.DueDateRespected" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Délai pas respecté</Blazorise.FieldLabel>
+                        <Blazorise.Switch TValue="bool" @bind-Checked="@compliance.DueDateNotRespected" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Documents livrés incomplets ou non-conformes</Blazorise.FieldLabel>
+                        <Blazorise.Switch TValue="bool" @bind-Checked="@compliance.IncompleteOrNonCompliant" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Vérification supplémentaire à effectuer par la gérance (voir remarques contrôle)</Blazorise.FieldLabel>
+                        <Blazorise.Switch TValue="bool" @bind-Checked="@compliance.FurtherInvestigationNeeded" />
+                    </Blazorise.Field>
+                </Blazorise.ModalBody>
+                <Blazorise.ModalFooter>
+                    <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
+                    <button class="btn btn-default float-left mr-2" @onclick="@HideComplianceModal">Annuler</button>
+                </Blazorise.ModalFooter>
+            </Blazorise.ModalContent>
+        </EditForm>
+    </Blazorise.Modal>
+}
+
 @code {
     public const string LateOrNotCompliant = "Hors délai ou non conforme";
-    public const string Late = "!! expiré !!";
-    public const string Compliant = "Délai respecté";
+    public const string PastDeadlineMessage = "!! expiré !!";
+    public const string DueDateRespectedMessage = "Délai respecté";
 
     [Parameter] public int FarmId { get; set; }
 
@@ -195,17 +252,20 @@
     private Farm farm;
     private AcordaControlOffline.Shared.Domain.Mandate.Mandate mandate;
     private Blazorise.Modal appointmentModal;
-    private AppointmentModel appointmentModel;
+    private AppointmentModel appointment;
     private Blazorise.Modal commentForOfficeModal;
-    private CommentForOfficeModel commentForOfficeModel;
+    private CommentForOfficeModel commentForOffice;
+    private Blazorise.Modal complianceModal;
+    private ComplianceModel compliance;
 
     protected override async Task OnInitializedAsync()
     {
         farm = await Repository.ReadFarmAsync(FarmId);
         mandate = await Repository.ReadMandateAsync(FarmId);
         mandateViewModel = Mandate.FromDomain(farm, mandate);
-        appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections.First());
-        commentForOfficeModel = CommentForOfficeModel.FromDomain(mandate.Inspections.First());
+        appointment = AppointmentModel.FromDomain(farm, mandate.Inspections.First());
+        commentForOffice = CommentForOfficeModel.FromDomain(mandate.Inspections.First());
+        compliance = ComplianceModel.FromDomain(mandate.Inspections.First());
     }
 
     private void NavigateToChecklist(int farmInspectionId)
@@ -226,7 +286,7 @@
 
     private void ShowAppointmentModal(int index)
     {
-        appointmentModel = AppointmentModel.FromDomain(farm, mandate.Inspections[index], index);
+        appointment = AppointmentModel.FromDomain(farm, mandate.Inspections[index], index);
         appointmentModal.Show();
     }
 
@@ -247,7 +307,7 @@
 
     private void ShowCommentForOfficeModal(int index)
     {
-        commentForOfficeModel = CommentForOfficeModel.FromDomain(mandate.Inspections[index], index);
+        commentForOffice = CommentForOfficeModel.FromDomain(mandate.Inspections[index], index);
         commentForOfficeModal.Show();
     }
 
@@ -266,6 +326,52 @@
         await Repository.SaveMandateAsync(mandate, FarmId);
     }
 
+    private void ShowComplianceModal(int index)
+    {
+        compliance = ComplianceModel.FromDomain(mandate.Inspections[index], index);
+        complianceModal.Show();
+    }
+
+    private void HideComplianceModal()
+    {
+        complianceModal.Hide();
+    }
+
+    async void SaveCompliance(EditContext editContext)
+    {
+        var model = (ComplianceModel)editContext.Model;
+        mandate.Inspections[model.InspectionIndex].SetCompliance(new Compliance(model.ActionsOrDocuments, model.DueDate, model.DueDateNotRespected, model.DueDateRespected, model.FurtherInvestigationNeeded, model.IncompleteOrNonCompliant));
+        mandateViewModel = Mandate.FromDomain(farm, mandate);
+        StateHasChanged();
+        complianceModal.Hide();
+        await Repository.SaveMandateAsync(mandate, FarmId);
+    }
+
+    public class ComplianceModel
+    {
+        public int InspectionIndex { get; set; }
+        public string ActionsOrDocuments { get; set; }
+        public DateTime? DueDate { get; set; }
+        public bool DueDateNotRespected { get; set; }
+        public bool DueDateRespected { get; set; }
+        public bool FurtherInvestigationNeeded { get; set; }
+        public bool IncompleteOrNonCompliant { get; set; }
+
+        public static ComplianceModel FromDomain(Inspection inspection, int index = 0)
+        {
+            return new ComplianceModel
+            {
+                InspectionIndex = index,
+                ActionsOrDocuments = inspection.Compliance.ActionsOrDocuments,
+                DueDate = inspection.Compliance.DueDate,
+                DueDateRespected = inspection.Compliance.DueDateRespected,
+                DueDateNotRespected = inspection.Compliance.DueDateNotRespected,
+                FurtherInvestigationNeeded = inspection.Compliance.FurtherInvestigationNeeded,
+                IncompleteOrNonCompliant = inspection.Compliance.IncompleteOrNonCompliant
+            };
+        }
+    }
+
     public class CommentForOfficeModel
     {
         public int InspectionIndex { get; set; }
@@ -273,7 +379,7 @@
 
         public static CommentForOfficeModel FromDomain(Inspection inspection, int index = 0)
         {
-            return  new CommentForOfficeModel
+            return new CommentForOfficeModel
             {
                 InspectionIndex = index,
                 CommentForOffice = inspection.CommentForOffice
