@@ -1,9 +1,13 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @inject IRepository Repository
 
-<i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2" data-toggle="collapse" data-target="#01_1_2018 > .sub-elements"></i>
+@if (Item.Children?.Any() ?? false)
+{
+    <i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2 @right" data-toggle="collapse" data-target="#@Item.ConjunctElementCode.CurateAsElementId() > .sub-elements" @onclick="@ToggleChevron"></i>
+}
 <span class="badge bg-indigo disabled float-right mr-1">@Item.NumGroups</span>
 <span class="badge bg-indigo disabled float-right mr-1">@Item.NumPoints</span>
 <h4 class="list-group-item-heading">@Item.ShortName</h4>
@@ -24,6 +28,13 @@
 
     [Parameter]
     public EventCallback<InspectionOutcome> OnOutcomeChanged { get; set; }
+
+    string right = "";
+
+    void ToggleChevron()
+    {
+        right = right == "" ? "right" : "";
+    }
 
     public string OutcomeCssClass(IResult rubric, InspectionOutcome outcome)
     {

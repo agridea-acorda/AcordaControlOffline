@@ -4,5 +4,6 @@
     $('[data-card-widget="collapse"]').CardWidget('toggle');
     $('.data-toggle').dropdown();
     $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="collapse"]').collapse();
     console.log('Done.');
 }
