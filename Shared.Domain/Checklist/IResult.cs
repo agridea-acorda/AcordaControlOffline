@@ -17,5 +17,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         DefectSeriousness Seriousness { get; }
         //IList<File> Photos { get; set; }
         //IList<File> Attachments { get; set; }
+
+        IResult SetOutcome(InspectionOutcome outcome);
     }
 }

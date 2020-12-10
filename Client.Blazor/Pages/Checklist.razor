@@ -58,7 +58,7 @@
                     {
                         var item = kvp.Value;
                         <div id="@item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                            <i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2" data-toggle="collapse" data-target="#01_1_2018 > .sub-elements"></i>
+                            @*<i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2" data-toggle="collapse" data-target="#01_1_2018 > .sub-elements"></i>
                             <span class="badge bg-indigo disabled float-right mr-1">@item.NumGroups</span>
                             <span class="badge bg-indigo disabled float-right mr-1">@item.NumPoints</span>
                             <h4 class="list-group-item-heading">@item.ShortName</h4>
@@ -71,6 +71,35 @@
                             @if (item.Outcome != InspectionOutcome.Unset)
                             {
                                 <button @onclick="() => ResetOutcome(item)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+                            }*@
+                            <ResultEditor Item="@item" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                            
+                            @if (item.NumPoints > 0 || item.NumGroups > 0)
+                            {
+                                <div class="sub-elements mt-2 collapse">
+                                    @if (item.NumGroups > 0)
+                                    {
+                                        <div class="list-group">
+                                            @foreach (var g0 in item.Groups)
+                                            {
+                                                <div id="@g0.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                                                    <ResultEditor Item="@g0" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    @if (item.NumPoints > 0)
+                                    {
+                                        <div class="list-group">
+                                            @foreach (var p0 in item.Points)
+                                            {
+                                                <div id="@p0.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                                                    <ResultEditor Item="@p0" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
                             }
                         </div>
                     }
@@ -102,15 +131,20 @@
                "btn-default";
     }
 
-    async void SetOutcome(Result result, InspectionOutcome outcome)
-    {
-        result.Outcome = outcome;
-        await Repository.SaveChecklistAsync(checklist);
-    }
+    //async void SetOutcome(Result result, InspectionOutcome outcome)
+    //{
+    //    result.Outcome = outcome;
+    //    await Repository.SaveChecklistAsync(checklist);
+    //}
 
-    async void ResetOutcome(Result result)
+    //async void ResetOutcome(Result result)
+    //{
+    //    result.Outcome = InspectionOutcome.Unset;
+    //    await Repository.SaveChecklistAsync(checklist);
+    //}
+
+    async void OutcomeChanged(InspectionOutcome outcome)
     {
-        result.Outcome = InspectionOutcome.Unset;
         await Repository.SaveChecklistAsync(checklist);
     }
 }

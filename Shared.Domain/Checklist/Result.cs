@@ -22,11 +22,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         
         public Defect Defect { get; private set; }
         public DefectSeriousness Seriousness { get; set; }
+        IResult IResult.SetOutcome(InspectionOutcome outcome)
+        {
+            return SetOutcome(outcome);
+        }
 
         public double Percent { get; private set; }
 
         public int NumGroups => Children?.Count(x => x.Value?.Children?.Any() ?? false) ?? 0;
         public int NumPoints => Children?.Count(x => !x.Value?.Children?.Any() ?? true) ?? 0;
+        public List<ITreeNode<Result>> Points => (Children?.Where(child => !child.Value?.Children?.Any() ?? true) ?? Enumerable.Empty<KeyValuePair<string, ITreeNode<Result>>>())
+                                                 .Select(x => x.Value)
+                                                 .ToList();
+        public List<ITreeNode<Result>> Groups => (Children?.Where(child => child.Value?.Children?.Any() ?? false) ?? Enumerable.Empty<KeyValuePair<string, ITreeNode<Result>>>())
+                                                 .Select(x => x.Value)
+                                                 .ToList();
 
         protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")
         {
