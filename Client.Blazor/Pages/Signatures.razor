@@ -12,11 +12,11 @@
             <div class="card-header">
                 <h3 class="card-title">Remarques / Documents / Mesures</h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist/1")'>
+                    <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist/" + FarmInspectionId + "?FarmId=" + FarmId)'>
                         <i class="fas fa-arrow-left"></i>
                         Retour Check-Liste
                     </button>
-                    <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/1")'>
+                    <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
                         <i class="fas fa-arrow-right"></i>
                         Mandat
                     </button>
@@ -74,6 +74,7 @@
 @code {
     [Parameter]
     public int FarmInspectionId { get; set; }
+    private int FarmId;
 
     ActionsOrDocumentEditModel actionsOrDocumentEditModel_;
     bool needsSaving = false;
@@ -81,6 +82,7 @@
     protected override async Task OnInitializedAsync()
     {
         actionsOrDocumentEditModel_ = await Repository.ReadActionsOrDocumentsAsync() ?? new ActionsOrDocumentEditModel();
+        FarmId = int.Parse(Navigation.QueryString("FarmId"));
         await base.OnInitializedAsync();
     }
 

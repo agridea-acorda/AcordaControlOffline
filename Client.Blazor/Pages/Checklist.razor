@@ -1,8 +1,6 @@
 ﻿@page "/Checklist/{FarmInspectionId:int}"
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using InspectionOutcome = AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @inject NavigationManager Navigation
@@ -12,11 +10,11 @@
     <div class="card-header">
         <h3 class="card-title">Récapitulatif</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/1")'>
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
                 <i class="fas fa-arrow-left"></i>
                 Retour Mandat
             </button>
-            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/1")'>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + FarmId)'>
                 <i class="fas fa-arrow-right"></i>
                 Signatures
             </button>
@@ -65,14 +63,14 @@
                             <span class="badge bg-indigo disabled float-right mr-1">@item.NumPoints</span>
                             <h4 class="list-group-item-heading">@item.ShortName</h4>
                             <p class="list-group-item-text mb-2">@item.ConjunctElementCode</p>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.Ok)" @onclick="() => SetOutcome(item, InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.PartiallyOk)  " @onclick="() => SetOutcome(item, InspectionOutcome.PartiallyOk)"  >P</button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NotOk)" @onclick="() => SetOutcome(item, InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NotInspected) " @onclick="() => SetOutcome(item, InspectionOutcome.NotInspected)" >NC</button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(item, InspectionOutcome.NotApplicable)" >NA</button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @OutcomeCssClass(item, InspectionOutcome.Ok)" @onclick="() => SetOutcome(item, InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @OutcomeCssClass(item, InspectionOutcome.PartiallyOk)  " @onclick="() => SetOutcome(item, InspectionOutcome.PartiallyOk)">P</button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @OutcomeCssClass(item, InspectionOutcome.NotOk)" @onclick="() => SetOutcome(item, InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @OutcomeCssClass(item, InspectionOutcome.NotInspected) " @onclick="() => SetOutcome(item, InspectionOutcome.NotInspected)">NC</button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @OutcomeCssClass(item, InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(item, InspectionOutcome.NotApplicable)">NA</button>
                             @if (item.Outcome != InspectionOutcome.Unset)
                             {
-                                <button @onclick="() => ResetOutcome(item)" class="btn btn-circle btn-circle-sm btn-default"><i class="far fa-trash-alt"></i></button>
+                                <button @onclick="() => ResetOutcome(item)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
                             }
                         </div>
                     }
@@ -85,12 +83,13 @@
 @code {
     [Parameter]
     public int FarmInspectionId { get; set; }
-
+    public int FarmId;
     Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
 
     protected override async Task OnInitializedAsync()
     {
-        checklist = await Repository.ReadChecklistSampleAsync();
+        checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        FarmId = int.Parse(Navigation.QueryString("FarmId"));
     }
 
     public string OutcomeCssClass(IResult rubric, InspectionOutcome outcome)
@@ -106,12 +105,12 @@
     async void SetOutcome(Result result, InspectionOutcome outcome)
     {
         result.Outcome = outcome;
-        await Repository.SaveChecklistSampleAsync(checklist);
+        await Repository.SaveChecklistAsync(checklist);
     }
 
     async void ResetOutcome(Result result)
     {
         result.Outcome = InspectionOutcome.Unset;
-        await Repository.SaveChecklistSampleAsync(checklist);
+        await Repository.SaveChecklistAsync(checklist);
     }
 }

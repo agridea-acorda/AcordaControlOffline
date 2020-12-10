@@ -57,12 +57,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return targetInstance;
         }
 
-        private Domain.Inspection.Domain Parse(InspectionDeserializationDto.Domain dtp)
+        private Domain.Inspection.Domain Parse(InspectionDeserializationDto.Domain dto)
         {
-            if (dtp == null) return null;
+            if (dto == null) return null;
             var targetInstance = (Domain.Inspection.Domain)FormatterServices.GetUninitializedObject(typeof(Domain.Inspection.Domain));
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Domain), nameof(Domain.Inspection.Domain.Id), targetInstance, dtp.Id);
-            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Domain), nameof(Domain.Inspection.Domain.ShortName), targetInstance, dtp.ShortName);
+            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Domain), nameof(Domain.Inspection.Domain.Id), targetInstance, dto.Id);
+            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Domain), nameof(Domain.Inspection.Domain.ShortName), targetInstance, dto.ShortName);
             return targetInstance;
         }
 

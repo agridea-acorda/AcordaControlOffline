@@ -53,7 +53,7 @@
                 @foreach (var (inspection, index) in mandateViewModel.Inspections.Select((item, index) => (item, index)))
                 {
                 <div class="list-group-item">
-                    <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId)">
+                    <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
                         <i class="fas fa-arrow-right"></i> Check-Liste
                     </button>
                     <h4 class="list-group-item-heading">@inspection.Domain</h4>
@@ -268,11 +268,11 @@
         compliance = ComplianceModel.FromDomain(mandate.Inspections.First());
     }
 
-    private void NavigateToChecklist(int farmInspectionId)
+    private void NavigateToChecklist(int farmInspectionId, int farmId)
     {
-        if (farmInspectionId > 0)
+        if (farmInspectionId > 0 && farmId > 0)
         {
-            Navigation.NavigateTo($"{Config.BaseUrl}/Checklist/{farmInspectionId}");
+            Navigation.NavigateTo($"{Config.BaseUrl}/Checklist/{farmInspectionId}?FarmId={farmId}");
         }
     }
 

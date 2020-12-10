@@ -197,8 +197,10 @@
             mandate.SyncStatus = syncStatus;
         }
 
-        if (!await TryFetchAndSave(() => Api.FetchChecklistSampleAsync("sample-data/checklist.json"),
-                               data => Repository.SaveChecklistSampleAsync(data)))
+        // todo read mandate and fetch/save each checklist
+        int farmInspectionId = 83811;
+        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"sample-data/checklist_FarmInspectionId{farmInspectionId}.json"),
+                               data => Repository.SaveChecklistJsonAsync(data, farmInspectionId)))
         {
             mandate.SyncStatus = syncStatus;
         }

@@ -16,12 +16,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id);
         ValueTask SaveMandateJsonAsync(string json, int id);
         ValueTask SaveFarmJsonAsync(string json, int id);
+        ValueTask SaveChecklistJsonAsync(string json, int id);
         ValueTask<Farm> ReadFarmAsync(int farmId);
         ValueTask<ChecklistSample> ReadChecklistSampleAsync();
         ValueTask SaveChecklistSampleAsync(ChecklistSample checklist);
         ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync();
         ValueTask SaveActionsOrDocumentsAsync(ActionsOrDocumentEditModel model);
-        ValueTask SaveChecklistAsync(Checklist checklist, Func<Checklist, string> serialize);
-        ValueTask<Checklist> ReadChecklistAsync(int farmInspectionId, Func<string, Checklist> deserialize);
+        ValueTask SaveChecklistAsync(Checklist checklist);
+        ValueTask<Checklist> ReadChecklistAsync(int farmInspectionId);
     }
 }

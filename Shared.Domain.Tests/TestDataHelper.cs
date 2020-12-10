@@ -10,7 +10,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
     {
         public static Checklist.Checklist ConstructChecklist()
         {
-            var checklist = new Checklist.Checklist()
+            var checklist = new Checklist.Checklist(1)
                             .AddRubric("R1", new RubricResult("R1", "R1", "R1")
                                              .AddChild("R1,P1", new PointResult("R1,P1", "P1", "P1"))
                                              .AddChild("R1,P2", new PointResult("R1,P2", "P2", "P2")))
@@ -34,7 +34,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
         public static void ChecklistTreeStructureShouldBeConsistent(Checklist.Checklist checklist)
         {
             checklist.Should().NotBeNull();
-            
+
+            checklist.FarmInspectionId.Should().Be(1);
             checklist.Rubrics.Count.Should().Be(2);
             checklist.Rubrics["R1"].Children.Count.Should().Be(2);
             checklist.Rubrics["R1"].Children.Should().ContainKeys("R1,P1", "R1,P2");

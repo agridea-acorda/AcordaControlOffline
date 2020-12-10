@@ -7,10 +7,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public class Checklist : AggregateRoot
     {
+        public int FarmInspectionId { get; }
         public SortedList<string, RubricResult> Rubrics { get; } = new SortedList<string, RubricResult>();
 
-        public Checklist(long id) : base(id) { }
-        public Checklist() { }
+        public Checklist(long id, int farmInspectionId) : base(id)
+        {
+            FarmInspectionId = farmInspectionId;
+        }
+        public Checklist(int farmInspectionId)
+        {
+            FarmInspectionId = farmInspectionId;
+        }
 
         public Checklist AddRubric(string key, RubricResult rubricResult)
         {

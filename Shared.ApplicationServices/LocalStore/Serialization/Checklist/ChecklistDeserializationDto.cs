@@ -4,6 +4,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 {
     public class ChecklistDeserializationDto
     {
+        public int FarmInspectionId { get; set; }
         public SortedList<string, Result> Rubrics { get; set; }
 
         public class Result
