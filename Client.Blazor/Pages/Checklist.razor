@@ -61,73 +61,6 @@
                         var item = kvp.Value;
                         <div id="@item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
                             <ResultEditor Item="@item" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
-                            @if (item.NumPoints > 0 || item.NumGroups > 0)
-                            {
-                                <div class="sub-elements mt-2 collapse">
-                                    @if (item.NumGroups > 0)
-                                    {
-                                        <div class="list-group">
-                                            @foreach (var g0 in item.Groups)
-                                            {
-                                                <div id="@g0.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                                                    <ResultEditor Item="@g0" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
-                                                    @if (g0.NumPoints > 0 || g0.NumGroups > 0)
-                                                    {
-                                                        <div class="sub-elements mt-2 collapse">
-                                                            @if (g0.NumGroups > 0)
-                                                            {
-                                                                <div class="list-group">
-                                                                    @foreach (var g1 in g0.Groups)
-                                                                    {
-                                                                    <div id="@g1.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                                                                        <ResultEditor Item="@g1" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
-                                                                        @if (g1.NumPoints > 0)
-                                                                        {
-                                                                            <div class="sub-elements mt-2 collapse">
-                                                                                <div class="list-group">
-                                                                                    @foreach (var p2 in g1.Points)
-                                                                                    {
-                                                                                        <div id="@p2.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                                                                                            <ResultEditor Item="@p2" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
-                                                                                        </div>
-                                                                                    }
-                                                                                </div>
-                                                                            </div>
-                                                                        }
-                                                                    </div>
-                                                                    }
-                                                                </div>
-                                                            }
-                                                            @if (g0.NumPoints > 0)
-                                                            {
-                                                                <div class="list-group">
-                                                                    @foreach (var p1 in g0.Points)
-                                                                    {
-                                                                        <div id="@p1.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                                                                            <ResultEditor Item="@p1" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
-                                                                        </div>
-                                                                    }
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                    @if (item.NumPoints > 0)
-                                    {
-                                        <div class="list-group">
-                                            @foreach (var p0 in item.Points)
-                                            {
-                                                <div id="@p0.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                                                    <ResultEditor Item="@p0" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            }
                         </div>
                     }
                 </div>
@@ -142,14 +75,19 @@
     public int FarmId;
     Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
     Timer saveTimer;
-    const int saveInterval = 3000; // save 3 seconds after last SetOutcome
+    const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
 
     protected override async Task OnInitializedAsync()
     {
         checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
         FarmId = int.Parse(Navigation.QueryString("FarmId"));
-        saveTimer = new Timer(saveInterval) {AutoReset = false};
-        saveTimer.Elapsed += async (sender, e) => await Repository.SaveChecklistAsync(checklist);
+        saveTimer = new Timer(SaveInterval) {AutoReset = false};
+        saveTimer.Elapsed += async (sender, e) =>
+        {
+            Console.WriteLine("Saving checklist...");
+            await Repository.SaveChecklistAsync(checklist);
+            Console.WriteLine("Saved.");
+        };
     }
 
     public string OutcomeCssClass(IResult rubric, InspectionOutcome outcome)

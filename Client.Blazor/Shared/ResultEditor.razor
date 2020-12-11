@@ -20,6 +20,34 @@
     <button @onclick="() => SetOutcome(Item, InspectionOutcome.Unset)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
 }
 
+@if (Item.NumPoints > 0 || Item.NumGroups > 0)
+{
+    <div class="sub-elements mt-2 collapse">
+        @if (Item.NumGroups > 0)
+        {
+            <div class="list-group">
+                @foreach (var group in Item.Groups)
+                {
+                    <div id="@group.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                        <ResultEditor Item="@group" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                    </div>
+                }
+            </div>
+        }
+        @if (Item.NumPoints > 0)
+        {
+            <div class="list-group">
+                @foreach (var point in Item.Points)
+                {
+                    <div id="@point.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                        <ResultEditor Item="@point" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
 @code {
 
     [Parameter]
@@ -38,6 +66,11 @@
     async void SetOutcome(ITreeNode<Result> result, InspectionOutcome outcome)
     {
         result.SetOutcome(outcome);
+        await OnOutcomeChanged.InvokeAsync(outcome);
+    }
+
+    async void OutcomeChanged(InspectionOutcome outcome)
+    {
         await OnOutcomeChanged.InvokeAsync(outcome);
     }
 
