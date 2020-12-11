@@ -1,4 +1,5 @@
 ﻿using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 {
@@ -30,6 +31,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
             }
 
             return "";
+        }
+
+        public static string OutcomeCssClass(this IResult rubric, AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome outcome)
+        {
+            return rubric.Outcome == outcome && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.Ok ? "btn-success" :
+                   rubric.Outcome == outcome && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.PartiallyOk ? "btn-warning" :
+                   rubric.Outcome == outcome && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.NotOk ? "btn-danger" :
+                   rubric.Outcome == outcome && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.NotInspected ? "btn-primary" :
+                   rubric.Outcome == outcome && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.NotApplicable ? "btn-primary" :
+                   "btn-default";
         }
 
         public static string BackgroundCssClass(this int farmTypeCode)

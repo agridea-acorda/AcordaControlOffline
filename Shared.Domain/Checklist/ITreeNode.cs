@@ -8,6 +8,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
     {
         ITreeNode<T> Parent { get; }
         SortedList<string, ITreeNode<T>> Children { get; }
+        List<ITreeNode<Result>> Points { get; }
+        List<ITreeNode<Result>> Groups { get; }
+
         int NumGroups { get; }
         int NumPoints { get; }
         void SetParent(ITreeNode<T> parent);
