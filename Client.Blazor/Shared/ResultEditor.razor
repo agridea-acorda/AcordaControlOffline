@@ -3,7 +3,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @inject IJSRuntime Js
 
-@if (Model.Item.Children?.Any() ?? false)
+@if (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0)
 {
     <i class="fas fa-chevron-right fa-3x float-left rotate mr-2 @Model.ExpandedCssClass" @onclick="@ToggleChevron"></i>
 }
@@ -11,14 +11,14 @@
 <span class="badge bg-indigo disabled float-right mr-1">@Model.Item.NumPoints</span>
 <h4 class="list-group-item-heading">@Model.Item.ShortName</h4>
 <p class="list-group-item-text mb-2">@Model.Item.ConjunctElementCode</p>
-<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(Model.Item, InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.PartiallyOk)  " @onclick="() => SetOutcome(Model.Item, InspectionOutcome.PartiallyOk)">P</button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(Model.Item, InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotInspected) " @onclick="() => SetOutcome(Model.Item, InspectionOutcome.NotInspected)">NC</button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(Model.Item, InspectionOutcome.NotApplicable)">NA</button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.PartiallyOk)  " @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotInspected) " @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
 @if (Model.Item.Outcome != InspectionOutcome.Unset)
 {
-    <button @onclick="() => SetOutcome(Model.Item, InspectionOutcome.Unset)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+    <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
 }
 
 @if (Model.Expanded && (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0))
@@ -49,6 +49,25 @@
     </div>
 }
 
+<Blazorise.Modal @ref="@confirmDelete">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent>
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => confirmDelete.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>Êtes-vous sûr de vouloir supprimer les information saisies (résultat, remarques, pièces jointes, ...) ?</Blazorise.FieldLabel>
+            </Blazorise.Field>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button class="btn btn-info" @onclick="@Delete">Ok</button>
+            <button class="btn btn-default" @onclick="() => confirmDelete.Hide()">Annuler</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 @code {
 
     [Parameter]
@@ -73,6 +92,7 @@
         }
     }
     readonly List<ResultEditor> childResultEditors = new List<ResultEditor>();
+    Blazorise.Modal confirmDelete;
 
     protected override async Task OnInitializedAsync()
     {
@@ -125,15 +145,21 @@
         }
     }
 
-    async void SetOutcome(ITreeNode<Result> result, InspectionOutcome outcome)
+    async Task SetOutcome(InspectionOutcome outcome)
     {
-        result.SetOutcome(outcome);
+        Model.Item.SetOutcome(outcome);
         await OnOutcomeChanged.InvokeAsync(outcome);
     }
 
-    async void OutcomeChanged(InspectionOutcome outcome)
+    async Task OutcomeChanged(InspectionOutcome outcome)
     {
         await OnOutcomeChanged.InvokeAsync(outcome);
+    }
+
+    async Task Delete()
+    {
+        confirmDelete.Hide();
+        await SetOutcome(InspectionOutcome.Unset);
     }
 
     public class ResultEditModel
