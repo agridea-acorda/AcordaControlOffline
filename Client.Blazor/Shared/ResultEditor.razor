@@ -1,6 +1,7 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@inject IJSRuntime Js
 
 @if (Model.Item.Children?.Any() ?? false)
 {
@@ -20,7 +21,7 @@
     <button @onclick="() => SetOutcome(Model.Item, InspectionOutcome.Unset)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
 }
 
-@if (!Model.Collapsed && (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0))
+@if (Model.Expanded && (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0))
 {
     <div class="mt-2">
         @if (groups.Any())
@@ -56,19 +57,33 @@
     [Parameter]
     public EventCallback<InspectionOutcome> OnOutcomeChanged { get; set; }
 
+    const int CookieDays = 30;
+    
     List<ResultEditModel> groups = new List<ResultEditModel>();
     List<ResultEditModel> points = new List<ResultEditModel>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         groups = Model.Item.Groups.Select(g => ResultEditModel.FromDomain(g)).ToList();
         points = Model.Item.Points.Select(p => ResultEditModel.FromDomain(p)).ToList();
-        base.OnInitialized();
+        Console.WriteLine($"Reading cookie with name {Model.Id}");
+        string cookieValue = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", Model.Id);
+        Console.WriteLine($"Value = {cookieValue}");
+        Model.Expanded = cookieValue == "1";
+        await base.OnInitializedAsync();
     }
 
-    void ToggleChevron()
+    async void ToggleChevron()
     {
-        Model.Collapsed = !Model.Collapsed;
+        Model.Expanded = !Model.Expanded;
+        if (Model.Expanded)
+        {
+            await Js.InvokeAsync<string>("blazorExtensions.SetCookie", Model.Item.ConjunctElementCode.CurateAsElementId(), 1);
+        }
+        else
+        {
+            await Js.InvokeAsync<string>("blazorExtensions.RemoveCookie", Model.Item.ConjunctElementCode.CurateAsElementId());
+        }
     }
 
     async void SetOutcome(ITreeNode<Result> result, InspectionOutcome outcome)
@@ -85,15 +100,16 @@
     public class ResultEditModel
     {
         public ITreeNode<Result> Item { get; set; }
-        public bool Collapsed { get; set; }
-        public string ExpandedCssClass => Collapsed ? "" : "right";
+        public bool Expanded { get; set; }
+        public string ExpandedCssClass => Expanded ? "right" : "";
+        public string Id => Item?.ConjunctElementCode.CurateAsElementId() ?? "";
 
-        public static ResultEditModel FromDomain(ITreeNode<Result> item, bool collapsed = true)
+        public static ResultEditModel FromDomain(ITreeNode<Result> item, bool expanded = false)
         {
             return new ResultEditModel
             {
                 Item = item,
-                Collapsed = collapsed
+                Expanded = expanded
             };
         }
     }
