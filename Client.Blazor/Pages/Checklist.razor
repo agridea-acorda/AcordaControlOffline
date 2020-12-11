@@ -4,6 +4,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using InspectionOutcome = AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @using System.Timers
+@using System.Reflection.Metadata.Ecma335
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @implements IDisposable
@@ -49,17 +50,17 @@
         @if (model.Any())
         {
             <div class="mb-2">
-                <a href="#">Déplier tous</a> |
-                <a href="#">Replier tous</a> |
-                <a href="#">Afficher NA/NC auto</a> |
-                <a href="#">Cacher NA/NC auto</a>
+                <button @onclick="@ExpandAll" class="btn btn-sm btn-info mr-1 mb-2">Déplier tous</button>
+                <button @onclick="@CollapseAll" class="btn btn-sm btn-info mr-1 mb-2">Replier tous</button>
+                <button class="btn btn-sm btn-info mr-1 mb-2">Afficher NA/NC auto</button>
+                <button class="btn btn-sm btn-info mr-1 mb-2">Cacher NA/NC auto</button>
             </div>
             <div id="checklist">
                 <div class="list-group">
-                    @foreach (var item in model)
+                    @foreach (var (item, index) in model.WithIndex())
                     {
-                        <div id="@item.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                            <ResultEditor Model="@item" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                        <div id="@item.Id" class="list-group-item" href="#">
+                            <ResultEditor @ref="@Editor" Model="@item" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
                         </div>
                     }
                 </div>
@@ -72,9 +73,22 @@
     [Parameter]
     public int FarmInspectionId { get; set; }
     public int FarmId;
-    //Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
-    List<ResultEditor.ResultEditModel> model = new List<ResultEditor.ResultEditModel>();
+    readonly List<ResultEditor.ResultEditModel> model = new List<ResultEditor.ResultEditModel>();
     Timer saveTimer;
+    ResultEditor editor_;
+    ResultEditor Editor
+    {
+        get => editor_;
+        set
+        {
+            editor_ = value;
+            rubricResultEditors.Add(value); // trick to save reference for each component in the loop.
+                                // see https://docs.microsoft.com/en-in/aspnet/core/blazor/components/?view=aspnetcore-5.0#capture-references-to-components
+                                // and https://github.com/dotnet/aspnetcore/issues/13358
+        }
+    }
+    readonly List<ResultEditor> rubricResultEditors = new List<ResultEditor>();
+
     const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
 
     protected override async Task OnInitializedAsync()
@@ -97,16 +111,6 @@
         };
     }
 
-    public string OutcomeCssClass(IResult rubric, InspectionOutcome outcome)
-    {
-        return rubric.Outcome == outcome && outcome == InspectionOutcome.Ok ? "btn-success" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.PartiallyOk ? "btn-warning" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.NotOk ? "btn-danger" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.NotInspected ? "btn-primary" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.NotApplicable ? "btn-primary" :
-               "btn-default";
-    }
-
     void OutcomeChanged(InspectionOutcome outcome)
     {
         saveTimer.Stop();
@@ -116,6 +120,22 @@
     public void Dispose()
     {
         saveTimer?.Dispose();
+    }
+
+    async Task ExpandAll()
+    {
+        foreach (var component in rubricResultEditors)
+        {
+            await component.ExpandAll();
+        }
+    }
+
+    async Task CollapseAll()
+    {
+        foreach (var component in rubricResultEditors)
+        {
+            await component.CollapseAll();
+        }
     }
 
 }

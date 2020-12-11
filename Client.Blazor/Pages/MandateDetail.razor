@@ -6,6 +6,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 
 @if (mandateViewModel != null)
 {
@@ -50,7 +51,7 @@
         </div>
         <div class="card-body p-0">
             <div class="list-group">
-                @foreach (var (inspection, index) in mandateViewModel.Inspections.Select((item, index) => (item, index)))
+                @foreach (var (inspection, index) in mandateViewModel.Inspections.WithIndex())
                 {
                 <div class="list-group-item">
                     <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">

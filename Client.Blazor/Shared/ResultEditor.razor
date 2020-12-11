@@ -30,7 +30,7 @@
                 @foreach (var group in groups)
                 {
                     <div id="@group.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor Model="@group" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                        <ResultEditor @ref="@Editor" Model="@group" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
                     </div>
                 }
             </div>
@@ -41,7 +41,7 @@
                 @foreach (var point in points)
                 {
                     <div id="@point.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor Model="@point" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                        <ResultEditor @ref="@Editor" Model="@point" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
                     </div>
                 }
             </div>
@@ -58,18 +58,27 @@
     public EventCallback<InspectionOutcome> OnOutcomeChanged { get; set; }
 
     const int CookieDays = 30;
-    
+
     List<ResultEditModel> groups = new List<ResultEditModel>();
     List<ResultEditModel> points = new List<ResultEditModel>();
+
+    ResultEditor editor_;
+    ResultEditor Editor
+    {
+        get => editor_;
+        set
+        {
+            editor_ = value;
+            childResultEditors.Add(value);
+        }
+    }
+    readonly List<ResultEditor> childResultEditors = new List<ResultEditor>();
 
     protected override async Task OnInitializedAsync()
     {
         groups = Model.Item.Groups.Select(g => ResultEditModel.FromDomain(g)).ToList();
         points = Model.Item.Points.Select(p => ResultEditModel.FromDomain(p)).ToList();
-        Console.WriteLine($"Reading cookie with name {Model.Id}");
-        string cookieValue = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", Model.Id);
-        Console.WriteLine($"Value = {cookieValue}");
-        Model.Expanded = cookieValue == "1";
+        Model.Expanded = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", Model.Id) == "1";
         await base.OnInitializedAsync();
     }
 
@@ -83,6 +92,36 @@
         else
         {
             await Js.InvokeAsync<string>("blazorExtensions.RemoveCookie", Model.Item.ConjunctElementCode.CurateAsElementId());
+        }
+    }
+
+    public async Task Expand()
+    {
+        Model.Expanded = true;
+        await Js.InvokeAsync<string>("blazorExtensions.SetCookie", Model.Item.ConjunctElementCode.CurateAsElementId(), 1);
+    }
+
+    public async Task Collapse()
+    {
+        Model.Expanded = false;
+        await Js.InvokeAsync<string>("blazorExtensions.RemoveCookie", Model.Item.ConjunctElementCode.CurateAsElementId());
+    }
+
+    public async Task ExpandAll()
+    {
+        await Expand();
+        foreach (var component in childResultEditors)
+        {
+            await component.ExpandAll();
+        }
+    }
+
+    public async Task CollapseAll()
+    {
+        await Collapse();
+        foreach (var component in childResultEditors)
+        {
+            await component.CollapseAll();
         }
     }
 
