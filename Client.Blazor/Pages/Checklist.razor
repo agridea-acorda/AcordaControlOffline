@@ -46,7 +46,7 @@
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
-        @if (checklist != null)
+        @if (model.Any())
         {
             <div class="mb-2">
                 <a href="#">Déplier tous</a> |
@@ -56,11 +56,10 @@
             </div>
             <div id="checklist">
                 <div class="list-group">
-                    @foreach (var kvp in checklist.Rubrics)
+                    @foreach (var item in model)
                     {
-                        var item = kvp.Value;
-                        <div id="@item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                            <ResultEditor Item="@item" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                        <div id="@item.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                            <ResultEditor Model="@item" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
                         </div>
                     }
                 </div>
@@ -73,20 +72,28 @@
     [Parameter]
     public int FarmInspectionId { get; set; }
     public int FarmId;
-    Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
+    //Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
+    List<ResultEditor.ResultEditModel> model = new List<ResultEditor.ResultEditModel>();
     Timer saveTimer;
     const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
 
     protected override async Task OnInitializedAsync()
     {
-        checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        if (checklist != null)
+        {
+            foreach (var rubricKvp in checklist.Rubrics)
+            {
+                model.Add(ResultEditor.ResultEditModel.FromDomain(rubricKvp.Value));
+            }
+        }
         FarmId = int.Parse(Navigation.QueryString("FarmId"));
         saveTimer = new Timer(SaveInterval) {AutoReset = false};
         saveTimer.Elapsed += async (sender, e) =>
         {
-            Console.WriteLine("Saving checklist...");
+            Console.WriteLine($"Saving checklist... ({DateTime.Now.ToDetailedTime()})");
             await Repository.SaveChecklistAsync(checklist);
-            Console.WriteLine("Saved.");
+            Console.WriteLine($"Saved. ({DateTime.Now.ToDetailedTime()})");
         };
     }
 

@@ -2,45 +2,45 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 
-@if (Item.Children?.Any() ?? false)
+@if (Model.Item.Children?.Any() ?? false)
 {
-    <i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2 @right" data-toggle="collapse" data-target="#@Item.ConjunctElementCode.CurateAsElementId() > .sub-elements" @onclick="@ToggleChevron"></i>
+    <i class="fas fa-chevron-right fa-3x float-left rotate mr-2 @Model.ExpandedCssClass" @onclick="@ToggleChevron"></i>
 }
-<span class="badge bg-indigo disabled float-right mr-1">@Item.NumGroups</span>
-<span class="badge bg-indigo disabled float-right mr-1">@Item.NumPoints</span>
-<h4 class="list-group-item-heading">@Item.ShortName</h4>
-<p class="list-group-item-text mb-2">@Item.ConjunctElementCode</p>
-<button class="btn btn-circle btn-circle-sm mr-1 @Item.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(Item, InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Item.OutcomeCssClass(InspectionOutcome.PartiallyOk)  " @onclick="() => SetOutcome(Item, InspectionOutcome.PartiallyOk)">P</button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Item.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(Item, InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Item.OutcomeCssClass(InspectionOutcome.NotInspected) " @onclick="() => SetOutcome(Item, InspectionOutcome.NotInspected)">NC</button>
-<button class="btn btn-circle btn-circle-sm mr-1 @Item.OutcomeCssClass(InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(Item, InspectionOutcome.NotApplicable)">NA</button>
-@if (Item.Outcome != InspectionOutcome.Unset)
+<span class="badge bg-indigo disabled float-right mr-1">@Model.Item.NumGroups</span>
+<span class="badge bg-indigo disabled float-right mr-1">@Model.Item.NumPoints</span>
+<h4 class="list-group-item-heading">@Model.Item.ShortName</h4>
+<p class="list-group-item-text mb-2">@Model.Item.ConjunctElementCode</p>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(Model.Item, InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.PartiallyOk)  " @onclick="() => SetOutcome(Model.Item, InspectionOutcome.PartiallyOk)">P</button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(Model.Item, InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotInspected) " @onclick="() => SetOutcome(Model.Item, InspectionOutcome.NotInspected)">NC</button>
+<button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(Model.Item, InspectionOutcome.NotApplicable)">NA</button>
+@if (Model.Item.Outcome != InspectionOutcome.Unset)
 {
-    <button @onclick="() => SetOutcome(Item, InspectionOutcome.Unset)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+    <button @onclick="() => SetOutcome(Model.Item, InspectionOutcome.Unset)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
 }
 
-@if (Item.NumPoints > 0 || Item.NumGroups > 0)
+@if (!Model.Collapsed && (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0))
 {
-    <div class="sub-elements mt-2 collapse">
-        @if (Item.NumGroups > 0)
+    <div class="mt-2">
+        @if (groups.Any())
         {
             <div class="list-group">
-                @foreach (var group in Item.Groups)
+                @foreach (var group in groups)
                 {
-                    <div id="@group.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor Item="@group" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                    <div id="@group.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                        <ResultEditor Model="@group" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
                     </div>
                 }
             </div>
         }
-        @if (Item.NumPoints > 0)
+        @if (points.Any())
         {
             <div class="list-group">
-                @foreach (var point in Item.Points)
+                @foreach (var point in points)
                 {
-                    <div id="@point.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor Item="@point" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                    <div id="@point.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                        <ResultEditor Model="@point" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
                     </div>
                 }
             </div>
@@ -51,16 +51,24 @@
 @code {
 
     [Parameter]
-    public ITreeNode<Result> Item { get; set; }
+    public ResultEditModel Model { get; set; }
 
     [Parameter]
     public EventCallback<InspectionOutcome> OnOutcomeChanged { get; set; }
 
-    string right = "";
+    List<ResultEditModel> groups = new List<ResultEditModel>();
+    List<ResultEditModel> points = new List<ResultEditModel>();
+
+    protected override void OnInitialized()
+    {
+        groups = Model.Item.Groups.Select(g => ResultEditModel.FromDomain(g)).ToList();
+        points = Model.Item.Points.Select(p => ResultEditModel.FromDomain(p)).ToList();
+        base.OnInitialized();
+    }
 
     void ToggleChevron()
     {
-        right = right == "" ? "right" : "";
+        Model.Collapsed = !Model.Collapsed;
     }
 
     async void SetOutcome(ITreeNode<Result> result, InspectionOutcome outcome)
@@ -74,4 +82,19 @@
         await OnOutcomeChanged.InvokeAsync(outcome);
     }
 
+    public class ResultEditModel
+    {
+        public ITreeNode<Result> Item { get; set; }
+        public bool Collapsed { get; set; }
+        public string ExpandedCssClass => Collapsed ? "" : "right";
+
+        public static ResultEditModel FromDomain(ITreeNode<Result> item, bool collapsed = true)
+        {
+            return new ResultEditModel
+            {
+                Item = item,
+                Collapsed = collapsed
+            };
+        }
+    }
 }
