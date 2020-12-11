@@ -18,6 +18,7 @@
 <button class="btn btn-circle btn-circle-sm mr-1 @Model.Item.OutcomeCssClass(InspectionOutcome.NotApplicable) " @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
 @if (Model.Item.Outcome != InspectionOutcome.Unset)
 {
+    <button @onclick="() => edit.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
     <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
 }
 
@@ -68,18 +69,40 @@
     </Blazorise.ModalContent>
 </Blazorise.Modal>
 
+@if (editModel != null)
+{
+    <Blazorise.Modal @ref="@edit">
+        <Blazorise.ModalBackdrop />
+        <EditForm Model="@editModel" OnSubmit="@Save">
+            <Blazorise.ModalContent>
+                <Blazorise.ModalHeader>
+                    <Blazorise.ModalTitle>Résultat détaillé</Blazorise.ModalTitle>
+                    <Blazorise.CloseButton Clicked="() => edit.Hide()" />
+                </Blazorise.ModalHeader>
+                <Blazorise.ModalBody>
+                    @*fields here*@
+                </Blazorise.ModalBody>
+                <Blazorise.ModalFooter>
+                    <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
+                    <button class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</button>
+                </Blazorise.ModalFooter>
+            </Blazorise.ModalContent>
+        </EditForm>
+    </Blazorise.Modal>
+}
+
 @code {
 
     [Parameter]
-    public ResultEditModel Model { get; set; }
+    public ResultModel Model { get; set; }
 
     [Parameter]
     public EventCallback<InspectionOutcome> OnOutcomeChanged { get; set; }
 
     const int CookieDays = 30;
 
-    List<ResultEditModel> groups = new List<ResultEditModel>();
-    List<ResultEditModel> points = new List<ResultEditModel>();
+    List<ResultModel> groups = new List<ResultModel>();
+    List<ResultModel> points = new List<ResultModel>();
 
     ResultEditor editor_;
     ResultEditor Editor
@@ -93,12 +116,15 @@
     }
     readonly List<ResultEditor> childResultEditors = new List<ResultEditor>();
     Blazorise.Modal confirmDelete;
+    Blazorise.Modal edit;
+    EditModel editModel;
 
     protected override async Task OnInitializedAsync()
     {
-        groups = Model.Item.Groups.Select(g => ResultEditModel.FromDomain(g)).ToList();
-        points = Model.Item.Points.Select(p => ResultEditModel.FromDomain(p)).ToList();
+        groups = Model.Item.Groups.Select(g => ResultModel.FromDomain(g)).ToList();
+        points = Model.Item.Points.Select(p => ResultModel.FromDomain(p)).ToList();
         Model.Expanded = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", Model.Id) == "1";
+        editModel = EditModel.FromDomain();
         await base.OnInitializedAsync();
     }
 
@@ -162,20 +188,44 @@
         await SetOutcome(InspectionOutcome.Unset);
     }
 
-    public class ResultEditModel
+    void Save(EditContext editContext)
+    {
+        var model = (EditModel)editContext.Model;
+        // copy model data to domain object
+        // save domain object via repo
+        edit.Hide();
+    }
+
+    public class ResultModel
     {
         public ITreeNode<Result> Item { get; set; }
         public bool Expanded { get; set; }
         public string ExpandedCssClass => Expanded ? "right" : "";
         public string Id => Item?.ConjunctElementCode.CurateAsElementId() ?? "";
 
-        public static ResultEditModel FromDomain(ITreeNode<Result> item, bool expanded = false)
+        public static ResultModel FromDomain(ITreeNode<Result> item, bool expanded = false)
         {
-            return new ResultEditModel
+            return new ResultModel
             {
                 Item = item,
                 Expanded = expanded
             };
+        }
+    }
+
+    public class EditModel
+    {
+        public string InspectorComment { get; set; }
+        public string FarmerComment { get; set; }
+        // predefined defect
+        // defect
+        // seriousness
+        // predefined defect combo
+        // seriousness combo
+
+        public static EditModel FromDomain()
+        {
+            return new EditModel();
         }
     }
 }

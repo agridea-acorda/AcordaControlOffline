@@ -1,10 +1,8 @@
 ﻿@page "/Checklist/{FarmInspectionId:int}"
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using InspectionOutcome = AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @using System.Timers
-@using System.Reflection.Metadata.Ecma335
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @implements IDisposable
@@ -78,7 +76,7 @@
     const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
 
     public int FarmId;
-    readonly List<ResultEditor.ResultEditModel> model = new List<ResultEditor.ResultEditModel>();
+    readonly List<ResultEditor.ResultModel> model = new List<ResultEditor.ResultModel>();
     Timer saveTimer;
     Timer savedMessageTimer;
     ResultEditor editor_;
@@ -104,7 +102,7 @@
         {
             foreach (var rubricKvp in checklist.Rubrics)
             {
-                model.Add(ResultEditor.ResultEditModel.FromDomain(rubricKvp.Value));
+                model.Add(ResultEditor.ResultModel.FromDomain(rubricKvp.Value));
             }
         }
         FarmId = int.Parse(Navigation.QueryString("FarmId"));
