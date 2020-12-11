@@ -44,6 +44,8 @@
 
 <div class="card">
     <div class="card-header">
+        <p class="float-right text-sm text-secondary mb-0 @(showSaving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement...</p>
+        <p class="float-right text-sm text-secondary mb-0 @(showSaved ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
@@ -72,9 +74,13 @@
 @code {
     [Parameter]
     public int FarmInspectionId { get; set; }
+
+    const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
+
     public int FarmId;
     readonly List<ResultEditor.ResultEditModel> model = new List<ResultEditor.ResultEditModel>();
     Timer saveTimer;
+    Timer savedMessageTimer;
     ResultEditor editor_;
     ResultEditor Editor
     {
@@ -88,8 +94,8 @@
         }
     }
     readonly List<ResultEditor> rubricResultEditors = new List<ResultEditor>();
-
-    const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
+    bool showSaving = false;
+    bool showSaved = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,9 +111,22 @@
         saveTimer = new Timer(SaveInterval) {AutoReset = false};
         saveTimer.Elapsed += async (sender, e) =>
         {
+            showSaving = true;
+            StateHasChanged();
             Console.WriteLine($"Saving checklist... ({DateTime.Now.ToDetailedTime()})");
             await Repository.SaveChecklistAsync(checklist);
             Console.WriteLine($"Saved. ({DateTime.Now.ToDetailedTime()})");
+            showSaving = false;
+            showSaved = true;
+            StateHasChanged();
+            savedMessageTimer.Start();
+        };
+        savedMessageTimer = new Timer(5000);
+        savedMessageTimer.Elapsed += (sender, e) =>
+        {
+            showSaved = false;
+            savedMessageTimer.Stop();
+            StateHasChanged();
         };
     }
 
@@ -120,6 +139,7 @@
     public void Dispose()
     {
         saveTimer?.Dispose();
+        savedMessageTimer?.Dispose();
     }
 
     async Task ExpandAll()
