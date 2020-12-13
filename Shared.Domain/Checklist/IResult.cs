@@ -19,5 +19,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         //IList<File> Attachments { get; set; }
 
         IResult SetOutcome(InspectionOutcome outcome);
+        IResult SetInspectorComment(string comment);
+        IResult SetFarmerComment(string comment);
+        IResult SetDefect(Defect defect, DefectSeriousness seriousness);
     }
 }

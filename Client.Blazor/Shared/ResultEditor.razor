@@ -80,7 +80,35 @@
                     <Blazorise.CloseButton Clicked="() => edit.Hide()" />
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
-                    @*fields here*@
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Remarque contrôleur</Blazorise.FieldLabel>
+                        <Blazorise.MemoEdit Rows="2" @bind-Text="@editModel.InspectorComment"></Blazorise.MemoEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
+                        <Blazorise.MemoEdit Rows="2" @bind-Text="@editModel.FarmerComment"></Blazorise.MemoEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit @bind-Text="@editModel.DefectDescription"></Blazorise.TextEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
+                        <Blazorise.NumericEdit TValue="double" @bind-Value="@editModel.DefectSize"></Blazorise.NumericEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit @bind-Text="@editModel.DefectUnit"></Blazorise.TextEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
+                        <Blazorise.Select TValue="int" @bind-SelectedValue="@editModel.SeriousnessCode">
+                            @foreach (var option in editModel.ComboSeriousnesses)
+                            {
+                                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                            }
+                        </Blazorise.Select>
+                    </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
                     <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
@@ -124,7 +152,7 @@
         groups = Model.Item.Groups.Select(g => ResultModel.FromDomain(g)).ToList();
         points = Model.Item.Points.Select(p => ResultModel.FromDomain(p)).ToList();
         Model.Expanded = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", Model.Id) == "1";
-        editModel = EditModel.FromDomain();
+        editModel = EditModel.FromDomain(Model.Item);
         await base.OnInitializedAsync();
     }
 
@@ -193,6 +221,10 @@
         var model = (EditModel)editContext.Model;
         // copy model data to domain object
         // save domain object via repo
+        Model.Item.SetInspectorComment(model.InspectorComment);
+        Model.Item.SetFarmerComment(model.FarmerComment);
+        Model.Item.SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
+                             new DefectSeriousness(model.SeriousnessCode, model.SeriousnessName));
         edit.Hide();
     }
 
@@ -217,15 +249,30 @@
     {
         public string InspectorComment { get; set; }
         public string FarmerComment { get; set; }
-        // predefined defect
-        // defect
-        // seriousness
+        public int PredefinedDefectId { get; set; }
+        public string PredefinedDefectName { get; set; }
+        public string PredefinedDefectConjunctElementCode { get; set; }
+        public string DefectDescription { get; set; }
+        public double DefectSize { get; set; }
+        public string DefectUnit { get; set; }
+        public int SeriousnessCode { get; set; }
+        public string SeriousnessName { get; set; }
+        public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
         // predefined defect combo
-        // seriousness combo
 
-        public static EditModel FromDomain()
+        public static EditModel FromDomain(IResult result)
         {
-            return new EditModel();
+            return new EditModel
+            {
+                InspectorComment = result.InspectorComment,
+                FarmerComment = result.FarmerComment,
+                DefectDescription = result.Defect.Description,
+                DefectSize = result.Defect.Size.Size,
+                DefectUnit = result.Defect.Size.Unit,
+                SeriousnessCode = result.Seriousness.Code,
+                SeriousnessName = result.Seriousness.Name,
+                ComboSeriousnesses = Combo.Seriousnesses() 
+            };
         }
     }
 }
