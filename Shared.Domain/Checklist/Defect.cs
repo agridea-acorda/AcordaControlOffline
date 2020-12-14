@@ -5,6 +5,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
     public class Defect : ValueObject
     {
+        public static Defect None => new Defect("", Measurement.Unspecified);
         public string Description { get; }
         public Measurement Size { get; }
         public Defect(string description, Measurement size = null)

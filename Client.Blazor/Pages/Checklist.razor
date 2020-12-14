@@ -60,7 +60,7 @@
                     @foreach (var (item, index) in model.WithIndex())
                     {
                         <div id="@item.Id" class="list-group-item" href="#">
-                            <ResultEditor @ref="@Editor" Model="@item" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                            <ResultEditor @ref="@Editor" Model="@item" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
                         </div>
                     }
                 </div>
@@ -87,8 +87,8 @@
         {
             editor_ = value;
             rubricResultEditors.Add(value); // trick to save reference for each component in the loop.
-                                // see https://docs.microsoft.com/en-in/aspnet/core/blazor/components/?view=aspnetcore-5.0#capture-references-to-components
-                                // and https://github.com/dotnet/aspnetcore/issues/13358
+                                            // see https://docs.microsoft.com/en-in/aspnet/core/blazor/components/?view=aspnetcore-5.0#capture-references-to-components
+                                            // and https://github.com/dotnet/aspnetcore/issues/13358
         }
     }
     readonly List<ResultEditor> rubricResultEditors = new List<ResultEditor>();
@@ -129,6 +129,12 @@
     }
 
     void OutcomeChanged(InspectionOutcome outcome)
+    {
+        saveTimer.Stop();
+        saveTimer.Start();
+    }
+
+    void ResultChanged(ResultEditor.EditModel result)
     {
         saveTimer.Stop();
         saveTimer.Start();

@@ -27,6 +27,25 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return SetOutcome(outcome);
         }
 
+        public IResult SetInspectorComment(string comment)
+        {
+            InspectorComment = comment;
+            return this;
+        }
+
+        public IResult SetFarmerComment(string comment)
+        {
+            FarmerComment = comment;
+            return this;
+        }
+
+        public IResult SetDefect(Defect defect, DefectSeriousness seriousness)
+        {
+            Defect = defect;
+            Seriousness = seriousness;
+            return this;
+        }
+
         public double Percent { get; private set; }
 
         public int NumGroups => Children?.Count(x => x.Value?.Children?.Any() ?? false) ?? 0;

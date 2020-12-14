@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
-using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Inspection;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Newtonsoft.Json;
@@ -12,22 +9,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 {
     public class ChecklistFactory : AggregateRootFactoryBase<Domain.Checklist.Checklist>
     {
-        private static readonly List<PropertyInfo> SourceProperties;
-        private static readonly Dictionary<string, PropertyInfo> TargetProperties;
-
-        static ChecklistFactory()
-        {
-            SourceProperties = typeof(ChecklistDeserializationDto.Result)
-                               .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                               .Where(prop => prop.Name != nameof(ChecklistDeserializationDto.Result.Children))
-                               .ToList();
-
-            TargetProperties = typeof(Result)
-                               .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                               .Where(prop => prop.Name != nameof(Result.Children))
-                               .ToDictionary(x => x.Name, x => x);
-        }
-
         public override Domain.Checklist.Checklist Parse(string json)
         {
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
@@ -65,17 +46,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                              dto.Children?.Any() ?? false ? typeof(GroupResult) :
                              typeof(PointResult);
             var targetInstance = (Result)FormatterServices.GetUninitializedObject(targetType);
-            //foreach (var sourceProp in SourceProperties)
-            //{
-            //    string indentation = "".PadLeft(depth * 2);
-            //    Console.WriteLine($"{indentation}Trying to map source property {sourceProp.Name}...");
-            //    if (!TargetProperties.TryGetValue(sourceProp.Name, out var targetProp))
-            //        continue;
-
-            //    var value = sourceProp.GetValue(dto);
-            //    Console.WriteLine($"{indentation}...to target property {targetProp.Name} with value {value}.");
-            //    SetPropertyValueViaBackingField(typeof(Result), targetProp.Name, targetInstance, value); // does not seem to work with inherited properties
-            //}
             SetPropertyValueViaBackingField(targetType, nameof(Result.ConjunctElementCode), targetInstance, dto.ConjunctElementCode);
             SetPropertyValueViaBackingField(targetType, nameof(Result.ElementCode), targetInstance, dto.ElementCode);
             SetPropertyValueViaBackingField(targetType, nameof(Result.Name), targetInstance, dto.Name);
@@ -84,8 +54,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(targetType, nameof(Result.FarmerComment), targetInstance, dto.FarmerComment);
             SetPropertyValueViaBackingField(targetType, nameof(Result.Percent), targetInstance, dto.Percent);
             SetPropertyValueViaBackingField(targetType, nameof(Result.Outcome), targetInstance, Parse(dto.Outcome));
-            // todo Defect
-            // todo DefectSeriousness
+            SetPropertyValueViaBackingField(targetType, nameof(Result.Defect), targetInstance, Parse(dto.Defect));
+            SetPropertyValueViaBackingField(targetType, nameof(Result.Seriousness), targetInstance, Parse(dto.Seriousness));
+            // todo PredefinedDefect
 
             if (dto.Children != null && dto.Children.Any() && targetInstance.Children == null)
             {
@@ -108,6 +79,31 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(typeof(InspectionOutcome), nameof(InspectionOutcome.Text), targetInstance, dto.Text);
             return targetInstance;
         }
+        private Defect Parse(ChecklistDeserializationDto.Defect dto)
+        {
+            if (dto == null) return Defect.None;
+            var targetInstance = (Defect)FormatterServices.GetUninitializedObject(typeof(Defect));
+            SetPropertyValueViaBackingField(typeof(Defect), nameof(Defect.Description), targetInstance, dto.Description);
+            SetPropertyValueViaBackingField(typeof(Defect), nameof(Defect.Size), targetInstance, Parse(dto.Size)); 
+            return targetInstance;
+        }
 
+        private Defect.Measurement Parse(ChecklistDeserializationDto.Defect.Measurement dto)
+        {
+            if (dto == null) return Defect.Measurement.Unspecified;
+            var targetInstance = (Defect.Measurement)FormatterServices.GetUninitializedObject(typeof(Defect.Measurement));
+            SetPropertyValueViaBackingField(typeof(Defect.Measurement), nameof(Defect.Measurement.Size), targetInstance, dto.Size);
+            SetPropertyValueViaBackingField(typeof(Defect.Measurement), nameof(Defect.Measurement.Unit), targetInstance, dto.Unit);
+            return targetInstance;
+        }
+
+        private DefectSeriousness Parse(ChecklistDeserializationDto.DefectSeriousness dto)
+        {
+            if (dto == null) return DefectSeriousness.Empty;
+            var targetInstance = (DefectSeriousness)FormatterServices.GetUninitializedObject(typeof(DefectSeriousness));
+            SetPropertyValueViaBackingField(typeof(DefectSeriousness), nameof(DefectSeriousness.Code), targetInstance, dto.Code);
+            SetPropertyValueViaBackingField(typeof(DefectSeriousness), nameof(DefectSeriousness.Name), targetInstance, dto.Name);
+            return targetInstance;
+        }
     }
 }

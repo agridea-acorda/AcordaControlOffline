@@ -3,7 +3,11 @@
     "R1": {
       "Children": {
         "R1,P1": {
-          "PredefinedDefect": null,
+          "PredefinedDefect": {
+            "Id": 0,
+            "Name": "",
+            "ConjunctElementCode": ""
+          },
           "Children": {},
           "ConjunctElementCode": "R1,P1",
           "ElementCode": "P1",
@@ -14,14 +18,27 @@
             "Value": -1,
             "Code": "Unset"
           },
-          "InspectorComment": null,
-          "FarmerComment": null,
-          "Defect": null,
-          "Seriousness": null,
+          "InspectorComment": "",
+          "FarmerComment": "",
+          "Defect": {
+            "Description": "",
+            "Size": {
+              "Size": 0,
+              "Unit": ""
+            }
+          },
+          "Seriousness": {
+            "Code": 0,
+            "Name": ""
+          },
           "Percent": 0.0
         },
         "R1,P2": {
-          "PredefinedDefect": null,
+          "PredefinedDefect": {
+            "Id": 0,
+            "Name": "",
+            "ConjunctElementCode": ""
+          },
           "Children": {},
           "ConjunctElementCode": "R1,P2",
           "ElementCode": "P2",
@@ -32,10 +49,19 @@
             "Value": -1,
             "Code": "Unset"
           },
-          "InspectorComment": null,
-          "FarmerComment": null,
-          "Defect": null,
-          "Seriousness": null,
+          "InspectorComment": "",
+          "FarmerComment": "",
+          "Defect": {
+            "Description": "",
+            "Size": {
+              "Size": 0,
+              "Unit": ""
+            }
+          },
+          "Seriousness": {
+            "Code": 0,
+            "Name": ""
+          },
           "Percent": 0.0
         }
       },
@@ -48,10 +74,19 @@
         "Value": -1,
         "Code": "Unset"
       },
-      "InspectorComment": null,
-      "FarmerComment": null,
-      "Defect": null,
-      "Seriousness": null,
+      "InspectorComment": "",
+      "FarmerComment": "",
+      "Defect": {
+        "Description": "",
+        "Size": {
+          "Size": 0,
+          "Unit": ""
+        }
+      },
+      "Seriousness": {
+        "Code": 0,
+        "Name": ""
+      },
       "Percent": 0.0
     },
     "R2": {
@@ -59,7 +94,11 @@
         "R2,G1": {
           "Children": {
             "R2,G1,P1": {
-              "PredefinedDefect": null,
+              "PredefinedDefect": {
+                "Id": 0,
+                "Name": "",
+                "ConjunctElementCode": ""
+              },
               "Children": {},
               "ConjunctElementCode": "R2,G1,P1",
               "ElementCode": "P1",
@@ -70,14 +109,27 @@
                 "Value": -1,
                 "Code": "Unset"
               },
-              "InspectorComment": null,
-              "FarmerComment": null,
-              "Defect": null,
-              "Seriousness": null,
+              "InspectorComment": "",
+              "FarmerComment": "",
+              "Defect": {
+                "Description": "",
+                "Size": {
+                  "Size": 0,
+                  "Unit": ""
+                }
+              },
+              "Seriousness": {
+                "Code": 0,
+                "Name": ""
+              },
               "Percent": 0.0
             },
             "R2,G1,P2": {
-              "PredefinedDefect": null,
+              "PredefinedDefect": {
+                "Id": 0,
+                "Name": "",
+                "ConjunctElementCode": ""
+              },
               "Children": {},
               "ConjunctElementCode": "R2,G1,P2",
               "ElementCode": "P2",
@@ -88,14 +140,27 @@
                 "Value": -1,
                 "Code": "Unset"
               },
-              "InspectorComment": null,
-              "FarmerComment": null,
-              "Defect": null,
-              "Seriousness": null,
+              "InspectorComment": "",
+              "FarmerComment": "",
+              "Defect": {
+                "Description": "",
+                "Size": {
+                  "Size": 0,
+                  "Unit": ""
+                }
+              },
+              "Seriousness": {
+                "Code": 0,
+                "Name": ""
+              },
               "Percent": 0.0
             },
             "R2,G1,P3": {
-              "PredefinedDefect": null,
+              "PredefinedDefect": {
+                "Id": 0,
+                "Name": "",
+                "ConjunctElementCode": ""
+              },
               "Children": {},
               "ConjunctElementCode": "R2,G1,P3",
               "ElementCode": "P3",
@@ -106,10 +171,19 @@
                 "Value": -1,
                 "Code": "Unset"
               },
-              "InspectorComment": null,
-              "FarmerComment": null,
-              "Defect": null,
-              "Seriousness": null,
+              "InspectorComment": "",
+              "FarmerComment": "",
+              "Defect": {
+                "Description": "",
+                "Size": {
+                  "Size": 0,
+                  "Unit": ""
+                }
+              },
+              "Seriousness": {
+                "Code": 0,
+                "Name": ""
+              },
               "Percent": 0.0
             }
           },
@@ -122,10 +196,19 @@
             "Value": -1,
             "Code": "Unset"
           },
-          "InspectorComment": null,
-          "FarmerComment": null,
-          "Defect": null,
-          "Seriousness": null,
+          "InspectorComment": "",
+          "FarmerComment": "",
+          "Defect": {
+            "Description": "",
+            "Size": {
+              "Size": 0,
+              "Unit": ""
+            }
+          },
+          "Seriousness": {
+            "Code": 0,
+            "Name": ""
+          },
           "Percent": 0.0
         },
         "R2,G2": {
@@ -133,7 +216,11 @@
             "R2,G2,SG1": {
               "Children": {
                 "R2,G2,SG1,P1": {
-                  "PredefinedDefect": null,
+                  "PredefinedDefect": {
+                    "Id": 0,
+                    "Name": "",
+                    "ConjunctElementCode": ""
+                  },
                   "Children": {},
                   "ConjunctElementCode": "R2,G2,SG1,P1",
                   "ElementCode": "P1",
@@ -144,14 +231,27 @@
                     "Value": -1,
                     "Code": "Unset"
                   },
-                  "InspectorComment": null,
-                  "FarmerComment": null,
-                  "Defect": null,
-                  "Seriousness": null,
+                  "InspectorComment": "",
+                  "FarmerComment": "",
+                  "Defect": {
+                    "Description": "",
+                    "Size": {
+                      "Size": 0,
+                      "Unit": ""
+                    }
+                  },
+                  "Seriousness": {
+                    "Code": 0,
+                    "Name": ""
+                  },
                   "Percent": 0.0
                 },
                 "R2,G2,SG1,P2": {
-                  "PredefinedDefect": null,
+                  "PredefinedDefect": {
+                    "Id": 0,
+                    "Name": "",
+                    "ConjunctElementCode": ""
+                  },
                   "Children": {},
                   "ConjunctElementCode": "R2,G2,SG1,P2",
                   "ElementCode": "P2",
@@ -162,14 +262,27 @@
                     "Value": -1,
                     "Code": "Unset"
                   },
-                  "InspectorComment": null,
-                  "FarmerComment": null,
-                  "Defect": null,
-                  "Seriousness": null,
+                  "InspectorComment": "",
+                  "FarmerComment": "",
+                  "Defect": {
+                    "Description": "",
+                    "Size": {
+                      "Size": 0,
+                      "Unit": ""
+                    }
+                  },
+                  "Seriousness": {
+                    "Code": 0,
+                    "Name": ""
+                  },
                   "Percent": 0.0
                 },
                 "R2,G2,SG1,P3": {
-                  "PredefinedDefect": null,
+                  "PredefinedDefect": {
+                    "Id": 0,
+                    "Name": "",
+                    "ConjunctElementCode": ""
+                  },
                   "Children": {},
                   "ConjunctElementCode": "R2,G2,SG1,P3",
                   "ElementCode": "P3",
@@ -180,14 +293,27 @@
                     "Value": -1,
                     "Code": "Unset"
                   },
-                  "InspectorComment": null,
-                  "FarmerComment": null,
-                  "Defect": null,
-                  "Seriousness": null,
+                  "InspectorComment": "",
+                  "FarmerComment": "",
+                  "Defect": {
+                    "Description": "",
+                    "Size": {
+                      "Size": 0,
+                      "Unit": ""
+                    }
+                  },
+                  "Seriousness": {
+                    "Code": 0,
+                    "Name": ""
+                  },
                   "Percent": 0.0
                 },
                 "R2,G2,SG1,P4": {
-                  "PredefinedDefect": null,
+                  "PredefinedDefect": {
+                    "Id": 0,
+                    "Name": "",
+                    "ConjunctElementCode": ""
+                  },
                   "Children": {},
                   "ConjunctElementCode": "R2,G2,SG1,P4",
                   "ElementCode": "P4",
@@ -198,10 +324,19 @@
                     "Value": -1,
                     "Code": "Unset"
                   },
-                  "InspectorComment": null,
-                  "FarmerComment": null,
-                  "Defect": null,
-                  "Seriousness": null,
+                  "InspectorComment": "",
+                  "FarmerComment": "",
+                  "Defect": {
+                    "Description": "",
+                    "Size": {
+                      "Size": 0,
+                      "Unit": ""
+                    }
+                  },
+                  "Seriousness": {
+                    "Code": 0,
+                    "Name": ""
+                  },
                   "Percent": 0.0
                 }
               },
@@ -214,16 +349,29 @@
                 "Value": -1,
                 "Code": "Unset"
               },
-              "InspectorComment": null,
-              "FarmerComment": null,
-              "Defect": null,
-              "Seriousness": null,
+              "InspectorComment": "",
+              "FarmerComment": "",
+              "Defect": {
+                "Description": "",
+                "Size": {
+                  "Size": 0,
+                  "Unit": ""
+                }
+              },
+              "Seriousness": {
+                "Code": 0,
+                "Name": ""
+              },
               "Percent": 0.0
             },
             "R2,G2,SG2": {
               "Children": {
                 "R2,G2,SG2,P1": {
-                  "PredefinedDefect": null,
+                  "PredefinedDefect": {
+                    "Id": 0,
+                    "Name": "",
+                    "ConjunctElementCode": ""
+                  },
                   "Children": {},
                   "ConjunctElementCode": "R2,G2,SG2,P1",
                   "ElementCode": "P1",
@@ -234,14 +382,27 @@
                     "Value": -1,
                     "Code": "Unset"
                   },
-                  "InspectorComment": null,
-                  "FarmerComment": null,
-                  "Defect": null,
-                  "Seriousness": null,
+                  "InspectorComment": "",
+                  "FarmerComment": "",
+                  "Defect": {
+                    "Description": "",
+                    "Size": {
+                      "Size": 0,
+                      "Unit": ""
+                    }
+                  },
+                  "Seriousness": {
+                    "Code": 0,
+                    "Name": ""
+                  },
                   "Percent": 0.0
                 },
                 "R2,G2,SG2,P2": {
-                  "PredefinedDefect": null,
+                  "PredefinedDefect": {
+                    "Id": 0,
+                    "Name": "",
+                    "ConjunctElementCode": ""
+                  },
                   "Children": {},
                   "ConjunctElementCode": "R2,G2,SG2,P2",
                   "ElementCode": "P2",
@@ -252,10 +413,19 @@
                     "Value": -1,
                     "Code": "Unset"
                   },
-                  "InspectorComment": null,
-                  "FarmerComment": null,
-                  "Defect": null,
-                  "Seriousness": null,
+                  "InspectorComment": "",
+                  "FarmerComment": "",
+                  "Defect": {
+                    "Description": "",
+                    "Size": {
+                      "Size": 0,
+                      "Unit": ""
+                    }
+                  },
+                  "Seriousness": {
+                    "Code": 0,
+                    "Name": ""
+                  },
                   "Percent": 0.0
                 }
               },
@@ -268,10 +438,19 @@
                 "Value": -1,
                 "Code": "Unset"
               },
-              "InspectorComment": null,
-              "FarmerComment": null,
-              "Defect": null,
-              "Seriousness": null,
+              "InspectorComment": "",
+              "FarmerComment": "",
+              "Defect": {
+                "Description": "",
+                "Size": {
+                  "Size": 0,
+                  "Unit": ""
+                }
+              },
+              "Seriousness": {
+                "Code": 0,
+                "Name": ""
+              },
               "Percent": 0.0
             }
           },
@@ -284,10 +463,19 @@
             "Value": -1,
             "Code": "Unset"
           },
-          "InspectorComment": null,
-          "FarmerComment": null,
-          "Defect": null,
-          "Seriousness": null,
+          "InspectorComment": "",
+          "FarmerComment": "",
+          "Defect": {
+            "Description": "",
+            "Size": {
+              "Size": 0,
+              "Unit": ""
+            }
+          },
+          "Seriousness": {
+            "Code": 0,
+            "Name": ""
+          },
           "Percent": 0.0
         }
       },
@@ -300,10 +488,19 @@
         "Value": -1,
         "Code": "Unset"
       },
-      "InspectorComment": null,
-      "FarmerComment": null,
-      "Defect": null,
-      "Seriousness": null,
+      "InspectorComment": "",
+      "FarmerComment": "",
+      "Defect": {
+        "Description": "",
+        "Size": {
+          "Size": 0,
+          "Unit": ""
+        }
+      },
+      "Seriousness": {
+        "Code": 0,
+        "Name": ""
+      },
       "Percent": 0.0
     }
   },

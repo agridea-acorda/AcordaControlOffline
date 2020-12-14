@@ -31,7 +31,7 @@
                 @foreach (var group in groups)
                 {
                     <div id="@group.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor @ref="@Editor" Model="@group" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                        <ResultEditor @ref="@Editor" Model="@group" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
                     </div>
                 }
             </div>
@@ -42,7 +42,7 @@
                 @foreach (var point in points)
                 {
                     <div id="@point.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor @ref="@Editor" Model="@point" OnOutcomeChanged="@OutcomeChanged"></ResultEditor>
+                        <ResultEditor @ref="@Editor" Model="@point" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
                     </div>
                 }
             </div>
@@ -127,6 +127,9 @@
     [Parameter]
     public EventCallback<InspectionOutcome> OnOutcomeChanged { get; set; }
 
+    [Parameter]
+    public EventCallback<EditModel> OnResultChanged { get; set; }
+
     const int CookieDays = 30;
 
     List<ResultModel> groups = new List<ResultModel>();
@@ -210,22 +213,26 @@
         await OnOutcomeChanged.InvokeAsync(outcome);
     }
 
+    async Task ResultChanged(EditModel result)
+    {
+        await OnResultChanged.InvokeAsync(result);
+    }
+
     async Task Delete()
     {
         confirmDelete.Hide();
         await SetOutcome(InspectionOutcome.Unset);
     }
 
-    void Save(EditContext editContext)
+    async Task Save(EditContext editContext)
     {
         var model = (EditModel)editContext.Model;
-        // copy model data to domain object
-        // save domain object via repo
         Model.Item.SetInspectorComment(model.InspectorComment);
         Model.Item.SetFarmerComment(model.FarmerComment);
         Model.Item.SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
-                             new DefectSeriousness(model.SeriousnessCode, model.SeriousnessName));
+                             DefectSeriousness.FromCode(model.SeriousnessCode));
         edit.Hide();
+        await OnResultChanged.InvokeAsync(model);
     }
 
     public class ResultModel
@@ -262,17 +269,16 @@
 
         public static EditModel FromDomain(IResult result)
         {
-            return new EditModel
-            {
-                InspectorComment = result.InspectorComment,
-                FarmerComment = result.FarmerComment,
-                DefectDescription = result.Defect.Description,
-                DefectSize = result.Defect.Size.Size,
-                DefectUnit = result.Defect.Size.Unit,
-                SeriousnessCode = result.Seriousness.Code,
-                SeriousnessName = result.Seriousness.Name,
-                ComboSeriousnesses = Combo.Seriousnesses() 
-            };
+            var model = new EditModel();
+            model.InspectorComment = result.InspectorComment;
+            model.FarmerComment = result.FarmerComment;
+            model.DefectDescription = result.Defect.Description;
+            model.DefectSize = result.Defect.Size.Size;
+            model.DefectUnit = result.Defect.Size.Unit;
+            model.SeriousnessCode = result.Seriousness.Code;
+            model.SeriousnessName = result.Seriousness.Name;
+            model.ComboSeriousnesses = Combo.Seriousnesses();
+            return model;
         }
     }
 }
