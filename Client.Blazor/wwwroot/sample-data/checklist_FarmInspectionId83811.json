@@ -30,8 +30,7 @@
           "Seriousness": {
             "Code": 0,
             "Name": ""
-          },
-          "Percent": 0.0
+          }
         },
         "R1,P2": {
           "PredefinedDefect": {
@@ -61,8 +60,7 @@
           "Seriousness": {
             "Code": 0,
             "Name": ""
-          },
-          "Percent": 0.0
+          }
         }
       },
       "ConjunctElementCode": "R1",
@@ -86,8 +84,7 @@
       "Seriousness": {
         "Code": 0,
         "Name": ""
-      },
-      "Percent": 0.0
+      }
     },
     "R2": {
       "Children": {
@@ -121,8 +118,7 @@
               "Seriousness": {
                 "Code": 0,
                 "Name": ""
-              },
-              "Percent": 0.0
+              }
             },
             "R2,G1,P2": {
               "PredefinedDefect": {
@@ -152,8 +148,7 @@
               "Seriousness": {
                 "Code": 0,
                 "Name": ""
-              },
-              "Percent": 0.0
+              }
             },
             "R2,G1,P3": {
               "PredefinedDefect": {
@@ -183,8 +178,7 @@
               "Seriousness": {
                 "Code": 0,
                 "Name": ""
-              },
-              "Percent": 0.0
+              }
             }
           },
           "ConjunctElementCode": "R2,G1",
@@ -208,8 +202,7 @@
           "Seriousness": {
             "Code": 0,
             "Name": ""
-          },
-          "Percent": 0.0
+          }
         },
         "R2,G2": {
           "Children": {
@@ -243,8 +236,7 @@
                   "Seriousness": {
                     "Code": 0,
                     "Name": ""
-                  },
-                  "Percent": 0.0
+                  }
                 },
                 "R2,G2,SG1,P2": {
                   "PredefinedDefect": {
@@ -274,8 +266,7 @@
                   "Seriousness": {
                     "Code": 0,
                     "Name": ""
-                  },
-                  "Percent": 0.0
+                  }
                 },
                 "R2,G2,SG1,P3": {
                   "PredefinedDefect": {
@@ -305,8 +296,7 @@
                   "Seriousness": {
                     "Code": 0,
                     "Name": ""
-                  },
-                  "Percent": 0.0
+                  }
                 },
                 "R2,G2,SG1,P4": {
                   "PredefinedDefect": {
@@ -336,8 +326,7 @@
                   "Seriousness": {
                     "Code": 0,
                     "Name": ""
-                  },
-                  "Percent": 0.0
+                  }
                 }
               },
               "ConjunctElementCode": "R2,G2,SG1",
@@ -361,8 +350,7 @@
               "Seriousness": {
                 "Code": 0,
                 "Name": ""
-              },
-              "Percent": 0.0
+              }
             },
             "R2,G2,SG2": {
               "Children": {
@@ -394,8 +382,7 @@
                   "Seriousness": {
                     "Code": 0,
                     "Name": ""
-                  },
-                  "Percent": 0.0
+                  }
                 },
                 "R2,G2,SG2,P2": {
                   "PredefinedDefect": {
@@ -425,8 +412,7 @@
                   "Seriousness": {
                     "Code": 0,
                     "Name": ""
-                  },
-                  "Percent": 0.0
+                  }
                 }
               },
               "ConjunctElementCode": "R2,G2,SG2",
@@ -450,8 +436,7 @@
               "Seriousness": {
                 "Code": 0,
                 "Name": ""
-              },
-              "Percent": 0.0
+              }
             }
           },
           "ConjunctElementCode": "R2,G2",
@@ -475,8 +460,7 @@
           "Seriousness": {
             "Code": 0,
             "Name": ""
-          },
-          "Percent": 0.0
+          }
         }
       },
       "ConjunctElementCode": "R2",
@@ -500,8 +484,7 @@
       "Seriousness": {
         "Code": 0,
         "Name": ""
-      },
-      "Percent": 0.0
+      }
     }
   },
   "Id": 0,

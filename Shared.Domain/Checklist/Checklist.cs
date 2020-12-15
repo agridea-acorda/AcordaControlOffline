@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
-    public class Checklist : AggregateRoot
+    public class Checklist : AggregateRoot, IProgressable
     {
         public int FarmInspectionId { get; }
         public SortedList<string, RubricResult> Rubrics { get; } = new SortedList<string, RubricResult>();
+        public double Percent { get; private set; }
 
         public Checklist(long id, int farmInspectionId) : base(id)
         {
@@ -17,6 +19,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public Checklist(int farmInspectionId)
         {
             FarmInspectionId = farmInspectionId;
+        }
+
+        public Checklist ProgressTo(double percent)
+        {
+            if (percent < 0.0 || percent > 1.0) throw new ArgumentOutOfRangeException($"{nameof(percent)} must be between 0.0 and 1.0");
+            Percent = percent;
+            return this;
         }
 
         public Checklist AddRubric(string key, RubricResult rubricResult)

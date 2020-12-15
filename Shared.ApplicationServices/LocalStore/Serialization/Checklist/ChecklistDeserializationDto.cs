@@ -20,7 +20,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public string FarmerComment { get; set; }
             public Defect Defect { get; set; }
             public DefectSeriousness Seriousness { get; set; }
-            public double Percent { get; set; }
         }
 
         public class InspectionOutcome

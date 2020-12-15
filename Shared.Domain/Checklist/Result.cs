@@ -46,8 +46,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return this;
         }
 
-        public double Percent { get; private set; }
-
         public int NumGroups => Children?.Count(x => x.Value?.Children?.Any() ?? false) ?? 0;
         public int NumPoints => Children?.Count(x => !x.Value?.Children?.Any() ?? true) ?? 0;
         public List<ITreeNode<Result>> Points => (Children?.Where(child => !child.Value?.Children?.Any() ?? true) ?? Enumerable.Empty<KeyValuePair<string, ITreeNode<Result>>>())

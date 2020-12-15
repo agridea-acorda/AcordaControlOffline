@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
-    public interface ITreeNode<T> : IResult, IProgressable
-        where T: ITreeNode<T>
+    public interface ITreeNode<T> : IResult where T: ITreeNode<T>
     {
         ITreeNode<T> Parent { get; }
         SortedList<string, ITreeNode<T>> Children { get; }

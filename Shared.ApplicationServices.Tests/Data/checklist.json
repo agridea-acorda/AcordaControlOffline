@@ -17,8 +17,7 @@
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         },
         "R1,P2": {
           "PredefinedDefect": null,
@@ -35,8 +34,7 @@
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         }
       },
       "ConjunctElementCode": "R1",
@@ -51,8 +49,7 @@
       "InspectorComment": null,
       "FarmerComment": null,
       "Defect": null,
-      "Seriousness": null,
-      "Percent": 0.0
+      "Seriousness": null
     },
     "R2": {
       "Children": {
@@ -73,8 +70,7 @@
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             },
             "R2,G1,P2": {
               "PredefinedDefect": null,
@@ -91,8 +87,7 @@
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             },
             "R2,G1,P3": {
               "PredefinedDefect": null,
@@ -109,8 +104,7 @@
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             }
           },
           "ConjunctElementCode": "R2,G1",
@@ -125,8 +119,7 @@
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         },
         "R2,G2": {
           "Children": {
@@ -147,8 +140,7 @@
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG1,P2": {
                   "PredefinedDefect": null,
@@ -165,8 +157,7 @@
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG1,P3": {
                   "PredefinedDefect": null,
@@ -183,8 +174,7 @@
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG1,P4": {
                   "PredefinedDefect": null,
@@ -201,8 +191,7 @@
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 }
               },
               "ConjunctElementCode": "R2,G2,SG1",
@@ -217,8 +206,7 @@
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             },
             "R2,G2,SG2": {
               "Children": {
@@ -237,8 +225,7 @@
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG2,P2": {
                   "PredefinedDefect": null,
@@ -255,8 +242,7 @@
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 }
               },
               "ConjunctElementCode": "R2,G2,SG2",
@@ -271,8 +257,7 @@
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             }
           },
           "ConjunctElementCode": "R2,G2",
@@ -287,8 +272,7 @@
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         }
       },
       "ConjunctElementCode": "R2",
@@ -303,8 +287,7 @@
       "InspectorComment": null,
       "FarmerComment": null,
       "Defect": null,
-      "Seriousness": null,
-      "Percent": 0.0
+      "Seriousness": null
     }
   },
   "FarmInspectionId":  1, 
