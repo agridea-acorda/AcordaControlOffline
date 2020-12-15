@@ -34,7 +34,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return this;
         }
 
-        public IResult Find(string conjunctElementCode)
+        public ITreeNode<Result> Find(string conjunctElementCode)
         {
             return Rubrics.Select(rubric => rubric.Value.Find(conjunctElementCode))
                           .FirstOrDefault(found => found != null);

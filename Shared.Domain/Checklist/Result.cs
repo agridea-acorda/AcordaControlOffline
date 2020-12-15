@@ -91,7 +91,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return this;
         }
 
-        public IResult Find(Func<ITreeNode<Result>, bool> condition)
+        public ITreeNode<Result> Find(Func<ITreeNode<Result>, bool> condition)
         {
             if (condition(this)) return this;
             foreach (var child in Children)
@@ -103,7 +103,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return null;
         }
 
-        public IResult Find(string conjunctElementCode)
+        public ITreeNode<Result> Find(string conjunctElementCode)
         {
             if (ConjunctElementCode == conjunctElementCode) return this;
             if (Children.TryGetValue(conjunctElementCode, out var found)) return found;

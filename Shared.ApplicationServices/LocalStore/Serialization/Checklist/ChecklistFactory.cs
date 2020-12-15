@@ -59,13 +59,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
             if (dto.Children != null && dto.Children.Any() && targetInstance.Children == null)
             {
-                SetPropertyValueViaBackingField(nameof(Result.Children), targetInstance, new SortedList<string, ITreeNode<Result>>());
+                SetPropertyValueViaBackingField(targetType, nameof(Result.Children), targetInstance, new SortedList<string, ITreeNode<Result>>());
                 foreach (var child in dto.Children)
-                    targetInstance.Children.TryAdd(child.Key, ParseResult(child.Value, (Result)targetInstance, ++depth));
+                    targetInstance.Children.TryAdd(child.Key, ParseResult(child.Value, targetInstance, ++depth));
             }
 
-
-            SetPropertyValueViaBackingField(nameof(Result.Parent), targetInstance, parent);
+            SetPropertyValueViaBackingField(targetType, nameof(Result.Parent), targetInstance, parent);
             return targetInstance;
         }
 

@@ -2,10 +2,11 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @inject IJSRuntime Js
+@inject NavigationManager Navigation
 
 @if (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0)
 {
-    <i class="fas fa-chevron-right fa-3x float-left rotate mr-2 @Model.ExpandedCssClass" @onclick="@ToggleChevron"></i>
+    <a @onclick="@NavigateToSubNode"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
 }
 <span class="badge bg-indigo disabled float-right mr-1">@Model.Item.NumGroups</span>
 <span class="badge bg-indigo disabled float-right mr-1">@Model.Item.NumPoints</span>
@@ -22,33 +23,33 @@
     <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
 }
 
-@if (Model.Expanded && (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0))
-{
-    <div class="mt-2">
-        @if (groups.Any())
-        {
-            <div class="list-group">
-                @foreach (var group in groups)
-                {
-                    <div id="@group.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor @ref="@Editor" Model="@group" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
-                    </div>
-                }
-            </div>
-        }
-        @if (points.Any())
-        {
-            <div class="list-group">
-                @foreach (var point in points)
-                {
-                    <div id="@point.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                        <ResultEditor @ref="@Editor" Model="@point" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
-                    </div>
-                }
-            </div>
-        }
-    </div>
-}
+@*@if (Model.Expanded && (Model.Item.NumPoints > 0 || Model.Item.NumGroups > 0))
+    {
+        <div class="mt-2">
+            @if (groups.Any())
+            {
+                <div class="list-group">
+                    @foreach (var group in groups)
+                    {
+                        <div id="@group.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                            <ResultEditor @ref="@Editor" Model="@group" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
+                        </div>
+                    }
+                </div>
+            }
+            @if (points.Any())
+            {
+                <div class="list-group">
+                    @foreach (var point in points)
+                    {
+                        <div id="@point.Item.ConjunctElementCode.CurateAsElementId()" class="list-group-item" href="#">
+                            <ResultEditor @ref="@Editor" Model="@point" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }*@
 
 <Blazorise.Modal @ref="@confirmDelete">
     <Blazorise.ModalBackdrop />
@@ -152,11 +153,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        groups = Model.Item.Groups.Select(g => ResultModel.FromDomain(g)).ToList();
-        points = Model.Item.Points.Select(p => ResultModel.FromDomain(p)).ToList();
+        //groups = Model.Item.Groups.Select(g => ResultModel.FromDomain(g)).ToList();
+        //points = Model.Item.Points.Select(p => ResultModel.FromDomain(p)).ToList();
         Model.Expanded = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", Model.Id) == "1";
         editModel = EditModel.FromDomain(Model.Item);
         await base.OnInitializedAsync();
+    }
+
+    void NavigateToSubNode()
+    {
+        string uri = Config.BaseUrl + "/Checklist/" + Model.FarmInspectionId + "?FarmId=" + Model.FarmId;
+        uri += "&conjunctElementCode=" + Model.Item.ConjunctElementCode;
+        Navigation.NavigateTo(uri, true);
     }
 
     async void ToggleChevron()
@@ -239,14 +247,18 @@
     {
         public ITreeNode<Result> Item { get; set; }
         public bool Expanded { get; set; }
+        public int FarmId { get; set; }
+        public int FarmInspectionId { get; set; }
         public string ExpandedCssClass => Expanded ? "right" : "";
         public string Id => Item?.ConjunctElementCode.CurateAsElementId() ?? "";
 
-        public static ResultModel FromDomain(ITreeNode<Result> item, bool expanded = false)
+        public static ResultModel FromDomain(ITreeNode<Result> item, int farmId, int farmInspectionId, bool expanded = false)
         {
             return new ResultModel
             {
                 Item = item,
+                FarmId = farmId,
+                FarmInspectionId = farmInspectionId,
                 Expanded = expanded
             };
         }

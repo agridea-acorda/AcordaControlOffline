@@ -14,7 +14,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         int NumPoints { get; }
         void SetParent(ITreeNode<T> parent);
         void Traverse(Action<ITreeNode<T>> action);
-        IResult Find(Func<ITreeNode<Result>, bool> condition);
-        IResult Find(string conjunctElementCode);
+        ITreeNode<Result> Find(Func<ITreeNode<Result>, bool> condition);
+        ITreeNode<Result> Find(string conjunctElementCode);
     }
 }

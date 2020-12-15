@@ -50,8 +50,12 @@
         @if (model.Any())
         {
             <div class="mb-2">
-                <button @onclick="@ExpandAll" class="btn btn-sm btn-info mr-1 mb-2">Déplier tous</button>
-                <button @onclick="@CollapseAll" class="btn btn-sm btn-info mr-1 mb-2">Replier tous</button>
+                @*<button @onclick="@ExpandAll" class="btn btn-sm btn-info mr-1 mb-2">Déplier tous</button>
+                <button @onclick="@CollapseAll" class="btn btn-sm btn-info mr-1 mb-2">Replier tous</button>*@
+                @if (!string.IsNullOrWhiteSpace(parentUri))
+                {
+                    <button class="btn btn-default btn-sm btn-info mr-1 mb-2" @onclick="() => Navigation.NavigateTo(parentUri)"><i class="fas fa-level-up-alt"></i></button>
+                }
                 <button class="btn btn-sm btn-info mr-1 mb-2">Afficher NA/NC auto</button>
                 <button class="btn btn-sm btn-info mr-1 mb-2">Cacher NA/NC auto</button>
             </div>
@@ -70,12 +74,16 @@
 </div>
 
 @code {
+    const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
+    const string ConjunctElementCodeUriKey = "conjunctElementCode";
+    const string FarmIdUriKey = "FarmId";
+
     [Parameter]
     public int FarmInspectionId { get; set; }
-
-    const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
+    private string conjunctElementCode { get; set; }
 
     public int FarmId;
+    string parentUri;
     readonly List<ResultEditor.ResultModel> model = new List<ResultEditor.ResultModel>();
     Timer saveTimer;
     Timer savedMessageTimer;
@@ -92,20 +100,46 @@
         }
     }
     readonly List<ResultEditor> rubricResultEditors = new List<ResultEditor>();
-    bool showSaving = false;
-    bool showSaved = false;
+    bool showSaving;
+    bool showSaved;
 
     protected override async Task OnInitializedAsync()
     {
+        FarmId = int.Parse(Navigation.QueryString(FarmIdUriKey));
+        conjunctElementCode = Navigation.QueryString(ConjunctElementCodeUriKey);
+
         var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
         if (checklist != null)
         {
-            foreach (var rubricKvp in checklist.Rubrics)
+            if (!string.IsNullOrWhiteSpace(conjunctElementCode))
             {
-                model.Add(ResultEditor.ResultModel.FromDomain(rubricKvp.Value));
+                var node = checklist.Find(conjunctElementCode);
+                if (node != null)
+                {
+                    Console.WriteLine($"Building model for node {node.ConjunctElementCode}");
+                    foreach (var kvp in node.Children)
+                    {
+                        model.Add(ResultEditor.ResultModel.FromDomain(kvp.Value, FarmId, FarmInspectionId));
+                    }
+                    string parentConjunctElementCode = node.Parent?.Parent?.ConjunctElementCode ?? "";
+                    Console.WriteLine($"node has parent navigation to {parentConjunctElementCode}");
+                    if (!string.IsNullOrWhiteSpace(parentConjunctElementCode))
+                    {
+                        parentUri = Config.BaseUrl + "/Checklist/" + FarmInspectionId +
+                                    $"?{FarmIdUriKey}={FarmId}" +
+                                    $"&{ConjunctElementCodeUriKey}={parentConjunctElementCode}";
+                        Console.WriteLine($"--> navigation uri is {parentUri}");
+                    }
+
+                }
             }
+            else
+                foreach (var rubricKvp in checklist.Rubrics)
+                {
+                    model.Add(ResultEditor.ResultModel.FromDomain(rubricKvp.Value, FarmId, FarmInspectionId));
+                }
         }
-        FarmId = int.Parse(Navigation.QueryString("FarmId"));
+
         saveTimer = new Timer(SaveInterval) {AutoReset = false};
         saveTimer.Elapsed += async (sender, e) =>
         {
@@ -119,6 +153,7 @@
             StateHasChanged();
             savedMessageTimer.Start();
         };
+
         savedMessageTimer = new Timer(5000);
         savedMessageTimer.Elapsed += (sender, e) =>
         {

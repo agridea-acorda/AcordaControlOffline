@@ -10,10 +10,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public abstract string Serialize(T aggregateRoot);
 
-        protected void SetPropertyValueViaBackingField<TInstance, TProp>(string propertyName, TInstance instance, TProp propertyValue)
-        {
-            SetPropertyValueViaBackingField(typeof(TInstance), propertyName, instance, propertyValue);
-        }
+        //protected void SetPropertyValueViaBackingField<TInstance, TProp>(string propertyName, TInstance instance, TProp propertyValue)
+        //{
+        //    SetPropertyValueViaBackingField(typeof(TInstance), propertyName, instance, propertyValue);
+        //}
 
         protected void SetPropertyValueViaBackingField(Type targetType, string propertyName, object instance, object propertyValue)
         {
