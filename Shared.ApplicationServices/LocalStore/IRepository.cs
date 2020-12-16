@@ -23,6 +23,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync();
         ValueTask SaveActionsOrDocumentsAsync(ActionsOrDocumentEditModel model);
         ValueTask SaveChecklistAsync(Checklist checklist);
-        ValueTask<Checklist> ReadChecklistAsync(int farmInspectionId);
+        Task<Checklist> ReadChecklistAsync(int farmInspectionId);
     }
 }

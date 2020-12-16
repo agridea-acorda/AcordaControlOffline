@@ -8,13 +8,11 @@
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 
-@if (mandateViewModel != null)
+@if (mandateViewModel?.Farm != null)
 {
     <div class="card">
         <div class="card-header">
-
             <h3 class="card-title">@mandateViewModel.Farm.Ktidb @mandateViewModel.Farm.FarmName</h3>
-
             <div class="card-tools">
                 <button type="button" class="btn btn-default" @onclick="() => NavigateToFarmDetail(mandateViewModel.Farm.Id)">
                     <span class="fa-stack stacked-icon-button">
@@ -23,13 +21,11 @@
                     </span> Consulter
                 </button>
             </div>
-
             <p class="clearboth mb-0">
                 <FarmBase Farm="@mandateViewModel.Farm" />
             </p>
         </div>
         <div class="card-body">
-
             <p class="mb-1">
                 <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.AgriculturalArea</span>
                 <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.NonAgriculturalArea</span>
@@ -39,93 +35,132 @@
             <BadgeBar Badges="@mandateViewModel.Farm.Badges" />
         </div>
     </div>
-
+}
+else
+{
     <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Check-listes</h3>
-            <div class="card-tools">
-                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'>
-                    <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
-                </button>
-            </div>
-        </div>
-        <div class="card-body p-0">
-            <div class="list-group">
-                @foreach (var (inspection, index) in mandateViewModel.Inspections.WithIndex())
-                {
-                <div class="list-group-item">
-                    <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
-                        <i class="fas fa-arrow-right"></i> Check-Liste
-                    </button>
-                    <h4 class="list-group-item-heading">@inspection.Domain</h4>
-                    <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
-                    <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(index)">
-                        <i class="far fa-calendar-alt"></i>
-                        <span class="d-block">@inspection.VisitDate</span>
-                        @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
-                        {
-                            <span class="d-block">@inspection.AppointmentDate</span>
-                        }
-                        @if (inspection.IsUnexpected)
-                        {
-                            <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
-                        }
-                    </Blazorise.Button>
-                    <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
-                    <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
-                    <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowCommentForOfficeModal(index)">
-                        <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
-                        <span style="white-space: pre-wrap">Pour la gérance</span>
-                    </Blazorise.Button>
-                    @{ string complianceButtonColor = inspection.HasComplianceRequirements ? "text-danger" : ""; }
-                    <button class="btn btn-app h-auto @complianceButtonColor" @onclick="() => ShowComplianceModal(index)">
-                        <i class="far fa-copy"></i>Suivi documents
-                    </button>
-                    <ProgressBar Progress="@inspection" />
-                    @if (inspection.HasComplianceRequirements)
-                    {
-                        <p class="mb-1">
-                            <strong class="mr-3">Délai de mise en conformité jusqu'au: @inspection.ComplianceDeadline</strong>
-                            @if (inspection.IsPastDeadline)
-                            {
-                                <span class="text-yellow mr-3"> @PastDeadlineMessage</span>
-                            }
-                            @if (inspection.DueDateRespected)
-                            {
-                                <span class="text-green mr-3"><i class="far fa-thumbs-up"></i> @DueDateRespectedMessage</span>
-                            }
-                            @if (inspection.IsLateOrNotCompliant)
-                            {
-                                <span class="text-red mr-3"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
-                            }
-                        </p>
-                    }
-                    @if (inspection.CanGeneratePdfReport)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
-                    }
-                    @if (inspection.CanDisplayPdfReport)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
-                    }
-                    @if (inspection.CanClose)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
-                    }
-                    @if (inspection.IsClosed)
-                    {
-                        <p class="mb-1"><strong>Clôturé le @inspection.CloseDate par @inspection.ClosedBy.</strong></p>
-                    }
-                    @if (inspection.CanReopen)
-                    {
-                        <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
-                    }
+        <div class="ph-item">
+            <div class="ph-col-12">
+                <div class="ph-picture"></div>
+                <div class="ph-row">
+                    <div class="ph-col-8 big"></div>
+                    <div class="ph-col-4 empty big"></div>
+                    <div class="ph-col-8 big"></div>
+                    <div class="ph-col-4 empty big"></div>
                 </div>
-                }
             </div>
         </div>
     </div>
 }
+
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Check-listes</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'>
+                <i class="fas fa-arrow-left"></i> Retour à la liste des mandats
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group">
+            @if (mandateViewModel?.Inspections != null)
+            {
+                @foreach (var (inspection, index) in mandateViewModel.Inspections.WithIndex())
+                {
+                    <div class="list-group-item">
+                        <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
+                            <i class="fas fa-arrow-right"></i> Check-Liste
+                        </button>
+                        <h4 class="list-group-item-heading">@inspection.Domain</h4>
+                        <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
+                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(index)">
+                            <i class="far fa-calendar-alt"></i>
+                            <span class="d-block">@inspection.VisitDate</span>
+                            @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
+                            {
+                                <span class="d-block">@inspection.AppointmentDate</span>
+                            }
+                            @if (inspection.IsUnexpected)
+                            {
+                                <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
+                            }
+                        </Blazorise.Button>
+                        <div class="btn btn-app h-auto"><i class="fas fa-question"></i>Routine</div>
+                        <div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>
+                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowCommentForOfficeModal(index)">
+                            <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
+                            <span style="white-space: pre-wrap">Pour la gérance</span>
+                        </Blazorise.Button>
+                        @{ string complianceButtonColor = inspection.HasComplianceRequirements ? "text-danger" : ""; }
+                        <button class="btn btn-app h-auto @complianceButtonColor" @onclick="() => ShowComplianceModal(index)">
+                            <i class="far fa-copy"></i>Suivi documents
+                        </button>
+                        <ProgressBar Progress="@inspection"/>
+                        @if (inspection.HasComplianceRequirements)
+                        {
+                            <p class="mb-1">
+                                <strong class="mr-3">Délai de mise en conformité jusqu'au: @inspection.ComplianceDeadline</strong>
+                                @if (inspection.IsPastDeadline)
+                                {
+                                    <span class="text-yellow mr-3"> @PastDeadlineMessage</span>
+                                }
+                                @if (inspection.DueDateRespected)
+                                {
+                                    <span class="text-green mr-3"><i class="far fa-thumbs-up"></i> @DueDateRespectedMessage</span>
+                                }
+                                @if (inspection.IsLateOrNotCompliant)
+                                {
+                                    <span class="text-red mr-3"><i class="far fa-thumbs-down"></i> @LateOrNotCompliant</span>
+                                }
+                            </p>
+                        }
+                        @if (inspection.CanGeneratePdfReport)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
+                        }
+                        @if (inspection.CanDisplayPdfReport)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
+                        }
+                        @if (inspection.CanClose)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
+                        }
+                        @if (inspection.IsClosed)
+                        {
+                            <p class="mb-1"><strong>Clôturé le @inspection.CloseDate par @inspection.ClosedBy.</strong></p>
+                        }
+                        @if (inspection.CanReopen)
+                        {
+                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                @for (int i = 0; i < 5; i++)
+                {
+                    <div class="ph-item">
+                        <div class="ph-col-12">
+                            <div class="ph-row">
+                                <div class="ph-col-6 big"></div>
+                                <div class="ph-col-6 empty big"></div>
+                                <div class="ph-col-4"></div>
+                                <div class="ph-col-8 empty"></div>
+                                <div class="ph-col-4"></div>
+                                <div class="ph-col-8 empty"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
 
 @if (appointment != null)
 {
@@ -154,15 +189,6 @@
                         <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
                         <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointment.Date" />
                     </Blazorise.Field>
-                    @*<Blazorise.Field>
-                            <Blazorise.FieldLabel>Annoncé / Inopiné</Blazorise.FieldLabel>
-                            <Blazorise.Select @bind-SelectedValue="@appointment.Mode">
-                                @foreach (var mode in appointment.ComboInspectionModes)
-                                {
-                                    <Blazorise.SelectItem Value="@mode.Value">@mode.Text</Blazorise.SelectItem>
-                                }
-                            </Blazorise.Select>
-                        </Blazorise.Field>*@
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
                     <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
@@ -261,8 +287,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        DateTime started = DateTime.Now;
+        Console.WriteLine($"Reading farm and mandate data (started {started.ToDetailedTime()})...");
+        await Task.Delay(1);
         farm = await Repository.ReadFarmAsync(FarmId);
         mandate = await Repository.ReadMandateAsync(FarmId);
+        TimeSpan elapsed = DateTime.Now - started;
+        Console.WriteLine($"Farm and mandate data read succesfully (elapsed {elapsed}).");
         mandateViewModel = Mandate.FromDomain(farm, mandate);
         appointment = AppointmentModel.FromDomain(farm, mandate.Inspections.First());
         commentForOffice = CommentForOfficeModel.FromDomain(mandate.Inspections.First());
@@ -273,7 +304,7 @@
     {
         if (farmInspectionId > 0 && farmId > 0)
         {
-            Navigation.NavigateTo($"{Config.BaseUrl}/Checklist/{farmInspectionId}?FarmId={farmId}");
+            Navigation.NavigateTo($"{Config.BaseUrl}/Checklist2/{farmInspectionId}?FarmId={farmId}");
         }
     }
 
@@ -396,7 +427,6 @@
         public int Mode { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        //public IEnumerable<InspectionMode> ComboInspectionModes { get; set; }
 
         public static AppointmentModel FromDomain(Farm farm, Inspection inspection, int index = 0)
         {
@@ -408,7 +438,6 @@
                 FirstContactDate = inspection.Appointment.FirstContactDate,
                 Mode = inspection.Appointment.Mode.Value,
                 Phone = farm.PhoneNumber,
-                //ComboInspectionModes = new []{ InspectionMode.Scheduled, InspectionMode.Unscheduled }
             };
         }
     }

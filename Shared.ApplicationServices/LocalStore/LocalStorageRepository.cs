@@ -94,7 +94,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
         }
 
-        public async ValueTask<Checklist> ReadChecklistAsync(int farmInspectionId)
+        public async Task<Checklist> ReadChecklistAsync(int farmInspectionId)
         {
             string json = await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
             return new ChecklistFactory().Parse(json);

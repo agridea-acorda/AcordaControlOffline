@@ -1,0 +1,159 @@
+﻿@page "/Checklist2/{FarmInspectionId:int}"
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
+@inject NavigationManager Navigation
+@inject IRepository Repository
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Récapitulatif</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
+                <i class="fas fa-arrow-left"></i>
+                Retour Mandat
+            </button>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + FarmId)'>
+                <i class="fas fa-arrow-right"></i>
+                Signatures
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <p>Content here</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Manquements antérieurs</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <p>Content here</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        @*<p class="float-right text-sm text-secondary mb-0 @(showSaving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement...</p>
+        <p class="float-right text-sm text-secondary mb-0 @(showSaved ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>*@
+        <h3 class="card-title">Exigences</h3>
+    </div>
+    <div class="card-body">
+        <div id="checklist">
+            <div class="list-group">
+                @if (parent != null)
+                {
+                    <a @onclick="@(() => DisplayNode(parent.ParentConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
+                    <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
+                    <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                    <h4 class="list-group-item-heading">@parent.ShortName</h4>
+                    <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+                }
+                @if (children.Any())
+                {
+                    @foreach (var child in children)
+                    {
+                        <div id="@child.Id" class="list-group-item">
+                            @if (child.NumPoints > 0 || child.NumGroups > 0)
+                            {
+                                <a @onclick="@(() => DisplayNode(child.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
+                            }
+                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumGroups</span>
+                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumPoints</span>
+                            <h4 class="list-group-item-heading">@child.ShortName</h4>
+                            <p class="list-group-item-text mb-2">@child.ConjunctElementCode</p>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)">P</button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)">NC</button>
+                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)">NA</button>
+                            @if (child.Outcome != InspectionOutcome.Unset)
+                            {
+                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <ChecklistPlaceholderLoading />
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    const string FarmIdUriKey = "FarmId";
+
+    [Parameter]
+    public int FarmInspectionId { get; set; }
+
+    int FarmId;
+    Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
+    ResultModel parent;
+    List<ResultModel> children = new List<ResultModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        FarmId = int.Parse(Navigation.QueryString(FarmIdUriKey));
+        DateTime started = DateTime.Now;
+        Console.WriteLine($"Reading checklist data (started {started.ToDetailedTime()})...");
+        await Task.Delay(1); // workaround (otherwise ui is not rendered until repository has finished loading)
+        checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        TimeSpan elapsed = DateTime.Now - started;
+        Console.WriteLine($"Checklist data read succesfully (elapsed {elapsed}).");
+        parent = null;
+        if (checklist != null)
+            children = checklist.Rubrics.Select(r => ResultModel.MapFrom(r.Value))
+                                .Where(x => x != null)
+                                .ToList();
+    }
+
+    void DisplayNode(string conjunctElementCode)
+    {
+        var node = checklist.Find(conjunctElementCode);
+        if (node == null) return;
+
+        parent = ResultModel.MapFrom(node);
+        children = node.Children.Select(x => ResultModel.MapFrom(x.Value))
+                       .Where(x => x != null)
+                       .ToList();
+    }
+
+    class ResultModel
+    {
+        public int NumGroups { get; set; }
+        public int NumPoints { get; set; }
+        public string ConjunctElementCode { get; set; }
+        public string ParentConjunctElementCode { get; set; }
+        public string ShortName { get; set; }
+        public InspectionOutcome Outcome { get; set; }
+        public string Id { get; set; }
+
+        public static ResultModel MapFrom(ITreeNode<Result> node)
+        {
+            if (node == null) return null;
+            return new ResultModel
+            {
+                NumGroups = node.NumGroups,
+                NumPoints = node.NumPoints,
+                ConjunctElementCode = node.ConjunctElementCode,
+                ParentConjunctElementCode = node.Parent?.ConjunctElementCode ?? "",
+                ShortName = node.ShortName,
+                Outcome = node.Outcome,
+                Id = node.ConjunctElementCode.CurateAsElementId()
+            };
+        }
+    }
+
+}

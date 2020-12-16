@@ -43,6 +43,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
                    "btn-default";
         }
 
+        public static string OutcomeCssClass(this AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome outcome, 
+                                             AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome compare)
+        {
+            return outcome == compare && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.Ok ? "btn-success" :
+                   outcome == compare && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.PartiallyOk ? "btn-warning" :
+                   outcome == compare && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.NotOk ? "btn-danger" :
+                   outcome == compare && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.NotInspected ? "btn-primary" :
+                   outcome == compare && outcome == AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome.NotApplicable ? "btn-primary" :
+                   "btn-default";
+        }
+
         public static string BackgroundCssClass(this int farmTypeCode)
         {
             switch (farmTypeCode)
