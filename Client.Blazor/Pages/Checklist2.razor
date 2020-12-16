@@ -50,45 +50,83 @@
             <div class="list-group">
                 @if (parent != null)
                 {
-                    <a @onclick="@(() => DisplayNode(parent.ParentConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
-                    <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
-                    <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
-                    <h4 class="list-group-item-heading">@parent.ShortName</h4>
-                    <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
-                }
-                @if (children.Any())
-                {
-                    @foreach (var child in children)
-                    {
-                        <div id="@child.Id" class="list-group-item">
-                            @if (child.NumPoints > 0 || child.NumGroups > 0)
-                            {
-                                <a @onclick="@(() => DisplayNode(child.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
-                            }
-                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumGroups</span>
-                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumPoints</span>
-                            <h4 class="list-group-item-heading">@child.ShortName</h4>
-                            <p class="list-group-item-text mb-2">@child.ConjunctElementCode</p>
-                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)">P</button>
-                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)">NC</button>
-                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)">NA</button>
-                            @if (child.Outcome != InspectionOutcome.Unset)
-                            {
-                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
-                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
-                            }
+                    <div id="@parent.Id" class="list-group-item">
+                        <a @onclick="@(() => DisplayNode(parent.ParentConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
+                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
+                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                        <h4 class="list-group-item-heading">@parent.ShortName</h4>
+                        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+                        <div class="mt-2">
+                            <div class="list-group">
+                                @if (children.Any())
+                                {
+                                    @foreach (var child in children)
+                                    {
+                                        <div id="@child.Id" class="list-group-item">
+                                            @if (child.NumPoints > 0 || child.NumGroups > 0)
+                                            {
+                                                <a @onclick="@(() => DisplayNode(child.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
+                                            }
+                                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumGroups</span>
+                                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumPoints</span>
+                                            <h4 class="list-group-item-heading">@child.ShortName</h4>
+                                            <p class="list-group-item-text mb-2">@child.ConjunctElementCode</p>
+                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)">P</button>
+                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)">NC</button>
+                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)">NA</button>
+                                            @if (child.Outcome != InspectionOutcome.Unset)
+                                            {
+                                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+                                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <ChecklistPlaceholderLoading />
+                                }
+                            </div>
                         </div>
-                    }
+                    </div>
                 }
                 else
                 {
-                    <ChecklistPlaceholderLoading />
+                    @if (children.Any())
+                    {
+                        @foreach (var child in children)
+                        {
+                            <div id="@child.Id" class="list-group-item">
+                                @if (child.NumPoints > 0 || child.NumGroups > 0)
+                                {
+                                    <a @onclick="@(() => DisplayNode(child.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
+                                }
+                                <span class="badge bg-indigo disabled float-right mr-1">@child.NumGroups</span>
+                                <span class="badge bg-indigo disabled float-right mr-1">@child.NumPoints</span>
+                                <h4 class="list-group-item-heading">@child.ShortName</h4>
+                                <p class="list-group-item-text mb-2">@child.ConjunctElementCode</p>
+                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)">P</button>
+                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)">NC</button>
+                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)">NA</button>
+                                @if (child.Outcome != InspectionOutcome.Unset)
+                                {
+                                    <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+                                    <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <ChecklistPlaceholderLoading />
+                    }
                 }
             </div>
         </div>
-
     </div>
 </div>
 
