@@ -62,6 +62,8 @@
                                 {
                                     @foreach (var child in children)
                                     {
+                                        // look at componentizing checklist items, and propagate the checklist (AR) as a CascadingParameter
+                                        // see https://chrissainty.com/3-ways-to-communicate-between-components-in-blazor/
                                         <div id="@child.Id" class="list-group-item">
                                             @if (child.NumPoints > 0 || child.NumGroups > 0)
                                             {
