@@ -57,9 +57,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(targetType, nameof(Result.Seriousness), targetInstance, Parse(dto.Seriousness));
             // todo PredefinedDefect
 
-            if (dto.Children != null && dto.Children.Any() && targetInstance.Children == null)
+            SetPropertyValueViaBackingField(targetType, nameof(Result.Children), targetInstance, new SortedList<string, ITreeNode<Result>>());
+            if (dto.Children?.Any() == true)
             {
-                SetPropertyValueViaBackingField(targetType, nameof(Result.Children), targetInstance, new SortedList<string, ITreeNode<Result>>());
                 foreach (var child in dto.Children)
                     targetInstance.Children.TryAdd(child.Key, ParseResult(child.Value, targetInstance, ++depth));
             }
