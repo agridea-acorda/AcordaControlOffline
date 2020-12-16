@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.IO;
+using FluentAssertions;
 using Xunit;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests

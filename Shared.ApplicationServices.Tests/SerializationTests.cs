@@ -129,5 +129,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             pdfReport.Bytes.Should().HaveCount(0);
             pdfReport.Should().Be(PdfReport.None);
         }
+
+
+        [Fact]
+        public void Can_find_nodes_in_real_checklist()
+        {
+            var json = File.ReadAllText("./Data/checklist_real_FarmInspectionId83811.json");
+            var checklist = new ChecklistFactory().Parse(json);
+            var node = checklist.Find("12.02_2018");
+            node.Should().NotBeNull();
+            node.ConjunctElementCode.Should().Be("12.02_2018");
+        }
     }
 }

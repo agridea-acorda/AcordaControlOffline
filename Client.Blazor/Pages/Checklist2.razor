@@ -51,7 +51,7 @@
                 @if (parent != null)
                 {
                     <div id="@parent.Id" class="list-group-item">
-                        <a @onclick="@(() => DisplayNode(parent.ParentConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
+                        <a @onclick="@(() => DisplayNode(parent?.ParentConjunctElementCode ?? ""))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
                         <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
                         <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
                         <h4 class="list-group-item-heading">@parent.ShortName</h4>
@@ -159,8 +159,25 @@
 
     void DisplayNode(string conjunctElementCode)
     {
+        if (string.IsNullOrWhiteSpace(conjunctElementCode))
+        {
+            parent = null;
+            children = checklist.Rubrics.Select(r => ResultModel.MapFrom(r.Value))
+                                .Where(x => x != null)
+                                .ToList();
+            return;
+        }
+
+        Console.WriteLine($"Finding node with conjunctElementCode={conjunctElementCode}");
         var node = checklist.Find(conjunctElementCode);
-        if (node == null) return;
+        if (node == null)
+        {
+            parent = null;
+            children = checklist.Rubrics.Select(r => ResultModel.MapFrom(r.Value))
+                                .Where(x => x != null)
+                                .ToList();
+            return;
+        }
 
         parent = ResultModel.MapFrom(node);
         children = node.Children.Select(x => ResultModel.MapFrom(x.Value))
