@@ -47,49 +47,49 @@
     </div>
     <div class="card-body">
         <div id="checklist">
-            <div class="list-group">
-                @if (parent != null)
-                {
-                    <div id="@parent.Id" class="list-group-item">
-                        <a @onclick="@(() => DisplayNode(parent?.ParentConjunctElementCode ?? ""))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
-                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
-                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
-                        <h4 class="list-group-item-heading">@parent.ShortName</h4>
-                        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
-                        <div class="mt-2">
-                            <div class="list-group">
-                                @if (children.Any())
-                                {
-                                    @foreach (var child in children)
+            <CascadingValue Value="checklist">
+                <div class="list-group">
+                    @if (parent != null)
+                    {
+                        <div id="@parent.Id" class="list-group-item">
+                            <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
+                            <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
+                            <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                            <h4 class="list-group-item-heading">@parent.ShortName</h4>
+                            <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+                            <div class="mt-2">
+                                <div class="list-group">
+                                    @if (children.Any())
                                     {
-                                        // look at componentizing checklist items, and propagate the checklist (AR) as a CascadingParameter
-                                        // see https://chrissainty.com/3-ways-to-communicate-between-components-in-blazor/
-                                        <ChecklistItem Node="@child" OnDisplayNode="@DisplayNode"></ChecklistItem>
+                                        @foreach (var child in children)
+                                        {
+                                            <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    <ChecklistPlaceholderLoading />
-                                }
+                                    else
+                                    {
+                                        <ChecklistPlaceholderLoading />
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
-                else
-                {
-                    @if (children.Any())
-                    {
-                        @foreach (var child in children)
-                        {
-                            <ChecklistItem Node="@child" OnDisplayNode="@DisplayNode"></ChecklistItem>
-                        }
                     }
                     else
                     {
-                        <ChecklistPlaceholderLoading />
+                        @if (children.Any())
+                        {
+                            @foreach (var child in children)
+                            {
+                                <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
+                            }
+                        }
+                        else
+                        {
+                            <ChecklistPlaceholderLoading />
+                        }
                     }
-                }
-            </div>
+                </div>
+            </CascadingValue>
         </div>
     </div>
 </div>
@@ -121,7 +121,7 @@
                                 .ToList();
     }
 
-    void DisplayNode(string conjunctElementCode)
+    void NodeViewChanged(string conjunctElementCode)
     {
         if (string.IsNullOrWhiteSpace(conjunctElementCode))
         {
@@ -149,6 +149,13 @@
                        .ToList();
     }
 
+    async Task NodeEdited(ITreeNode<Result> node)
+    {
+        Console.WriteLine($"Node {node.ConjunctElementCode} was edited.");
+        await Task.Delay(1);
+        //StateHasChanged();
+    }
+
     public class ResultModel
     {
         public int NumGroups { get; set; }
@@ -174,5 +181,4 @@
             };
         }
     }
-
 }

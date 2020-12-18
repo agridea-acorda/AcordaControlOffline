@@ -1,21 +1,22 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 
 <div id="@Node.Id" class="list-group-item">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
     {
-        <a @onclick="@(() => OnDisplayNode.InvokeAsync(Node.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
+        <a @onclick="@(() => OnNodeViewChanged.InvokeAsync(Node.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
     }
     <span class="badge bg-indigo disabled float-right mr-1">@Node.NumGroups</span>
     <span class="badge bg-indigo disabled float-right mr-1">@Node.NumPoints</span>
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)">P</button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)">NC</button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)">NA</button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)" @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
     @if (Node.Outcome != InspectionOutcome.Unset)
     {
         <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
@@ -26,10 +27,21 @@
 @code {
     [CascadingParameter]
     protected Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist Checklist { get; set; }
-
     [Parameter]
     public Checklist2.ResultModel Node { get; set; }
-
     [Parameter]
-    public EventCallback<string> OnDisplayNode { get; set; }
+    public EventCallback<string> OnNodeViewChanged { get; set; }
+    [Parameter]
+    public EventCallback<ITreeNode<Result>> OnNodeEdited { get; set; }
+
+    async Task SetOutcome(InspectionOutcome outcome)
+    {
+        //StateHasChanged();
+        var node = Checklist.Find(Node.ConjunctElementCode);
+        node.SetOutcome(outcome);
+        Node = Checklist2.ResultModel.MapFrom(node);
+        await OnNodeEdited.InvokeAsync(node);
+        //await Task.Delay(1000);
+        //StateHasChanged();
+    }
 }
