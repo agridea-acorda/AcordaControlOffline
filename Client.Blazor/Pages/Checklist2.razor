@@ -62,7 +62,7 @@
                                 {
                                     @foreach (var child in children)
                                     {
-                                        <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
+                                        <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
                                     }
                                 }
                                 else
@@ -79,7 +79,7 @@
                     {
                         @foreach (var child in children)
                         {
-                            <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
+                            <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
                         }
                     }
                     else
@@ -149,7 +149,7 @@
 
     void OutcomeChanged(ResultModel model)
     {
-        Console.WriteLine($"Node {model.ConjunctElementCode} outcome was set to {model.Outcome}.");
+        Console.WriteLine($"Node {model.ConjunctElementCode}'s outcome was set to {model.Outcome}.");
         var node = checklist.Find(model.ConjunctElementCode);
         node.SetOutcome(model.Outcome);
         // todo autosave
@@ -158,6 +158,13 @@
     void NodeEdited(ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
+        // todo autosave
+    }
+
+    void Deleted(ResultModel model)
+    {
+        Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
+        // todo autosave
     }
 
     public class ResultModel
