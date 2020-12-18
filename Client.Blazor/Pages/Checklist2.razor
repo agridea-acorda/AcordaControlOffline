@@ -47,49 +47,47 @@
     </div>
     <div class="card-body">
         <div id="checklist">
-            <CascadingValue Value="checklist">
-                <div class="list-group">
-                    @if (parent != null)
-                    {
-                        <div id="@parent.Id" class="list-group-item">
-                            <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
-                            <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
-                            <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
-                            <h4 class="list-group-item-heading">@parent.ShortName</h4>
-                            <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
-                            <div class="mt-2">
-                                <div class="list-group">
-                                    @if (children.Any())
+            <div class="list-group">
+                @if (parent != null)
+                {
+                    <div id="@parent.Id" class="list-group-item">
+                        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
+                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
+                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                        <h4 class="list-group-item-heading">@parent.ShortName</h4>
+                        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+                        <div class="mt-2">
+                            <div class="list-group">
+                                @if (children.Any())
+                                {
+                                    @foreach (var child in children)
                                     {
-                                        @foreach (var child in children)
-                                        {
-                                            <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
-                                        }
+                                        <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
                                     }
-                                    else
-                                    {
-                                        <ChecklistPlaceholderLoading />
-                                    }
-                                </div>
+                                }
+                                else
+                                {
+                                    <ChecklistPlaceholderLoading />
+                                }
                             </div>
                         </div>
+                    </div>
+                }
+                else
+                {
+                    @if (children.Any())
+                    {
+                        @foreach (var child in children)
+                        {
+                            <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
+                        }
                     }
                     else
                     {
-                        @if (children.Any())
-                        {
-                            @foreach (var child in children)
-                            {
-                                <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnNodeEdited="@NodeEdited"></ChecklistItem>
-                            }
-                        }
-                        else
-                        {
-                            <ChecklistPlaceholderLoading />
-                        }
+                        <ChecklistPlaceholderLoading />
                     }
-                </div>
-            </CascadingValue>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -149,11 +147,17 @@
                        .ToList();
     }
 
-    async Task NodeEdited(ITreeNode<Result> node)
+    void OutcomeChanged(ResultModel model)
     {
-        Console.WriteLine($"Node {node.ConjunctElementCode} was edited.");
-        await Task.Delay(1);
-        //StateHasChanged();
+        Console.WriteLine($"Node {model.ConjunctElementCode} outcome was set to {model.Outcome}.");
+        var node = checklist.Find(model.ConjunctElementCode);
+        node.SetOutcome(model.Outcome);
+        // todo autosave
+    }
+
+    void NodeEdited(ResultModel model)
+    {
+        Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
     }
 
     public class ResultModel

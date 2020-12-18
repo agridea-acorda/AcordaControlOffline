@@ -25,23 +25,18 @@
 </div>
 
 @code {
-    [CascadingParameter]
-    protected Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist Checklist { get; set; }
     [Parameter]
     public Checklist2.ResultModel Node { get; set; }
     [Parameter]
     public EventCallback<string> OnNodeViewChanged { get; set; }
     [Parameter]
-    public EventCallback<ITreeNode<Result>> OnNodeEdited { get; set; }
+    public EventCallback<Checklist2.ResultModel> OnNodeEdited { get; set; }
+    [Parameter]
+    public EventCallback<Checklist2.ResultModel> OnOutcomeChanged { get; set; }
 
     async Task SetOutcome(InspectionOutcome outcome)
     {
-        //StateHasChanged();
-        var node = Checklist.Find(Node.ConjunctElementCode);
-        node.SetOutcome(outcome);
-        Node = Checklist2.ResultModel.MapFrom(node);
-        await OnNodeEdited.InvokeAsync(node);
-        //await Task.Delay(1000);
-        //StateHasChanged();
+        Node.Outcome = outcome;
+        await OnOutcomeChanged.InvokeAsync(Node);
     }
 }
