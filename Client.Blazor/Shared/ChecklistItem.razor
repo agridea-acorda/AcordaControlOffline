@@ -19,7 +19,7 @@
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
     @if (Node.Outcome != InspectionOutcome.Unset)
     {
-        <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+        <button @onclick="() => edit.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
         <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
     }
 </div>
@@ -43,6 +43,53 @@
     </Blazorise.ModalContent>
 </Blazorise.Modal>
 
+<Blazorise.Modal @ref="@edit">
+    <Blazorise.ModalBackdrop />
+    <EditForm Model="@Node" OnSubmit="@Save">
+        <Blazorise.ModalContent>
+            <Blazorise.ModalHeader>
+                <Blazorise.ModalTitle>Résultat détaillé</Blazorise.ModalTitle>
+                <Blazorise.CloseButton Clicked="() => edit.Hide()" />
+            </Blazorise.ModalHeader>
+            <Blazorise.ModalBody>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Remarque contrôleur</Blazorise.FieldLabel>
+                    <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.InspectorComment"></Blazorise.MemoEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
+                    <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit @bind-Text="@Node.DefectDescription"></Blazorise.TextEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
+                    <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
+                    <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
+                        @foreach (var option in Node.ComboSeriousnesses)
+                        {
+                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                        }
+                    </Blazorise.Select>
+                </Blazorise.Field>
+            </Blazorise.ModalBody>
+            <Blazorise.ModalFooter>
+                <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
+                <button class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</button>
+            </Blazorise.ModalFooter>
+        </Blazorise.ModalContent>
+    </EditForm>
+</Blazorise.Modal>
+
 @code {
     [Parameter]
     public Checklist2.ResultModel Node { get; set; }
@@ -55,17 +102,25 @@
     [Parameter]
     public EventCallback<Checklist2.ResultModel> OnDeleted { get; set; }
     Blazorise.Modal confirmDelete;
-
+    Blazorise.Modal edit;
+    
     async Task SetOutcome(InspectionOutcome outcome)
     {
         Node.Outcome = outcome;
         await OnOutcomeChanged.InvokeAsync(Node);
     }
 
+    async Task Save(EditContext editContext)
+    {
+        edit.Hide();
+        await OnNodeEdited.InvokeAsync(Node);
+    }
+
     async Task Delete()
     {
         confirmDelete.Hide();
-        await SetOutcome(InspectionOutcome.Unset);
+        Node.Clear();
+        //await SetOutcome(InspectionOutcome.Unset);
         await OnDeleted.InvokeAsync(Node);
     }
 }

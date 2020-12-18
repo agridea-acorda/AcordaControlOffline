@@ -158,12 +158,21 @@
     void NodeEdited(ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
+        var node = checklist.Find(model.ConjunctElementCode);
+        node.SetInspectorComment(model.InspectorComment);
+        node.SetFarmerComment(model.FarmerComment);
+        node.SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
+                       DefectSeriousness.FromCode(model.SeriousnessCode));
         // todo autosave
     }
 
     void Deleted(ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
+        var node = checklist.Find(model.ConjunctElementCode);
+        node.SetInspectorComment("");
+        node.SetFarmerComment("");
+        node.SetDefect(Defect.None, DefectSeriousness.Empty);
         // todo autosave
     }
 
@@ -175,7 +184,25 @@
         public string ParentConjunctElementCode { get; set; }
         public string ShortName { get; set; }
         public InspectionOutcome Outcome { get; set; }
+        public string InspectorComment { get; set; }
+        public string FarmerComment { get; set; }
+        public string DefectDescription { get; set; }
+        public double DefectSize { get; set; }
+        public string DefectUnit { get; set; }
+        public int SeriousnessCode { get; set; }
         public string Id { get; set; }
+        public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
+
+        public void Clear()
+        {
+            Outcome = InspectionOutcome.Unset;
+            InspectorComment = "";
+            FarmerComment = "";
+            DefectDescription = Defect.None.Description;
+            DefectSize = Defect.None.Size.Size;
+            DefectUnit = Defect.None.Size.Unit;
+            SeriousnessCode = DefectSeriousness.Empty.Code;
+        }
 
         public static ResultModel MapFrom(ITreeNode<Result> node)
         {
@@ -188,7 +215,14 @@
                 ParentConjunctElementCode = node.Parent?.ConjunctElementCode ?? "",
                 ShortName = node.ShortName,
                 Outcome = node.Outcome,
-                Id = node.ConjunctElementCode.CurateAsElementId()
+                Id = node.ConjunctElementCode.CurateAsElementId(),
+                InspectorComment = node.InspectorComment,
+                FarmerComment = node.FarmerComment,
+                DefectDescription = node.Defect.Description,
+                DefectSize = node.Defect.Size.Size,
+                DefectUnit = node.Defect.Size.Unit,
+                SeriousnessCode = node.Seriousness.Code,
+                ComboSeriousnesses = Combo.Seriousnesses()
             };
         }
     }

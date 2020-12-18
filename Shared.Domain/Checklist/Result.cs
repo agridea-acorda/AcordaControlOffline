@@ -61,6 +61,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             Name = name;
             ElementCode = elementCode;
             ShortName = shortName;
+            Outcome = InspectionOutcome.Unset;
+            InspectorComment = "";
+            FarmerComment = "";
+            Defect = Defect.None;
+            Seriousness = DefectSeriousness.Empty;
         }
 
         public virtual void SetParent(ITreeNode<Result> parent)
