@@ -64,26 +64,7 @@
                                     {
                                         // look at componentizing checklist items, and propagate the checklist (AR) as a CascadingParameter
                                         // see https://chrissainty.com/3-ways-to-communicate-between-components-in-blazor/
-                                        <div id="@child.Id" class="list-group-item">
-                                            @if (child.NumPoints > 0 || child.NumGroups > 0)
-                                            {
-                                                <a @onclick="@(() => DisplayNode(child.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
-                                            }
-                                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumGroups</span>
-                                            <span class="badge bg-indigo disabled float-right mr-1">@child.NumPoints</span>
-                                            <h4 class="list-group-item-heading">@child.ShortName</h4>
-                                            <p class="list-group-item-text mb-2">@child.ConjunctElementCode</p>
-                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)">P</button>
-                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)">NC</button>
-                                            <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)">NA</button>
-                                            @if (child.Outcome != InspectionOutcome.Unset)
-                                            {
-                                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
-                                                <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
-                                            }
-                                        </div>
+                                        <ChecklistItem Node="@child" OnDisplayNode="@DisplayNode"></ChecklistItem>
                                     }
                                 }
                                 else
@@ -100,26 +81,7 @@
                     {
                         @foreach (var child in children)
                         {
-                            <div id="@child.Id" class="list-group-item">
-                                @if (child.NumPoints > 0 || child.NumGroups > 0)
-                                {
-                                    <a @onclick="@(() => DisplayNode(child.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
-                                }
-                                <span class="badge bg-indigo disabled float-right mr-1">@child.NumGroups</span>
-                                <span class="badge bg-indigo disabled float-right mr-1">@child.NumPoints</span>
-                                <h4 class="list-group-item-heading">@child.ShortName</h4>
-                                <p class="list-group-item-text mb-2">@child.ConjunctElementCode</p>
-                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)">P</button>
-                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)">NC</button>
-                                <button class="btn btn-circle btn-circle-sm mr-1 @child.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)">NA</button>
-                                @if (child.Outcome != InspectionOutcome.Unset)
-                                {
-                                    <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
-                                    <button class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
-                                }
-                            </div>
+                            <ChecklistItem Node="@child" OnDisplayNode="@DisplayNode"></ChecklistItem>
                         }
                     }
                     else
@@ -187,7 +149,7 @@
                        .ToList();
     }
 
-    class ResultModel
+    public class ResultModel
     {
         public int NumGroups { get; set; }
         public int NumPoints { get; set; }
