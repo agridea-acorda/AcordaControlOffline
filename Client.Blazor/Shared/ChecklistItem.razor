@@ -1,5 +1,4 @@
-﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 
@@ -92,18 +91,18 @@
 
 @code {
     [Parameter]
-    public Checklist2.ResultModel Node { get; set; }
+    public ResultModel Node { get; set; }
     [Parameter]
     public EventCallback<string> OnNodeViewChanged { get; set; }
     [Parameter]
-    public EventCallback<Checklist2.ResultModel> OnNodeEdited { get; set; }
+    public EventCallback<ResultModel> OnNodeEdited { get; set; }
     [Parameter]
-    public EventCallback<Checklist2.ResultModel> OnOutcomeChanged { get; set; }
+    public EventCallback<ResultModel> OnOutcomeChanged { get; set; }
     [Parameter]
-    public EventCallback<Checklist2.ResultModel> OnDeleted { get; set; }
+    public EventCallback<ResultModel> OnDeleted { get; set; }
     Blazorise.Modal confirmDelete;
     Blazorise.Modal edit;
-    
+
     async Task SetOutcome(InspectionOutcome outcome)
     {
         Node.Outcome = outcome;
@@ -122,5 +121,56 @@
         Node.Clear();
         //await SetOutcome(InspectionOutcome.Unset);
         await OnDeleted.InvokeAsync(Node);
+    }
+
+    public class ResultModel
+    {
+        public int NumGroups { get; set; }
+        public int NumPoints { get; set; }
+        public string ConjunctElementCode { get; set; }
+        public string ParentConjunctElementCode { get; set; }
+        public string ShortName { get; set; }
+        public InspectionOutcome Outcome { get; set; }
+        public string InspectorComment { get; set; }
+        public string FarmerComment { get; set; }
+        public string DefectDescription { get; set; }
+        public double DefectSize { get; set; }
+        public string DefectUnit { get; set; }
+        public int SeriousnessCode { get; set; }
+        public string Id { get; set; }
+        public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
+
+        public void Clear()
+        {
+            Outcome = InspectionOutcome.Unset;
+            InspectorComment = "";
+            FarmerComment = "";
+            DefectDescription = Defect.None.Description;
+            DefectSize = Defect.None.Size.Size;
+            DefectUnit = Defect.None.Size.Unit;
+            SeriousnessCode = DefectSeriousness.Empty.Code;
+        }
+
+        public static ResultModel MapFrom(ITreeNode<Result> node)
+        {
+            if (node == null) return null;
+            return new ResultModel
+            {
+                NumGroups = node.NumGroups,
+                NumPoints = node.NumPoints,
+                ConjunctElementCode = node.ConjunctElementCode,
+                ParentConjunctElementCode = node.Parent?.ConjunctElementCode ?? "",
+                ShortName = node.ShortName,
+                Outcome = node.Outcome,
+                Id = node.ConjunctElementCode.CurateAsElementId(),
+                InspectorComment = node.InspectorComment,
+                FarmerComment = node.FarmerComment,
+                DefectDescription = node.Defect.Description,
+                DefectSize = node.Defect.Size.Size,
+                DefectUnit = node.Defect.Size.Unit,
+                SeriousnessCode = node.Seriousness.Code,
+                ComboSeriousnesses = Combo.Seriousnesses()
+            };
+        }
     }
 }
