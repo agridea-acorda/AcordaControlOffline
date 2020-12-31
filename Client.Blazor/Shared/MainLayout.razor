@@ -64,7 +64,7 @@
                     <i class="fas fa-shield-alt mr-1"></i>
                     @if (isCantonChosen)
                     {
-                        <strong>@selectedCanton.Code</strong>
+                        <strong>@canton.Code</strong>
                     }
                     else
                     {
@@ -75,8 +75,8 @@
                     <div class="dropdown-header bg-gradient-success">
                         @if (isCantonChosen)
                         {
-                            <img src="@selectedCanton.ImgSrcBig" class="img-thumbnail" alt="Drapeau canton" />
-                            <p>@selectedCanton.FriendlyName</p>
+                            <img src="@canton.ImgSrcBig" class="img-thumbnail" alt="Drapeau canton" />
+                            <p>@canton.FriendlyName</p>
                         }
                         else
                         {
@@ -90,7 +90,7 @@
                     <div class="row m-2">
                         @foreach (Canton canton in Canton.Cantons)
                         {
-                            bool selected = isCantonChosen && selectedCanton.Code == canton.Code;
+                            bool selected = isCantonChosen && this.canton.Code == canton.Code;
                             <div class="col-sm-3 text-center">
                                 <a href="#">
                                     <img src="@(selected ? canton.ImgSrcInactive : canton.ImgSrc)" class="img-rounded" alt="Drapeau @canton.Code petit" />
@@ -142,12 +142,30 @@
 
 @code {
 
-    bool isSignedIn = true;
-    string username = "inspector@organisation.ch";
-    string role = "inspector";
+    //bool isSignedIn = true;
+    //string username = "inspector@organisation.ch";
+    //string role = "inspector";
+    bool isSignedIn = false;
+    string username = "";
+    string role = "";
 
-    bool isCantonChosen = true;
-    Canton selectedCanton = Canton.JU;
+    //bool isCantonChosen = true;
+    //Canton canton = Canton.JU;
+    bool isCantonChosen = false;
+    Canton canton = Canton.None;
+
+    protected override async Task OnInitializedAsync()
+    {
+        username = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", nameof(username));
+        role = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", nameof(role));
+        isSignedIn = !string.IsNullOrEmpty(username);
+        string cantonCode = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", nameof(cantonCode));
+        isCantonChosen = !string.IsNullOrEmpty(cantonCode) && Canton.IsValid(cantonCode);
+        if (isCantonChosen)
+        {
+            canton = Canton.ParseFromCode(cantonCode);
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
