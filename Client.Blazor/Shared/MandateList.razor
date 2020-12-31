@@ -127,7 +127,8 @@
         {
             DateTime started = DateTime.Now;
             Console.WriteLine($"Reading mandates from api (started {started.ToDetailedTime()})...");
-            var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates-from-api.json");
+            //var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates-from-api.json");
+            var mandatesResult = await Api.FetchAllMandatesAsync("mandates");
             TimeSpan elapsed = DateTime.Now - started;
             Console.WriteLine($"Mandates read succesfully (elasped {elapsed}).");
             if (mandatesResult.IsSuccess)
