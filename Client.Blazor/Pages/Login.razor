@@ -22,6 +22,7 @@
 
     protected override void OnInitialized()
     {
+        Console.WriteLine("Executing OnInitialized from Login");
         returnUrl = Navigation.QueryString("returnUrl");
         loginModel = LoginComponent.LoginModel.Empty();
         initialized = true;

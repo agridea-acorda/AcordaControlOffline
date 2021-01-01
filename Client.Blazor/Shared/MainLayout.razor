@@ -156,6 +156,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Executing OnInitialized Async from MainLayout");
         username = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", nameof(username));
         role = await Js.InvokeAsync<string>("blazorExtensions.ReadCookie", nameof(role));
         isSignedIn = !string.IsNullOrEmpty(username);

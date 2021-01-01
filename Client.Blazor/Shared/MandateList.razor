@@ -121,6 +121,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Executing OnInitialized Async from MandateList");
         mandates = await Repository.ReadAllMandatesAsync();
 
         if (mandates == null)

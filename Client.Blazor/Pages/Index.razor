@@ -7,5 +7,9 @@
 </div>
 
 @code {
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Executing OnInitialized Async from Index");
+    }
 
 }
