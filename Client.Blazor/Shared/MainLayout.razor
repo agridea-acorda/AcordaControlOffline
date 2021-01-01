@@ -165,6 +165,11 @@
         {
             canton = Canton.ParseFromCode(cantonCode);
         }
+        if (!isSignedIn)
+        {
+            string currentUrl = Navigation.Uri;
+            Navigation.NavigateTo($"/Login?returnUrl={currentUrl}");
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

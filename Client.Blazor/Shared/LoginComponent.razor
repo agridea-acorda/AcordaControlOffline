@@ -1,0 +1,53 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@inject NavigationManager Navigation
+
+<EditForm Model="@Model" OnSubmit="@FormSubmitted">
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
+        <Blazorise.TextEdit @bind-Text="@Model.Username"></Blazorise.TextEdit>
+    </Blazorise.Field>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
+        <Blazorise.TextEdit Role="@Blazorise.TextRole.Password" @bind-Text="@Model.Password"></Blazorise.TextEdit>
+    </Blazorise.Field>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Canton</Blazorise.FieldLabel>
+        <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.CantonCode">
+            @foreach (var option in Model.ComboCantons)
+            {
+                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+            }
+        </Blazorise.Select>
+    </Blazorise.Field>
+    <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="true">Connexion</Blazorise.Button>
+    <Blazorise.Button Color="@Blazorise.Color.Secondary" PreventDefaultOnSubmit="true" Clicked="@Cancel">Annuler</Blazorise.Button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public LoginModel Model { get; set; }
+
+    [Parameter]
+    public string ReturnUrl { get; set; }
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string CantonCode { get; set; }
+        public IEnumerable<SelectListItem<string>> ComboCantons { get; set; } = Combo.Cantons();
+        public static LoginModel Empty() => new LoginModel();
+    }
+
+    public void FormSubmitted()
+    {
+        Console.WriteLine("Saving login info...");
+        // todo POST to api and receive basic auth token and user role, then save in cookie.
+        Console.WriteLine("...Login info Saved.");
+    }
+
+    public void Cancel()
+    {
+        Navigation.NavigateTo(ReturnUrl);
+    }
+}

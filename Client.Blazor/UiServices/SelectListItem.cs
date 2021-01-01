@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.DomainDrivenDesign;
 
@@ -28,6 +29,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
         {
             return new SelectListItem<int>(seriousness.Code, seriousness.Name);
         }
+
+        public static SelectListItem<string> AsSelectListItem(this Canton canton)
+        {
+            return new SelectListItem<string>(canton.Code, canton.Code);
+        }
     }
 
     public class Combo
@@ -42,6 +48,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
                 DefectSeriousness.Serious.AsSelectListItem()
             };
             return combo;
+        }
+
+        public static IEnumerable<SelectListItem<string>> Cantons()
+        {
+            return new List<SelectListItem<string>>
+            {
+                Canton.GE.AsSelectListItem(),
+                Canton.NE.AsSelectListItem(),
+                Canton.JU.AsSelectListItem(),
+                Canton.VD.AsSelectListItem()
+            };
         }
     }
 }
