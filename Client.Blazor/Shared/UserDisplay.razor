@@ -1,0 +1,55 @@
+﻿@inject IJSRuntime Js
+
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
+<li class="nav-item dropdown">
+    <a class="nav-link" data-toggle="dropdown" href="#">
+        <i class="fas fa-user mr-1"></i>
+        @if (isSignedIn)
+        {
+            <span>@username</span>
+        }
+        else
+        { <span>@Canton.Unselected</span>}
+    </a>
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+        <div class="dropdown-header bg-gradient-success">
+            <span class="fa-stack fa-3x">
+                <i class="far fa-square fa-stack-2x fa-inverse"></i>
+                <i class="fas fa-user fa-stack-1x fa-inverse"></i>
+            </span>
+            @if (isSignedIn)
+            {
+                <p>@username</p>
+                <p><small>@role</small></p>
+            }
+            else
+            {
+                <p>Aucun utilisateur connecté</p>
+            }
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-footer text-left">
+            @if (isSignedIn)
+            {
+                <button type="button" class="btn btn-default mb-1"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+                <button type="button" class="btn btn-default mb-1"><i class="fas fa-lock"></i> Changer mot de passe</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-default mb-1"><i class="fas fa-sign-in-alt"></i> Connexion</button>
+            }
+        </div>
+    </div>
+</li>
+@code {
+    bool isSignedIn = false;
+    string username = "";
+    string role = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        username = await Js.InvokeAsync<string>(JsInterop.ReadCookie, nameof(username));
+        role = await Js.InvokeAsync<string>(JsInterop.ReadCookie, nameof(role));
+        isSignedIn = !string.IsNullOrEmpty(username);
+    }
+}

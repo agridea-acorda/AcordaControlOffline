@@ -20,15 +20,12 @@
         </Blazorise.Select>
     </Blazorise.Field>
     <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="true">Connexion</Blazorise.Button>
-    <Blazorise.Button Color="@Blazorise.Color.Secondary" PreventDefaultOnSubmit="true" Clicked="@Cancel">Annuler</Blazorise.Button>
+    @*<Blazorise.Button Color="@Blazorise.Color.Secondary" PreventDefaultOnSubmit="true" Clicked="@Cancel">Annuler</Blazorise.Button>*@
 </EditForm>
 
 @code {
     [Parameter]
     public LoginModel Model { get; set; }
-
-    [Parameter]
-    public string ReturnUrl { get; set; }
 
     public class LoginModel
     {
@@ -44,10 +41,6 @@
         Console.WriteLine("Saving login info...");
         // todo POST to api and receive basic auth token and user role, then save in cookie.
         Console.WriteLine("...Login info Saved.");
-    }
-
-    public void Cancel()
-    {
-        Navigation.NavigateTo(ReturnUrl);
+        Navigation.NavigateTo("/MandateList");
     }
 }

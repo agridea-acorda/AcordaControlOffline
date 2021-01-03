@@ -1,5 +1,4 @@
-﻿@page "/login"
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+﻿@page "/Login"
 @inject NavigationManager Navigation
 
 <div class="card">
@@ -9,21 +8,19 @@
     <div class="card-body">
         @if (initialized)
         {
-            <LoginComponent Model="@loginModel" ReturnUrl="@returnUrl"></LoginComponent>
+            <LoginComponent Model="@loginModel"></LoginComponent>
         }
     </div>
 </div>
 
 @code {
 
-    string returnUrl;
     bool initialized;
     LoginComponent.LoginModel loginModel;
 
     protected override void OnInitialized()
     {
         Console.WriteLine("Executing OnInitialized from Login");
-        returnUrl = Navigation.QueryString("returnUrl");
         loginModel = LoginComponent.LoginModel.Empty();
         initialized = true;
     }
