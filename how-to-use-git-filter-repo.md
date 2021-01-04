@@ -2,7 +2,7 @@
 
 ## A quoi ça sert ?
 
-`git-filter-repo` est une extension pour git permettant de réécrire l'historique d'une repo git. Elle n'est pas incluse par défaut avec git, il faut l'installer séparément. Elle est utile pour supprimer des informations sensibles qui ont été commitées par le passé dans une repo (mots de passe, documents condifentiels, ...). La ré-écriture de l'historique est une opération ***destructive*** et ***irréversible***: la repo est 'trafiquée' pour modifier l'historique des versions, ce n'est pas une opération git standard. Pour cette raison, l'auteur recommande de travailler sur une repo locale fraichement clonée et de backuper au préalable la repo distante.
+`git-filter-repo` est une extension pour git permettant de réécrire l'historique d'une repo git. Elle n'est pas incluse par défaut avec git, il faut l'installer séparément. Elle est utile pour supprimer des informations sensibles qui ont été commitées par le passé dans une repo (mots de passe, documents confidentiels, ...). La ré-écriture de l'historique est une opération ***destructive*** et ***irréversible***: la repo est 'trafiquée' pour modifier l'historique des commits, ce n'est pas une opération git standard. Pour cette raison, l'auteur recommande de travailler sur une repo locale fraichement clonée et de backuper au préalable la repo distante.
 Prendre le temps de lire au préalable la [page github](https://github.com/newren/git-filter-repo) et la [page de manuel](https://www.mankier.com/1/git-filter-repo) de l'outil.
 
 ## Installation
