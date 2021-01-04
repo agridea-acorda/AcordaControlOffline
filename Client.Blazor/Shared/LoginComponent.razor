@@ -1,5 +1,8 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+@using Newtonsoft.Json
 @inject NavigationManager Navigation
+@inject IJSRuntime Js
 
 <EditForm Model="@Model" OnSubmit="@FormSubmitted">
     <Blazorise.Field>
@@ -19,7 +22,7 @@
             }
         </Blazorise.Select>
     </Blazorise.Field>
-    <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="true">Connexion</Blazorise.Button>
+    <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="false">Connexion</Blazorise.Button>
     @*<Blazorise.Button Color="@Blazorise.Color.Secondary" PreventDefaultOnSubmit="true" Clicked="@Cancel">Annuler</Blazorise.Button>*@
 </EditForm>
 
@@ -36,10 +39,14 @@
         public static LoginModel Empty() => new LoginModel();
     }
 
-    public void FormSubmitted()
+    public async Task FormSubmitted(EditContext editContext)
     {
         Console.WriteLine("Saving login info...");
-        // todo POST to api and receive basic auth token and user role, then save in cookie.
+        var model = (LoginModel) editContext.Model;
+        string basicAuthToken = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{model.Username}:{model.Password}"));
+        string role = "inspector"; // todo get role from api POST to /login
+        var auth = new Auth(model.Username, role, model.CantonCode, basicAuthToken);
+        await Js.InvokeAsync<string>(JsInterop.SetCookie, Auth.CookieName, JsonConvert.SerializeObject(auth), Settings.AuthCookieExpiryDays);
         Console.WriteLine("...Login info Saved.");
         Navigation.NavigateTo("/MandateList");
     }
