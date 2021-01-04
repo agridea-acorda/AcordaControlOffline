@@ -66,10 +66,24 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain
             "img/cantons/VD_big.png"
         );
         public static Canton[] Cantons = { VD, JU, NE, GE };
+        
+        public static Canton None = new Canton(
+            Unselected,
+            "",
+            "",
+            "",
+            "",
+            ""
+        );
 
         public static bool IsValid(string cantonCode)
         {
             return Cantons.Select(x => x.Code).Contains(cantonCode);
+        }
+
+        public static Canton ParseFromCode(string cantonCode)
+        {
+            return Cantons.FirstOrDefault(x => x.Code == cantonCode);
         }
 
         protected override IEnumerable<object> GetEqualityComponents()

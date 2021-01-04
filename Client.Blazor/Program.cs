@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
@@ -22,14 +23,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.RootComponents.Add<App>("app");
             
             // Acordacontrol api
-            builder.Services.AddHttpClient<IApiClient, SampleDataApiClient>(nameof(SampleDataApiClient),
+            builder.Services.AddHttpClient<IApiClient, ApiClient>(nameof(ApiClient),
                                                                           client =>
                                                                           {
                                                                               // sample data in local json file
-                                                                              client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-                                                                              
-                                                                              //// real api
-                                                                              //client.BaseAddress = new Uri(apiSettings.BaseAddress);
+                                                                              //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+
+                                                                              // real api
+                                                                              client.BaseAddress = new Uri(Settings.ApiBaseAddres);
                                                                               //client.DefaultRequestHeaders.Add("api-key", apiSettings.ApiKey);
                                                                           });
             
