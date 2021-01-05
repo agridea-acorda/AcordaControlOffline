@@ -1,8 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using CSharpFunctionalExtensions;
@@ -15,9 +12,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
     {
         private const int DefaultDelayInMs = 0;
         private readonly HttpClient httpClient_;
+        private string basicAuthToken_ = "";
         public ApiClient(HttpClient httpClient)
         {
             httpClient_ = httpClient;
+        }
+
+        public void SetAuthToken(string basicAuthToken)
+        {
+            basicAuthToken_ = basicAuthToken;
         }
 
         public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchAllMandatesAsync(string uri)
@@ -90,7 +93,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 
         private async Task<HttpResponseMessage> SendRequest(string uri, int delayInMs)
         {
-            string authHeaderValue = "Basic --Base64-encoded-credentials-here--";
+            string authHeaderValue = "Basic " + basicAuthToken_;
 
             if (delayInMs > 0)
             {

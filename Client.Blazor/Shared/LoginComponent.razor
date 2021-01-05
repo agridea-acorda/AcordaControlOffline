@@ -1,8 +1,7 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
-@using Newtonsoft.Json
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
 @inject NavigationManager Navigation
-@inject IJSRuntime Js
+@inject IAuthService AuthService
 
 <EditForm Model="@Model" OnSubmit="@FormSubmitted">
     <Blazorise.Field>
@@ -42,11 +41,12 @@
     public async Task FormSubmitted(EditContext editContext)
     {
         Console.WriteLine("Saving login info...");
-        var model = (LoginModel) editContext.Model;
-        string basicAuthToken = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{model.Username}:{model.Password}"));
-        string role = "inspector"; // todo get role from api POST to /login
-        var auth = new Auth(model.Username, role, model.CantonCode, basicAuthToken);
-        await Js.InvokeAsync<string>(JsInterop.SetCookie, Auth.CookieName, JsonConvert.SerializeObject(auth), Settings.AuthCookieExpiryDays);
+        var model = (LoginModel)editContext.Model;
+        //string basicAuthToken = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{model.Username}:{model.Password}"));
+        //string role = "inspector"; // todo get role from api POST to /login
+        //var auth = new Auth(model.Username, role, model.CantonCode, basicAuthToken);
+        //await Js.InvokeAsync<string>(JsInterop.SetCookie, Auth.CookieName, JsonConvert.SerializeObject(auth), Settings.AuthCookieExpiryDays);
+        await AuthService.Login(model);
         Console.WriteLine("...Login info Saved.");
         Navigation.NavigateTo("/MandateList");
     }

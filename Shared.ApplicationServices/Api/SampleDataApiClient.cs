@@ -17,6 +17,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             httpClient_ = httpClient;
         }
 
+        public void SetAuthToken(string basicAuthToken)
+        {
+            // do nothing
+        }
+
         public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchAllMandatesAsync(string uri)
         {
             return await FetchTypedAsync<ViewModel.MandateList.Mandate[]>(uri);
