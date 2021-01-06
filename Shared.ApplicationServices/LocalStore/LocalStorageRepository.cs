@@ -16,7 +16,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     public class LocalStorageRepository : IRepository
     {
         public const string Mandates = "mandates";
-        public const string MandateDetail = "mandateDetail";
         public const string Checklist = "checklist";
         public const string ActionsOrDocuments = "actionsOrDocuments";
 
@@ -34,6 +33,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public async ValueTask<Mandate[]> ReadAllMandatesAsync()
         {
             return await localStorage_.GetItemAsync<Mandate[]>(Mandates);
+        }
+
+        public async ValueTask ClearMandatesListAsync()
+        {
+            await localStorage_.RemoveItemAsync(Mandates);
         }
 
         public async ValueTask<bool> HasMandateAsync(int farmId)

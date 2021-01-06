@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
@@ -11,6 +10,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     {
         ValueTask SaveMandatesAsync(Mandate[] mandates);
         ValueTask<Mandate[]> ReadAllMandatesAsync();
+        ValueTask ClearMandatesListAsync();
         ValueTask<bool> HasMandateAsync(int farmId);
         ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId);
         ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id);
