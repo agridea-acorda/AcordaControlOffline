@@ -15,7 +15,7 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <div class="card">
+        @*<div class="card">
             <div class="card-header">
                 <h3 class="card-title">Filtre</h3>
                 <div class="card-tools">
@@ -30,7 +30,7 @@
             <div class="card-footer">
                 <button class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
             </div>
-        </div>
+        </div>*@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
@@ -134,7 +134,6 @@
         {
             DateTime started = DateTime.Now;
             Console.WriteLine($"Reading mandates from api (started {started.ToDetailedTime()})...");
-            //var mandatesResult = await Api.FetchAllMandatesAsync("sample-data/mandates-from-api.json");
             var mandatesResult = await Api.FetchAllMandatesAsync("mandates");
             TimeSpan elapsed = DateTime.Now - started;
             Console.WriteLine($"Mandates read succesfully (elasped {elapsed}).");
@@ -165,32 +164,36 @@
         }
     }
 
-    async Task DownloadMandate(Mandate mandate, int farmId)
+    async Task DownloadMandate(Mandate mandateModel, int farmId)
     {
-        var syncStatus = mandate.SyncStatus;
-        mandate.SyncStatus = SyncStatus.Loading;
+        var savedSyncStatus = mandateModel.SyncStatus;
+        mandateModel.SyncStatus = SyncStatus.Loading;
 
-        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"sample-data/mandate_FarmId{farmId}.json"),
+        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"mandates/{farmId}"),
                                    json => Repository.SaveMandateJsonAsync(json, farmId)))
         {
-            mandate.SyncStatus = syncStatus;
+            mandateModel.SyncStatus = savedSyncStatus;
         }
 
-        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"sample-data/farm_Id{farmId}.json"),
+        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"farms/{farmId}"),
                                    json => Repository.SaveFarmJsonAsync(json, farmId)))
         {
-            mandate.SyncStatus = syncStatus;
+            mandateModel.SyncStatus = savedSyncStatus;
         }
 
-        // todo read mandate and fetch/save each checklist
-        int farmInspectionId = 83811;
-        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"sample-data/checklist_real_FarmInspectionId{farmInspectionId}.json"),
-                               data => Repository.SaveChecklistJsonAsync(data, farmInspectionId)))
-        {
-            mandate.SyncStatus = syncStatus;
-        }
+        var mandate = await Repository.ReadMandateAsync(farmId);
+        if (mandate != null)
+            foreach (var inspection in mandate.Inspections)
+            {
+                if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"checklists/{inspection.FarmInspectionId}"),
+                                           data => Repository.SaveChecklistJsonAsync(data, inspection.FarmInspectionId)))
+                {
+                    mandateModel.SyncStatus = savedSyncStatus;
+                }
+            }
+        else mandateModel.SyncStatus = savedSyncStatus;
 
-        mandate.SyncStatus = SyncStatus.Loaded;
+        mandateModel.SyncStatus = SyncStatus.Loaded;
     }
 
     async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
