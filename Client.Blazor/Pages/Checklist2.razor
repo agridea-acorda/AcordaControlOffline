@@ -1,8 +1,10 @@
 ﻿@inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
+@attribute [Authorize]
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
 @inject IRepository Repository
 
@@ -42,7 +44,7 @@
 <div class="card">
     <div class="card-header">
         @*<p class="float-right text-sm text-secondary mb-0 @(showSaving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement...</p>
-        <p class="float-right text-sm text-secondary mb-0 @(showSaved ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>*@
+            <p class="float-right text-sm text-secondary mb-0 @(showSaved ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>*@
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">

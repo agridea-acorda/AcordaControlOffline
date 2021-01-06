@@ -6,6 +6,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
     public class Auth: ValueObject
     {
         public const string CookieName = "auth";
+        public const string Unauthenticated = "?";
         public Auth(string username, string role, string cantonCode, string token)
         {
             Username = username;

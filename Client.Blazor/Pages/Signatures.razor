@@ -1,7 +1,9 @@
 ﻿@page "/Signatures/{FarmInspectionId:int}"
+@attribute [Authorize]
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
+@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
 @inject IRepository Repository
 

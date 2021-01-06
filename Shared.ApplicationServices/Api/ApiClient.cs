@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
@@ -12,15 +13,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
     {
         private const int DefaultDelayInMs = 0;
         private readonly HttpClient httpClient_;
-        private string basicAuthToken_ = "";
         public ApiClient(HttpClient httpClient)
         {
+            Console.WriteLine("Constructing new instance of ApiClient.");
             httpClient_ = httpClient;
-        }
-
-        public void SetAuthToken(string basicAuthToken)
-        {
-            basicAuthToken_ = basicAuthToken;
         }
 
         public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchAllMandatesAsync(string uri)
@@ -93,16 +89,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 
         private async Task<HttpResponseMessage> SendRequest(string uri, int delayInMs)
         {
-            string authHeaderValue = "Basic " + basicAuthToken_;
-
             if (delayInMs > 0)
             {
                 await Task.Delay(delayInMs);
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            //string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
-            request.Headers.Add("Authorization", authHeaderValue);
+            //string authHeaderValue = "Basic " + basicAuthToken_;
+            //request.Headers.Add("Authorization", "Basic " + basicAuthToken_);
+            //Console.WriteLine($"ApiClient sending request with basic auth token={{{authHeaderValue}}}");
             var httpResponse = await httpClient_.SendAsync(request);
             httpResponse.EnsureSuccessStatusCode();
             return httpResponse;

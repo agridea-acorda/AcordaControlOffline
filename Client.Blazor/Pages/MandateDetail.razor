@@ -1,4 +1,5 @@
 ﻿@page "/MandateDetail/{FarmId:int}"
+@attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
@@ -7,6 +8,7 @@
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Microsoft.AspNetCore.Authorization
 
 @if (mandateViewModel?.Farm != null)
 {
@@ -97,7 +99,7 @@ else
                         <button class="btn btn-app h-auto @complianceButtonColor" @onclick="() => ShowComplianceModal(index)">
                             <i class="far fa-copy"></i>Suivi documents
                         </button>
-                        <ProgressBar Progress="@inspection"/>
+                        <ProgressBar Progress="@inspection" />
                         @if (inspection.HasComplianceRequirements)
                         {
                             <p class="mb-1">

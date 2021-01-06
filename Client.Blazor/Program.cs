@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -23,18 +24,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
-            
-            // Acordacontrol api
-            builder.Services.AddHttpClient<IApiClient, ApiClient>(nameof(ApiClient),
-                                                                          client =>
-                                                                          {
-                                                                              // sample data in local json file
-                                                                              //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 
-                                                                              // real api
-                                                                              client.BaseAddress = new Uri(Settings.ApiBaseAddres);
-                                                                              //client.DefaultRequestHeaders.Add("api-key", apiSettings.ApiKey);
-                                                                          });
+            // Acordacontrol api
+            builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(Settings.ApiBaseAddres) });
+            builder.Services.AddScoped<IApiClient, ApiClient>();
+            //builder.Services.AddHttpClient<IApiClient, ApiClient>(nameof(ApiClient),
+            //                                                              client =>
+            //                                                              {
+            //                                                                  // sample data in local json file
+            //                                                                  //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+
+            //                                                                  // real api
+            //                                                                  client.BaseAddress = new Uri(Settings.ApiBaseAddres);
+            //                                                                  //client.DefaultRequestHeaders.Add("api-key", apiSettings.ApiKey);
+            //                                                              });
             
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
@@ -43,6 +46,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // auth
             builder.Services.AddAuthorizationCore();
             builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             // Events
             builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();

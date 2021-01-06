@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
@@ -10,13 +11,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
 {
     public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private IApiClient apiClient_;
-        private IJSRuntime jsRuntime_;
+        private readonly IJSRuntime jsRuntime_;
+        private readonly HttpClient httpClient_;
 
-        public ApiAuthenticationStateProvider(IApiClient apiClient, IJSRuntime jsRuntime)
+        public ApiAuthenticationStateProvider(HttpClient httpClient, IJSRuntime jsRuntime)
         {
-            apiClient_ = apiClient;
             jsRuntime_ = jsRuntime;
+            httpClient_ = httpClient;
         }
         
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -27,20 +28,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
             var authData = JsonConvert.DeserializeObject<AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth>(authCookie);
-            apiClient_.SetAuthToken(authData.Token);
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, authData.Username),
-                new Claim(ClaimTypes.Role, authData.Role),
-                new Claim(ClaimTypes.StateOrProvince, authData.CantonCode),
-            };
-            var claimsIdentity = new ClaimsIdentity(claims, "basicAuth");
+            httpClient_.SetBasicAuthToken(authData.Token);
+            var claimsIdentity = GetClaimsFromAuthModel(authData);
             return new AuthenticationState(new ClaimsPrincipal(claimsIdentity));
         }
 
-        public void MarkUserAsAuthenticated(string username)
+        public void MarkUserAsAuthenticated(AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth authModel)
         {
-            var authenticated = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, username) }, "basicAuth"));
+            var authenticated = new ClaimsPrincipal(GetClaimsFromAuthModel(authModel));
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(authenticated)));
         }
 
@@ -48,6 +43,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
         {
             var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymous)));
+        }
+
+        private ClaimsIdentity GetClaimsFromAuthModel(AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth authModel)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, authModel.Username),
+                new Claim(ClaimTypes.Role, authModel.Role),
+                new Claim(ClaimTypes.StateOrProvince, authModel.CantonCode),
+            };
+            var claimsIdentity = new ClaimsIdentity(claims, "basicAuth");
+            return claimsIdentity;
         }
     }
 }

@@ -1,67 +1,42 @@
-﻿@inject IJSRuntime Js
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
+@using System.Security.Claims
 
-@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
 <li class="nav-item dropdown">
     <a class="nav-link" data-toggle="dropdown" href="#">
         <i class="fas fa-shield-alt mr-1"></i>
-        @if (isCantonChosen)
-        {
-            <strong>@canton.Code</strong>
-        }
-        else
-        {
-            <strong>@Canton.Unselected</strong>
-        }
+        <AuthorizeView>
+            <Authorized><span>@(context.User.FindFirst(x => x.Type == ClaimTypes.StateOrProvince)?.Value ?? "")</span></Authorized>
+            <NotAuthorized><span>@Canton.Unselected</span></NotAuthorized>
+        </AuthorizeView>
     </a>
     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
         <div class="dropdown-header bg-gradient-success">
-            @if (isCantonChosen)
-            {
-                <img src="@canton.ImgSrcBig" class="img-thumbnail" alt="Drapeau canton" />
-                <p>@canton.FriendlyName</p>
-            }
-            else
-            {
-                <span class="fa-stack fa-3x">
-                    <i class="far fa-square fa-stack-2x fa-inverse"></i>
-                    <i class="fas fa-shield-alt fa-stack-1x fa-inverse"></i>
-                </span>
-                <p>Choisir le canton</p>
-            }
+            <AuthorizeView>
+                <Authorized>
+                    @{
+                        var canton = Canton.None;
+                        string cantonCode = context.User.FindFirst(x => x.Type == ClaimTypes.StateOrProvince)?.Value ?? "";
+                        bool isCantonChosen = !string.IsNullOrEmpty(cantonCode) && Canton.IsValid(cantonCode);
+                        if (isCantonChosen)
+                        {
+                            canton = Canton.ParseFromCode(cantonCode);
+                        }
+                    }
+                    <img src="@canton.ImgSrcBig" class="img-thumbnail" alt="Drapeau canton"/>
+                    <p>@canton.FriendlyName</p>
+                </Authorized>
+                <NotAuthorized>
+                    <span class="fa-stack fa-3x">
+                        <i class="far fa-square fa-stack-2x fa-inverse"></i>
+                        <i class="fas fa-shield-alt fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <p>Aucun canton sélectionné</p>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
-        <div class="row m-2">
-            @foreach (Canton canton in Canton.Cantons)
-            {
-                bool selected = isCantonChosen && this.canton.Code == canton.Code;
-                <div class="col-sm-3 text-center">
-                    <a href="#">
-                        <img src="@(selected ? canton.ImgSrcInactive : canton.ImgSrc)" class="img-rounded" alt="Drapeau @canton.Code petit" />
-                        <p>@canton.Code</p>
-                    </a>
-                </div>
-            }
-        </div>
-        @if (isCantonChosen)
-        {
-            <div class="dropdown-divider"></div>
-            <div class="dropdown-footer text-left">
-                <button type="button" class="btn btn-default mb-1"><i class="fas fa-door-open"></i> Sortir</button>
-            </div>
-        }
     </div>
 </li>
-@code {
-    bool isCantonChosen = false;
-    Canton canton = Canton.None;
 
-    protected override async Task OnInitializedAsync()
-    {
-        string cantonCode = await Js.InvokeAsync<string>(JsInterop.ReadCookie, nameof(cantonCode));
-        isCantonChosen = !string.IsNullOrEmpty(cantonCode) && Canton.IsValid(cantonCode);
-        if (isCantonChosen)
-        {
-            canton = Canton.ParseFromCode(cantonCode);
-        }
-    }
+@code {
 
 }

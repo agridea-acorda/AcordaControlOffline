@@ -1,4 +1,5 @@
 ﻿@page "/MandateList"
+@attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IApiClient Api
@@ -8,6 +9,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 @using CSharpFunctionalExtensions
+@using Microsoft.AspNetCore.Authorization
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
 
@@ -54,7 +56,7 @@
                                     </button>
                                 }
                                 @if (mandate.SyncStatus == SyncStatus.Unavailable ||
-                                 mandate.SyncStatus == SyncStatus.Loading)
+                                mandate.SyncStatus == SyncStatus.Loading)
                                 {
                                     <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
                                         @if (mandate.SyncStatus != SyncStatus.Loading)
