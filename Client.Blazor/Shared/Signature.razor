@@ -1,0 +1,48 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Inspection
+<EditForm>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Signature</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="@nameof(Model.Signatory)">Nom</label>
+                <InputText type="text" class="form-control" @bind-Value="@Model.Signatory" />
+            </div>
+            @if (Model.ShowProxy)
+            {
+                <div class="form-group">
+                    <label for="@nameof(Model.Proxy)">Donne procuration à:</label>
+                    <InputText type="text" class="form-control" @bind-Value="@Model.Proxy" />
+                </div>
+            }
+        <div class="form-group">
+            <label>Signature:</label>
+            @*use <SignaturePad /> component from https://www.mobsites.com/blazor/signature-pad*@
+            @*Must fork the code and add a public method to save raw data (look at js function saveSignatureState*@
+        </div>
+        </div>
+        <div class="card-footer"></div>
+    </div>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public SignatureModel Model { get; set; }
+
+    public class SignatureModel
+    {
+        public string Signatory { get; set; }
+        public string Proxy { get; set; }
+        public bool ShowProxy { get; set; }
+        public string Data { get; set; }
+        public string DataUrl { get; set; }
+    }
+
+    void Erase()
+    {
+
+    }
+
+}
