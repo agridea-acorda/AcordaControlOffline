@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Agridea.Blazor.SignaturePad" Version="1.1.10" />
     <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
     <PackageReference Include="Blazorise" Version="0.9.2.4" />
     <PackageReference Include="Blazorise.Bootstrap" Version="0.9.2.4" />
