@@ -61,11 +61,11 @@
         </div>
         <div class="form-group">
             <label>Le contrôleur n'a pas encore signé</label>
-            <button class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+            <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl="))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
         </div>
         <div class="form-group">
             <label>L'exploitant n'a pas encore signé</label>
-            <button class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+            <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl="))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
         </div>
         <p>
             <a href="" @onclick:preventDefault>Cliquer ici pour un contrôleur additionnel</a>

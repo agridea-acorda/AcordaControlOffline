@@ -4,6 +4,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.M
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore {
     public interface IRepository
@@ -24,5 +25,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask SaveActionsOrDocumentsAsync(ActionsOrDocumentEditModel model);
         ValueTask SaveChecklistAsync(Checklist checklist);
         Task<Checklist> ReadChecklistAsync(int farmInspectionId);
+        ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId);
     }
 }

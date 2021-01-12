@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
@@ -9,6 +10,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.M
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Blazored.LocalStorage;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
@@ -50,6 +52,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             string json = await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
             return new MandateFactory().Parse(json);
+        }
+
+        public async ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId)
+        {
+            string json = await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+            var mandate = new MandateFactory().Parse(json);
+            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+            return inspection?.InspectorSignature ?? Signature.None;
         }
 
         public async ValueTask<Farm> ReadFarmAsync(int farmId)

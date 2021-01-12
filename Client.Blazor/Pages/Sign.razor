@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
+
+@page "/Sign/{FarmInspectionId:int}"
+@attribute [Authorize]
+@inject NavigationManager Navigation
+@inject IRepository Repository
+
+@if (signatureModel != null)
+{
+    <Signature Model="@signatureModel" />
+}
+
+@code {
+    [Parameter]
+    public int FarmInspectionId { get; set; }
+    string returnUrl;
+    int farmId;
+    SignatureModel signatureModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        farmId = int.Parse(Navigation.QueryString("FarmId"));
+        returnUrl = Navigation.QueryString("ReturnUrl");
+        await base.OnInitializedAsync();
+        var signature = await Repository.ReadInspectorSignatureAsync(farmId, FarmInspectionId);
+        signatureModel = SignatureModel.FromDomain(signature);
+    }
+}
