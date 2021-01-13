@@ -64,7 +64,8 @@
 
     private async Task SignatureChanged(ChangeEventArgs eventArgs)
     {
-        Model.Data = await signaturePad.ToData();
+        //Model.Data = await signaturePad.ToData();
+        Model.Data = await LocalStorage.GetItemAsStringAsync("Mobsites.Blazor.SignaturePad.DataURL");
         Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
     }
 
@@ -73,8 +74,8 @@
         var model = (SignatureModel) editContext.Model;
         Model.Signatory = model.Signatory;
         Model.Proxy = model.Proxy;
-        Model.Data = await signaturePad.ToData();
-        Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
+        //Model.Data = await signaturePad.ToData();
+        //Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
         await OnSave.InvokeAsync(Model);
 
     }
