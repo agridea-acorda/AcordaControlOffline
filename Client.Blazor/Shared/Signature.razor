@@ -53,7 +53,7 @@
     protected override void OnInitialized()
     {
         Console.WriteLine("Loading signature with data: " + Model.Data);
-        //LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data);
+        LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data);
     }
 
     //protected override async Task OnAfterRenderAsync(bool firstRender)
