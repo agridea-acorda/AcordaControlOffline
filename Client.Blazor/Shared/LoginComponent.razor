@@ -1,5 +1,5 @@
-﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Login
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
 
@@ -27,15 +27,6 @@
 @code {
     [Parameter]
     public LoginModel Model { get; set; }
-
-    public class LoginModel
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string CantonCode { get; set; }
-        public IEnumerable<SelectListItem<string>> ComboCantons { get; set; } = Combo.Cantons();
-        public static LoginModel Empty() => new LoginModel();
-    }
 
     public async Task FormSubmitted(EditContext editContext)
     {

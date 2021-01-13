@@ -2,6 +2,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
+@using Newtonsoft.Json
 
 @page "/Sign/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -10,7 +11,7 @@
 
 @if (signatureModel != null)
 {
-    <Signature Model="@signatureModel" />
+    <Signature Model="@signatureModel" OnSave="@Save" />
 }
 
 @code {
@@ -27,5 +28,11 @@
         await base.OnInitializedAsync();
         var signature = await Repository.ReadInspectorSignatureAsync(farmId, FarmInspectionId);
         signatureModel = SignatureModel.FromDomain(signature);
+    }
+
+    async Task Save(SignatureModel model)
+    {
+        var signature = new AcordaControlOffline.Shared.Domain.Inspection.Signature(model.Signatory, model.Proxy, model.Data, model.DataUrl);
+        await Repository.SaveInspectorSignatureAsync(farmId, FarmInspectionId, signature);
     }
 }

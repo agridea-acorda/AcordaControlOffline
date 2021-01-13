@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Login;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
@@ -24,7 +23,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
             httpClient_ = httpClient;
         }
 
-        public async Task Login(LoginComponent.LoginModel loginModel)
+        public async Task Login(LoginModel loginModel)
         {
             string basicAuthToken = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{loginModel.CantonCode}.{loginModel.Username}:{loginModel.Password}"));
             string role = "inspector"; // todo get role from api POST to /login
@@ -44,7 +43,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
 
     public interface IAuthService
     {
-        Task Login(LoginComponent.LoginModel loginModel);
+        Task Login(LoginModel loginModel);
         Task Logout();
     }
 }

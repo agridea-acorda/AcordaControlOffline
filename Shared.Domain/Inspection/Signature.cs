@@ -28,8 +28,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
             if (!IsEmpty() && string.IsNullOrWhiteSpace(dataUrl))
                 throw new ArgumentNullException(nameof(dataUrl), "Signature image must be non-empty.");
 
-            if (!IsEmpty() && string.IsNullOrWhiteSpace(Signatory))
-                throw new ArgumentNullException(nameof(signatory), $"{nameof(Signatory)} must be non-empty.");
+            if (!IsEmpty() && string.IsNullOrWhiteSpace(signatory))
+                throw new ArgumentNullException(nameof(signatory), $"{nameof(signatory)} must be non-empty.");
 
             Signatory = signatory;
             Proxy = proxy;

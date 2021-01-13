@@ -1,4 +1,5 @@
 ﻿@page "/Login"
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Login
 @inject NavigationManager Navigation
 
 <div class="card">
@@ -16,12 +17,12 @@
 @code {
 
     bool initialized;
-    LoginComponent.LoginModel loginModel;
+    LoginModel loginModel;
 
     protected override void OnInitialized()
     {
         Console.WriteLine("Executing OnInitialized from Login");
-        loginModel = LoginComponent.LoginModel.Empty();
+        loginModel = LoginModel.Empty();
         initialized = true;
     }
 

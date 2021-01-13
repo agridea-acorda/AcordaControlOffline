@@ -56,10 +56,19 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId)
         {
-            string json = await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
-            var mandate = new MandateFactory().Parse(json);
+            var mandate = await ReadMandateAsync(farmId);
             var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
             return inspection?.InspectorSignature ?? Signature.None;
+        }
+
+        public async ValueTask SaveInspectorSignatureAsync(int farmId, int farmInspectionId, Signature signature)
+        {
+            var mandate = await ReadMandateAsync(farmId);
+            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+            if (inspection != null)
+                inspection.InspectorSigns(signature);
+            
+            await localStorage_.SetItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
         }
 
         public async ValueTask<Farm> ReadFarmAsync(int farmId)

@@ -1,4 +1,6 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
+@using Blazored.LocalStorage
+@inject ILocalStorageService LocalStorage
 
 <EditForm Model="@Model" OnSubmit="@Save">
     <div class="card">
@@ -18,11 +20,11 @@
                 </div>
             }
             <div class="form-group">
-                <label>Signature:</label>
-                <SignaturePad  @ref="@signaturePad">
+                <label>Signez ci-dessous</label>
+                <SignaturePad KeepState Color="#5c2d91"  @ref="signaturePad" OnSignatureChange="@SignatureChanged">
                     <SignaturePadFooter>
-                        <SignaturePadClear />
-                        <SignaturePadUndo />
+                        <SignaturePadClear><i class="fas fa-eraser"></i> Effacer tout</SignaturePadClear>
+                        <SignaturePadUndo><i class="fas fa-undo"></i> Effacer le dernier trait de crayon</SignaturePadUndo>
                     </SignaturePadFooter>
                 </SignaturePad>
             </div>
@@ -32,26 +34,55 @@
         </div>
     </div>
 </EditForm>
+@*<button @onclick="@Load" class="btn btn-primary">Load</button>*@
+<p>@Model.Signatory</p>
+<p>@Model.Proxy</p>
+<p>@Model.Data</p>
+<p>@Model.DataUrl</p>
 
 @code {
 
     [Parameter]
     public SignatureModel Model { get; set; }
 
+    [Parameter]
+    public EventCallback<SignatureModel> OnSave { get; set; }
+
     SignaturePad signaturePad;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Console.WriteLine("Loading signature with data: " + Model.Data);
-        //await signaturePad.LoadSignature(Model.Data);
+        //LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data);
+    }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    //await signaturePad.LoadSignature(Model.Data);
+    //    //await signaturePad.RestoreSignatureState();
+    //}
+
+    private async Task SignatureChanged(ChangeEventArgs eventArgs)
+    {
+        Model.Data = await signaturePad.ToData();
+        Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
     }
 
     async Task Save(EditContext editContext)
     {
+        var model = (SignatureModel) editContext.Model;
+        Model.Signatory = model.Signatory;
+        Model.Proxy = model.Proxy;
         Model.Data = await signaturePad.ToData();
         Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
-        Console.WriteLine($"Signature Data: {Model.Data}");
-        Console.WriteLine($"Signature DataUrl: {Model.DataUrl}");
+        await OnSave.InvokeAsync(Model);
+
     }
+
+    //async Task Load()
+    //{
+    //    Console.WriteLine($"Loading signature with data: {Model.Data}");
+    //    await signaturePad.LoadSignature(Model.Data);
+    //}
 
 }
