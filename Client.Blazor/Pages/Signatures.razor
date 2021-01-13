@@ -7,24 +7,42 @@
 @inject NavigationManager Navigation
 @inject IRepository Repository
 
-@if (actionsOrDocumentEditModel_ != null)
+@if (isInitialized)
 {
-    <EditForm Model="@actionsOrDocumentEditModel_" OnSubmit="@FormSubmitted">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Rapport de contrôle</div>
+            <div class="card-tools">
+                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + FarmId)'>
+                    <i class="fas fa-arrow-left"></i>
+                    Retour Check-Liste
+                </button>
+                <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
+                    <i class="fas fa-arrow-right"></i>
+                    Mandat
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <button class="btn btn-primary"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
+            </div>
+            <div class="form-group">
+                <div class="callout callout-info">
+                    <p>L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle. En cas de contestation, une réclamation écrite avec les points contestés peut être adressée dans les trois jours ouvrables suivant le contrôle à l'organisme d'inspection ayant effectué le contrôle.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (isInitialized)
+{
+    <EditForm Model="@actionsOrDocumentEditModel_" OnSubmit="@SaveActionsOrDocuments">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Remarques / Documents / Mesures</h3>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + FarmId)'>
-                        <i class="fas fa-arrow-left"></i>
-                        Retour Check-Liste
-                    </button>
-                    <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
-                        <i class="fas fa-arrow-right"></i>
-                        Mandat
-                    </button>
-                </div>
             </div>
-
             <div class="card-body">
                 <div class="form-group"></div>
                 <div class="form-group">
@@ -45,33 +63,59 @@
                 {
                     <button type="submit" class="btn btn-primary"><i class="far fa-save"></i> Enregistrer</button>
                 }
-                <button class="btn btn-default"><i class="far fa-file-pdf"></i> Rapport de contrôle provisoire</button>
             </div>
         </div>
     </EditForm>
 }
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Signatures</h3>
+@if (isInitialized)
+{
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Signatures</h3>
+        </div>
+        <div class="card-body">
+            @if (signatures.InspectorHasSigned)
+            {
+                <div class="form-group">
+                    <label>Le contrôleur @signatures.InspectorDisplay</label>
+                    <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%" />
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <label>Le contrôleur n'a pas encore signé</label>
+                    <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl={Navigation.Uri}"))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+                </div>
+            }
+            @if (signatures.FarmerHasSigned)
+            {
+                <div class="form-group">
+                    <label>Le contrôleur @signatures.FarmerDisplay</label>
+                    <img src="@signatures.FarmerSignature.DataUrl" style="width: 100%" />
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <label>L'exploitant n'a pas encore signé</label>
+                    <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl={Navigation.Uri}"))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+                </div>
+            }
+            @if (signatures.AdditionalInspectionHasSigned)
+            {
+                <div class="form-group">
+                    <label>Contrôleur additionnel @signatures.AdditionalInspectorDisplay</label>
+                    <img src="@signatures.AdditionalSignature.DataUrl" style="width: 100%" />
+                </div>
+            }
+            <p>
+                <a href="" @onclick:preventDefault>Cliquer ici pour un contrôleur additionnel</a>
+            </p>
+        </div>
     </div>
-    <div class="card-body">
-        <div class="callout callout-info">
-            <p>L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle. En cas de contestation, une réclamation écrite avec les points contestés peut être adressée dans les trois jours ouvrables suivant le contrôle à l'organisme d'inspection ayant effectué le contrôle.</p>
-        </div>
-        <div class="form-group">
-            <label>Le contrôleur n'a pas encore signé</label>
-            <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl="))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
-        </div>
-        <div class="form-group">
-            <label>L'exploitant n'a pas encore signé</label>
-            <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl="))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
-        </div>
-        <p>
-            <a href="" @onclick:preventDefault>Cliquer ici pour un contrôleur additionnel</a>
-        </p>
-    </div>
-</div>
+}
 
 @code {
     [Parameter]
@@ -81,14 +125,50 @@
     ActionsOrDocumentEditModel actionsOrDocumentEditModel_;
     bool needsSaving = false;
 
+    SignaturesDisplay signatures;
+    bool isInitialized;
+
+    public class SignaturesDisplay
+    {
+        public SignatureModel FarmerSignature { get; set; }
+        public SignatureModel InspectorSignature { get; set; }
+        public SignatureModel AdditionalSignature { get; set; }
+        public string FarmerDisplay { get; set; }
+        public string InspectorDisplay { get; set; }
+        public string AdditionalInspectorDisplay { get; set; }
+        public bool FarmerHasSigned { get; set; }
+        public bool InspectorHasSigned { get; set; }
+        public bool AdditionalInspectionHasSigned { get; set; }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         actionsOrDocumentEditModel_ = await Repository.ReadActionsOrDocumentsAsync() ?? new ActionsOrDocumentEditModel();
         FarmId = int.Parse(Navigation.QueryString("FarmId"));
-        await base.OnInitializedAsync();
+        var farm = await Repository.ReadFarmAsync(FarmId);
+        var mandate = await Repository.ReadMandateAsync(FarmId);
+        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
+        if (inspection == null)
+            Console.WriteLine($"Error loading inspection with FarmInspectionId={FarmInspectionId}");
+        else
+        {
+            signatures = new SignaturesDisplay();
+            signatures.FarmerSignature = SignatureModel.FromDomain(inspection.FarmerSignature);
+            signatures.InspectorSignature = SignatureModel.FromDomain(inspection.InspectorSignature);
+            signatures.AdditionalSignature = SignatureModel.FromDomain(inspection.Inspector2Signature);
+            signatures.FarmerDisplay = inspection.FarmerSignature.HasProxy
+                                           ? $"(représenté par {inspection.FarmerSignature.Proxy})"
+                                           : $"({inspection.FarmerSignature.Signatory})";
+            signatures.InspectorDisplay = $"({inspection.InspectorSignature.Signatory})";
+            signatures.AdditionalInspectorDisplay = $"({inspection.Inspector2Signature.Signatory})";
+            signatures.FarmerHasSigned = !string.IsNullOrEmpty(signatures.FarmerSignature.Data);
+            signatures.InspectorHasSigned = !string.IsNullOrEmpty(signatures.InspectorSignature.Data);
+            signatures.AdditionalInspectionHasSigned = !string.IsNullOrEmpty(signatures.AdditionalSignature.Data);
+        }
+        isInitialized = true;
     }
 
-    async void FormSubmitted(EditContext editContext)
+    async void SaveActionsOrDocuments(EditContext editContext)
     {
         needsSaving = false;
         await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);

@@ -1,11 +1,20 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
 @using Blazored.LocalStorage
 @inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
 
 <EditForm Model="@Model" OnSubmit="@Save">
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Signature</h3>
+            
+            @if (!string.IsNullOrWhiteSpace(ReturnUrl))
+            {
+                <div class="card-tools">
+                    <button class="btn btn-sm btn-default" @onclick="() => Navigation.NavigateTo(ReturnUrl)"><i class="fas fa-arrow-left"></i> Retour</button>
+                </div>
+            }
+
         </div>
         <div class="card-body">
             <div class="form-group">
@@ -34,16 +43,14 @@
         </div>
     </div>
 </EditForm>
-@*<button @onclick="@Load" class="btn btn-primary">Load</button>*@
-<p>@Model.Signatory</p>
-<p>@Model.Proxy</p>
-<p>@Model.Data</p>
-<p>@Model.DataUrl</p>
 
 @code {
 
     [Parameter]
     public SignatureModel Model { get; set; }
+
+    [Parameter]
+    public string ReturnUrl { get; set; }
 
     [Parameter]
     public EventCallback<SignatureModel> OnSave { get; set; }
@@ -53,19 +60,12 @@
     protected override void OnInitialized()
     {
         Console.WriteLine("Loading signature with data: " + Model.Data);
-        LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data);
+        LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
     }
-
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    //await signaturePad.LoadSignature(Model.Data);
-    //    //await signaturePad.RestoreSignatureState();
-    //}
 
     private async Task SignatureChanged(ChangeEventArgs eventArgs)
     {
-        //Model.Data = await signaturePad.ToData();
-        Model.Data = await LocalStorage.GetItemAsStringAsync("Mobsites.Blazor.SignaturePad.DataURL");
+        Model.Data = await LocalStorage.GetItemAsStringAsync("Mobsites.Blazor.SignaturePad.DataURL"); // works with KeepState sttribute
         Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
     }
 
@@ -74,16 +74,8 @@
         var model = (SignatureModel) editContext.Model;
         Model.Signatory = model.Signatory;
         Model.Proxy = model.Proxy;
-        //Model.Data = await signaturePad.ToData();
-        //Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
         await OnSave.InvokeAsync(Model);
 
     }
-
-    //async Task Load()
-    //{
-    //    Console.WriteLine($"Loading signature with data: {Model.Data}");
-    //    await signaturePad.LoadSignature(Model.Data);
-    //}
 
 }

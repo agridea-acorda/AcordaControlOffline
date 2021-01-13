@@ -2,7 +2,6 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
-@using Newtonsoft.Json
 
 @page "/Sign/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -11,7 +10,7 @@
 
 @if (signatureModel != null)
 {
-    <Signature Model="@signatureModel" OnSave="@Save" />
+    <Signature Model="@signatureModel" OnSave="@Save" ReturnUrl="@returnUrl" />
 }
 
 @code {
