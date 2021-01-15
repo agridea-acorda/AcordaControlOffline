@@ -7,6 +7,8 @@
         public bool ShowProxy { get; set; }
         public string Data { get; set; }
         public string DataUrl { get; set; }
+        public bool HasNotSigned => string.IsNullOrWhiteSpace(Data);
+        public bool HasProxy => !string.IsNullOrWhiteSpace(Proxy);
 
         public static SignatureModel FromDomain(Domain.Inspection.Signature signature)
         {
