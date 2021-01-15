@@ -106,6 +106,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             return this;
         }
 
+        public Inspection FarmerSigns(Signature signature)
+        {
+            Console.WriteLine($"Saving farmer signature for Inspection {FarmInspectionId}");
+            FarmerSignature = signature;
+            return this;
+        }
+
+        public Inspection Inspector2Signs(Signature signature)
+        {
+            Console.WriteLine($"Saving additional inspector signature for Inspection {FarmInspectionId}");
+            Inspector2Signature = signature;
+            return this;
+        }
+
         public bool HasComplianceRequirements()
         {
             return new HasComplianceRequirements().IsSatisfiedBy(this);

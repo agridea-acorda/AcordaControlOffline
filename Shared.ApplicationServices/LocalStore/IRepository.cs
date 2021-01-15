@@ -27,5 +27,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         Task<Checklist> ReadChecklistAsync(int farmInspectionId);
         ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId);
         ValueTask SaveInspectorSignatureAsync(int farmId, int farmInspectionId, Signature signature);
+        ValueTask<Signature> ReadFarmerSignatureAsync(int farmId, int farmInspectionId);
+        ValueTask SaveFarmerSignatureAsync(int farmId, int farmInspectionId, Signature signature);
+        ValueTask<Signature> ReadInspector2SignatureAsync(int farmId, int farmInspectionId);
+        ValueTask SaveInspector2SignatureAsync(int farmId, int farmInspectionId, Signature signature);
     }
 }

@@ -8,9 +8,9 @@
 @inject NavigationManager Navigation
 @inject IRepository Repository
 
-@if (signatureModel != null)
+@if (isInitialized)
 {
-    <Signature Model="@signatureModel" OnSave="@Save" ReturnUrl="@returnUrl" />
+    <Signature Model="@signatureModel" Title="@title" ReturnUrl="@returnUrl" OnSave="@Save" />
 }
 
 @code {
@@ -18,20 +18,58 @@
     public int FarmInspectionId { get; set; }
     string returnUrl;
     int farmId;
+    string type;
     SignatureModel signatureModel;
+    string title;
+    bool isInitialized;
+    static readonly string[] AllowedTypes = {"inspector", "farmer", "inspector2"};
 
     protected override async Task OnInitializedAsync()
     {
         farmId = int.Parse(Navigation.QueryString("FarmId"));
         returnUrl = Navigation.QueryString("ReturnUrl");
-        await base.OnInitializedAsync();
-        var signature = await Repository.ReadInspectorSignatureAsync(farmId, FarmInspectionId);
+        type = Navigation.QueryString("Type");
+        if (!AllowedTypes.Contains(type))
+            throw new ArgumentException($"Invalid querystring value [Type], must be one of {{inspector,farmer,inspector2}}");
+
+        AcordaControlOffline.Shared.Domain.Inspection.Signature signature = null;
+        switch (type)
+        {
+            case "inspector":
+                title = "Signature contrôleur";
+                signature = await Repository.ReadInspectorSignatureAsync(farmId, FarmInspectionId);
+                break;
+
+            case "farmer":
+                title = "Signature exploitant";
+                signature = await Repository.ReadFarmerSignatureAsync(farmId, FarmInspectionId);
+                break;
+
+            case "inspector2":
+                title = "Signature contrôleur additionnel";
+                signature = await Repository.ReadInspector2SignatureAsync(farmId, FarmInspectionId);
+                break;
+        }
         signatureModel = SignatureModel.FromDomain(signature);
+        isInitialized = true;
     }
 
     async Task Save(SignatureModel model)
     {
         var signature = new AcordaControlOffline.Shared.Domain.Inspection.Signature(model.Signatory, model.Proxy, model.Data, model.DataUrl);
-        await Repository.SaveInspectorSignatureAsync(farmId, FarmInspectionId, signature);
+        switch (type)
+        {
+            case "inspector":
+                await Repository.SaveInspectorSignatureAsync(farmId, FarmInspectionId, signature);
+                break;
+
+            case "farmer":
+                await Repository.SaveFarmerSignatureAsync(farmId, FarmInspectionId, signature);
+                break;
+
+            case "inspector2":
+                await Repository.SaveInspector2SignatureAsync(farmId, FarmInspectionId, signature);
+                break;
+        }
     }
 }

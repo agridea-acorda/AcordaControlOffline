@@ -6,7 +6,7 @@
 <EditForm Model="@Model" OnSubmit="@Save">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Signature</h3>
+            <h3 class="card-title">@Title</h3>
             
             @if (!string.IsNullOrWhiteSpace(ReturnUrl))
             {
@@ -55,6 +55,9 @@
     [Parameter]
     public EventCallback<SignatureModel> OnSave { get; set; }
 
+    [Parameter]
+    public string Title { get; set; } = "Signature";
+
     SignaturePad signaturePad;
 
     protected override void OnInitialized()
@@ -75,7 +78,8 @@
         Model.Signatory = model.Signatory;
         Model.Proxy = model.Proxy;
         await OnSave.InvokeAsync(Model);
-
+        await Task.Delay(500); // trick to prevent error with SignaturePad (may need to adjust wait time)
+        Navigation.NavigateTo(ReturnUrl);
     }
 
 }

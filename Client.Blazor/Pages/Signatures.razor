@@ -70,50 +70,65 @@
 
 @if (isInitialized)
 {
+    string inspectorSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={FarmId}&type=inspector&ReturnUrl={Navigation.Uri}";
+    string farmerSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={FarmId}&type=farmer&ReturnUrl={Navigation.Uri}";
+    string inspector2SignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={FarmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Signatures</h3>
         </div>
-        <div class="card-body">
-            @if (signatures.InspectorHasSigned)
-            {
-                <div class="form-group">
-                    <label>Le contrôleur @signatures.InspectorDisplay</label>
-                    <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%" />
-                </div>
-            }
-            else
-            {
-                <div class="form-group">
-                    <label>Le contrôleur n'a pas encore signé</label>
-                    <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl={Navigation.Uri}"))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
-                </div>
-            }
-            @if (signatures.FarmerHasSigned)
-            {
-                <div class="form-group">
-                    <label>Le contrôleur @signatures.FarmerDisplay</label>
-                    <img src="@signatures.FarmerSignature.DataUrl" style="width: 100%" />
-                </div>
-            }
-            else
-            {
-                <div class="form-group">
-                    <label>L'exploitant n'a pas encore signé</label>
-                    <button @onclick="@(() => Navigation.NavigateTo($"/Sign/{FarmInspectionId}?FarmId={FarmId}&ReturnUrl={Navigation.Uri}"))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
-                </div>
-            }
-            @if (signatures.AdditionalInspectionHasSigned)
-            {
-                <div class="form-group">
-                    <label>Contrôleur additionnel @signatures.AdditionalInspectorDisplay</label>
-                    <img src="@signatures.AdditionalSignature.DataUrl" style="width: 100%" />
-                </div>
-            }
-            <p>
-                <a href="" @onclick:preventDefault>Cliquer ici pour un contrôleur additionnel</a>
-            </p>
-        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                @if (signatures.InspectorHasSigned)
+                {
+                    <div class="form-group">
+                        <label>Le contrôleur @signatures.InspectorDisplay</label>
+                        <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-sm btn-default mr-1"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%"/>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label>Le contrôleur n'a pas signé</label>
+                        <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+                    </div>
+                }
+            </li>
+            <li class="list-group-item">
+                @if (signatures.FarmerHasSigned)
+                {
+                    <div class="form-group">
+                        <label>L'exploitant @signatures.FarmerDisplay</label>
+                        <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-sm btn-default mr-1"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <img src="@signatures.FarmerSignature.DataUrl" style="width: 100%" />
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label>L'exploitant n'a pas signé</label>
+                        <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+                    </div>
+                }
+            </li>
+            <li class="list-group-item">
+                @if (signatures.AdditionalInspectionHasSigned)
+                {
+                    <div class="form-group">
+                        <label>Contrôleur additionnel @signatures.AdditionalInspectorDisplay</label>
+                        <button @onclick="@(() => Navigation.NavigateTo(inspector2SignatureUrl))" class="btn btn-sm btn-default mr-1"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <img src="@signatures.AdditionalSignature.DataUrl" style="width: 100%"/>
+                    </div>
+                }
+                else
+                {
+                    <p>
+                        <a href="@inspector2SignatureUrl">Cliquer ici pour un contrôleur additionnel</a>
+                    </p>
+                }
+            </li>
+        </ul>
     </div>
 }
 
