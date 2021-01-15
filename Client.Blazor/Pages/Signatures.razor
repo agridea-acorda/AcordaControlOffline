@@ -1,13 +1,12 @@
-﻿@page "/Signatures/{FarmInspectionId:int}"
-@attribute [Authorize]
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 @using Microsoft.AspNetCore.Authorization
 @using Signature = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Signature
-@using System.Linq.Expressions
+@page "/Signatures/{FarmInspectionId:int}"
+@attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 
@@ -17,11 +16,11 @@
         <div class="card-header">
             <div class="card-title">Rapport de contrôle</div>
             <div class="card-tools">
-                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + FarmId)'>
+                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + farmId)'>
                     <i class="fas fa-arrow-left"></i>
                     Retour Check-Liste
                 </button>
-                <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
+                <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + farmId)'>
                     <i class="fas fa-arrow-right"></i>
                     Mandat
                 </button>
@@ -74,41 +73,45 @@
 
 @if (isInitialized)
 {
-    string inspectorSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={FarmId}&type=inspector&ReturnUrl={Navigation.Uri}";
-    string farmerSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={FarmId}&type=farmer&ReturnUrl={Navigation.Uri}";
-    string inspector2SignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={FarmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
+    string inspectorSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector&ReturnUrl={Navigation.Uri}";
+    string farmerSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={farmId}&type=farmer&ReturnUrl={Navigation.Uri}";
+    string inspector2SignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Signatures</h3>
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
-                @if (!signatures.InspectorSignature.HasNotSigned)
+                @if (signatures.InspectorSignature.HasSigned)
                 {
                     <div class="form-group">
                         <label>Le contrôleur @signatures.InspectorDisplay</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-sm btn-default mr-1"><i class="fas fa-undo"></i> Corriger la signature</button>
-                        <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%"/>
+                        <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%" />
                     </div>
                 }
                 else
                 {
                     <div class="form-group">
                         <label>Le contrôleur n'a pas signé</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
-                        @if (!signatures.ExistingInspectorSignature.HasNotSigned)
-                        {
-                            <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"> Réutiliser la signature existante</button>
-                        }
+                        <div class="d-block">
+                            <div class="btn-group w-100" role="group">
+                                <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
+                                @if (signatures.ExistingInspectorSignature.HasSigned)
+                                {
+                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"><i class="far fa-clone"></i> Réutiliser la signature</button>
+                                }
+                            </div>
+                        </div>
                     </div>
                 }
             </li>
             <li class="list-group-item">
-                @if (!signatures.FarmerSignature.HasNotSigned)
+                @if (signatures.FarmerSignature.HasSigned)
                 {
                     <div class="form-group">
                         <label>L'exploitant @signatures.FarmerDisplay</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-sm btn-default mr-1"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
                         <img src="@signatures.FarmerSignature.DataUrl" style="width: 100%" />
                     </div>
                 }
@@ -116,17 +119,25 @@
                 {
                     <div class="form-group">
                         <label>L'exploitant n'a pas signé</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-primary form-control"><i class="far fa-hand-point-right"></i> Signer</button>
+                        <div class="d-block">
+                            <div class="btn-group w-100">
+                                <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
+                                @if (signatures.ExistingFarmerSignature.HasSigned)
+                                {
+                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingFarmerSignature, "farmer"))" class="btn btn-default"><i class="far fa-clone"></i> Réutiliser la signature</button>
+                                }
+                            </div>
+                        </div>
                     </div>
                 }
             </li>
             <li class="list-group-item">
-                @if (!signatures.AdditionalSignature.HasNotSigned)
+                @if (signatures.AdditionalSignature.HasSigned)
                 {
                     <div class="form-group">
                         <label>Contrôleur additionnel @signatures.AdditionalInspectorDisplay</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(inspector2SignatureUrl))" class="btn btn-sm btn-default mr-1"><i class="fas fa-undo"></i> Corriger la signature</button>
-                        <img src="@signatures.AdditionalSignature.DataUrl" style="width: 100%"/>
+                        <button @onclick="@(() => Navigation.NavigateTo(inspector2SignatureUrl))" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <img src="@signatures.AdditionalSignature.DataUrl" style="width: 100%" />
                     </div>
                 }
                 else
@@ -134,6 +145,10 @@
                     <p>
                         <a href="@inspector2SignatureUrl">Cliquer ici pour un contrôleur additionnel</a>
                     </p>
+                    @if (signatures.ExistingAdditionalSignature.HasSigned)
+                    {
+                        <p><button @onclick="@(() => ReuseSignature(signatures.ExistingAdditionalSignature, "inspector2"))" class="btn btn-xs btn-default"><i class="far fa-clone"></i> Réutiliser la signature</button></p>
+                    }
                 }
             </li>
         </ul>
@@ -143,7 +158,7 @@
 @code {
     [Parameter]
     public int FarmInspectionId { get; set; }
-    private int FarmId;
+    private int farmId;
 
     ActionsOrDocumentEditModel actionsOrDocumentEditModel_;
     bool needsSaving = false;
@@ -159,9 +174,6 @@
         public string FarmerDisplay { get; set; }
         public string InspectorDisplay { get; set; }
         public string AdditionalInspectorDisplay { get; set; }
-        //public bool FarmerHasSigned => !FarmerSignature?.HasNotSigned ?? false;
-        //public bool InspectorHasSigned => !InspectorSignature?.HasNotSigned ?? false;
-        //public bool AdditionalInspectionHasSigned => !AdditionalSignature?.HasNotSigned ?? false;
         public SignatureModel ExistingFarmerSignature { get; set; }
         public SignatureModel ExistingInspectorSignature { get; set; }
         public SignatureModel ExistingAdditionalSignature { get; set; }
@@ -170,8 +182,8 @@
     protected override async Task OnInitializedAsync()
     {
         actionsOrDocumentEditModel_ = await Repository.ReadActionsOrDocumentsAsync() ?? new ActionsOrDocumentEditModel();
-        FarmId = int.Parse(Navigation.QueryString("FarmId"));
-        var mandate = await Repository.ReadMandateAsync(FarmId);
+        farmId = int.Parse(Navigation.QueryString("FarmId"));
+        var mandate = await Repository.ReadMandateAsync(farmId);
         var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
         if (inspection == null)
             Console.WriteLine($"Error loading inspection with FarmInspectionId={FarmInspectionId}");
@@ -188,12 +200,9 @@
                 InspectorDisplay = $"({inspection.InspectorSignature.Signatory})",
                 AdditionalInspectorDisplay = $"({inspection.Inspector2Signature.Signatory})"
             };
-            //signatures.FarmerHasSigned = !signatures.FarmerSignature.HasNotSigned;
-            //signatures.InspectorHasSigned = !signatures.InspectorSignature.HasNotSigned;
-            //signatures.AdditionalInspectionHasSigned = !string.IsNullOrEmpty(signatures.AdditionalSignature.Data);
-            signatures.ExistingInspectorSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.InspectorSignature != Signature.None));
-            signatures.ExistingFarmerSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.FarmerSignature != Signature.None));
-            signatures.ExistingAdditionalSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.Inspector2Signature != Signature.None));
+            signatures.ExistingInspectorSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.InspectorSignature.HasSigned));
+            signatures.ExistingFarmerSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.FarmerSignature.HasSigned));
+            signatures.ExistingAdditionalSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.Inspector2Signature.HasSigned));
         }
         isInitialized = true;
     }
@@ -206,21 +215,21 @@
             case "inspector":
                 signatures.InspectorSignature = model;
                 signatures.InspectorDisplay = $"({model.Signatory})";
-                await Repository.SaveInspectorSignatureAsync(FarmId, FarmInspectionId, signature);
+                await Repository.SaveInspectorSignatureAsync(farmId, FarmInspectionId, signature);
                 break;
 
             case "farmer":
                 signatures.FarmerSignature = model;
                 signatures.FarmerDisplay = signatures.FarmerSignature.HasProxy
-                                               ? $"(représenté par {signatures.FarmerSignature.Proxy})"
-                                               : $"({signatures.FarmerSignature.Signatory})";
-                await Repository.SaveFarmerSignatureAsync(FarmId, FarmInspectionId, signature);
+                                               ? $"(représenté par {model.Proxy})"
+                                               : $"({model.Signatory})";
+                await Repository.SaveFarmerSignatureAsync(farmId, FarmInspectionId, signature);
                 break;
 
             case "inspector2":
                 signatures.AdditionalSignature = model;
-                signatures.AdditionalInspectorDisplay = $"({signatures.AdditionalSignature.Signatory})";
-                await Repository.SaveInspector2SignatureAsync(FarmId, FarmInspectionId, signature);
+                signatures.AdditionalInspectorDisplay = $"({model.Signatory})";
+                await Repository.SaveInspector2SignatureAsync(farmId, FarmInspectionId, signature);
                 break;
         }
     }
