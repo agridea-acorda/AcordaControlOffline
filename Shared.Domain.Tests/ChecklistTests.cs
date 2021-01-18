@@ -102,5 +102,71 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist_.Find("R2").Percent.Should().Be(1.0 / 4 / 2 / 2);
             checklist_.Percent.Should().Be(1.0 / 4 / 2 / 2 / 2);
         }
+
+        [Fact]
+        public void Outcome_is_nc_by_convention_when_checklist_is_empty()
+        {
+            var checklist = new Checklist.Checklist(1, 1);
+            checklist.Outcome.Should().Be(InspectionOutcome.NotInspected);
+        }
+
+        [Fact]
+        public void Point_outcome_is_nc_when_no_outcome_is_set()
+        {
+            checklist_.Find("R1,P1").ComputedOutcome.Should().Be(InspectionOutcome.NotInspected);
+        }
+
+        [Fact]
+        public void Group_outcome_is_regular_outcome_when_set()
+        {
+            checklist_.SetOutcome("R2,G2,SG1", InspectionOutcome.Ok);
+            checklist_.Find("R2,G2,SG1").ComputedOutcome.Should().Be(InspectionOutcome.Ok);
+        }
+
+        [Fact]
+        public void Outcome_na_takes_precedence_over_nc()
+        {
+            checklist_.SetOutcome("R2,G2,SG1,P1", InspectionOutcome.NotApplicable);
+            checklist_.SetOutcome("R2,G2,SG1,P2", InspectionOutcome.NotInspected);
+            checklist_.SetOutcome("R2,G2,SG1,P3", InspectionOutcome.NotInspected);
+            checklist_.SetOutcome("R2,G2,SG1,P4", InspectionOutcome.NotInspected);
+            checklist_.Find("R2,G2,SG1").ComputedOutcome.Should().Be(InspectionOutcome.NotApplicable);
+            checklist_.Find("R2,G2").ComputedOutcome.Should().Be(InspectionOutcome.NotApplicable);
+            checklist_.Find("R2").ComputedOutcome.Should().Be(InspectionOutcome.NotApplicable);
+            checklist_.Outcome.Should().Be(InspectionOutcome.NotApplicable);
+        }
+
+        [Fact]
+        public void Outcome_ok_takes_precedence_over_na()
+        {
+            checklist_.SetOutcome("R2,G2,SG1,P1", InspectionOutcome.Ok);
+            checklist_.SetOutcome("R2,G2,SG1,P2", InspectionOutcome.NotApplicable);
+            checklist_.SetOutcome("R2,G2,SG1,P3", InspectionOutcome.NotInspected);
+            checklist_.SetOutcome("R2,G2,SG1,P4", InspectionOutcome.NotInspected);
+            checklist_.Find("R2,G2,SG1").ComputedOutcome.Should().Be(InspectionOutcome.Ok);
+            checklist_.Outcome.Should().Be(InspectionOutcome.Ok);
+        }
+
+        [Fact]
+        public void Outcome_pok_takes_precedence_over_ok()
+        {
+            checklist_.SetOutcome("R2,G2,SG1,P1", InspectionOutcome.PartiallyOk);
+            checklist_.SetOutcome("R2,G2,SG1,P2", InspectionOutcome.Ok);
+            checklist_.SetOutcome("R2,G2,SG1,P3", InspectionOutcome.NotApplicable);
+            checklist_.SetOutcome("R2,G2,SG1,P4", InspectionOutcome.NotInspected);
+            checklist_.Find("R2,G2,SG1").ComputedOutcome.Should().Be(InspectionOutcome.PartiallyOk);
+            checklist_.Outcome.Should().Be(InspectionOutcome.PartiallyOk);
+        }
+
+        [Fact]
+        public void Outcome_nok_takes_precedence_over_pok()
+        {
+            checklist_.SetOutcome("R2,G2,SG1,P1", InspectionOutcome.NotOk);
+            checklist_.SetOutcome("R2,G2,SG1,P2", InspectionOutcome.PartiallyOk);
+            checklist_.SetOutcome("R2,G2,SG1,P3", InspectionOutcome.Ok);
+            checklist_.SetOutcome("R2,G2,SG1,P4", InspectionOutcome.NotApplicable);
+            checklist_.Find("R2,G2,SG1").ComputedOutcome.Should().Be(InspectionOutcome.NotOk);
+            checklist_.Outcome.Should().Be(InspectionOutcome.NotOk);
+        }
     }
 }
