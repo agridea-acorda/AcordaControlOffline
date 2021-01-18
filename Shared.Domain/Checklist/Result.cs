@@ -5,7 +5,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
-    public abstract class Result : ITreeNode<Result>
+    public abstract class Result : ITreeNode<Result>, IProgressable, IOutcomable
     {
         public ITreeNode<Result> Parent { get; private set; }
         public SortedList<string, ITreeNode<Result>> Children { get; } = new SortedList<string, ITreeNode<Result>>();
@@ -58,12 +58,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public double Percent => Outcome != null && Outcome != InspectionOutcome.Unset ? 1.0 :
                                  NumChildren == 0 ? 0.0 :
                                  (Children?.Sum(x => x.Value?.Percent ?? 0.0) ?? 0.0) / NumChildren;
-        public InspectionOutcome ComputedOutcome => Outcome != null && Outcome != InspectionOutcome.Unset ? Outcome :
+        public InspectionOutcome OutcomeComputed => Outcome != null && Outcome != InspectionOutcome.Unset ? Outcome :
                                                     NumChildren == 0 ? InspectionOutcome.NotInspected :
-                                                    Children?.Any(x => (x.Value?.ComputedOutcome ?? InspectionOutcome.NotInspected) == InspectionOutcome.NotOk) ?? false ? InspectionOutcome.NotOk :
-                                                    Children?.Any(x => (x.Value?.ComputedOutcome ?? InspectionOutcome.NotInspected) == InspectionOutcome.PartiallyOk) ?? false ? InspectionOutcome.PartiallyOk :
-                                                    Children?.Any(x => (x.Value?.ComputedOutcome ?? InspectionOutcome.NotInspected) == InspectionOutcome.Ok) ?? false ? InspectionOutcome.Ok :
-                                                    Children?.Any(x => (x.Value?.ComputedOutcome ?? InspectionOutcome.NotInspected) == InspectionOutcome.NotApplicable) ?? false ? InspectionOutcome.NotApplicable :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.NotOk) ?? false ? InspectionOutcome.NotOk :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.PartiallyOk) ?? false ? InspectionOutcome.PartiallyOk :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.Ok) ?? false ? InspectionOutcome.Ok :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.NotApplicable) ?? false ? InspectionOutcome.NotApplicable :
                                                     InspectionOutcome.NotInspected;
         protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")
         {

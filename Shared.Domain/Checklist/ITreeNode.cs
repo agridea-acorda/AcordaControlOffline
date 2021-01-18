@@ -13,7 +13,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         int NumGroups { get; }
         int NumPoints { get; }
         double Percent { get; }
-        InspectionOutcome ComputedOutcome { get; }
+        InspectionOutcome OutcomeComputed { get; }
         void SetParent(ITreeNode<T> parent);
         void Traverse(Action<ITreeNode<T>> action);
         ITreeNode<Result> Find(Func<ITreeNode<Result>, bool> condition);
