@@ -9,9 +9,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         SortedList<string, ITreeNode<T>> Children { get; }
         List<ITreeNode<Result>> Points { get; }
         List<ITreeNode<Result>> Groups { get; }
-
         int NumGroups { get; }
         int NumPoints { get; }
+        double Percent { get; }
         void SetParent(ITreeNode<T> parent);
         void Traverse(Action<ITreeNode<T>> action);
         ITreeNode<Result> Find(Func<ITreeNode<Result>, bool> condition);

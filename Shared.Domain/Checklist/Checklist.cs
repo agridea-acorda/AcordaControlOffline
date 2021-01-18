@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Agridea.DomainDrivenDesign;
@@ -10,7 +9,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
     {
         public int FarmInspectionId { get; }
         public SortedList<string, RubricResult> Rubrics { get; } = new SortedList<string, RubricResult>();
-        public double Percent { get; private set; }
+        protected int NumChildren => Rubrics?.Count ?? 0;
+        public double Percent => NumChildren == 0 ? 0.0 :
+                                 (Rubrics?.Sum(x => x.Value?.Percent ?? 0.0) ?? 0.0) / NumChildren;
 
         public Checklist(long id, int farmInspectionId) : base(id)
         {
@@ -19,13 +20,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public Checklist(int farmInspectionId)
         {
             FarmInspectionId = farmInspectionId;
-        }
-
-        public Checklist ProgressTo(double percent)
-        {
-            if (percent < 0.0 || percent > 1.0) throw new ArgumentOutOfRangeException($"{nameof(percent)} must be between 0.0 and 1.0");
-            Percent = percent;
-            return this;
         }
 
         public Checklist AddRubric(string key, RubricResult rubricResult)
@@ -40,20 +34,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
                           .FirstOrDefault(found => found != null);
         }
 
-        public void SetOutcome<T>(InspectionOutcome outcome, T result) where T: Result
+        public void SetOutcome(string conjunctElementCode, InspectionOutcome outcome)
         {
+            var result = Find(conjunctElementCode);
             result.SetOutcome(outcome);
-            RaiseDomainEvent(new OutcomeSetEvent<T>(outcome, result));
+            RaiseDomainEvent(new OutcomeSetEvent(outcome, result));
         }
 
-        public class OutcomeSetEvent<T> : ValueObject, IDomainEvent where T: Result
+        public class OutcomeSetEvent : ValueObject, IDomainEvent
         {
-            public OutcomeSetEvent(InspectionOutcome outcome, T result)
+            public OutcomeSetEvent(InspectionOutcome outcome, IResult result)
             {
                 Outcome = outcome;
                 Result = result;
             }
-            public T Result { get; }
+            public IResult Result { get; }
             public InspectionOutcome Outcome { get; }
 
             protected override IEnumerable<object> GetEqualityComponents()

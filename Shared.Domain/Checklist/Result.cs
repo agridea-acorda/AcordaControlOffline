@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
-using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
@@ -54,6 +53,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public List<ITreeNode<Result>> Groups => (Children?.Where(child => child.Value?.Children?.Any() ?? false) ?? Enumerable.Empty<KeyValuePair<string, ITreeNode<Result>>>())
                                                  .Select(x => x.Value)
                                                  .ToList();
+
+        protected int NumChildren => Children?.Count ?? 0;
+        public double Percent => Outcome != null && Outcome != InspectionOutcome.Unset ? 1.0 :
+                                 NumChildren == 0 ? 0.0 :
+                                 (Children?.Sum(x => x.Value?.Percent ?? 0.0) ?? 0.0) / NumChildren;
 
         protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")
         {
