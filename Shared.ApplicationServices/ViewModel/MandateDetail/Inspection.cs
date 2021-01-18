@@ -23,7 +23,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public bool DueDateRespected { get; set; }
         public bool IsLateOrNotCompliant { get; set; }
         
-        public static Inspection FromDomain(Domain.Inspection.Inspection inspection)
+        public new static Inspection FromDomain(Domain.Inspection.Inspection inspection)
         {
             var model = new Inspection
             {
@@ -56,7 +56,5 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             };
             return model;
         }
-
-        
     }
 }

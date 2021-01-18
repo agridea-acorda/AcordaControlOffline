@@ -1,10 +1,12 @@
-﻿@inherits PageBase
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
+@using Microsoft.AspNetCore.Authorization
+@inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
-@using Microsoft.AspNetCore.Authorization
 @inject NavigationManager Navigation
 @inject IRepository Repository
 
@@ -12,34 +14,37 @@
     <div class="card-header">
         <h3 class="card-title">Récapitulatif</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + farmId)'>
                 <i class="fas fa-arrow-left"></i>
                 Retour Mandat
             </button>
-            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + FarmId)'>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + farmId)'>
                 <i class="fas fa-arrow-right"></i>
                 Rapport de contrôle
             </button>
         </div>
     </div>
     <div class="card-body">
-        <p>Content here</p>
+        @if (progressBarModel != null)
+        {
+            <ProgressBar Progress="@progressBarModel" />
+        }
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Manquements antérieurs</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
-                <i class="fas fa-minus"></i>
-            </button>
+@*<div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Manquements antérieurs</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
         </div>
-    </div>
-    <div class="card-body">
-        <p>Content here</p>
-    </div>
-</div>
+        <div class="card-body">
+            <p>Content here</p>
+        </div>
+    </div>*@
 
 <div class="card">
     <div class="card-header">
@@ -100,18 +105,21 @@
     [Parameter]
     public int FarmInspectionId { get; set; }
 
-    int FarmId;
+    int farmId;
     Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
+    Inspection inspection;
     ChecklistItem.ResultModel parent;
     List<ChecklistItem.ResultModel> children = new List<ChecklistItem.ResultModel>();
+    AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Inspection progressBarModel;
 
     protected override async Task OnInitializedAsync()
     {
-        FarmId = int.Parse(Navigation.QueryString(FarmIdUriKey));
+        farmId = int.Parse(Navigation.QueryString(FarmIdUriKey));
         DateTime started = DateTime.Now;
         Console.WriteLine($"Reading checklist data (started {started.ToDetailedTime()})...");
         await Task.Delay(1); // workaround (otherwise ui is not rendered until repository has finished loading)
         checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        inspection = (await Repository.ReadMandateAsync(farmId)).Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
         TimeSpan elapsed = DateTime.Now - started;
         Console.WriteLine($"Checklist data read succesfully (elapsed {elapsed}).");
         parent = null;
@@ -119,6 +127,8 @@
             children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
                                 .Where(x => x != null)
                                 .ToList();
+        if (inspection != null)
+            progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Inspection.FromDomain(inspection);
     }
 
     void NodeViewChanged(string conjunctElementCode)
