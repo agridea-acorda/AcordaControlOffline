@@ -4,7 +4,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 {
-    public class Inspection: MandateList.Inspection
+    public class Inspection: MandateList.InspectionInfo
     {
         public int FarmInspectionId { get; set; }
         public string Campaign { get; set; }
@@ -23,7 +23,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public bool DueDateRespected { get; set; }
         public bool IsLateOrNotCompliant { get; set; }
         
-        public new static Inspection FromDomain(Domain.Inspection.Inspection inspection)
+        public static Inspection FromDomain(Domain.Inspection.Inspection inspection)
         {
             var model = new Inspection
             {
