@@ -8,6 +8,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
     {
         public string Domain { get; set; }
         public string Inspector { get; set; }
+        public string InspectorDisplay => !string.IsNullOrWhiteSpace(Inspector) ? $"({Inspector})" : "";
         public int Percent { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public InspectionOutcome Outcome { get; set; }
@@ -27,6 +28,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             };
             return model;
         }
+        public static Inspection FromDomain(Domain.Checklist.Checklist checklist)
+        {
+            var model = new Inspection
+            {
+                Domain = "",
+                Inspector = "", // get inspector
+                Percent = (int)Math.Round(checklist.Percent * 100), // use property from Checklist, not Inspection
+                Outcome = checklist.OutcomeComputed.ToViewModel(), // use property from Checklist, not Inspection
+                IsClosed = false,
+                CloseDate = ""
+            };
+            return model;
+        }
+
 
         public void Progress(double percent)
         {

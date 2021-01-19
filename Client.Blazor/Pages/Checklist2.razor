@@ -1,8 +1,6 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
-@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Microsoft.AspNetCore.Authorization
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @inherits PageBase
@@ -108,7 +106,6 @@
 
     int farmId;
     Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
-    Inspection inspection;
     ChecklistItem.ResultModel parent;
     List<ChecklistItem.ResultModel> children = new List<ChecklistItem.ResultModel>();
     AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Inspection progressBarModel;
@@ -120,7 +117,6 @@
         Console.WriteLine($"Reading checklist data (started {started.ToDetailedTime()})...");
         await Task.Delay(1); // workaround (otherwise ui is not rendered until repository has finished loading)
         checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
-        inspection = (await Repository.ReadMandateAsync(farmId)).Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
         TimeSpan elapsed = DateTime.Now - started;
         Console.WriteLine($"Checklist data read succesfully (elapsed {elapsed}).");
         parent = null;
@@ -128,8 +124,8 @@
             children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
                                 .Where(x => x != null)
                                 .ToList();
-        if (inspection != null)
-            progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Inspection.FromDomain(inspection, checklist);
+        if (checklist != null)
+            progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Inspection.FromDomain(checklist);
     }
 
     void NodeViewChanged(string conjunctElementCode)
