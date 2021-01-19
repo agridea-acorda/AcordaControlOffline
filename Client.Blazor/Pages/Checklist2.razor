@@ -162,7 +162,8 @@
         checklist.SetOutcome(model.ConjunctElementCode, model.Outcome);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         progressBarModel.Progress(checklist.Percent);
-        // todo autosave
+        //await Repository.SaveChecklistAsync(checklist); // this is way too slow, so autosave on timer
+        // todo (auto)save
     }
 
     void NodeEdited(ChecklistItem.ResultModel model)
@@ -173,7 +174,8 @@
         node.SetFarmerComment(model.FarmerComment);
         node.SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
                        DefectSeriousness.FromCode(model.SeriousnessCode));
-        // todo autosave
+        //await Repository.SaveChecklistAsync(checklist); // this is way too slow, so autosave on timer
+        // todo (auto)save
     }
 
     void Deleted(ChecklistItem.ResultModel model)
@@ -186,6 +188,7 @@
         node.SetDefect(Defect.None, DefectSeriousness.Empty);
         progressBarModel.Progress(checklist.Percent);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
-        // todo autosave
+        //await Repository.SaveChecklistAsync(checklist); // this is way too slow, so autosave on timer
+        // todo (auto)save
     }
 }
