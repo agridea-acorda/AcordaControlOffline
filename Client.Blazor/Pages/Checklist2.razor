@@ -4,6 +4,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Microsoft.AspNetCore.Authorization
+@using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -128,7 +129,7 @@
                                 .Where(x => x != null)
                                 .ToList();
         if (inspection != null)
-            progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Inspection.FromDomain(inspection);
+            progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Inspection.FromDomain(inspection, checklist);
     }
 
     void NodeViewChanged(string conjunctElementCode)
@@ -162,8 +163,9 @@
     void OutcomeChanged(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s outcome was set to {model.Outcome}.");
-        var node = checklist.Find(model.ConjunctElementCode);
-        node.SetOutcome(model.Outcome);
+        checklist.SetOutcome(model.ConjunctElementCode, model.Outcome);
+        progressBarModel.SetOutcome(checklist.OutcomeComputed);
+        progressBarModel.Progress(checklist.Percent);
         // todo autosave
     }
 
@@ -182,9 +184,12 @@
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
         var node = checklist.Find(model.ConjunctElementCode);
+        node.SetOutcome(InspectionOutcome.Unset);
         node.SetInspectorComment("");
         node.SetFarmerComment("");
         node.SetDefect(Defect.None, DefectSeriousness.Empty);
+        progressBarModel.Progress(checklist.Percent);
+        progressBarModel.SetOutcome(checklist.OutcomeComputed);
         // todo autosave
     }
 }
