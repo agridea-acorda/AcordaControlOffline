@@ -102,6 +102,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(key, new MandateFactory().Serialize(mandate));
         }
 
+        public async ValueTask SaveProvisoryControlePdf(byte[] pdfData, string key)
+        {
+            await localStorage_.SetItemAsync(key, Convert.ToBase64String(pdfData));
+        }
+
+
+        public async ValueTask<byte[]> ReadProvisoryControlePdf(string key)
+        {
+            string base64 = await localStorage_.GetItemAsStringAsync(key);
+            return Convert.FromBase64String(base64);
+        }
+
         public async ValueTask SaveMandateJsonAsync(string json, int id)
         {
             string key = MandateDetailKey(id);
