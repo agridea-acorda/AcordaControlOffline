@@ -4,6 +4,9 @@ using System.Timers;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 {
+    /// <summary>
+    /// Attempt at autosave helper, but does not work as expected. When there's more time maybe.
+    /// </summary>
     public class Autosave : IDisposable
     {
         public int SaveIntervalInMsDefault = 3 * 1000; // three seconds
