@@ -8,7 +8,6 @@
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
-@implements IDisposable
 
 <div class="card">
     <div class="card-header">
@@ -48,11 +47,22 @@
 
 <div class="card">
     <div class="card-header">
-        @if (autosave != null)
+        @*@if (autosave != null)
         {
             <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
             <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
-        }
+        }*@
+        <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
+            @if (saving)
+            {
+                <i class="fas fa-spinner fa-spin"></i>
+            }
+            else
+            {
+                <i class="far fa-save"></i>
+            }
+            Enregistrer
+        </button>
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
@@ -113,7 +123,9 @@
     ChecklistItem.ResultModel parent;
     List<ChecklistItem.ResultModel> children = new List<ChecklistItem.ResultModel>();
     AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo progressBarModel;
-    Autosave autosave;
+    bool saving;
+    bool needsSaving;
+    string saveButtonDisabled => needsSaving ? "" : "disabled";
 
     protected override async Task OnInitializedAsync()
     {
@@ -131,8 +143,6 @@
                                 .ToList();
         if (checklist != null)
             progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo.FromChecklist(checklist);
-
-        autosave = new Autosave(() => Repository.SaveChecklistAsync(checklist));
     }
 
     void NodeViewChanged(string conjunctElementCode)
@@ -169,9 +179,7 @@
         checklist.SetOutcome(model.ConjunctElementCode, model.Outcome);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         progressBarModel.Progress(checklist.Percent);
-        //await Repository.SaveChecklistAsync(checklist); // this is way too slow, so autosave on timer
-        autosave.Save();
-        // todo (auto)save
+        needsSaving = true;
     }
 
     void NodeEdited(ChecklistItem.ResultModel model)
@@ -182,9 +190,7 @@
         node.SetFarmerComment(model.FarmerComment);
         node.SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
                        DefectSeriousness.FromCode(model.SeriousnessCode));
-        //await Repository.SaveChecklistAsync(checklist); // this is way too slow, so autosave on timer
-        autosave.Save();
-        // todo (auto)save
+        needsSaving = true;
     }
 
     void Deleted(ChecklistItem.ResultModel model)
@@ -197,15 +203,22 @@
         node.SetDefect(Defect.None, DefectSeriousness.Empty);
         progressBarModel.Progress(checklist.Percent);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
-        //await Repository.SaveChecklistAsync(checklist); // this is way too slow, so autosave on timer
-        autosave.Save();
-        // todo (auto)save
+        needsSaving = true;
     }
 
-
-    public void Dispose()
+    async Task Save()
     {
-        autosave?.Dispose();
+        if (saving || !needsSaving) return;
+        Console.WriteLine("Saving checklist...");
+        saving = true;
+        await Task.Delay(1);
+        StateHasChanged();
+        await Repository.SaveChecklistAsync(checklist);
+        //await Task.Delay(5 * 1000);
+        Console.WriteLine("...checklist saved.");
+        saving = false;
+        needsSaving = false;
+        StateHasChanged();
     }
 
 }
