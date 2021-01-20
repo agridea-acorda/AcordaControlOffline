@@ -32,7 +32,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public override string Serialize(Domain.Checklist.Checklist checklist)
         {
             return JsonConvert.SerializeObject(checklist,
-                                               Formatting.Indented,
+                                               Formatting.None,
                                                new JsonSerializerSettings
                                                {
                                                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,

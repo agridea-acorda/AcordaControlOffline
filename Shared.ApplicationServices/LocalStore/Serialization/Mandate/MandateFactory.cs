@@ -17,7 +17,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public override string Serialize(Domain.Mandate.Mandate aggregateRoot)
         {
             return JsonConvert.SerializeObject(aggregateRoot,
-                                               Formatting.Indented,
+                                               Formatting.None,
                                                new JsonSerializerSettings
                                                {
                                                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,

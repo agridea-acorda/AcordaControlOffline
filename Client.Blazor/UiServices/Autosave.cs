@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Xml.Linq;
-using MediatR;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 {
@@ -10,14 +8,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
     {
         public int SaveIntervalInMsDefault = 3 * 1000; // three seconds
         public int SavedMessageDisplayLengthInMsDefault = 5 * 1000; // five seconds
-        private Timer savingTimer_;
-        private Timer savedTimer_;
+        private readonly Timer savingTimer_;
+        private readonly Timer savedTimer_;
         private SavingState state;
-        private Task saveAction_;
+        private readonly Func<ValueTask> saveAction_;
 
         public SavingState State => state;
 
-        public Autosave(Task saveAction)
+        public Autosave(Func<ValueTask> saveAction)
         {
             saveAction_ = saveAction;
             savingTimer_ = new Timer(SaveIntervalInMsDefault) {AutoReset = false};
@@ -33,7 +31,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 
         private async Task WaitForActionToComplete()
         {
-            await saveAction_;
+            Console.WriteLine("Performing save action...");
+            await saveAction_();
+            Console.WriteLine("...Save action finished.");
             savedTimer_.Stop();
             savedTimer_.Start();
             state = SavingState.Displaying;
