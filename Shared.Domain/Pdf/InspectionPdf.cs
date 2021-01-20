@@ -113,7 +113,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
         private AcPdfPTable RubricsSummary()
         {
             var table = CustomTable(new[] {15f, 35f, 5f, 45f});
-            var data = model_.InspectionResults.Where(x => x.ResultType == RecapResultListItemModel.ResultTypes.Rubric);
+            //TODO get inspection results
+            //var data = model_.InspectionResults.Where(x => x.ResultType == RecapResultListItemModel.ResultTypes.Rubric);
             table.AddCustomCell("Résumé du contrôle des exigences", Fonts.Helvetica12BlackBold, borderWidth: 0,
                 colspan: 4);
             table.AddTitleCell("Règle N°");
@@ -134,8 +135,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
                 return result;
             }
-
-            foreach (var resultItem in data)
+            //TODO populer le tableau
+            /*foreach (var resultItem in data)
             {
                 table.AddCustomCell(resultItem.ConjunctElementCode, Fonts.Helvetica8Black, BackgroundColor(resultItem));
                 table.AddCustomCell(resultItem.ShortName, Fonts.Helvetica8Black, BackgroundColor(resultItem));
@@ -143,7 +144,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
                     OutcomeBackgroundColor(resultItem));
                 table.AddCustomCell(Comment(resultItem.ResultOutcome, resultItem.ResultInspectorComment),
                     OutcomeDetailsBackgroundColor(resultItem, Colors.White));
-            }
+            }*/
 
             table.AddTitleCell("Remarque générale", colspan: 4);
             table.AddCustomCell(string.IsNullOrWhiteSpace(model_.CommentForFarmer) ? " " : model_.CommentForFarmer,
@@ -236,7 +237,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
         private AcPdfPTable CheckList()
         {
-            var data = model_.InspectionResults.OrderBy(x => x.ConjunctElementCode);
+            //TODO recuperer inspectioNResults
+            //var data = model_.InspectionResults.OrderBy(x => x.ConjunctElementCode);
             var table = CustomTable(new[] {4f, 4f, 4f, 4f, 40f, 5f, 40f});
             table.AddCustomCell("Résultat détaillé du contrôle des exigences", Fonts.Helvetica12BlackBold,
                 borderWidth: 0, colspan: 7);
@@ -246,7 +248,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             table.AddTitleCell("Commentaire");
 
             bool isFirstRubric = true;
-            foreach (var item in data)
+            //TODO populer le PDF
+            /*foreach (var item in data)
             {
                 var font = item.TreeLevel == 0 ? Fonts.Helvetica11BlackBold :
                     item.TreeLevel == 1 ? Fonts.Helvetica10BlackBold :
@@ -277,7 +280,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
                 AddResultCell(table, item, borderWidth, OutcomeDetailsBackgroundColor(item, Colors.White));
                 isFirstRubric = false;
             }
-
+            */
             table.AddCustomCell(" ", colspan: 7, borderWidth: 0); // empty line
             table.AddCustomCell(OutcomeKey, colspan: 7, borderWidth: 0);
             table.AddCustomCell(ColorsKey, colspan: 7, borderWidth: 0);
