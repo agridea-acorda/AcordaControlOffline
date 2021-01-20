@@ -16,6 +16,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public int Year { get; set; }
         }
 
         public class Reason

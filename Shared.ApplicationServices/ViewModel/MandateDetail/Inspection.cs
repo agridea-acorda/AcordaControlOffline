@@ -57,6 +57,5 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             return model;
         }
 
-        
     }
 }

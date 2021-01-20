@@ -18,6 +18,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
         }
         public int Id { get; }
         public string Name { get; }
+        public int Year { get; }
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return Id;

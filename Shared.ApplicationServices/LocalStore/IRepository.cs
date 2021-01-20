@@ -17,6 +17,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id);
         ValueTask SaveMandateJsonAsync(string json, int id);
         ValueTask SaveFarmJsonAsync(string json, int id);
+        ValueTask SaveProvisoryControlePdf(byte[] pdfData, string key);
+        ValueTask<byte[]> ReadProvisoryControlePdf(string key);
         ValueTask SaveChecklistJsonAsync(string json, int id);
         ValueTask<Farm> ReadFarmAsync(int farmId);
         ValueTask<ChecklistSample> ReadChecklistSampleAsync();
