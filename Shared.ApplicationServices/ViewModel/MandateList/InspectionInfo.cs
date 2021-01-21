@@ -6,6 +6,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
 {
     public class InspectionInfo : ViewModel
     {
+        public int FarmInspectionId { get; set; }
         public string Domain { get; set; }
         public string Inspector { get; set; }
         public string InspectorDisplay => !string.IsNullOrWhiteSpace(Inspector) ? $"({Inspector})" : "";

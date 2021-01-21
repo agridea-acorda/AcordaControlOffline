@@ -1,6 +1,7 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using Ardalis.GuardClauses
 @using Microsoft.AspNetCore.Authorization
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @inherits PageBase
@@ -214,23 +215,42 @@
         await Task.Delay(1);
         StateHasChanged();
         await Repository.SaveChecklistAsync(checklist);
-        var mandate = await Repository.ReadMandateAsync(farmId);
-        if (mandate != null)
-        {
-            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
-            if (inspection != null)
-            {
-                inspection.Progress(checklist.Percent * 100);
-                inspection.SetOutcome(checklist.OutcomeComputed);
-                await Repository.SaveMandateAsync(mandate, farmId);
-            }
-        }
-        // cannot update mandates list because there is no FarmInspectionId in InspectionInfo so no way to find it
-        //await Task.Delay(5 * 1000);
+        var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
+        await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
+        await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
         Console.WriteLine("...checklist saved.");
         saving = false;
         needsSaving = false;
         StateHasChanged();
+    }
+
+    private async Task UpdateAndSaveInspectionPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
+    {
+        var mandate = await repository.ReadMandateAsync(farmId);
+        Guard.Against.Null(mandate, nameof(mandate));
+
+        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == e.FarmInspectionId);
+        Guard.Against.Null(inspection, nameof(inspection));
+
+        inspection.Progress(e.Percent * 100);
+        inspection.SetOutcome(e.Outcome);
+        await repository.SaveMandateAsync(mandate, farmId);
+    }
+
+    private async Task UpdateAndSaveInspectionInfoPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
+    {
+        var mandates = await repository.ReadAllMandatesAsync();
+        Guard.Against.Null(mandates, nameof(mandates));
+
+        var mandate = mandates.FirstOrDefault(x => x.Farm.Id == farmId);
+        Guard.Against.Null(mandate, nameof(mandate));
+
+        var inspectionInfo = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == e.FarmInspectionId);
+        Guard.Against.Null(inspectionInfo, nameof(inspectionInfo));
+
+        inspectionInfo.SetOutcome(e.Outcome);
+        inspectionInfo.Progress(e.Percent);
+        await repository.SaveMandatesAsync(mandates);
     }
 
 }

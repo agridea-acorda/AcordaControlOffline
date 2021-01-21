@@ -6,7 +6,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
 {
     public class Inspection: MandateList.InspectionInfo
     {
-        public int FarmInspectionId { get; set; }
         public string Campaign { get; set; }
         public string CommentForOffice { get; set; }
         public bool HasComplianceRequirements { get; set; }
