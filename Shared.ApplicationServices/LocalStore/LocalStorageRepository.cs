@@ -20,8 +20,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public const string Mandates = "mandates";
         public const string Checklist = "checklist";
         public const string ActionsOrDocuments = "actionsOrDocuments";
-        public const string InspectionPdf = "inspectionPdf";
-
+        
         private readonly ILocalStorageService localStorage_;
         public LocalStorageRepository(ILocalStorageService localStorage)
         {
@@ -100,17 +99,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             string key = MandateDetailKey(id); 
             await localStorage_.SetItemAsync(key, new MandateFactory().Serialize(mandate));
-        }
-
-        public async ValueTask SavePdfReport(byte[] pdfData, int farmInspectionId)
-        {
-            await localStorage_.SetItemAsync(InspectionPdfKey(farmInspectionId), Convert.ToBase64String(pdfData));
-        }
-
-        public async ValueTask<byte[]> ReadPdfReport(int farmInspectionId)
-        {
-            string base64 = await localStorage_.GetItemAsStringAsync(InspectionPdfKey(farmInspectionId));
-            return Convert.FromBase64String(base64);
         }
 
         public async ValueTask SaveMandateJsonAsync(string json, int id)
@@ -198,11 +186,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         private static string ChecklistKey(int farmInspectionId)
         {
             return $"{Checklist}_FarmInspectionId{farmInspectionId}";
-        }
-
-        private static string InspectionPdfKey(int farmInspectionId)
-        {
-            return $"{InspectionPdf}_FarmInspectionId{farmInspectionId}";
         }
     }
 }
