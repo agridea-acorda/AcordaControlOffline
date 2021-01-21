@@ -45,7 +45,7 @@
 
 <Blazorise.Modal @ref="@edit">
     <Blazorise.ModalBackdrop />
-    <EditForm Model="@Node" OnSubmit="@Save">
+    <EditForm Model="@Node" OnSubmit="@OnSubmit">
         <Blazorise.ModalContent>
             <Blazorise.ModalHeader>
                 <Blazorise.ModalTitle>Résultat détaillé</Blazorise.ModalTitle>
@@ -83,8 +83,8 @@
                 </Blazorise.Field>
             </Blazorise.ModalBody>
             <Blazorise.ModalFooter>
-                <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
-                <button class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</button>
+                <button type="submit" class="btn btn-primary float-left mr-2">Ok</button>
+                <button type="button" class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</button>
             </Blazorise.ModalFooter>
         </Blazorise.ModalContent>
     </EditForm>
@@ -110,7 +110,7 @@
         await OnOutcomeChanged.InvokeAsync(Node);
     }
 
-    async Task Save(EditContext editContext)
+    async Task OnSubmit(EditContext editContext)
     {
         edit.Hide();
         await OnNodeEdited.InvokeAsync(Node);

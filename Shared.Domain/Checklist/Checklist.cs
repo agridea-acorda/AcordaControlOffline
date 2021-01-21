@@ -44,24 +44,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         {
             var result = Find(conjunctElementCode);
             result.SetOutcome(outcome);
-            RaiseDomainEvent(new OutcomeSetEvent(outcome, result));
-        }
-
-        public class OutcomeSetEvent : ValueObject, IDomainEvent
-        {
-            public OutcomeSetEvent(InspectionOutcome outcome, IResult result)
-            {
-                Outcome = outcome;
-                Result = result;
-            }
-            public IResult Result { get; }
-            public InspectionOutcome Outcome { get; }
-
-            protected override IEnumerable<object> GetEqualityComponents()
-            {
-                yield return Outcome;
-                yield return Result.ConjunctElementCode;
-            }
+            RaiseDomainEvent(new NodeOutcomeChanged(outcome, Percent, FarmInspectionId));
         }
     }
 }

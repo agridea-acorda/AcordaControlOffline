@@ -4,9 +4,8 @@ using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail
 {
-    public class Inspection: MandateList.Inspection
+    public class Inspection: MandateList.InspectionInfo
     {
-        public int FarmInspectionId { get; set; }
         public string Campaign { get; set; }
         public string CommentForOffice { get; set; }
         public bool HasComplianceRequirements { get; set; }
@@ -56,6 +55,5 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             };
             return model;
         }
-
     }
 }

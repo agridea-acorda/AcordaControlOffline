@@ -125,6 +125,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             return this;
         }
 
+        public Inspection Progress(double percent)
+        {
+            PercentComputed = percent;
+            return this;
+        }
+
+        public Inspection SetOutcome(InspectionOutcome outcome)
+        {
+            OutcomeComputed = outcome;
+            return this;
+        }
+
         public bool HasComplianceRequirements()
         {
             return new HasComplianceRequirements().IsSatisfiedBy(this);
