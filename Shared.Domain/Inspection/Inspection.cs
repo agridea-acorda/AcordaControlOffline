@@ -1,5 +1,10 @@
 ﻿using System;
+using System.IO;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model;
 using Agridea.DomainDrivenDesign;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 {
@@ -155,6 +160,131 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
         public bool CanReopen()
         {
             return new CanReopen().IsSatisfiedBy(this);
+        }
+
+        public byte[] GenerateInspectionPdf(Inspection inspection, Farm.Farm farm)
+        {
+
+            var farmDisplay = GetFarmDisplay(farm);
+            //TODO recuperer les données
+            string cantonCode = "JU";//AcordaControlSession.Canton.Code;
+            string userName = "DefaultUserName";//AcordaControlSession.UserSecurityContext.UserName;
+            string logoPath = "";//Server.MapPath("~/Content/Images/focaa.png");
+            var model = InspectionPdfModel.FromInspection(inspection,
+                farmDisplay,
+                cantonCode,
+                logoPath);
+            var pdf = new InspectionPdf(model, userName, true);
+            return pdf.CreatePdf();
+
+
+        }
+
+        public FarmDisplayModel GetFarmDisplay(Farm.Farm f)
+        {
+           return new FarmDisplayModel
+                        {
+                            Id = (int)f.Id,
+                            Ktidb = f.Ktidb,
+                            Name = f.FarmName,
+                            //TODO get farm datas
+                            /*NameAddOn1 = f.NameAddOn1,
+                            NameAddOn2 = f.NameAddOn2,
+                            Street = f.Street,
+                            HouseNumber = f.HouseNumber,
+                            PostOfficeBoxNumber = f.PostOfficeBoxNumber,
+                            TownZip = f.Town.Zip,
+                            TownName = f.Town.Name,
+                            AddressAddOn = f.AddressAddOn,
+                            FarmTypeCode = f.FarmTypeCode,
+                            FarmTypeName = f.FarmTypeName,
+                            
+                            TotalAgriculturalArea = f.ParcelList.Sum(p => (int?)p.AgriculturalArea) ?? 0,
+                            TotalNonAgriculturalArea = f.ParcelList.Sum(p => (int?)p.NonAgriculturalArea) ?? 0,
+                            TotalUgb = f.AnimalList.Sum(a => a.UgbComputed) ?? 0.0,
+                            TotalUgbTvd = f.AnimalList.Where(a => tvdCategoryCodes.Contains(a.AnimalTypeAnimalCategoryCode)).Sum(a => a.UgbComputed) ?? 0.0,
+                            TotalUgbOther = f.AnimalList.Where(a => !tvdCategoryCodes.Contains(a.AnimalTypeAnimalCategoryCode)).Sum(a => a.UgbComputed) ?? 0.0,
+                            BioConversionStartYear = f.BioConversionStartYear,
+                            IsBio = f.BioRegistrationList.Any(x => x.HasCurrentYearInscription),
+                            ReturnUrl = returnUrl,
+
+                            IndicatorsId = f.Indicators != null ? f.Indicators.Id : default(int),
+                            // UGB
+                            IndicatorsLiveStockUnknownUmos = f.Indicators != null && f.Indicators.LiveStockUnknownUmos,
+                            IndicatorsLiveStockWith3UgbAnd02Umos = f.Indicators != null && f.Indicators.LiveStockWith3UgbAnd02Umos,
+                            IndicatorsLiveStockWithLessThan3UgbOr02Umos = f.Indicators != null && f.Indicators.LiveStockWithLessThan3UgbOr02Umos,
+                            IndicatorsAnimal = f.Indicators != null && f.Indicators.Animal,
+                            // Bees Fish
+                            IndicatorsBees = f.Indicators != null && f.Indicators.Bees,
+                            IndicatorsFish = f.Indicators != null && f.Indicators.Fish,
+                            // Biodiversity Cbe       
+                            IndicatorsBdNetwork = f.Indicators != null && f.Indicators.BdNetwork,
+                            IndicatorsBdQuality = f.Indicators != null && f.Indicators.BdQuality,
+                            IndicatorsCbe = f.Indicators != null && f.Indicators.Cbe,
+                            // Bts Raus       
+                            IndicatorsBts = f.Indicators != null && f.Indicators.Bts,
+                            IndicatorsRaus = f.Indicators != null && f.Indicators.Raus,
+                            IndicatorsBtsNextYear = f.Indicators != null && f.Indicators.BtsNextYear,
+                            IndicatorsRausNextYear = f.Indicators != null && f.Indicators.RausNextYear,
+                            // Cer
+                            IndicatorsCerCleaningSystem = f.Indicators != null && f.Indicators.CerCleaningSystem,
+                            IndicatorsCerCleaningSystemNextYear = f.Indicators != null && f.Indicators.CerCleaningSystemNextYear,
+                            IndicatorsCerLowEmissionFertilization = f.Indicators != null && f.Indicators.CerLowEmissionFertilization,
+                            IndicatorsCerLowEmissionFertilizationPreviousYear = f.Indicators != null && f.Indicators.CerLowEmissionFertilizationPreviousYear,
+                            IndicatorsCerLowPesticideBeetroot = f.Indicators != null && f.Indicators.CerLowPesticideBeetroot,
+                            IndicatorsCerLowPesticideBeetrootNextYear = f.Indicators != null && f.Indicators.CerLowPesticideBeetrootNextYear,
+                            IndicatorsCerLowPesticideFruits = f.Indicators != null && f.Indicators.CerLowPesticideFruits,
+                            IndicatorsCerLowPesticideFruitsNextYear = f.Indicators != null && f.Indicators.CerLowPesticideFruitsNextYear,
+                            IndicatorsCerLowPesticideWine = f.Indicators != null && f.Indicators.CerLowPesticideWine,
+                            IndicatorsCerLowPesticideWineNextYear = f.Indicators != null && f.Indicators.CerLowPesticideWineNextYear,
+                            IndicatorsCerMildSoilTreatment = f.Indicators != null && f.Indicators.CerMildSoilTreatment,
+                            IndicatorsCerMildSoilTreatmentNextYear = f.Indicators != null && f.Indicators.CerMildSoilTreatmentNextYear,
+                            IndicatorsCerPrecisePesticideApplication = f.Indicators != null && f.Indicators.CerPrecisePesticideApplication,
+                            IndicatorsCerPrecisePesticideApplicationNextYear = f.Indicators != null && f.Indicators.CerPrecisePesticideApplicationNextYear,
+                            IndicatorsCerLowPesticide = f.Indicators != null && f.Indicators.CerLowPesticide,
+                            IndicatorsCerOther = f.Indicators != null && f.Indicators.CerOther,
+                            IndicatorsCer = f.Indicators != null && f.Indicators.Cer,
+                            // Extenso
+                            IndicatorsExtenso = f.Indicators != null && f.Indicators.Extenso,
+                            IndicatorsExtensoNextYear = f.Indicators != null && f.Indicators.ExtensoNextYear,
+                            // Cqp
+                            IndicatorsCqp = f.Indicators != null && f.Indicators.Cqp,
+                            // Organic
+                            IndicatorsOrganicFieldCrops = f.Indicators != null && f.Indicators.OrganicFieldCrops,
+                            IndicatorsOrganicFieldCropsNextYear = f.Indicators != null && f.Indicators.OrganicFieldCropsNextYear,
+                            IndicatorsOrganicFruits = f.Indicators != null && f.Indicators.OrganicFruits,
+                            IndicatorsOrganicFruitsNextYear = f.Indicators != null && f.Indicators.OrganicFruitsNextYear,
+                            IndicatorsOrganicMultiannualCrops = f.Indicators != null && f.Indicators.OrganicMultiannualCrops,
+                            IndicatorsOrganicMultiannualCropsNextYear = f.Indicators != null && f.Indicators.OrganicMultiannualCropsNextYear,
+                            IndicatorsOrganicWine = f.Indicators != null && f.Indicators.OrganicWine,
+                            IndicatorsOrganicWineNextYear = f.Indicators != null && f.Indicators.OrganicWineNextYear,
+                            IndicatorsOrganic = f.Indicators != null && f.Indicators.Organic,
+                            // Oeln       
+                            IndicatorsOelnAromatic = f.Indicators != null && f.Indicators.OelnAromatic,
+                            IndicatorsOelnAromaticNextYear = f.Indicators != null && f.Indicators.OelnAromaticNextYear,
+                            IndicatorsOelnBerries = f.Indicators != null && f.Indicators.OelnBerries,
+                            IndicatorsOelnBerriesNextYear = f.Indicators != null && f.Indicators.OelnBerriesNextYear,
+                            IndicatorsOelnFieldCrops = f.Indicators != null && f.Indicators.OelnFieldCrops,
+                            IndicatorsOelnFieldCropsNextYear = f.Indicators != null && f.Indicators.OelnFieldCropsNextYear,
+                            IndicatorsOelnFruits = f.Indicators != null && f.Indicators.OelnFruits,
+                            IndicatorsOelnFruitsNextYear = f.Indicators != null && f.Indicators.OelnFruitsNextYear,
+                            IndicatorsOelnVeggies = f.Indicators != null && f.Indicators.OelnVeggies,
+                            IndicatorsOelnVeggiesNextYear = f.Indicators != null && f.Indicators.OelnVeggiesNextYear,
+                            IndicatorsOelnWine = f.Indicators != null && f.Indicators.OelnWine,
+                            IndicatorsOelnWineNextYear = f.Indicators != null && f.Indicators.OelnWineNextYear,
+                            IndicatorsOeln = f.Indicators != null && f.Indicators.Oeln,
+                            // PLVH
+                            IndicatorsPlvh = f.Indicators != null && f.Indicators.Plvh,
+                            IndicatorsPlvhPreviousYear = f.Indicators != null && f.Indicators.PlvhPreviousYear,
+                            // Summering
+                            IndicatorsSummering = f.Indicators != null && f.Indicators.Summering,
+                            IndicatorsSummeringAnimal = f.Indicators != null && f.Indicators.SummeringAnimal,
+                            IndicatorsSummeringCqp = f.Indicators != null && f.Indicators.SummeringCqp,
+                            // TO
+                            IndicatorsOpenCropland3HaPlus = f.Indicators != null && f.Indicators.OpenCropland3HaPlus,
+                            // Pure winemaker
+                            IndicatorsPureWinemaker = f.Indicators != null && f.Indicators.PureWinemaker*/
+                        };
         }
 
         public class InitObject

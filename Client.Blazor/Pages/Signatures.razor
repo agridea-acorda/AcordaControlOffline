@@ -9,6 +9,7 @@
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
+@inject IJSRuntime JSRuntime
 
 @if (isInitialized)
 {
@@ -28,7 +29,7 @@
         </div>
         <div class="card-body">
             <div class="form-group">
-                <button class="btn btn-primary"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
+                <button class="btn btn-primary" @onclick="(() => GenerateReportPdf())"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
             </div>
             <div class="form-group">
                 <div class="callout callout-info">
@@ -153,6 +154,7 @@
             </li>
         </ul>
     </div>
+
 }
 
 @code {
@@ -265,4 +267,21 @@
                       .FirstOrDefault(predicate)
                       ?.InspectorSignature ?? Signature.None;
     }
+
+    async void GenerateReportPdf()
+    {
+        farmId = int.Parse(Navigation.QueryString("FarmId"));
+        var mandate = await Repository.ReadMandateAsync(farmId);
+        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
+        if (inspection == null)
+            Console.WriteLine($"Error loading inspection with FarmInspectionId={FarmInspectionId}");
+        else
+        {
+            var farm = await Repository.ReadFarmAsync(farmId);
+            var file = inspection.GenerateInspectionPdf(inspection,farm);
+            //BlazorDownloadFile defined in app.js
+            await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", $"Rapport de controle {FarmInspectionId}.pdf", "application/octet-stream", file);
+        }
+    }
 }
+

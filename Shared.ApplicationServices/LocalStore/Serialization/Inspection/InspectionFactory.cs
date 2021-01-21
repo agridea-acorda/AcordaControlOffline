@@ -72,6 +72,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             var targetInstance = (Campaign)FormatterServices.GetUninitializedObject(typeof(Campaign));
             SetPropertyValueViaBackingField(typeof(Campaign), nameof(Campaign.Id), targetInstance, dto.Id);
             SetPropertyValueViaBackingField(typeof(Campaign), nameof(Campaign.Name), targetInstance, dto.Name);
+            SetPropertyValueViaBackingField(typeof(Campaign), nameof(Campaign.Year), targetInstance, dto.Year);
             return targetInstance;
         }
 
