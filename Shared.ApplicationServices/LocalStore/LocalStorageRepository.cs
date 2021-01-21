@@ -54,6 +54,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return new MandateFactory().Parse(json);
         }
 
+        public async ValueTask DeleteMandateAsync(int farmId)
+        {
+            await localStorage_.RemoveItemAsync(MandateDetailKey(farmId));
+        }
+
         public async ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId)
         {
             return await ReadSignatureAsync(farmId, farmInspectionId, x => x?.InspectorSignature);
@@ -93,6 +98,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             string json = await localStorage_.GetItemAsStringAsync(FarmKey(farmId));
             return new FarmFactory().Parse(json);
+        }
+
+        public async ValueTask DeleteFarmAsync(int farmId)
+        {
+            await localStorage_.RemoveItemAsync(FarmKey(farmId));
         }
 
         public async ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id)
@@ -139,6 +149,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             string json = await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
             return new ChecklistFactory().Parse(json);
+        }
+
+        public async ValueTask DeleteChecklistAsync(int farmInspectionId)
+        {
+            await localStorage_.RemoveItemAsync(ChecklistKey(farmInspectionId));
         }
 
         public async ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync()

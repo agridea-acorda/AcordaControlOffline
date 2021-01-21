@@ -46,8 +46,18 @@
                         foreach (var mandate in mandates)
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
-                                @if (mandate.SyncStatus == SyncStatus.Loaded)
+                                @if (mandate.SyncStatus == SyncStatus.Loaded || mandate.SyncStatus == SyncStatus.Deleting)
                                 {
+                                    <button @onclick="@(() => PrepareModal(mandate, mandate.Farm.Id))" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
+                                        @if (mandate.SyncStatus != SyncStatus.Deleting)
+                                        {
+                                            <i class="far fa-trash-alt"></i><span class="sr-only">Supprimer les données locales</span>
+                                        }
+                                        @if (mandate.SyncStatus == SyncStatus.Deleting)
+                                        {
+                                            <i class="fas fa-spinner fa-spin"></i> <span class="sr-only">Suppression en cours...</span>
+                                        }
+                                    </button>
                                     <button class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="modal" data-target="#exampleModal">
                                         <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span> Renvoyer
                                     </button>
@@ -55,13 +65,12 @@
                                         <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
                                     </button>
                                 }
-                                @if (mandate.SyncStatus == SyncStatus.Unavailable ||
-                                mandate.SyncStatus == SyncStatus.Loading)
+                                @if (mandate.SyncStatus == SyncStatus.Unavailable || mandate.SyncStatus == SyncStatus.Loading)
                                 {
-                                    <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
+                                    <button @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)" class="btn btn-primary btn-sm float-right ml-1">
                                         @if (mandate.SyncStatus != SyncStatus.Loading)
                                         {
-                                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> <span>Télécharger</span>
+                                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Télécharger</span> <span>Télécharger</span>
                                         }
 
                                         @if (mandate.SyncStatus == SyncStatus.Loading)
@@ -102,13 +111,38 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-danger" role="alert">
-                    Attention: les données du mandat (checklist, signatures, suivi, ...) seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
-                    Assurez-vous d'avoir une bonne connexion internet.
+                    <u>Attention</u>: les données du mandat (checklist, signatures, suivi, ...) saisies seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
+                    Assurez-vous d'avoir une connexion internet fiable.
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary">
                     <i class="fas fa-cloud-upload-alt"></i> J'ai compris, envoyer
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Supprimer les données téléchargées</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <u>Attention</u>: les données du mandat seront <strong>effacées de la tablette</strong>.
+                    Etes-vous sûr(e) ?
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button @onclick="() => DeleteMandate(mandateForModal, farmIdForModal)" data-dismiss="modal" type="button" class="btn btn-primary">
+                    <i class="far fa-trash-alt"></i> Oui, effacer
                 </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
             </div>
@@ -124,6 +158,8 @@
     string plural => mandates == null ? "s" :
                      mandates.Length > 1 ? "s"
                      : "";
+    Mandate mandateForModal;
+    int farmIdForModal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -194,6 +230,30 @@
         else mandateModel.SyncStatus = savedSyncStatus;
 
         mandateModel.SyncStatus = SyncStatus.Loaded;
+    }
+
+    void PrepareModal(Mandate mandate, int farmId)
+    {
+        mandateForModal = mandate;
+        farmIdForModal = farmId;
+    }
+
+    async Task DeleteMandate(Mandate mandateModel, int farmId)
+    {
+        mandateModel.SyncStatus = SyncStatus.Deleting;
+
+        await Task.Delay(2 * 1000);
+        var mandate = await Repository.ReadMandateAsync(farmId);
+        if (mandate != null)
+            foreach (var inspection in mandate.Inspections)
+            {
+                await Repository.DeleteChecklistAsync(inspection.FarmInspectionId);
+            }
+
+        await Repository.DeleteFarmAsync(farmId);
+        await Repository.DeleteMandateAsync(farmId);
+
+        mandateModel.SyncStatus = SyncStatus.Unavailable;
     }
 
     async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
