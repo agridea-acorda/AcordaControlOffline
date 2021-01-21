@@ -137,6 +137,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             return this;
         }
 
+        public Inspection SetPdfReport(PdfReport report)
+        {
+            PdfReport = report;
+            return this;
+        }
+
         public bool HasComplianceRequirements()
         {
             return new HasComplianceRequirements().IsSatisfiedBy(this);
@@ -162,7 +168,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             return new CanReopen().IsSatisfiedBy(this);
         }
 
-        public byte[] GenerateInspectionPdf(Inspection inspection, Farm.Farm farm)
+        public byte[] GenerateInspectionPdf(Farm.Farm farm, bool showWatermark = true)
         {
 
             var farmDisplay = GetFarmDisplay(farm);
@@ -170,11 +176,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             string cantonCode = "JU";//AcordaControlSession.Canton.Code;
             string userName = "DefaultUserName";//AcordaControlSession.UserSecurityContext.UserName;
             string logoPath = "";//Server.MapPath("~/Content/Images/focaa.png");
-            var model = InspectionPdfModel.FromInspection(inspection,
-                farmDisplay,
-                cantonCode,
-                logoPath);
-            var pdf = new InspectionPdf(model, userName, true);
+            var model = InspectionPdfModel.FromInspection(this,
+                                                          farmDisplay,
+                                                          cantonCode,
+                                                          logoPath);
+            var pdf = new InspectionPdf(model, userName, showWatermark);
             return pdf.CreatePdf();
 
 

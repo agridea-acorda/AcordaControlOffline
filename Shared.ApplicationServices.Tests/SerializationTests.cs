@@ -75,6 +75,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
+        public void Can_serialize_then_parse_inspection_with_pdf_report()
+        {
+            TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection_);
+            inspection_.SetPdfReport(new PdfReport(inspection_.GenerateInspectionPdf(farm_, false)));
+            var factory = new InspectionFactory();
+            string json = factory.Serialize(inspection_);
+            var inspection = factory.Parse(json);
+            TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection);
+            inspection.PdfReport.Should().Be(inspection_.PdfReport);
+        }
+
+        [Fact]
         public void Can_serialize_farm()
         {
             string json = new FarmFactory().Serialize(farm_);

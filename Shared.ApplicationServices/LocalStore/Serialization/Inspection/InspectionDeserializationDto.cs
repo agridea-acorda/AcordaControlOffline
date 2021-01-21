@@ -73,7 +73,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public class PdfReport
         {
-            public byte[] Bytes { get; set; }
+            public string Bytes { get; set; }
         }
 
         public class FinishStatus
