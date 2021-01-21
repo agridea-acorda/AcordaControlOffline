@@ -99,5 +99,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
                 return Result.Failure<string>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
             }
         }
+
+        public Task<Result<byte[]>> FetchPdf(HttpClient httpClient, string uri)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

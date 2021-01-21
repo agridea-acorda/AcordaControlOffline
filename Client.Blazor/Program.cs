@@ -4,14 +4,17 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth;
+using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.recencementAutomation;
 using Agridea.DomainDrivenDesign;
 using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +31,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // Acordacontrol api
             builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(Settings.ApiBaseAddres) });
             builder.Services.AddScoped<IApiClient, ApiClient>();
+
+            builder.Services.AddHttpClient("AcordaRecensement",
+                client => client.BaseAddress = new Uri("http://localhost:8221"));
+
+
             //builder.Services.AddHttpClient<IApiClient, ApiClient>(nameof(ApiClient),
             //                                                              client =>
             //                                                              {
@@ -38,7 +46,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             //                                                                  client.BaseAddress = new Uri(Settings.ApiBaseAddres);
             //                                                                  //client.DefaultRequestHeaders.Add("api-key", apiSettings.ApiKey);
             //                                                              });
-            
+
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
@@ -69,5 +77,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
 
             await host.RunAsync();
         }
+
     }
 }

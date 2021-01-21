@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.recencementAutomation;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
 using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate;
@@ -101,6 +103,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             var httpResponse = await httpClient_.SendAsync(request);
             httpResponse.EnsureSuccessStatusCode();
             return httpResponse;
+        }
+
+        public async Task<Result<byte[]>> FetchPdf(HttpClient httpClient, string uri)
+        {
+            var client = new AcordaRecensementWebUIAutomation(httpClient, "JU","","",7);
+            byte[] data = await client.DownloadFormAAsync();
+            //var httpResponse = await SendRequest(uri, DefaultDelayInMs);
+            return data;
         }
     }
 }

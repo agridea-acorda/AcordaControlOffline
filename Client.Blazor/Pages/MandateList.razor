@@ -1,5 +1,5 @@
 ﻿@page "/MandateList"
-@attribute [Authorize]
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IApiClient Api
@@ -9,28 +9,29 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 @using CSharpFunctionalExtensions
-@using Microsoft.AspNetCore.Authorization
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
-@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
+@using System.Threading
+@inject IHttpClientFactory ClientFactory
+@inject IJSRuntime JSRuntime
 
 <div class="row">
     <div class="col-sm-12">
         @*<div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Filtre</h3>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
+                <div class="card-header">
+                    <h3 class="card-title">Filtre</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <p>Filtres ici</p>
-            </div>
-            <div class="card-footer">
-                <button class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
-            </div>
-        </div>*@
+                <div class="card-body">
+                    <p>Filtres ici</p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                </div>
+            </div>*@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
@@ -56,7 +57,7 @@
                                     </button>
                                 }
                                 @if (mandate.SyncStatus == SyncStatus.Unavailable ||
-                                mandate.SyncStatus == SyncStatus.Loading)
+                              mandate.SyncStatus == SyncStatus.Loading)
                                 {
                                     <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
                                         @if (mandate.SyncStatus != SyncStatus.Loading)
@@ -193,7 +194,20 @@
             }
         else mandateModel.SyncStatus = savedSyncStatus;
 
+        var file = await Api.FetchPdf(new HttpClient(new CookieHandler()), $"AcordaAutomation/FormInscriptionsAsync/{farmId}");
+        //await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", $"Rapport de controle.pdf", "application/octet-stream", file);
         mandateModel.SyncStatus = SyncStatus.Loaded;
+    }
+
+    public class CookieHandler : DelegatingHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            InnerHandler = new HttpClientHandler();
+            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+            return await base.SendAsync(request, cancellationToken);
+        }
     }
 
     async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)

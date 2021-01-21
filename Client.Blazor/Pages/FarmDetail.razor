@@ -5,15 +5,17 @@
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Shared
 @using Microsoft.AspNetCore.Authorization
 @using Badge = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Badge.Badge
+@using System.Security.Policy
 
 @if (farmViewModel == null)
 {
     <p>Loading...</p>
 }
 else
-{
+{ 
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">@farmViewModel.Ktidb @farmViewModel.FarmName</h3>
@@ -35,15 +37,18 @@ else
                 <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@farmViewModel.BovineStandardUnitsFromBdta</span>
             </p>
             <BadgeBar Badges="@farmViewModel.Badges" />
+
+
         </div>
     </div>
-
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Données de structure et inscriptions programmes</h3>
         </div>
         <div class="card-body">
             <p>Content here</p>
+            <a class="btn btn-app " href="/AcordaAutomation/FormInscriptionsAsync/farmId7" title="Formulaire Inscriptions pour les types de paiements directs et les PER"><i class="fa fa-file-pdf"></i>Inscriptions</a>
+
         </div>
     </div>
 
