@@ -13,7 +13,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
 
         public FinishStatus(DateTime? doneOn, string doneByInspector)
         {
-            if (doneOn.HasValue != !string.IsNullOrWhiteSpace(DoneByInspector))
+            if (doneOn.HasValue != !string.IsNullOrWhiteSpace(doneByInspector))
                 throw new InvalidOperationException("Done-date and -inspector must be either both set or both empty.");
 
             DoneOn = doneOn;

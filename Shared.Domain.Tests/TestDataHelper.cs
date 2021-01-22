@@ -103,7 +103,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
         public static readonly Guid InspectionId = Guid.NewGuid();
         public const long ChecklistId = 1;
         public static readonly Inspection.Domain Domaine_PER_Grandes_Cultures = new Inspection.Domain(1, "PER grandes cultures");
-        public static readonly Campaign Campagne_été_2020 = new Campaign(1, "Campagne été 2020");
+        public static readonly Campaign Campagne_été_2020 = new Campaign(1, "Campagne été 2020", 2020);
         public const string EmptyComment = "";
         public const long FarmId = 1;
         
