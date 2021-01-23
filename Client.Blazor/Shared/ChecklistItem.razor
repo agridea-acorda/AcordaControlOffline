@@ -22,6 +22,10 @@
         <button @onclick="() => edit.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
         <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
     }
+    @if (!string.IsNullOrWhiteSpace(Node.Name))
+    {
+        <button @onclick="@DisplayInfo" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
+    }
 </div>
 
 <Blazorise.Modal @ref="@confirmDelete">
@@ -90,6 +94,24 @@
     </EditForm>
 </Blazorise.Modal>
 
+<Blazorise.Modal @ref="@info">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent>
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Aide au contrôle, point @Node.ConjunctElementCode</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => info.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>@((MarkupString)(Node.Name?.CurateAsReadableText()))</Blazorise.FieldLabel>
+            </Blazorise.Field>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button class="btn btn-default" @onclick="() => info.Hide()">Fermer</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 @code {
     [Parameter]
     public ResultModel Node { get; set; }
@@ -103,7 +125,8 @@
     public EventCallback<ResultModel> OnDeleted { get; set; }
     Blazorise.Modal confirmDelete;
     Blazorise.Modal edit;
-
+    Blazorise.Modal info;
+    
     async Task SetOutcome(InspectionOutcome outcome)
     {
         Node.Outcome = outcome;
@@ -120,8 +143,12 @@
     {
         confirmDelete.Hide();
         Node.Clear();
-        //await SetOutcome(InspectionOutcome.Unset);
         await OnDeleted.InvokeAsync(Node);
+    }
+
+    void DisplayInfo()
+    {
+        info.Show();
     }
 
     public class ResultModel
@@ -131,6 +158,7 @@
         public string ConjunctElementCode { get; set; }
         public string ParentConjunctElementCode { get; set; }
         public string ShortName { get; set; }
+        public string Name { get; set; }
         public InspectionOutcome Outcome { get; set; }
         public string InspectorComment { get; set; }
         public string FarmerComment { get; set; }
@@ -162,6 +190,7 @@
                 ConjunctElementCode = node.ConjunctElementCode,
                 ParentConjunctElementCode = node.Parent?.ConjunctElementCode ?? "",
                 ShortName = node.ShortName,
+                Name = node.Name,
                 Outcome = node.Outcome,
                 Id = node.ConjunctElementCode.CurateAsElementId(),
                 InspectorComment = node.InspectorComment,
