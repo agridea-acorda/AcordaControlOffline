@@ -16,6 +16,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public string Name { get; }
 
         public InspectionOutcome Outcome { get; set; }
+        public bool IsAutoSet { get; set; }
         public string InspectorComment { get; set; }
         public string FarmerComment { get; set; }
         
@@ -24,6 +25,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         IResult IResult.SetOutcome(InspectionOutcome outcome)
         {
             return SetOutcome(outcome);
+        }
+
+        public IResult SetAuto(bool isAutoSet)
+        {
+            IsAutoSet = isAutoSet;
+            return this;
         }
 
         public IResult SetInspectorComment(string comment)

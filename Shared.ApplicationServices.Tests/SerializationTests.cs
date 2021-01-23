@@ -57,6 +57,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
+        public void Can_serialize_then_parse_autoset()
+        {
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist_);
+            checklist_.Find("R1,P2").SetAuto();
+            var checklistFactory = new ChecklistFactory();
+            string json = checklistFactory.Serialize(checklist_);
+            var checklist = checklistFactory.Parse(json);
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
+            checklist.Find("R1,P2").IsAutoSet.Should().Be(true);
+        }
+
+        [Fact]
         public void Can_serialize_inspection()
         {
             string json = new InspectionFactory().Serialize(inspection_);

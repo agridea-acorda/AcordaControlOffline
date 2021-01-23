@@ -16,6 +16,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public string ElementCode { get; set; }
             public string ShortName { get; set; }
             public InspectionOutcome Outcome { get; set; }
+            public bool IsAutoSet { get; set; }
             public string InspectorComment { get; set; }
             public string FarmerComment { get; set; }
             public Defect Defect { get; set; }

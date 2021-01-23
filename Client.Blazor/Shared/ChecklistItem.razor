@@ -3,7 +3,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 
-<div id="@Node.Id" class="list-group-item">
+<div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
     {
         <a @onclick="@(() => OnNodeViewChanged.InvokeAsync(Node.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
@@ -116,6 +116,8 @@
     [Parameter]
     public ResultModel Node { get; set; }
     [Parameter]
+    public bool ShowIfAutoSet { get; set; }
+    [Parameter]
     public EventCallback<string> OnNodeViewChanged { get; set; }
     [Parameter]
     public EventCallback<ResultModel> OnNodeEdited { get; set; }
@@ -126,16 +128,22 @@
     Blazorise.Modal confirmDelete;
     Blazorise.Modal edit;
     Blazorise.Modal info;
+    string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
+    string autosetCssClass => Node.IsAutoSet ? "striped" : "";
     
     async Task SetOutcome(InspectionOutcome outcome)
     {
+        var previousOutcome = Node.Outcome;
         Node.Outcome = outcome;
+        if (previousOutcome != outcome)
+            Node.IsAutoSet = false;
         await OnOutcomeChanged.InvokeAsync(Node);
     }
 
     async Task OnSubmit(EditContext editContext)
     {
         edit.Hide();
+        Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
         await OnNodeEdited.InvokeAsync(Node);
     }
 
@@ -160,6 +168,7 @@
         public string ShortName { get; set; }
         public string Name { get; set; }
         public InspectionOutcome Outcome { get; set; }
+        public bool IsAutoSet { get; set; }
         public string InspectorComment { get; set; }
         public string FarmerComment { get; set; }
         public string DefectDescription { get; set; }
@@ -168,7 +177,7 @@
         public int SeriousnessCode { get; set; }
         public string Id { get; set; }
         public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
-
+        
         public void Clear()
         {
             Outcome = InspectionOutcome.Unset;
@@ -178,6 +187,7 @@
             DefectSize = Defect.None.Size.Size;
             DefectUnit = Defect.None.Size.Unit;
             SeriousnessCode = DefectSeriousness.Empty.Code;
+            IsAutoSet = false;
         }
 
         public static ResultModel MapFrom(ITreeNode<Result> node)
@@ -192,6 +202,7 @@
                 ShortName = node.ShortName,
                 Name = node.Name,
                 Outcome = node.Outcome,
+                IsAutoSet = node.IsAutoSet,
                 Id = node.ConjunctElementCode.CurateAsElementId(),
                 InspectorComment = node.InspectorComment,
                 FarmerComment = node.FarmerComment,
