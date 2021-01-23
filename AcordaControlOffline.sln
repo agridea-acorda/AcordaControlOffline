@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agridea.SpecificationPatter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.ApplicationServices.Tests", "Shared.ApplicationServices.Tests\Shared.ApplicationServices.Tests.csproj", "{A0FCB705-ADEF-4561-ADC8-EE5DB262762F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agridea.Core", "Agridea.Core\Agridea.Core.csproj", "{53B1466B-A81E-425D-A47B-2937B9B7C414}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agridea.Core", "Agridea.Core\Agridea.Core.csproj", "{53B1466B-A81E-425D-A47B-2937B9B7C414}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

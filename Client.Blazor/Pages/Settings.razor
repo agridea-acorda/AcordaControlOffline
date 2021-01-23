@@ -1,0 +1,35 @@
+﻿@page "/Settings"
+@inject ISettingsService SettingsService
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Configuration</h3>
+    </div>
+    <div class="card-body">
+        <EditForm Model="@model" OnSubmit="@Save">
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>Adresse de l'api AcordaControl</Blazorise.FieldLabel>
+                <Blazorise.TextEdit @bind-Text="@model.ApiBaseAddres" />
+            </Blazorise.Field>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>Se souvenir des identifiants de connexion pendant (jours)</Blazorise.FieldLabel>
+                <Blazorise.NumericEdit TValue="int" @bind-Value="@model.AuthCookieExpiryDays" Step="1" Min="0" Max="365" />
+            </Blazorise.Field>
+        </EditForm>      
+    </div>
+</div>
+
+@code {
+    AcordaControlOffline.Client.Blazor.Settings model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await SettingsService.Read();
+    }
+
+    async Task Save(EditContext editContext)
+    {
+        var settings = (AcordaControlOffline.Client.Blazor.Settings)editContext.Model;
+        await SettingsService.Save(settings);
+    }
+}

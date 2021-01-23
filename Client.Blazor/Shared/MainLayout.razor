@@ -28,6 +28,15 @@
             <img src="logo.png" alt="AcordaControl logo" class="brand-image img-rounded elevation-2" style="margin-top: -1px; margin-left: 9px;" />
             <span class="brand-text font-weight-normal"><b>Acorda</b>Control</span>
         </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" role="menu" data-accordion="false">
+                    <li class="nav-item">
+                        <a href="#" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Settings")' class="nav-link"><i class="nav-icon fas fa-th"></i> Configuration</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </aside>
 
     <div class="content-wrapper">

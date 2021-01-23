@@ -1,6 +1,5 @@
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth;
@@ -26,22 +25,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.RootComponents.Add<App>("app");
 
             // Acordacontrol api
-            builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(Settings.ApiBaseAddres) });
+            builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(Settings.Default.ApiBaseAddres) });
             builder.Services.AddScoped<IApiClient, ApiClient>();
-            //builder.Services.AddHttpClient<IApiClient, ApiClient>(nameof(ApiClient),
-            //                                                              client =>
-            //                                                              {
-            //                                                                  // sample data in local json file
-            //                                                                  //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-
-            //                                                                  // real api
-            //                                                                  client.BaseAddress = new Uri(Settings.ApiBaseAddres);
-            //                                                                  //client.DefaultRequestHeaders.Add("api-key", apiSettings.ApiKey);
-            //                                                              });
             
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
+
+            // settings
+            builder.Services.AddScoped<ISettingsService, SettingsService>();
 
             // auth
             builder.Services.AddAuthorizationCore();
