@@ -1,0 +1,29 @@
+﻿@page "/Login"
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Login
+@inject NavigationManager Navigation
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Connexion</h3>
+    </div>
+    <div class="card-body">
+        @if (initialized)
+        {
+            <LoginComponent Model="@loginModel"></LoginComponent>
+        }
+    </div>
+</div>
+
+@code {
+
+    bool initialized;
+    LoginModel loginModel;
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Executing OnInitialized from Login");
+        loginModel = LoginModel.Empty();
+        initialized = true;
+    }
+
+}

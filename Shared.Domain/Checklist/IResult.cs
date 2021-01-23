@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
@@ -17,5 +17,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         DefectSeriousness Seriousness { get; }
         //IList<File> Photos { get; set; }
         //IList<File> Attachments { get; set; }
+
+        IResult SetOutcome(InspectionOutcome outcome);
+        IResult SetInspectorComment(string comment);
+        IResult SetFarmerComment(string comment);
+        IResult SetDefect(Defect defect, DefectSeriousness seriousness);
     }
 }

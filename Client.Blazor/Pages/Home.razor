@@ -1,0 +1,19 @@
+﻿@using System.Security.Claims
+@page "/"
+@inject NavigationManager Navigation
+
+@code {
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+        var principal = authState.User;
+        string username = principal.FindFirst(x => x.Type == ClaimTypes.Name)?.Value ?? "";
+        bool isSignedIn = !string.IsNullOrEmpty(username);
+        Navigation.NavigateTo(!isSignedIn ? "/Login" : "/MandateList");
+    }
+
+}

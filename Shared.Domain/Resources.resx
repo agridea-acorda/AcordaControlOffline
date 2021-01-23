@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppointmentContactDateString" xml:space="preserve">
+    <value>Contacté le {0}</value>
+  </data>
+  <data name="AppointmentDateString" xml:space="preserve">
+    <value>Rendez-vous le {0}</value>
+  </data>
+  <data name="ApppointmentNotSet" xml:space="preserve">
+    <value>(Non agendé)</value>
+  </data>
   <data name="InspectionModeScheduled" xml:space="preserve">
     <value>Annoncé</value>
   </data>

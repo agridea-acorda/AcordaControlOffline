@@ -1,6 +1,4 @@
-﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
-@using Agridea.ProductInfo
+﻿@using Agridea.ProductInfo
 @using Blazored.LocalStorage
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 
@@ -18,97 +16,10 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link btn btn-outline-warning" href="#" @onclick="Reset">Réinitialiser la démo</a>
+                <a class="nav-link btn btn-outline-warning" href="#" @onclick="Reset">Réinitialiser</a>
             </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="fas fa-user"></i>
-                    @if (isSignedIn)
-                    {
-                        <span> @username</span>
-                    }
-                    else
-                    { <span> @Canton.Unselected</span>}
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <div class="dropdown-header bg-gradient-success">
-                        <span class="fa-stack fa-3x">
-                            <i class="far fa-square fa-stack-2x fa-inverse"></i>
-                            <i class="fas fa-user fa-stack-1x fa-inverse"></i>
-                        </span>
-                        @if (isSignedIn)
-                        {
-                            <p>@username</p>
-                            <p><small>@role</small></p>
-                        }
-                        else
-                        {
-                            <p>Aucun utilisateur connecté</p>
-                        }
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-footer text-left">
-                        @if (isSignedIn)
-                        {
-                            <button type="button" class="btn btn-default mb-1"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
-                            <button type="button" class="btn btn-default mb-1"><i class="fas fa-lock"></i> Changer mot de passe</button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-default mb-1"><i class="fas fa-sign-in-alt"></i> Connexion</button>
-                        }
-                    </div>
-                </div>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#">
-                    <i class="fas fa-shield-alt"></i>
-                    @if (isCantonChosen)
-                    {
-                        <strong> @selectedCanton.Code</strong>
-                    }
-                    else
-                    {
-                        <strong> @Canton.Unselected</strong>
-                    }
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <div class="dropdown-header bg-gradient-success">
-                        @if (isCantonChosen)
-                        {
-                            <img src="@selectedCanton.ImgSrcBig" class="img-thumbnail" alt="Drapeau canton" />
-                            <p>@selectedCanton.FriendlyName</p>
-                        }
-                        else
-                        {
-                            <span class="fa-stack fa-3x">
-                                <i class="far fa-square fa-stack-2x fa-inverse"></i>
-                                <i class="fas fa-shield-alt fa-stack-1x fa-inverse"></i>
-                            </span>
-                            <p>Choisir le canton</p>
-                        }
-                    </div>
-                    <div class="row m-2">
-                        @foreach (Canton canton in Canton.Cantons)
-                        {
-                            bool selected = isCantonChosen && selectedCanton.Code == canton.Code;
-                            <div class="col-sm-3 text-center">
-                                <a href="#">
-                                    <img src="@(selected ? canton.ImgSrcInactive : canton.ImgSrc)" class="img-rounded" alt="Drapeau @canton.Code petit" />
-                                    <p>@canton.Code</p>
-                                </a>
-                            </div>
-                        }
-                    </div>
-                    @if (isCantonChosen)
-                    {
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-footer text-left">
-                            <button type="button" class="btn btn-default mb-1"><i class="fas fa-door-open"></i> Sortir</button>
-                        </div>
-                    }
-                </div>
-            </li>
+            <UserDisplay />
+            <CantonDisplay />
         </ul>
     </nav>
 
@@ -126,15 +37,6 @@
                     <div class="col-sm-6">
                         <h1>Mandats de contrôle</h1>
                     </div>
-                    @*<div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li>
-                                    <a href="#">
-                                        <i class="fas fa-home"></i> Accueil
-                                    </a>
-                                </li>
-                            </ol>
-                        </div>*@
                 </div>
             </div>
         </section>
@@ -152,18 +54,16 @@
 
 @code {
 
-    bool isSignedIn = true;
-    string username = "inspector@organisation.ch";
-    string role = "inspector";
-
-    bool isCantonChosen = true;
-    Canton selectedCanton = Canton.JU;
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Executing OnInitialized from MainLayout");
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await Js.InvokeVoidAsync("initAdminlte");
+            await Js.InvokeVoidAsync(JsInterop.InitAdminLte);
         }
     }
 

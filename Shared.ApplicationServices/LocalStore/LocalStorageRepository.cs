@@ -1,19 +1,23 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Farm;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Blazored.LocalStorage;
+using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 {
     public class LocalStorageRepository : IRepository
     {
         public const string Mandates = "mandates";
-        public const string MandateDetail = "mandateDetail";
         public const string Checklist = "checklist";
         public const string ActionsOrDocuments = "actionsOrDocuments";
 
@@ -33,23 +37,98 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return await localStorage_.GetItemAsync<Mandate[]>(Mandates);
         }
 
+        public async ValueTask ClearMandatesListAsync()
+        {
+            await localStorage_.RemoveItemAsync(Mandates);
+        }
+
         public async ValueTask<bool> HasMandateAsync(int farmId)
         {
             string key = MandateDetailKey(farmId);
             return await localStorage_.ContainKeyAsync(key);
         }
 
-        public async ValueTask<ViewModel.MandateDetail.Mandate> ReadMandateAsync(int farmId)
+        public async ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId)
         {
-            string key = MandateDetailKey(farmId);
-            return await localStorage_.GetItemAsync<ViewModel.MandateDetail.Mandate>(key);
+            string json = await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+            return new MandateFactory().Parse(json);
         }
 
-        public async ValueTask SaveMandateAsync(ViewModel.MandateDetail.Mandate mandate, int id = 0)
+        public async ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId)
         {
-            id = id == default ? mandate.Farm.Id : id;
+            return await ReadSignatureAsync(farmId, farmInspectionId, x => x?.InspectorSignature);
+        }
+
+        public async ValueTask SaveInspectorSignatureAsync(int farmId, int farmInspectionId, Signature signature)
+        {
+            var mandate = await ReadMandateAsync(farmId);
+            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+            if (inspection != null)
+                inspection.InspectorSigns(signature);
+            
+            await localStorage_.SetItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
+        }
+
+        public async ValueTask<Signature> ReadFarmerSignatureAsync(int farmId, int farmInspectionId)
+        {
+            return await ReadSignatureAsync(farmId, farmInspectionId, x => x?.FarmerSignature);
+        }
+
+        public async ValueTask SaveFarmerSignatureAsync(int farmId, int farmInspectionId, Signature signature)
+        {
+            await SaveSignatureAsync(farmId, farmInspectionId, signature, (i, s) => i.FarmerSigns(s));
+        }
+
+        public async ValueTask<Signature> ReadInspector2SignatureAsync(int farmId, int farmInspectionId)
+        {
+            return await ReadSignatureAsync(farmId, farmInspectionId, x => x?.Inspector2Signature);
+        }
+
+        public async ValueTask SaveInspector2SignatureAsync(int farmId, int farmInspectionId, Signature signature)
+        {
+            await SaveSignatureAsync(farmId, farmInspectionId, signature, (i, s) => i.Inspector2Signs(s));
+        }
+
+        public async ValueTask<Farm> ReadFarmAsync(int farmId)
+        {
+            string json = await localStorage_.GetItemAsStringAsync(FarmKey(farmId));
+            return new FarmFactory().Parse(json);
+        }
+
+        public async ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id)
+        {
+            string key = MandateDetailKey(id); 
+            await localStorage_.SetItemAsync(key, new MandateFactory().Serialize(mandate));
+        }
+
+        public async ValueTask SaveProvisoryControlePdf(byte[] pdfData, string key)
+        {
+            await localStorage_.SetItemAsync(key, Convert.ToBase64String(pdfData));
+        }
+
+
+        public async ValueTask<byte[]> ReadProvisoryControlePdf(string key)
+        {
+            string base64 = await localStorage_.GetItemAsStringAsync(key);
+            return Convert.FromBase64String(base64);
+        }
+
+        public async ValueTask SaveMandateJsonAsync(string json, int id)
+        {
             string key = MandateDetailKey(id);
-            await localStorage_.SetItemAsync(key, mandate);
+            await localStorage_.SetItemAsync(key, json);
+        }
+
+        public async ValueTask SaveFarmJsonAsync(string json, int id)
+        {
+            string key = FarmKey(id);
+            await localStorage_.SetItemAsync(key, json);
+        }
+
+        public async ValueTask SaveChecklistJsonAsync(string json, int id)
+        {
+            string key = ChecklistKey(id);
+            await localStorage_.SetItemAsync(key, json);
         }
 
         public async ValueTask<ChecklistSample> ReadChecklistSampleAsync()
@@ -62,16 +141,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(Checklist, checklist);
         }
 
-        public async ValueTask SaveChecklistAsync(Checklist checklist, Func<Checklist, string> serialize)
+        public async ValueTask SaveChecklistAsync(Checklist checklist)
         {
-            string json = serialize(checklist);
+            string json = new ChecklistFactory().Serialize(checklist);
             await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
         }
 
-        public async ValueTask<Checklist> ReadChecklistAsync(int farmInspectionId, Func<string, Checklist> deserialize)
+        public async Task<Checklist> ReadChecklistAsync(int farmInspectionId)
         {
             string json = await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
-            return deserialize(json);
+            return new ChecklistFactory().Parse(json);
         }
 
         public async ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync()
@@ -84,21 +163,41 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(ActionsOrDocuments, model);
         }
 
+        private async ValueTask<Signature> ReadSignatureAsync(int farmId, int farmInspectionId, Func<Inspection, Signature> getSignature)
+        {
+            var mandate = await ReadMandateAsync(farmId);
+            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+            return getSignature(inspection) ?? Signature.None;
+        }
+
+        public async ValueTask SaveSignatureAsync(int farmId, int farmInspectionId, Signature signature, Action<Inspection, Signature> signAction)
+        {
+            var mandate = await ReadMandateAsync(farmId);
+            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+            if (inspection != null)
+                signAction(inspection, signature);
+
+            await localStorage_.SetItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
+        }
+
         private static string MandateDetailKey(int farmId)
         {
-            return $"{MandateDetail}_{farmId}";
+            return $"mandate_FarmId{farmId}";
+        }
+
+        private static string FarmKey(int farmId)
+        {
+            return $"farm_Id{farmId}";
         }
 
         private static string ChecklistKey(Checklist checklist)
         {
-            // int farmInspectionId = checklist.FarmInspectionId; // todo implement this
-            int farmInspectionId = 0;
-            return ChecklistKey(farmInspectionId);
+            return ChecklistKey(checklist.FarmInspectionId);
         }
 
         private static string ChecklistKey(int farmInspectionId)
         {
-            return $"{Checklist}_{farmInspectionId}";
+            return $"{Checklist}_FarmInspectionId{farmInspectionId}";
         }
     }
 }

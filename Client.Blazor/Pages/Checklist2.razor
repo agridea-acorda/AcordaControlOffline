@@ -1,0 +1,256 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using Ardalis.GuardClauses
+@using Microsoft.AspNetCore.Authorization
+@using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
+@inherits PageBase
+@page "/Checklist2/{FarmInspectionId:int}"
+@attribute [Authorize]
+@inject NavigationManager Navigation
+@inject IRepository Repository
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Récapitulatif</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + farmId)'>
+                <i class="fas fa-arrow-left"></i>
+                Retour Mandat
+            </button>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + farmId)'>
+                <i class="fas fa-arrow-right"></i>
+                Rapport de contrôle
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (progressBarModel != null)
+        {
+            <ProgressBar Progress="@progressBarModel" />
+        }
+    </div>
+</div>
+
+@*<div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Manquements antérieurs</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <p>Content here</p>
+        </div>
+    </div>*@
+
+<div class="card">
+    <div class="card-header">
+        @*@if (autosave != null)
+        {
+            <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
+            <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
+        }*@
+        <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
+            @if (saving)
+            {
+                <i class="fas fa-spinner fa-spin"></i>
+            }
+            else
+            {
+                <i class="far fa-save"></i>
+            }
+            Enregistrer
+        </button>
+        <h3 class="card-title">Exigences</h3>
+    </div>
+    <div class="card-body">
+        <div id="checklist">
+            <div class="list-group">
+                @if (parent != null)
+                {
+                    <div id="@parent.Id" class="list-group-item">
+                        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
+                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
+                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                        <h4 class="list-group-item-heading">@parent.ShortName</h4>
+                        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+                        <div class="mt-2">
+                            <div class="list-group">
+                                @if (children.Any())
+                                {
+                                    @foreach (var child in children)
+                                    {
+                                        <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
+                                    }
+                                }
+                                else
+                                {
+                                    <ChecklistPlaceholderLoading />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    @if (children.Any())
+                    {
+                        @foreach (var child in children)
+                        {
+                            <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
+                        }
+                    }
+                    else
+                    {
+                        <ChecklistPlaceholderLoading />
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    const string FarmIdUriKey = "FarmId";
+
+    [Parameter]
+    public int FarmInspectionId { get; set; }
+
+    int farmId;
+    Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
+    ChecklistItem.ResultModel parent;
+    List<ChecklistItem.ResultModel> children = new List<ChecklistItem.ResultModel>();
+    AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo progressBarModel;
+    bool saving;
+    bool needsSaving;
+    string saveButtonDisabled => needsSaving ? "" : "disabled";
+
+    protected override async Task OnInitializedAsync()
+    {
+        farmId = int.Parse(Navigation.QueryString(FarmIdUriKey));
+        DateTime started = DateTime.Now;
+        Console.WriteLine($"Reading checklist data (started {started.ToDetailedTime()})...");
+        await Task.Delay(1); // workaround (otherwise ui is not rendered until repository has finished loading)
+        checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        TimeSpan elapsed = DateTime.Now - started;
+        Console.WriteLine($"Checklist data read succesfully (elapsed {elapsed}).");
+        parent = null;
+        if (checklist != null)
+            children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
+                                .Where(x => x != null)
+                                .ToList();
+        if (checklist != null)
+            progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo.FromChecklist(checklist);
+    }
+
+    void NodeViewChanged(string conjunctElementCode)
+    {
+        if (string.IsNullOrWhiteSpace(conjunctElementCode))
+        {
+            parent = null;
+            children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
+                                .Where(x => x != null)
+                                .ToList();
+            return;
+        }
+
+        Console.WriteLine($"Finding node with conjunctElementCode={conjunctElementCode}");
+        var node = checklist.Find(conjunctElementCode);
+        if (node == null)
+        {
+            parent = null;
+            children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
+                                .Where(x => x != null)
+                                .ToList();
+            return;
+        }
+
+        parent = ChecklistItem.ResultModel.MapFrom(node);
+        children = node.Children.Select(x => ChecklistItem.ResultModel.MapFrom(x.Value))
+                       .Where(x => x != null)
+                       .ToList();
+    }
+
+    void OutcomeChanged(ChecklistItem.ResultModel model)
+    {
+        Console.WriteLine($"Node {model.ConjunctElementCode}'s outcome was set to {model.Outcome}.");
+        checklist.SetOutcome(model.ConjunctElementCode, model.Outcome);
+        progressBarModel.SetOutcome(checklist.OutcomeComputed);
+        progressBarModel.Progress(checklist.Percent);
+        needsSaving = true;
+    }
+
+    void NodeEdited(ChecklistItem.ResultModel model)
+    {
+        Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
+        var node = checklist.Find(model.ConjunctElementCode);
+        node.SetInspectorComment(model.InspectorComment);
+        node.SetFarmerComment(model.FarmerComment);
+        node.SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
+                       DefectSeriousness.FromCode(model.SeriousnessCode));
+        needsSaving = true;
+    }
+
+    void Deleted(ChecklistItem.ResultModel model)
+    {
+        Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
+        var node = checklist.Find(model.ConjunctElementCode);
+        node.SetOutcome(InspectionOutcome.Unset);
+        node.SetInspectorComment("");
+        node.SetFarmerComment("");
+        node.SetDefect(Defect.None, DefectSeriousness.Empty);
+        progressBarModel.Progress(checklist.Percent);
+        progressBarModel.SetOutcome(checklist.OutcomeComputed);
+        needsSaving = true;
+    }
+
+    async Task Save()
+    {
+        if (saving || !needsSaving) return;
+        Console.WriteLine("Saving checklist...");
+        saving = true;
+        await Task.Delay(1);
+        StateHasChanged();
+        await Repository.SaveChecklistAsync(checklist);
+        var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
+        await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
+        await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
+        Console.WriteLine("...checklist saved.");
+        saving = false;
+        needsSaving = false;
+        StateHasChanged();
+    }
+
+    private async Task UpdateAndSaveInspectionPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
+    {
+        var mandate = await repository.ReadMandateAsync(farmId);
+        Guard.Against.Null(mandate, nameof(mandate));
+
+        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == e.FarmInspectionId);
+        Guard.Against.Null(inspection, nameof(inspection));
+
+        inspection.Progress(e.Percent * 100);
+        inspection.SetOutcome(e.Outcome);
+        await repository.SaveMandateAsync(mandate, farmId);
+    }
+
+    private async Task UpdateAndSaveInspectionInfoPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
+    {
+        var mandates = await repository.ReadAllMandatesAsync();
+        Guard.Against.Null(mandates, nameof(mandates));
+
+        var mandate = mandates.FirstOrDefault(x => x.Farm.Id == farmId);
+        Guard.Against.Null(mandate, nameof(mandate));
+
+        var inspectionInfo = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == e.FarmInspectionId);
+        Guard.Against.Null(inspectionInfo, nameof(inspectionInfo));
+
+        inspectionInfo.SetOutcome(e.Outcome);
+        inspectionInfo.Progress(e.Percent);
+        await repository.SaveMandatesAsync(mandates);
+    }
+
+}

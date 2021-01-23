@@ -1,0 +1,177 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
+
+<div id="@Node.Id" class="list-group-item">
+    @if (Node.NumPoints > 0 || Node.NumGroups > 0)
+    {
+        <a @onclick="@(() => OnNodeViewChanged.InvokeAsync(Node.ConjunctElementCode))"><i class="fas fa-chevron-right fa-3x float-left rotate mr-2"></i></a>
+    }
+    <span class="badge bg-indigo disabled float-right mr-1">@Node.NumGroups</span>
+    <span class="badge bg-indigo disabled float-right mr-1">@Node.NumPoints</span>
+    <h4 class="list-group-item-heading">@Node.ShortName</h4>
+    <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)" @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
+    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
+    @if (Node.Outcome != InspectionOutcome.Unset)
+    {
+        <button @onclick="() => edit.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+        <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+    }
+</div>
+
+<Blazorise.Modal @ref="@confirmDelete">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent>
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => confirmDelete.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>Êtes-vous sûr de vouloir supprimer les information saisies (résultat, remarques, pièces jointes, ...) ?</Blazorise.FieldLabel>
+            </Blazorise.Field>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button class="btn btn-info" @onclick="@Delete">Ok</button>
+            <button class="btn btn-default" @onclick="() => confirmDelete.Hide()">Annuler</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+<Blazorise.Modal @ref="@edit">
+    <Blazorise.ModalBackdrop />
+    <EditForm Model="@Node" OnSubmit="@OnSubmit">
+        <Blazorise.ModalContent>
+            <Blazorise.ModalHeader>
+                <Blazorise.ModalTitle>Résultat détaillé</Blazorise.ModalTitle>
+                <Blazorise.CloseButton Clicked="() => edit.Hide()" />
+            </Blazorise.ModalHeader>
+            <Blazorise.ModalBody>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Remarque contrôleur</Blazorise.FieldLabel>
+                    <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.InspectorComment"></Blazorise.MemoEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
+                    <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit @bind-Text="@Node.DefectDescription"></Blazorise.TextEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
+                    <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
+                    <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
+                        @foreach (var option in Node.ComboSeriousnesses)
+                        {
+                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                        }
+                    </Blazorise.Select>
+                </Blazorise.Field>
+            </Blazorise.ModalBody>
+            <Blazorise.ModalFooter>
+                <button type="submit" class="btn btn-primary float-left mr-2">Ok</button>
+                <button type="button" class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</button>
+            </Blazorise.ModalFooter>
+        </Blazorise.ModalContent>
+    </EditForm>
+</Blazorise.Modal>
+
+@code {
+    [Parameter]
+    public ResultModel Node { get; set; }
+    [Parameter]
+    public EventCallback<string> OnNodeViewChanged { get; set; }
+    [Parameter]
+    public EventCallback<ResultModel> OnNodeEdited { get; set; }
+    [Parameter]
+    public EventCallback<ResultModel> OnOutcomeChanged { get; set; }
+    [Parameter]
+    public EventCallback<ResultModel> OnDeleted { get; set; }
+    Blazorise.Modal confirmDelete;
+    Blazorise.Modal edit;
+
+    async Task SetOutcome(InspectionOutcome outcome)
+    {
+        Node.Outcome = outcome;
+        await OnOutcomeChanged.InvokeAsync(Node);
+    }
+
+    async Task OnSubmit(EditContext editContext)
+    {
+        edit.Hide();
+        await OnNodeEdited.InvokeAsync(Node);
+    }
+
+    async Task Delete()
+    {
+        confirmDelete.Hide();
+        Node.Clear();
+        //await SetOutcome(InspectionOutcome.Unset);
+        await OnDeleted.InvokeAsync(Node);
+    }
+
+    public class ResultModel
+    {
+        public int NumGroups { get; set; }
+        public int NumPoints { get; set; }
+        public string ConjunctElementCode { get; set; }
+        public string ParentConjunctElementCode { get; set; }
+        public string ShortName { get; set; }
+        public InspectionOutcome Outcome { get; set; }
+        public string InspectorComment { get; set; }
+        public string FarmerComment { get; set; }
+        public string DefectDescription { get; set; }
+        public double DefectSize { get; set; }
+        public string DefectUnit { get; set; }
+        public int SeriousnessCode { get; set; }
+        public string Id { get; set; }
+        public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
+
+        public void Clear()
+        {
+            Outcome = InspectionOutcome.Unset;
+            InspectorComment = "";
+            FarmerComment = "";
+            DefectDescription = Defect.None.Description;
+            DefectSize = Defect.None.Size.Size;
+            DefectUnit = Defect.None.Size.Unit;
+            SeriousnessCode = DefectSeriousness.Empty.Code;
+        }
+
+        public static ResultModel MapFrom(ITreeNode<Result> node)
+        {
+            if (node == null) return null;
+            return new ResultModel
+            {
+                NumGroups = node.NumGroups,
+                NumPoints = node.NumPoints,
+                ConjunctElementCode = node.ConjunctElementCode,
+                ParentConjunctElementCode = node.Parent?.ConjunctElementCode ?? "",
+                ShortName = node.ShortName,
+                Outcome = node.Outcome,
+                Id = node.ConjunctElementCode.CurateAsElementId(),
+                InspectorComment = node.InspectorComment,
+                FarmerComment = node.FarmerComment,
+                DefectDescription = node.Defect.Description,
+                DefectSize = node.Defect.Size.Size,
+                DefectUnit = node.Defect.Size.Unit,
+                SeriousnessCode = node.Seriousness.Code,
+                ComboSeriousnesses = Combo.Seriousnesses()
+            };
+        }
+    }
+}

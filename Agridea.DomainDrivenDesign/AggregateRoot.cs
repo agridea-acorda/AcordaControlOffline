@@ -16,5 +16,8 @@ namespace Agridea.DomainDrivenDesign
         {
             domainEvents_.Clear();
         }
+
+        protected AggregateRoot(long id) : base(id) { }
+        protected AggregateRoot() { }
     }
 }

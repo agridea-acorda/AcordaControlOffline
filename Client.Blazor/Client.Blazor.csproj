@@ -8,15 +8,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Auth\ApiAuthenticationStateProvider.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
-    <PackageReference Include="Blazorise" Version="0.9.2.2" />
-    <PackageReference Include="Blazorise.Bootstrap" Version="0.9.2.2" />
-    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.2.2" />
-    <PackageReference Include="CSharpFunctionalExtensions" Version="2.13.0" />
+    <PackageReference Include="Blazorise" Version="0.9.2.4" />
+    <PackageReference Include="Blazorise.Bootstrap" Version="0.9.2.4" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.2.4" />
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.14.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="Mobsites.Blazor.BaseComponents" Version="1.0.4" />
+    <PackageReference Include="Mobsites.Blazor.SignaturePad" Version="1.1.7" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
@@ -36,13 +43,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\sample-data\checklist.json">
+    <Content Update="wwwroot\sample-data\checklist_real_FarmInspectionId83811.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\sample-data\farm.json">
+    <Content Update="wwwroot\sample-data\checklist_FarmInspectionId83811.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\sample-data\farm_Id226.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\sample-data\farm_Id141.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\sample-data\mandate.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\sample-data\mandates-from-api.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\sample-data\mandates.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\sample-data\mandate_FarmId226.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

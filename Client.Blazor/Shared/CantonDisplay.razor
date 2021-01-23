@@ -1,0 +1,42 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.Domain
+@using System.Security.Claims
+
+<li class="nav-item dropdown">
+    <a class="nav-link" data-toggle="dropdown" href="#">
+        <i class="fas fa-shield-alt mr-1"></i>
+        <AuthorizeView>
+            <Authorized><span>@(context.User.FindFirst(x => x.Type == ClaimTypes.StateOrProvince)?.Value ?? "")</span></Authorized>
+            <NotAuthorized><span>@Canton.Unselected</span></NotAuthorized>
+        </AuthorizeView>
+    </a>
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+        <div class="dropdown-header bg-gradient-success">
+            <AuthorizeView>
+                <Authorized>
+                    @{
+                        var canton = Canton.None;
+                        string cantonCode = context.User.FindFirst(x => x.Type == ClaimTypes.StateOrProvince)?.Value ?? "";
+                        bool isCantonChosen = !string.IsNullOrEmpty(cantonCode) && Canton.IsValid(cantonCode);
+                        if (isCantonChosen)
+                        {
+                            canton = Canton.ParseFromCode(cantonCode);
+                        }
+                    }
+                    <img src="@canton.ImgSrcBig" class="img-thumbnail" alt="Drapeau canton"/>
+                    <p>@canton.FriendlyName</p>
+                </Authorized>
+                <NotAuthorized>
+                    <span class="fa-stack fa-3x">
+                        <i class="far fa-square fa-stack-2x fa-inverse"></i>
+                        <i class="fas fa-shield-alt fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <p>Aucun canton sélectionné</p>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</li>
+
+@code {
+
+}

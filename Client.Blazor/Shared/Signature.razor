@@ -1,0 +1,85 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
+@using Blazored.LocalStorage
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+
+<EditForm Model="@Model" OnSubmit="@Save">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">@Title</h3>
+            
+            @if (!string.IsNullOrWhiteSpace(ReturnUrl))
+            {
+                <div class="card-tools">
+                    <button class="btn btn-sm btn-default" @onclick="() => Navigation.NavigateTo(ReturnUrl)"><i class="fas fa-arrow-left"></i> Retour</button>
+                </div>
+            }
+
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="@nameof(Model.Signatory)">Nom</label>
+                <InputText type="text" class="form-control" @bind-Value="@Model.Signatory" />
+            </div>
+            @if (Model.ShowProxy)
+            {
+                <div class="form-group">
+                    <label for="@nameof(Model.Proxy)">Donne procuration à:</label>
+                    <InputText type="text" class="form-control" @bind-Value="@Model.Proxy" />
+                </div>
+            }
+            <div class="form-group">
+                <label>Signez ci-dessous</label>
+                <SignaturePad KeepState Color="#5c2d91"  @ref="signaturePad" OnSignatureChange="@SignatureChanged">
+                    <SignaturePadFooter>
+                        <SignaturePadClear><i class="fas fa-eraser"></i> Effacer tout</SignaturePadClear>
+                        <SignaturePadUndo><i class="fas fa-undo"></i> Effacer le dernier trait de crayon</SignaturePadUndo>
+                    </SignaturePadFooter>
+                </SignaturePad>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary"><i class="far fa-save"></i> Enregistrer</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public SignatureModel Model { get; set; }
+
+    [Parameter]
+    public string ReturnUrl { get; set; }
+
+    [Parameter]
+    public EventCallback<SignatureModel> OnSave { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Signature";
+
+    SignaturePad signaturePad;
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Loading signature with data: " + Model.Data);
+        LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
+    }
+
+    private async Task SignatureChanged(ChangeEventArgs eventArgs)
+    {
+        Model.Data = await LocalStorage.GetItemAsStringAsync("Mobsites.Blazor.SignaturePad.DataURL"); // works with KeepState sttribute
+        Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
+    }
+
+    async Task Save(EditContext editContext)
+    {
+        var model = (SignatureModel) editContext.Model;
+        Model.Signatory = model.Signatory;
+        Model.Proxy = model.Proxy;
+        await OnSave.InvokeAsync(Model);
+        await Task.Delay(500); // trick to prevent error with SignaturePad (may need to adjust wait time)
+        Navigation.NavigateTo(ReturnUrl);
+    }
+
+}

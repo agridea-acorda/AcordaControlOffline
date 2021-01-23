@@ -14,5 +14,14 @@
             if (IsEmpty()) return;
             base.ValidateCtorParams(code, name);
         }
+
+        public static DefectSeriousness FromCode(int code)
+        {
+            return code == Empty.Code ? Empty :
+                   code == Small.Code ? Small :
+                   code == Medium.Code ? Medium :
+                   code == Serious.Code ? Serious :
+                   Empty;
+        }
     }
 }

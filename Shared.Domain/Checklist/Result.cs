@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate;
-using Agridea.DomainDrivenDesign;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 {
-    public abstract class Result : ITreeNode<Result>
+    public abstract class Result : ITreeNode<Result>, IProgressable, IOutcomable
     {
         public ITreeNode<Result> Parent { get; private set; }
         public SortedList<string, ITreeNode<Result>> Children { get; } = new SortedList<string, ITreeNode<Result>>();
@@ -22,15 +21,61 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         
         public Defect Defect { get; private set; }
         public DefectSeriousness Seriousness { get; set; }
+        IResult IResult.SetOutcome(InspectionOutcome outcome)
+        {
+            return SetOutcome(outcome);
+        }
 
-        public double Percent { get; private set; }
+        public IResult SetInspectorComment(string comment)
+        {
+            InspectorComment = comment;
+            return this;
+        }
 
+        public IResult SetFarmerComment(string comment)
+        {
+            FarmerComment = comment;
+            return this;
+        }
+
+        public IResult SetDefect(Defect defect, DefectSeriousness seriousness)
+        {
+            Defect = defect;
+            Seriousness = seriousness;
+            return this;
+        }
+
+        public int NumGroups => Children?.Count(x => x.Value?.Children?.Any() ?? false) ?? 0;
+        public int NumPoints => Children?.Count(x => !x.Value?.Children?.Any() ?? true) ?? 0;
+        public List<ITreeNode<Result>> Points => (Children?.Where(child => !child.Value?.Children?.Any() ?? true) ?? Enumerable.Empty<KeyValuePair<string, ITreeNode<Result>>>())
+                                                 .Select(x => x.Value)
+                                                 .ToList();
+        public List<ITreeNode<Result>> Groups => (Children?.Where(child => child.Value?.Children?.Any() ?? false) ?? Enumerable.Empty<KeyValuePair<string, ITreeNode<Result>>>())
+                                                 .Select(x => x.Value)
+                                                 .ToList();
+
+        protected int NumChildren => Children?.Count ?? 0;
+        public double Percent => Outcome != null && Outcome != InspectionOutcome.Unset ? 1.0 :
+                                 NumChildren == 0 ? 0.0 :
+                                 (Children?.Sum(x => x.Value?.Percent ?? 0.0) ?? 0.0) / NumChildren;
+        public InspectionOutcome OutcomeComputed => Outcome != null && Outcome != InspectionOutcome.Unset ? Outcome :
+                                                    NumChildren == 0 ? InspectionOutcome.NotInspected :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.NotOk) ?? false ? InspectionOutcome.NotOk :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.PartiallyOk) ?? false ? InspectionOutcome.PartiallyOk :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.Ok) ?? false ? InspectionOutcome.Ok :
+                                                    Children?.Any(x => (x.Value?.OutcomeComputed ?? InspectionOutcome.NotInspected) == InspectionOutcome.NotApplicable) ?? false ? InspectionOutcome.NotApplicable :
+                                                    InspectionOutcome.NotInspected;
         protected Result(string conjunctElementCode, string elementCode, string shortName, string name = "")
         {
             ConjunctElementCode = conjunctElementCode;
             Name = name;
             ElementCode = elementCode;
             ShortName = shortName;
+            Outcome = InspectionOutcome.Unset;
+            InspectorComment = "";
+            FarmerComment = "";
+            Defect = Defect.None;
+            Seriousness = DefectSeriousness.Empty;
         }
 
         public virtual void SetParent(ITreeNode<Result> parent)
@@ -61,7 +106,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return this;
         }
 
-        public IResult Find(Func<ITreeNode<Result>, bool> condition)
+        public ITreeNode<Result> Find(Func<ITreeNode<Result>, bool> condition)
         {
             if (condition(this)) return this;
             foreach (var child in Children)
@@ -73,7 +118,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return null;
         }
 
-        public IResult Find(string conjunctElementCode)
+        public ITreeNode<Result> Find(string conjunctElementCode)
         {
             if (ConjunctElementCode == conjunctElementCode) return this;
             if (Children.TryGetValue(conjunctElementCode, out var found)) return found;

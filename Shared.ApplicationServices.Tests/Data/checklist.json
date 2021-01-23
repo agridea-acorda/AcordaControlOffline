@@ -9,12 +9,15 @@
           "ElementCode": "P1",
           "ShortName": "P1",
           "Name": "",
-          "Outcome": null,
+          "Outcome": {
+            "Text": "Inconnu",
+            "Value": -1,
+            "Code": "Unset"
+          },
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         },
         "R1,P2": {
           "PredefinedDefect": null,
@@ -23,24 +26,30 @@
           "ElementCode": "P2",
           "ShortName": "P2",
           "Name": "",
-          "Outcome": null,
+          "Outcome": {
+            "Text": "Inconnu",
+            "Value": -1,
+            "Code": "Unset"
+          },
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         }
       },
       "ConjunctElementCode": "R1",
       "ElementCode": "R1",
       "ShortName": "R1",
       "Name": "",
-      "Outcome": null,
+      "Outcome": {
+        "Text": "Inconnu",
+        "Value": -1,
+        "Code": "Unset"
+      },
       "InspectorComment": null,
       "FarmerComment": null,
       "Defect": null,
-      "Seriousness": null,
-      "Percent": 0.0
+      "Seriousness": null
     },
     "R2": {
       "Children": {
@@ -53,12 +62,15 @@
               "ElementCode": "P1",
               "ShortName": "P1",
               "Name": "",
-              "Outcome": null,
+              "Outcome": {
+                "Text": "Inconnu",
+                "Value": -1,
+                "Code": "Unset"
+              },
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             },
             "R2,G1,P2": {
               "PredefinedDefect": null,
@@ -67,12 +79,15 @@
               "ElementCode": "P2",
               "ShortName": "P2",
               "Name": "",
-              "Outcome": null,
+              "Outcome": {
+                "Text": "Inconnu",
+                "Value": -1,
+                "Code": "Unset"
+              },
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             },
             "R2,G1,P3": {
               "PredefinedDefect": null,
@@ -81,24 +96,30 @@
               "ElementCode": "P3",
               "ShortName": "P3",
               "Name": "",
-              "Outcome": null,
+              "Outcome": {
+                "Text": "Inconnu",
+                "Value": -1,
+                "Code": "Unset"
+              },
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             }
           },
           "ConjunctElementCode": "R2,G1",
           "ElementCode": "G1",
           "ShortName": "G1",
           "Name": "",
-          "Outcome": null,
+          "Outcome": {
+            "Text": "Inconnu",
+            "Value": -1,
+            "Code": "Unset"
+          },
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         },
         "R2,G2": {
           "Children": {
@@ -111,12 +132,15 @@
                   "ElementCode": "P1",
                   "ShortName": "P1",
                   "Name": "",
-                  "Outcome": null,
+                  "Outcome": {
+                    "Text": "Inconnu",
+                    "Value": -1,
+                    "Code": "Unset"
+                  },
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG1,P2": {
                   "PredefinedDefect": null,
@@ -125,12 +149,15 @@
                   "ElementCode": "P2",
                   "ShortName": "P2",
                   "Name": "",
-                  "Outcome": null,
+                  "Outcome": {
+                    "Text": "Inconnu",
+                    "Value": -1,
+                    "Code": "Unset"
+                  },
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG1,P3": {
                   "PredefinedDefect": null,
@@ -139,12 +166,15 @@
                   "ElementCode": "P3",
                   "ShortName": "P3",
                   "Name": "",
-                  "Outcome": null,
+                  "Outcome": {
+                    "Text": "Inconnu",
+                    "Value": -1,
+                    "Code": "Unset"
+                  },
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG1,P4": {
                   "PredefinedDefect": null,
@@ -153,24 +183,30 @@
                   "ElementCode": "P4",
                   "ShortName": "P4",
                   "Name": "",
-                  "Outcome": null,
+                  "Outcome": {
+                    "Text": "Inconnu",
+                    "Value": -1,
+                    "Code": "Unset"
+                  },
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 }
               },
               "ConjunctElementCode": "R2,G2,SG1",
               "ElementCode": "SG1",
               "ShortName": "SG1",
               "Name": "",
-              "Outcome": null,
+              "Outcome": {
+                "Text": "Inconnu",
+                "Value": -1,
+                "Code": "Unset"
+              },
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             },
             "R2,G2,SG2": {
               "Children": {
@@ -181,12 +217,15 @@
                   "ElementCode": "P1",
                   "ShortName": "P1",
                   "Name": "",
-                  "Outcome": null,
+                  "Outcome": {
+                    "Text": "Inconnu",
+                    "Value": -1,
+                    "Code": "Unset"
+                  },
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 },
                 "R2,G2,SG2,P2": {
                   "PredefinedDefect": null,
@@ -195,49 +234,62 @@
                   "ElementCode": "P2",
                   "ShortName": "P2",
                   "Name": "",
-                  "Outcome": null,
+                  "Outcome": {
+                    "Text": "Inconnu",
+                    "Value": -1,
+                    "Code": "Unset"
+                  },
                   "InspectorComment": null,
                   "FarmerComment": null,
                   "Defect": null,
-                  "Seriousness": null,
-                  "Percent": 0.0
+                  "Seriousness": null
                 }
               },
               "ConjunctElementCode": "R2,G2,SG2",
               "ElementCode": "SG2",
               "ShortName": "SG2",
               "Name": "",
-              "Outcome": null,
+              "Outcome": {
+                "Text": "Inconnu",
+                "Value": -1,
+                "Code": "Unset"
+              },
               "InspectorComment": null,
               "FarmerComment": null,
               "Defect": null,
-              "Seriousness": null,
-              "Percent": 0.0
+              "Seriousness": null
             }
           },
           "ConjunctElementCode": "R2,G2",
           "ElementCode": "G2",
           "ShortName": "G2",
           "Name": "",
-          "Outcome": null,
+          "Outcome": {
+            "Text": "Inconnu",
+            "Value": -1,
+            "Code": "Unset"
+          },
           "InspectorComment": null,
           "FarmerComment": null,
           "Defect": null,
-          "Seriousness": null,
-          "Percent": 0.0
+          "Seriousness": null
         }
       },
       "ConjunctElementCode": "R2",
       "ElementCode": "R2",
       "ShortName": "R2",
       "Name": "",
-      "Outcome": null,
+      "Outcome": {
+        "Text": "Inconnu",
+        "Value": -1,
+        "Code": "Unset"
+      },
       "InspectorComment": null,
       "FarmerComment": null,
       "Defect": null,
-      "Seriousness": null,
-      "Percent": 0.0
+      "Seriousness": null
     }
   },
+  "FarmInspectionId":  1, 
   "Id": 0
 }

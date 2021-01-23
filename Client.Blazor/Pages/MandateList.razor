@@ -1,0 +1,212 @@
+﻿@page "/MandateList"
+@attribute [Authorize]
+@inject NavigationManager Navigation
+@inject IRepository Repository
+@inject IApiClient Api
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
+@using CSharpFunctionalExtensions
+@using Microsoft.AspNetCore.Authorization
+@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
+@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
+
+<div class="row">
+    <div class="col-sm-12">
+        @*<div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Filtre</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-sm btn-default" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <p>Filtres ici</p>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+            </div>
+        </div>*@
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group">
+                    @if (loading)
+                    {
+                        <MandateListPlaceholderLoading />
+                    }
+                    else
+                    {
+                        foreach (var mandate in mandates)
+                        {
+                            <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
+                                @if (mandate.SyncStatus == SyncStatus.Loaded)
+                                {
+                                    <button class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="modal" data-target="#exampleModal">
+                                        <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span> Renvoyer
+                                    </button>
+                                    <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
+                                        <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
+                                    </button>
+                                }
+                                @if (mandate.SyncStatus == SyncStatus.Unavailable ||
+                                mandate.SyncStatus == SyncStatus.Loading)
+                                {
+                                    <button class="btn btn-primary btn-sm float-right ml-1" @onclick="() => DownloadMandate(mandate, mandate.Farm.Id)">
+                                        @if (mandate.SyncStatus != SyncStatus.Loading)
+                                        {
+                                            <i class="fas fa-cloud-download-alt"></i><span class="sr-only">Rendre disponible hors-connexion</span> <span>Télécharger</span>
+                                        }
+
+                                        @if (mandate.SyncStatus == SyncStatus.Loading)
+                                        {
+                                            <i class="fas fa-spinner fa-spin"></i> <span>Téléchargement en cours...</span>
+                                        }
+                                    </button>
+                                }
+
+                                <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
+                                <p class="list-group-item-text mb-1">
+                                    <FarmBase Farm="@mandate.Farm" />
+                                </p>
+
+                                <BadgeBar Badges="@mandate.Farm.Badges" />
+
+                                @foreach (var inspection in mandate.Inspections)
+                                {
+                                    <ProgressBar Progress="@inspection" />
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Envoyer le mandat vers le serveur</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    Attention: les données du mandat (checklist, signatures, suivi, ...) seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
+                    Assurez-vous d'avoir une bonne connexion internet.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-cloud-upload-alt"></i> J'ai compris, envoyer
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private Mandate[] mandates;
+    bool loading => mandates == null;
+    string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    string plural => mandates == null ? "s" :
+                     mandates.Length > 1 ? "s"
+                     : "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Executing OnInitialized Async from MandateList");
+        mandates = await Repository.ReadAllMandatesAsync();
+
+        if (mandates == null)
+        {
+            DateTime started = DateTime.Now;
+            Console.WriteLine($"Reading mandates from api (started {started.ToDetailedTime()})...");
+            var mandatesResult = await Api.FetchAllMandatesAsync("mandates");
+            TimeSpan elapsed = DateTime.Now - started;
+            Console.WriteLine($"Mandates read succesfully (elasped {elapsed}).");
+            if (mandatesResult.IsSuccess)
+            {
+                mandates = mandatesResult.Value;
+                await Repository.SaveMandatesAsync(mandates);
+            }
+            else
+            {
+                Console.WriteLine("Failed to fetch mandates from api. Reason: " + mandatesResult.Error);
+                return;
+            }
+        }
+
+        foreach (var mandate in mandates)
+        {
+            bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);
+            mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
+        }
+    }
+
+    void NavigateToMandateDetail(int id)
+    {
+        if (id > 0)
+        {
+            Navigation.NavigateTo($"{Config.BaseUrl}/MandateDetail/{id}");
+        }
+    }
+
+    async Task DownloadMandate(Mandate mandateModel, int farmId)
+    {
+        var savedSyncStatus = mandateModel.SyncStatus;
+        mandateModel.SyncStatus = SyncStatus.Loading;
+
+        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"mandates/{farmId}"),
+                                   json => Repository.SaveMandateJsonAsync(json, farmId)))
+        {
+            mandateModel.SyncStatus = savedSyncStatus;
+        }
+
+        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"farms/{farmId}"),
+                                   json => Repository.SaveFarmJsonAsync(json, farmId)))
+        {
+            mandateModel.SyncStatus = savedSyncStatus;
+        }
+
+        var mandate = await Repository.ReadMandateAsync(farmId);
+        if (mandate != null)
+            foreach (var inspection in mandate.Inspections)
+            {
+                if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"checklists/{inspection.FarmInspectionId}"),
+                                           data => Repository.SaveChecklistJsonAsync(data, inspection.FarmInspectionId)))
+                {
+                    mandateModel.SyncStatus = savedSyncStatus;
+                }
+            }
+        else mandateModel.SyncStatus = savedSyncStatus;
+
+        mandateModel.SyncStatus = SyncStatus.Loaded;
+    }
+
+    async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
+    {
+        var result = await fetchFunc();
+        if (result.IsFailure)
+        {
+            Console.WriteLine("Fetch operation failed.");
+            return false;
+        }
+        var data = result.Value;
+        await saveFunc(data);
+        return true;
+    }
+
+}

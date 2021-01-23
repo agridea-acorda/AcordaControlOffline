@@ -1,20 +1,21 @@
 ﻿@page "/Checklist/{FarmInspectionId:int}"
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
+@using InspectionOutcome = AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
+@using System.Timers
 @inject NavigationManager Navigation
 @inject IRepository Repository
+@implements IDisposable
 
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Récapitulatif</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/1")'>
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
                 <i class="fas fa-arrow-left"></i>
                 Retour Mandat
             </button>
-            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/1")'>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + FarmId)'>
                 <i class="fas fa-arrow-right"></i>
                 Signatures
             </button>
@@ -41,36 +42,29 @@
 
 <div class="card">
     <div class="card-header">
+        <p class="float-right text-sm text-secondary mb-0 @(showSaving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement...</p>
+        <p class="float-right text-sm text-secondary mb-0 @(showSaved ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
-        @if (checklist != null)
+        @if (model.Any())
         {
             <div class="mb-2">
-                <a href="#">Déplier tous</a> |
-                <a href="#">Replier tous</a> |
-                <a href="#">Afficher NA/NC auto</a> |
-                <a href="#">Cacher NA/NC auto</a>
+                @*<button @onclick="@ExpandAll" class="btn btn-sm btn-info mr-1 mb-2">Déplier tous</button>
+                <button @onclick="@CollapseAll" class="btn btn-sm btn-info mr-1 mb-2">Replier tous</button>*@
+                @if (!string.IsNullOrWhiteSpace(parentUri))
+                {
+                    <button class="btn btn-default btn-sm btn-info mr-1 mb-2" @onclick="() => Navigation.NavigateTo(parentUri)"><i class="fas fa-level-up-alt"></i></button>
+                }
+                <button class="btn btn-sm btn-info mr-1 mb-2">Afficher NA/NC auto</button>
+                <button class="btn btn-sm btn-info mr-1 mb-2">Cacher NA/NC auto</button>
             </div>
             <div id="checklist">
                 <div class="list-group">
-                    @foreach (var item in checklist.Rubrics)
+                    @foreach (var (item, index) in model.WithIndex())
                     {
-                        <div id="@item.ConjuntElementCode.CurateAsElementId()" class="list-group-item" href="#">
-                            <i class="fas fa-chevron-right fa-3x float-left datatoggle rotate mr-2" data-toggle="collapse" data-target="#01_1_2018 > .sub-elements"></i>
-                            <span class="badge bg-indigo disabled float-right mr-1">@item.NumGroups</span>
-                            <span class="badge bg-indigo disabled float-right mr-1">@item.NumPoints</span>
-                            <h4 class="list-group-item-heading">@item.Title</h4>
-                            <p class="list-group-item-text mb-2">@item.ConjuntElementCode</p>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.Oui)" @onclick="() => SetOutcome(item, InspectionOutcome.Oui)"><i class="far fa-thumbs-up"></i></button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.P)  " @onclick="() => SetOutcome(item, InspectionOutcome.P)"  >P</button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.Non)" @onclick="() => SetOutcome(item, InspectionOutcome.Non)"><i class="far fa-thumbs-down"></i></button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NC) " @onclick="() => SetOutcome(item, InspectionOutcome.NC)" >NC</button>
-                            <button class="btn btn-circle btn-circle-sm @OutcomeCssClass(item, InspectionOutcome.NA) " @onclick="() => SetOutcome(item, InspectionOutcome.NA)" >NA</button>
-                            @if (item.Outcome != InspectionOutcome.Unset)
-                            {
-                                <button @onclick="() => ResetOutcome(item)" class="btn btn-circle btn-circle-sm btn-default"><i class="far fa-trash-alt"></i></button>
-                            }
+                        <div id="@item.Id" class="list-group-item" href="#">
+                            <ResultEditor @ref="@Editor" Model="@item" OnOutcomeChanged="@OutcomeChanged" OnResultChanged="@ResultChanged"></ResultEditor>
                         </div>
                     }
                 </div>
@@ -80,35 +74,127 @@
 </div>
 
 @code {
+    const int SaveInterval = 2000; // save 2 seconds after last SetOutcome
+    const string ConjunctElementCodeUriKey = "conjunctElementCode";
+    const string FarmIdUriKey = "FarmId";
+
     [Parameter]
     public int FarmInspectionId { get; set; }
+    private string conjunctElementCode { get; set; }
 
-    ChecklistSample checklist;
+    public int FarmId;
+    string parentUri;
+    readonly List<ResultEditor.ResultModel> model = new List<ResultEditor.ResultModel>();
+    Timer saveTimer;
+    Timer savedMessageTimer;
+    ResultEditor editor_;
+    ResultEditor Editor
+    {
+        get => editor_;
+        set
+        {
+            editor_ = value;
+            rubricResultEditors.Add(value); // trick to save reference for each component in the loop.
+                                            // see https://docs.microsoft.com/en-in/aspnet/core/blazor/components/?view=aspnetcore-5.0#capture-references-to-components
+                                            // and https://github.com/dotnet/aspnetcore/issues/13358
+        }
+    }
+    readonly List<ResultEditor> rubricResultEditors = new List<ResultEditor>();
+    bool showSaving;
+    bool showSaved;
 
     protected override async Task OnInitializedAsync()
     {
-        checklist = await Repository.ReadChecklistSampleAsync();
+        FarmId = int.Parse(Navigation.QueryString(FarmIdUriKey));
+        conjunctElementCode = Navigation.QueryString(ConjunctElementCodeUriKey);
+
+        var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        if (checklist != null)
+        {
+            if (!string.IsNullOrWhiteSpace(conjunctElementCode))
+            {
+                var node = checklist.Find(conjunctElementCode);
+                if (node != null)
+                {
+                    Console.WriteLine($"Building model for node {node.ConjunctElementCode}");
+                    foreach (var kvp in node.Children)
+                    {
+                        model.Add(ResultEditor.ResultModel.FromDomain(kvp.Value, FarmId, FarmInspectionId));
+                    }
+                    string parentConjunctElementCode = node.Parent?.Parent?.ConjunctElementCode ?? "";
+                    Console.WriteLine($"node has parent navigation to {parentConjunctElementCode}");
+                    if (!string.IsNullOrWhiteSpace(parentConjunctElementCode))
+                    {
+                        parentUri = Config.BaseUrl + "/Checklist/" + FarmInspectionId +
+                                    $"?{FarmIdUriKey}={FarmId}" +
+                                    $"&{ConjunctElementCodeUriKey}={parentConjunctElementCode}";
+                        Console.WriteLine($"--> navigation uri is {parentUri}");
+                    }
+
+                }
+            }
+            else
+                foreach (var rubricKvp in checklist.Rubrics)
+                {
+                    model.Add(ResultEditor.ResultModel.FromDomain(rubricKvp.Value, FarmId, FarmInspectionId));
+                }
+        }
+
+        saveTimer = new Timer(SaveInterval) {AutoReset = false};
+        saveTimer.Elapsed += async (sender, e) =>
+        {
+            showSaving = true;
+            StateHasChanged();
+            Console.WriteLine($"Saving checklist... ({DateTime.Now.ToDetailedTime()})");
+            await Repository.SaveChecklistAsync(checklist);
+            Console.WriteLine($"Saved. ({DateTime.Now.ToDetailedTime()})");
+            showSaving = false;
+            showSaved = true;
+            StateHasChanged();
+            savedMessageTimer.Start();
+        };
+
+        savedMessageTimer = new Timer(5000);
+        savedMessageTimer.Elapsed += (sender, e) =>
+        {
+            showSaved = false;
+            savedMessageTimer.Stop();
+            StateHasChanged();
+        };
     }
 
-    public string OutcomeCssClass(ChecklistSample.ListItem rubric, InspectionOutcome outcome)
+    void OutcomeChanged(InspectionOutcome outcome)
     {
-        return rubric.Outcome == outcome && outcome == InspectionOutcome.Oui ? "btn-success" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.P ? "btn-warning" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.Non ? "btn-danger" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.NC ? "btn-primary" :
-               rubric.Outcome == outcome && outcome == InspectionOutcome.NA ? "btn-primary" :
-               "btn-default";
+        saveTimer.Stop();
+        saveTimer.Start();
     }
 
-    async void SetOutcome(ChecklistSample.ListItem rubric, InspectionOutcome outcome)
+    void ResultChanged(ResultEditor.EditModel result)
     {
-        rubric.Outcome = outcome;
-        await Repository.SaveChecklistSampleAsync(checklist);
+        saveTimer.Stop();
+        saveTimer.Start();
     }
 
-    async void ResetOutcome(ChecklistSample.ListItem rubric)
+    public void Dispose()
     {
-        rubric.Outcome = InspectionOutcome.Unset;
-        await Repository.SaveChecklistSampleAsync(checklist);
+        saveTimer?.Dispose();
+        savedMessageTimer?.Dispose();
     }
+
+    async Task ExpandAll()
+    {
+        foreach (var component in rubricResultEditors)
+        {
+            await component.ExpandAll();
+        }
+    }
+
+    async Task CollapseAll()
+    {
+        foreach (var component in rubricResultEditors)
+        {
+            await component.CollapseAll();
+        }
+    }
+
 }

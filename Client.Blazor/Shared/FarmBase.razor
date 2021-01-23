@@ -1,9 +1,23 @@
-﻿<span><i class="far fa-envelope"></i> @Farm.Address</span>
-<span class="ml-2"><i class="fas fa-tractor"></i> @Farm.FarmType</span>
-<span class="ml-2"><i class="fas fa-at"></i> @Farm.Email</span>
-<span class="ml-2"><i class="fas fa-mobile-alt"></i> @Farm.PhoneNumber</span>
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm
+
+@if (!string.IsNullOrWhiteSpace(Farm.Address))
+{
+    <span class="mr-2 text-nowrap"><i class="far fa-envelope"></i> @Farm.Address</span>
+}
+@if (!string.IsNullOrWhiteSpace(Farm.FarmType))
+{
+    <span class="mr-2 text-nowrap"><i class="fas fa-tractor"></i> @Farm.FarmType</span>
+}
+@if (!string.IsNullOrWhiteSpace(Farm.Email))
+{
+    <span class="mr-2 text-nowrap"><i class="fas fa-at"></i> @Farm.Email</span>
+}
+@if (!string.IsNullOrWhiteSpace(Farm.PhoneNumber))
+{
+    <span class="mr-2 text-nowrap"><i class="fas fa-mobile-alt"></i> @Farm.PhoneNumber</span>
+}
 
 @code {
     [Parameter]
-    public AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.IFarm Farm { get; set; }
+    public IFarmBase Farm { get; set; }
 }

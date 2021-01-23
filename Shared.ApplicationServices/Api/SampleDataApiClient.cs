@@ -10,34 +10,44 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 {
     public class SampleDataApiClient : IApiClient
     {
-        private const int DefaultDelayInMs = 3000;
+        private const int DefaultDelayInMs = 1000;
         private readonly HttpClient httpClient_;
         public SampleDataApiClient(HttpClient httpClient)
         {
             httpClient_ = httpClient;
         }
 
+        public void SetAuthToken(string basicAuthToken)
+        {
+            // do nothing
+        }
+
         public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchAllMandatesAsync(string uri)
         {
-            return await FetchJsonDataAsync<ViewModel.MandateList.Mandate[]>(uri);
+            return await FetchTypedAsync<ViewModel.MandateList.Mandate[]>(uri);
         }
 
         public async Task<Result<Mandate>> FetchMandateDetailAsync(string uri)
         {
-            return await FetchJsonDataAsync<Mandate>(uri);
+            return await FetchTypedAsync<Mandate>(uri);
         }
 
-        public async Task<Result<ViewModel.FarmDetail.Farm>> FetchFarmDetailAsync(string uri)
+        public async Task<Result<string>> FetchRawJsonAsync(string uri)
         {
-            return await FetchJsonDataAsync<ViewModel.FarmDetail.Farm>(uri);
+            return await FetchJsonAsync(uri);
+        }
+
+        public async Task<Result<ViewModel.Farm.Farm>> FetchFarmDetailAsync(string uri)
+        {
+            return await FetchTypedAsync<ViewModel.Farm.Farm>(uri);
         }
 
         public async Task<Result<ChecklistSample>> FetchChecklistSampleAsync(string uri)
         {
-            return await FetchJsonDataAsync<ChecklistSample>(uri);
+            return await FetchTypedAsync<ChecklistSample>(uri);
         }
 
-        private async Task<Result<T>> FetchJsonDataAsync<T>(string uri, int delayInMs = DefaultDelayInMs)
+        private async Task<Result<T>> FetchTypedAsync<T>(string uri, int delayInMs = DefaultDelayInMs)
         {
             if (delayInMs > 0)
             {
@@ -62,6 +72,31 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             catch (JsonReaderException)
             {
                 return Result.Failure<T>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
+            }
+        }
+
+        private async Task<Result<string>> FetchJsonAsync(string uri, int delayInMs = DefaultDelayInMs)
+        {
+            if (delayInMs > 0)
+            {
+                await Task.Delay(delayInMs);
+            }
+
+            using var httpResponse = await httpClient_.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
+            httpResponse.EnsureSuccessStatusCode();
+
+            if (httpResponse.Content == null || httpResponse.Content.Headers.ContentType.MediaType != "application/json")
+                return Result.Failure<string>("HTTP Response has no content or content is not json.");
+
+            var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+            using var streamReader = new StreamReader(contentStream);
+            try
+            {
+                return Result.Success(await streamReader.ReadToEndAsync());
+            }
+            catch (JsonReaderException)
+            {
+                return Result.Failure<string>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
             }
         }
     }

@@ -61,6 +61,33 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Contacté le {0}.
+        /// </summary>
+        internal static string AppointmentContactDateString {
+            get {
+                return ResourceManager.GetString("AppointmentContactDateString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rendez-vous le {0}.
+        /// </summary>
+        internal static string AppointmentDateString {
+            get {
+                return ResourceManager.GetString("AppointmentDateString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (Non agendé).
+        /// </summary>
+        internal static string ApppointmentNotSet {
+            get {
+                return ResourceManager.GetString("ApppointmentNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Annoncé.
         /// </summary>
         internal static string InspectionModeScheduled {

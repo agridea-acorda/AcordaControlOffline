@@ -7,13 +7,12 @@ using Newtonsoft.Json.Serialization;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 {
-    public class ChecklistContractResolver : EntityContractResolver
+    public class ChecklistContractResolver : AggregateRootContractResolver
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
             IList<JsonProperty> props = base.CreateProperties(type, memberSerialization);
             return props.Where(p =>
-                                   p.PropertyName != nameof(Domain.Checklist.Checklist.DomainEvents) &&
                                    p.PropertyName != nameof(Result.Parent)
                         )
                         .ToList();
