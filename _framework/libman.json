@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "jquery@3.5.1",
+      "destination": "wwwroot/lib/jquery/",
+      "files": [
+        "jquery.min.js",
+        "jquery.min.map"
+      ]
+    },
+    {
+      "library": "popper.js@2.5.3",
+      "destination": "wwwroot/lib/popper.js/",
+      "files": [
+        "umd/popper.min.js",
+        "umd/popper.min.js.map"
+      ]
+    },
+    {
+      "library": "twitter-bootstrap@4.5.3",
+      "destination": "wwwroot/lib/twitter-bootstrap/",
+      "files": [
+        "js/bootstrap.min.js",
+        "js/bootstrap.min.js.map"
+      ]
+    },
+    {
+      "library": "admin-lte@3.0.5",
+      "destination": "wwwroot/lib/admin-lte/",
+      "files": [
+        "js/adminlte.min.js",
+        "js/adminlte.min.js.map",
+        "css/adminlte.min.css",
+        "css/adminlte.min.css.map"
+      ]
+    },
+    {
+      "library": "font-awesome@5.15.1",
+      "destination": "wwwroot/lib/font-awesome/",
+      "files": [
+        "css/all.min.css",
+        "webfonts/fa-brands-400.eot",
+        "webfonts/fa-brands-400.svg",
+        "webfonts/fa-brands-400.ttf",
+        "webfonts/fa-brands-400.woff",
+        "webfonts/fa-brands-400.woff2",
+        "webfonts/fa-regular-400.eot",
+        "webfonts/fa-regular-400.svg",
+        "webfonts/fa-regular-400.ttf",
+        "webfonts/fa-regular-400.woff",
+        "webfonts/fa-regular-400.woff2",
+        "webfonts/fa-solid-900.eot",
+        "webfonts/fa-solid-900.svg",
+        "webfonts/fa-solid-900.ttf",
+        "webfonts/fa-solid-900.woff",
+        "webfonts/fa-solid-900.woff2"
+      ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "placeholder-loading@0.2.6",
+      "destination": "wwwroot/lib/placeholder-loading/",
+      "files": [
+        "dist/css/placeholder-loading.min.css"
+      ]
+    }
+  ]
+}

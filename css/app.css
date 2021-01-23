@@ -238,3 +238,9 @@ option.fa-font-family {
 .clearboth {
     clear: both;
 }
+
+/* SignaturePad overrides 
+-------------------------------------------------------------*/
+.signature-pad--actions {
+    justify-content: normal !important;
+}
