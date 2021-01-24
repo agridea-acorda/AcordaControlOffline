@@ -1,5 +1,7 @@
 ﻿@page "/Settings"
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @inject ISettingsService SettingsService
+@inject IToastService Toast
 
 <div class="card">
     <div class="card-header">
@@ -44,5 +46,6 @@
     {
         error = await SettingsService.Save(model);
         if (!string.IsNullOrWhiteSpace(error)) error = "Enregistrement impossible: " + error;
+        Toast.ShowSuccess(ToastMessages.Success);
     }
 }

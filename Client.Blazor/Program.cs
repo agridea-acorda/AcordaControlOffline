@@ -7,6 +7,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
 using Agridea.DomainDrivenDesign;
 using Blazored.LocalStorage;
+using Blazored.Toast;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
@@ -43,6 +44,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // Events
             builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
             builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            // Toasts
+            builder.Services.AddBlazoredToast();
 
             builder.Services
                    .AddBlazorise(options =>

@@ -1,5 +1,6 @@
 ﻿@using Agridea.ProductInfo
 @using Blazored.LocalStorage
+@using Blazored.Toast.Configuration
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 
 @inherits LayoutComponentBase
@@ -66,6 +67,9 @@
         <AppFooter FileVersion="@ProductInfo.Version" BuildDate="@ProductInfo.BuildDate" />
     </footer>
 </div>
+
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                RemoveToastsOnNavigation="true" />
 
 @code {
 
