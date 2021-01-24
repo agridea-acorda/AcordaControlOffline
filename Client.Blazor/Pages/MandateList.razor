@@ -1,17 +1,23 @@
-﻿@page "/MandateList"
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
+@using CSharpFunctionalExtensions
+@using EnsureThat
+@using Microsoft.AspNetCore.Authorization
+@using Newtonsoft.Json
+@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
+@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
+
+@page "/MandateList"
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IApiClient Api
-@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
-@using CSharpFunctionalExtensions
-@using Microsoft.AspNetCore.Authorization
-@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
-@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
+@inject IToastService Toast
 
 <div class="row">
     <div class="col-sm-12">
@@ -31,9 +37,11 @@
                         foreach (var mandate in mandates)
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
-                                @if (mandate.SyncStatus == SyncStatus.Loaded || mandate.SyncStatus == SyncStatus.Deleting)
+                                @if (mandate.SyncStatus == SyncStatus.Loaded ||
+                                    mandate.SyncStatus == SyncStatus.Deleting ||
+                                    mandate.SyncStatus == SyncStatus.Merging)
                                 {
-                                    <button @onclick="@(() => PrepareModal(mandate, mandate.Farm.Id))" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
+                                    <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
                                         {
                                             <i class="far fa-trash-alt"></i><span class="sr-only">Supprimer les données locales</span>
@@ -43,8 +51,15 @@
                                             <i class="fas fa-spinner fa-spin"></i> <span class="sr-only">Suppression en cours...</span>
                                         }
                                     </button>
-                                    <button class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="modal" data-target="#exampleModal">
-                                        <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span> Renvoyer
+                                    <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="modal" data-target="#exampleModal">
+                                        @if (mandate.SyncStatus != SyncStatus.Deleting)
+                                        {
+                                            <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span><span> Renvoyer</span>
+                                        }
+                                        @if (mandate.SyncStatus == SyncStatus.Deleting)
+                                        {
+                                            <i class="fas fa-spinner fa-spin"></i><span class="sr-only">Renvoi des données en cours...</span><span> En cours...</span>
+                                        }
                                     </button>
                                     <button class="btn btn-success btn-sm float-right ml-1" @onclick="() => NavigateToMandateDetail(mandate.Farm.Id)">
                                         <i class="fas fa-arrow-right"></i><span class="sr-only">Naviguer vers le détail du mandat</span> Mandat
@@ -97,11 +112,11 @@
             <div class="modal-body">
                 <div class="alert alert-danger" role="alert">
                     <u>Attention</u>: les données du mandat (checklist, signatures, suivi, ...) saisies seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
-                    Assurez-vous d'avoir une connexion internet fiable.
+                    Etes-vous sûr(e) ?
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">
+                <button @onclick="() => MergeMandate(selectedMandate)" data-dismiss="modal" type="button" class="btn btn-primary">
                     <i class="fas fa-cloud-upload-alt"></i> J'ai compris, envoyer
                 </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
@@ -126,7 +141,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button @onclick="() => DeleteMandate(mandateForModal, farmIdForModal)" data-dismiss="modal" type="button" class="btn btn-primary">
+                <button @onclick="() => DeleteMandate(selectedMandate)" data-dismiss="modal" type="button" class="btn btn-primary">
                     <i class="far fa-trash-alt"></i> Oui, effacer
                 </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
@@ -143,9 +158,8 @@
     string plural => mandates == null ? "s" :
                      mandates.Length > 1 ? "s"
                      : "";
-    Mandate mandateForModal;
-    int farmIdForModal;
-
+    Mandate selectedMandate;
+    
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Executing OnInitialized Async from MandateList");
@@ -233,17 +247,17 @@
         mandateModel.SyncStatus = SyncStatus.Loaded;
     }
 
-    void PrepareModal(Mandate mandate, int farmId)
+    void SelectMandate(Mandate mandate)
     {
-        mandateForModal = mandate;
-        farmIdForModal = farmId;
+        selectedMandate = mandate;
     }
 
-    async Task DeleteMandate(Mandate mandateModel, int farmId)
+    async Task DeleteMandate(Mandate mandateModel)
     {
         mandateModel.SyncStatus = SyncStatus.Deleting;
 
-        await Task.Delay(2 * 1000);
+        await Task.Delay(1);
+        int farmId = mandateModel.Farm.Id;
         var mandate = await Repository.ReadMandateAsync(farmId);
         if (mandate != null)
             foreach (var inspection in mandate.Inspections)
@@ -255,6 +269,39 @@
         await Repository.DeleteMandateAsync(farmId);
 
         mandateModel.SyncStatus = SyncStatus.Unavailable;
+    }
+
+    async Task MergeMandate(Mandate mandateModel)
+    {
+        var originalSyncStatus = mandateModel.SyncStatus;
+        mandateModel.SyncStatus = SyncStatus.Deleting;
+        int farmId = mandateModel.Farm.Id;
+        var mandateJson = await Repository.ReadMandateJsonAsync(farmId);
+        Ensure.That(mandateJson, nameof(mandateJson)).IsNotEmptyOrWhiteSpace();
+        var mandate = new MandateFactory().Parse(mandateJson);
+        Ensure.That(mandate, nameof(mandate)).IsNotNull();
+        var checklistsJson = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistJsonAsync(x.FarmInspectionId)).ToArray());
+        var mergePackage = MergePackage.FromJson(mandateJson, checklistsJson);
+        string sourceHash = JsonConvert.SerializeObject(mergePackage).ComputeSha256Hash();
+        var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
+        if (apiCallResult.IsFailure)
+        {
+            string errorMessage = $"Erreur de renvoi du paquet de données. Motif: {apiCallResult.Error}";
+            Console.WriteLine(errorMessage);
+            Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
+            mandateModel.SyncStatus = originalSyncStatus;
+            return;
+        }
+        var receivedHash = apiCallResult.Value;
+        if (sourceHash != receivedHash)
+        {
+            string errorMessage = "Erreur de renvoi du paquet de données. Motif: package hashes do not match.";
+            Console.WriteLine(errorMessage);
+            Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
+            mandateModel.SyncStatus = originalSyncStatus;
+            return;
+        }
+        await DeleteMandate(mandateModel);
     }
 
     async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)

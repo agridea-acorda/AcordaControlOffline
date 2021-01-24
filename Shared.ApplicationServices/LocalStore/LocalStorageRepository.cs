@@ -48,9 +48,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return await localStorage_.ContainKeyAsync(key);
         }
 
+        public async ValueTask<string> ReadMandateJsonAsync(int farmId)
+        {
+            return await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+        }
+
         public async ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId)
         {
-            string json = await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+            string json = await ReadMandateJsonAsync(farmId);
             return new MandateFactory().Parse(json);
         }
 
@@ -145,9 +150,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
         }
 
+        public async Task<string> ReadChecklistJsonAsync(int farmInspectionId)
+        {
+            return await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
+        }
+
         public async Task<Checklist> ReadChecklistAsync(int farmInspectionId)
         {
-            string json = await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
+            string json = await ReadChecklistJsonAsync(farmInspectionId);
             return new ChecklistFactory().Parse(json);
         }
 

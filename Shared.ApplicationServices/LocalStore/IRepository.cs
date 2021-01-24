@@ -13,6 +13,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask<Mandate[]> ReadAllMandatesAsync();
         ValueTask ClearMandatesListAsync();
         ValueTask<bool> HasMandateAsync(int farmId);
+        ValueTask<string> ReadMandateJsonAsync(int farmId);
         ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId);
         ValueTask DeleteMandateAsync(int farmId);
         ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id);
@@ -26,6 +27,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync();
         ValueTask SaveActionsOrDocumentsAsync(ActionsOrDocumentEditModel model);
         ValueTask SaveChecklistAsync(Checklist checklist);
+        Task<string> ReadChecklistJsonAsync(int farmInspectionId);
         Task<Checklist> ReadChecklistAsync(int farmInspectionId);
         ValueTask DeleteChecklistAsync(int farmInspectionId);
         ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId);

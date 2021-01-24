@@ -15,11 +15,30 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             Ensure.That(mandate, nameof(mandate)).IsNotNull();
             Ensure.That(checklists, nameof(checklists)).IsNotNull();
             Ensure.That(checklists, nameof(checklists)).HasItems();
+            foreach (var checklist in checklists)
+                Ensure.That(checklist, nameof(checklist)).IsNotNull();
+            
             var mergePackage = new MergePackage();
             var mandateFactory = new MandateFactory();
             var checklistFactory = new ChecklistFactory();
             mergePackage.Mandate = mandateFactory.Serialize(mandate);
             mergePackage.Checklists = checklists.Select(checklistFactory.Serialize).ToArray();
+            return mergePackage;
+        }
+
+        public static MergePackage FromJson(string mandateJson, string[] checklistsJson)
+        {
+            Ensure.That(mandateJson, nameof(mandateJson)).IsNotEmptyOrWhiteSpace();
+            Ensure.That(checklistsJson, nameof(checklistsJson)).IsNotNull();
+            Ensure.That(checklistsJson, nameof(checklistsJson)).HasItems();
+            foreach (string checklist in checklistsJson)
+                Ensure.That(checklist, nameof(checklist)).IsNotEmptyOrWhiteSpace();
+            
+            var mergePackage = new MergePackage
+            {
+                Mandate = mandateJson,
+                Checklists = checklistsJson
+            };
             return mergePackage;
         }
     }
