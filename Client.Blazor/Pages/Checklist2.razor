@@ -54,17 +54,20 @@
                 <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
                 <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
             }*@
-        <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
-            @if (saving)
-            {
-                <i class="fas fa-spinner fa-spin"></i>
-            }
-            else
-            {
-                <i class="far fa-save"></i>
-            }
-            Enregistrer
-        </button>
+        @if (needsSaving)
+        {
+            <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
+                @if (saving)
+                {
+                    <i class="fas fa-spinner fa-spin"></i>
+                }
+                else
+                {
+                    <i class="far fa-save"></i>
+                }
+                Enregistrer
+            </button>
+        }
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
