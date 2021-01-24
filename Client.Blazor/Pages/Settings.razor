@@ -17,7 +17,7 @@
             <EditForm Model="@model" OnSubmit="@Save">
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Adresse de l'api AcordaControl</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit @bind-Text="@model.ApiBaseAddres" />
+                    <Blazorise.TextEdit @bind-Text="@model.ApiBaseAddres" Disabled="true" />
                 </Blazorise.Field>
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Se souvenir des identifiants de connexion pendant (jours)</Blazorise.FieldLabel>
@@ -45,7 +45,14 @@
     async Task Save()
     {
         error = await SettingsService.Save(model);
-        if (!string.IsNullOrWhiteSpace(error)) error = "Enregistrement impossible: " + error;
-        Toast.ShowSuccess(ToastMessages.Success);
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            error = "Enregistrement impossible: " + error;
+        }
+        else
+        {
+            Toast.ShowSuccess(ToastMessages.Success, ToastMessages.SuccessHeader);
+        }
+
     }
 }

@@ -26,8 +26,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.RootComponents.Add<App>("app");
 
             // Acordacontrol api
-            builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(Settings.Default.ApiBaseAddres) });
+            builder.Services.AddSingleton(sp => new HttpClient() { BaseAddress = new Uri(Settings.Default.ApiBaseAddres) });
             builder.Services.AddScoped<IApiClient, ApiClient>();
+            // todo find some way to configure the api BaseAddress at runtime by the user.
             
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);

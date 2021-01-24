@@ -9,6 +9,7 @@
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
+@inject IToastService Toast
 
 <div class="card">
     <div class="card-header">
@@ -49,10 +50,10 @@
 <div class="card">
     <div class="card-header">
         @*@if (autosave != null)
-        {
-            <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
-            <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
-        }*@
+            {
+                <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
+                <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
+            }*@
         <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
             @if (saving)
             {
@@ -91,7 +92,7 @@
                                 }
                                 else
                                 {
-                                    <ChecklistPlaceholderLoading/>
+                                    <ChecklistPlaceholderLoading />
                                 }
                             </div>
                         </div>
@@ -108,7 +109,7 @@
                     }
                     else
                     {
-                        <ChecklistPlaceholderLoading/>
+                        <ChecklistPlaceholderLoading />
                     }
                 }
             </div>
@@ -223,17 +224,18 @@
         saving = true;
         await Task.Delay(1);
         StateHasChanged();
-        
+
         await Repository.SaveChecklistAsync(checklist);
         // below should be performed with domain event dispatching mechanism
         var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
         await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
         await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
-        
+
         Console.WriteLine("...checklist saved.");
         saving = false;
         needsSaving = false;
         StateHasChanged();
+        Toast.Success();
     }
 
     private async Task UpdateAndSaveInspectionPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
