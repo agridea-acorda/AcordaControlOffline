@@ -1,5 +1,6 @@
 ﻿@using Agridea.ProductInfo
 @using Blazored.LocalStorage
+@using Blazored.Toast.Configuration
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 
 @inherits LayoutComponentBase
@@ -12,6 +13,9 @@
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a class="nav-link" href="#" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'>Liste des mandats</a>
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
@@ -28,6 +32,18 @@
             <img src="logo.png" alt="AcordaControl logo" class="brand-image img-rounded elevation-2" style="margin-top: -1px; margin-left: 9px;" />
             <span class="brand-text font-weight-normal"><b>Acorda</b>Control</span>
         </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" role="menu" data-accordion="false">
+                    <li class="nav-item">
+                        <a type="button" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Settings")' class="nav-link">
+                            <i class="nav-icon fas fa-cog"></i> 
+                            <p>Options</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </aside>
 
     <div class="content-wrapper">
@@ -51,6 +67,9 @@
         <AppFooter FileVersion="@ProductInfo.Version" BuildDate="@ProductInfo.BuildDate" />
     </footer>
 </div>
+
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                RemoveToastsOnNavigation="true" />
 
 @code {
 

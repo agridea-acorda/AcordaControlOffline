@@ -15,7 +15,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
         public bool IsLateOrNotCompliant => DueDateNotRespected || FurtherInvestigationNeeded || IncompleteOrNonCompliant;
 
         public static Compliance Empty => new Compliance("", null, false, false, false, false);
-        public Compliance(string actionsOrDocuments, DateTime? dueDate, bool dueDateNotRespected, bool dueDateRespected, bool furtherInvestigationNeeded, bool incompleteOrNonCompliant)
+        public Compliance(string actionsOrDocuments, DateTime? dueDate, bool dueDateNotRespected = false, bool dueDateRespected = false, bool furtherInvestigationNeeded = false, bool incompleteOrNonCompliant = false)
         {
             ActionsOrDocuments = actionsOrDocuments;
             DueDate = dueDate;

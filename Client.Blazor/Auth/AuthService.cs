@@ -13,14 +13,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
         private readonly AuthenticationStateProvider authenticationStateProvider_;
         private readonly IJSRuntime jsRuntime_;
         private readonly HttpClient httpClient_;
+        private readonly ISettingsService settingsService_;
 
         public AuthService(AuthenticationStateProvider authenticationStateProvider,
                            IJSRuntime jsRuntime, 
-                           HttpClient httpClient)
+                           HttpClient httpClient, 
+                           ISettingsService settingsService)
         {
             authenticationStateProvider_ = authenticationStateProvider;
             jsRuntime_ = jsRuntime;
             httpClient_ = httpClient;
+            settingsService_ = settingsService;
         }
 
         public async Task Login(LoginModel loginModel)
@@ -28,7 +31,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
             string basicAuthToken = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{loginModel.CantonCode}.{loginModel.Username}:{loginModel.Password}"));
             string role = "inspector"; // todo get role from api POST to /login
             var auth = new AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth(loginModel.Username, role, loginModel.CantonCode, basicAuthToken);
-            await jsRuntime_.InvokeAsync<string>(JsInterop.SetCookie, AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth.CookieName, JsonConvert.SerializeObject(auth), Settings.AuthCookieExpiryDays);
+            var settings = await settingsService_.Read();
+            await jsRuntime_.InvokeAsync<string>(JsInterop.SetCookie, AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth.CookieName, JsonConvert.SerializeObject(auth), settings.AuthCookieExpiryDays);
             httpClient_.SetBasicAuthToken(auth.Token);
             ((ApiAuthenticationStateProvider)authenticationStateProvider_).MarkUserAsAuthenticated(auth);
         }

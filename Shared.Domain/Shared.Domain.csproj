@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Agridea.Core\Agridea.Core.csproj" />
     <ProjectReference Include="..\Agridea.DomainDrivenDesign\Agridea.DomainDrivenDesign.csproj" />
     <ProjectReference Include="..\Agridea.SpecificationPattern\Agridea.SpecificationPattern.csproj" />
   </ItemGroup>

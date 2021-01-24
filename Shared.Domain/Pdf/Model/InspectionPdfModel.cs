@@ -32,47 +32,31 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public string CommentForFarmer { get; set; }
 
 
-        public class FarmModel
-        {
-            public FarmDisplayModel FarmDisplay { get; }
-
-            public string Email { get; }
-
-            public FarmModel(FarmDisplayModel farmDisplayModel, string email)
-            {
-                FarmDisplay = farmDisplayModel;
-                Email = email;
-            }
-        }
-
-        public static InspectionPdfModel FromInspection(Inspection.Inspection inspection, FarmDisplayModel farmDisplay, string cantonCode, string logoPath)
+        public static InspectionPdfModel FromDomain(Inspection.Inspection inspection, Farm.Farm farm, string cantonCode, string logoPath)
         {
             var model = new InspectionPdfModel
             {
                 CampaignName = inspection.Campaign.Name,
                 CampaignYear = inspection.Campaign.Year,
                 DomainShortName = inspection.Domain.ShortName,
-                //TODO recuperer les données
-                //DomainName = inspection.Domain.Name,
-                //FocaaLogoPath = logoPath,
+                DomainName = inspection.Domain.ShortName,
+                FocaaLogoPath = logoPath,
                 //InspectionResults = RecapResultListItemModelFactory.All(inspection),
-                //ActionsOrDocuments = inspection.ActionsOrDocuments,
-                //DueDate = inspection.DueDate,
-                //DoneOn = inspection.DoneOn,
-                //DoneInTownZip = inspection.DoneInTown?.Zip ?? 0,
-                //DoneInTownName = inspection.DoneInTown?.Name,
-                //HasProxy = inspection.HasProxy,
-                //ProxyName = inspection.ProxyName,
-                //DoneByInspector = inspection.DoneByInspector,
-                //Inspector2 = inspection.Inspector2,
-                //FarmerSignatureImage = inspection.FarmerSignatureImage,
-                //InspectorSignatureImage = inspection.InspectorSignatureImage,
-                //Inspector2SignatureImage = inspection.Inspector2SignatureImage,
+                ActionsOrDocuments = inspection.Compliance.ActionsOrDocuments,
+                DueDate = inspection.Compliance.DueDate,
+                DoneOn = inspection.FinishStatus.DoneOn,
+                //DoneInTownZip = inspection.FinishStatus.DoneInTown?.Zip ?? 0,
+                //DoneInTownName = inspection.FinishStatus.DoneInTown?.Name,
+                HasProxy = inspection.FarmerSignature.HasProxy,
+                ProxyName = inspection.FarmerSignature.Proxy,
+                DoneByInspector = inspection.InspectorSignature.Signatory,
+                Inspector2 = inspection.Inspector2Signature.Signatory,
+                FarmerSignatureImage = inspection.FarmerSignature.DataUrl,
+                InspectorSignatureImage = inspection.InspectorSignature.DataUrl,
+                Inspector2SignatureImage = inspection.Inspector2Signature.DataUrl,
                 CantonCode = cantonCode,
-                Farm = new FarmModel(farmDisplay, "test@mail.com"/*farmDisplay..Email
-                                                              ?? inspection.Farm.ParentList?.FirstOrDefault()?.Person?.Email
-                                                              ?? ""*/),
-                //CommentForFarmer = inspection.CommentForFarmer
+                Farm = FarmModel.FromDomain(farm),
+                CommentForFarmer = inspection.CommentForFarmer
             };
             return model;
         }

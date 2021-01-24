@@ -191,7 +191,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             table.AddTitleCell("Signature");
             table.AddCustomCell(!string.IsNullOrWhiteSpace(model_.ProxyName)
                 ? model_.ProxyName
-                : model_.Farm.FarmDisplay.CompleteName);
+                : model_.Farm.CompleteName);
             DisplaySignatureOrEmpty(model_.FarmerSignatureImage);
             table.AddTitleCell("Contrôleur (ou gérant(e))");
             table.AddTitleCell("Signature");
@@ -207,8 +207,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             }
 
             if (model_.DoneOn.HasValue)
-                table.AddCustomCell($"Fait à {model_.DoneInTownDisplay} le {model_.DoneOn.Value.ToShortDateString()}",
-                    colspan: 2);
+                //table.AddCustomCell($"Fait à {model_.DoneInTownDisplay} le {model_.DoneOn.Value.ToShortDateString()}", colspan: 2);
+                table.AddCustomCell($"Fait le {model_.DoneOn.Value.ToShortDateString()}", colspan: 2);
 
             return table;
         }
@@ -313,12 +313,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
 
 
-        private void AddFarmCell(AcPdfPTable table, InspectionPdfModel.FarmModel farm)
+        private void AddFarmCell(AcPdfPTable table, FarmModel farm)
         {
             var cell = DefaultCell(table.ColorDark);
-            cell.AddElement(new Phrase(farm.FarmDisplay.Ktidb, Fonts.Helvetica12BlackBold));
-            cell.AddElement(new Phrase(farm.FarmDisplay.CompleteName, Fonts.Helvetica12BlackBold));
-            cell.AddElement(new Phrase(farm.FarmDisplay.Address, Fonts.Helvetica10Black));
+            cell.AddElement(new Phrase(farm.Ktidb, Fonts.Helvetica12BlackBold));
+            cell.AddElement(new Phrase(farm.CompleteName, Fonts.Helvetica12BlackBold));
+            cell.AddElement(new Phrase(farm.Address, Fonts.Helvetica10Black));
             cell.AddElement(new Phrase("Email: " + farm.Email, Fonts.Helvetica10Black));
             table.AddCell(cell);
         }
@@ -326,7 +326,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
         private void AddResultCell(AcPdfPTable table, RecapResultListItemModel resultModel, float borderWidth,
             BaseColor backgroundColor = null)
         {
-            backgroundColor = backgroundColor ?? Colors.White;
+            backgroundColor ??= Colors.White;
             var cell = DefaultCell(table.ColorDark, borderWidth, backgroundColor);
             if (!string.IsNullOrWhiteSpace(resultModel.ResultInspectorComment))
                 cell.AddElement(new Phrase
@@ -379,7 +379,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
         private static PdfPCell DefaultCell(BaseColor borderColor, float borderWidth = 0.5f,
             BaseColor backgroundColor = null)
         {
-            backgroundColor = backgroundColor ?? Colors.White;
+            backgroundColor ??= Colors.White;
             return new PdfPCell
             {
                 MinimumHeight = 0.0f,
@@ -395,67 +395,67 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
         private string OutcomeString(InspectionOutcome? outcome)
         {
-            /*if (!outcome.HasValue)
-                return "";
+            //if (!outcome.HasValue)
+            //    return "";
 
-            return outcome == InspectionOutcome.Ok ? SpecialCharacters.Check :
-                outcome == InspectionOutcome.PartiallyOk ? "P" :
-                outcome == InspectionOutcome.NotOk ? "Non" :
-                outcome == InspectionOutcome.NotApplicable ? "NA" :
-                outcome == InspectionOutcome.NotInspected ? "NC" : "";
-            */
+            //return outcome == InspectionOutcome.Ok ? SpecialCharacters.Check :
+            //    outcome == InspectionOutcome.PartiallyOk ? "P" :
+            //    outcome == InspectionOutcome.NotOk ? "Non" :
+            //    outcome == InspectionOutcome.NotApplicable ? "NA" :
+            //    outcome == InspectionOutcome.NotInspected ? "NC" : "";
+            
             return "";
         }
 
         private BaseColor OutcomeBackgroundColor(RecapResultListItemModel item, BaseColor defaultColor = null)
         {
-            defaultColor = defaultColor ?? BackgroundColor(item, Colors.LightGray);
+            defaultColor ??= BackgroundColor(item, Colors.LightGray);
             var okColor = Colors.Ok;
             var koColor = Colors.Ko;
             var pokColor = Colors.Pok;
 
-            /*switch (item.ResultOutcome)
-            {
-                case null: return defaultColor;
-                case InspectionOutcome.NotOk: return koColor;
-                case InspectionOutcome.PartiallyOk: return pokColor;
-                case InspectionOutcome.Ok: return okColor;
-                case InspectionOutcome.NotApplicable: return defaultColor;
-                case InspectionOutcome.NotInspected: return defaultColor;
-            }*/
+            //switch (item.ResultOutcome)
+            //{
+            //    case null: return defaultColor;
+            //    case InspectionOutcome.NotOk: return koColor;
+            //    case InspectionOutcome.PartiallyOk: return pokColor;
+            //    case InspectionOutcome.Ok: return okColor;
+            //    case InspectionOutcome.NotApplicable: return defaultColor;
+            //    case InspectionOutcome.NotInspected: return defaultColor;
+            //}
 
             return defaultColor;
         }
 
         private BaseColor OutcomeDetailsBackgroundColor(RecapResultListItemModel item, BaseColor defaultColor = null)
         {
-            defaultColor = defaultColor ?? BackgroundColor(item, Colors.LightGray);
+            defaultColor ??= BackgroundColor(item, Colors.LightGray);
             var koColor = Colors.Ko;
             var pokColor = Colors.Pok;
 
-            /*switch (item.ResultOutcome)
-            {
-                case null: return defaultColor;
-                case InspectionOutcomes.NOk: return koColor;
-                case InspectionOutcomes.PartiallyOk: return pokColor;
-                case InspectionOutcomes.Ok: return defaultColor;
-                case InspectionOutcomes.NotApplicable: return defaultColor;
-                case InspectionOutcomes.NotInspected: return defaultColor;
-            */
+            //switch (item.ResultOutcome)
+            //{
+            //    case null: return defaultColor;
+            //    case InspectionOutcomes.NOk: return koColor;
+            //    case InspectionOutcomes.PartiallyOk: return pokColor;
+            //    case InspectionOutcomes.Ok: return defaultColor;
+            //    case InspectionOutcomes.NotApplicable: return defaultColor;
+            //    case InspectionOutcomes.NotInspected:
+            //        return defaultColor;
 
             return defaultColor;
         }
 
         private BaseColor BackgroundColor(RecapResultListItemModel item, BaseColor defaultColor = null)
         {
-            defaultColor = defaultColor ?? Colors.White;
+            defaultColor ??= Colors.White;
 
-            /*if (item.HasAutoSetAncestor && item.ResultOutcome == InspectionOutcome.NotApplicable)
+            if (item.HasAutoSetAncestor && item.ResultOutcome == InspectionOutcome.NotApplicable)
                 return Colors.AutoSetNa;
 
             if (item.HasAutoSetAncestor && item.ResultOutcome == InspectionOutcome.NotInspected)
                 return Colors.AutoSetNc;
-            */
+
             return defaultColor;
         }
 
@@ -466,12 +466,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             float borderWidth = 0.5f,
             int horizontalAlignment = Element.ALIGN_LEFT)
         {
-            if(!String.IsNullOrEmpty(imagePath))
-            {
-                var image = Image.GetInstance(imagePath);
-                image.ScalePercent(scalePercent);
-                AddImageCell(table, image, rowspan, borderWidth, horizontalAlignment);
-            }
+            if (string.IsNullOrEmpty(imagePath))
+                return;
+
+            var image = Image.GetInstance(imagePath);
+            image.ScalePercent(scalePercent);
+            AddImageCell(table, image, rowspan, borderWidth, horizontalAlignment);
 
         }
 

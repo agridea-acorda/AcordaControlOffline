@@ -9,6 +9,7 @@
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
+@inject IToastService Toast
 
 <div class="card">
     <div class="card-header">
@@ -49,24 +50,30 @@
 <div class="card">
     <div class="card-header">
         @*@if (autosave != null)
+            {
+                <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
+                <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
+            }*@
+        @if (needsSaving)
         {
-            <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
-            <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
-        }*@
-        <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
-            @if (saving)
-            {
-                <i class="fas fa-spinner fa-spin"></i>
-            }
-            else
-            {
-                <i class="far fa-save"></i>
-            }
-            Enregistrer
-        </button>
+            <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
+                @if (saving)
+                {
+                    <i class="fas fa-spinner fa-spin"></i>
+                }
+                else
+                {
+                    <i class="far fa-save"></i>
+                }
+                Enregistrer
+            </button>
+        }
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
+        <p>
+            <Blazorise.Switch TValue="bool" @bind-Checked="@showAutoSet"><span class="font-weight-normal">Afficher NA/NC auto</span></Blazorise.Switch>
+        </p>
         <div id="checklist">
             <div class="list-group">
                 @if (parent != null)
@@ -83,7 +90,7 @@
                                 {
                                     @foreach (var child in children)
                                     {
-                                        <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
+                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
                                     }
                                 }
                                 else
@@ -100,7 +107,7 @@
                     {
                         @foreach (var child in children)
                         {
-                            <ChecklistItem Node="@child" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
+                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
                         }
                     }
                     else
@@ -127,6 +134,7 @@
     bool saving;
     bool needsSaving;
     string saveButtonDisabled => needsSaving ? "" : "disabled";
+    bool showAutoSet = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -177,7 +185,10 @@
     void OutcomeChanged(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s outcome was set to {model.Outcome}.");
-        checklist.SetOutcome(model.ConjunctElementCode, model.Outcome);
+        var node = checklist.Find(model.ConjunctElementCode);
+        var previousOutcome = node.Outcome;
+        node.SetOutcome(model.Outcome);
+        if (previousOutcome != model.Outcome) node.SetAuto(false);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         progressBarModel.Progress(checklist.Percent);
         needsSaving = true;
@@ -186,22 +197,24 @@
     void NodeEdited(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
-        var node = checklist.Find(model.ConjunctElementCode);
-        node.SetInspectorComment(model.InspectorComment);
-        node.SetFarmerComment(model.FarmerComment);
-        node.SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
-                       DefectSeriousness.FromCode(model.SeriousnessCode));
+        checklist.Find(model.ConjunctElementCode)
+                 .SetInspectorComment(model.InspectorComment)
+                 .SetFarmerComment(model.FarmerComment)
+                 .SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
+                            DefectSeriousness.FromCode(model.SeriousnessCode))
+                 .SetAuto(false);
         needsSaving = true;
     }
 
     void Deleted(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
-        var node = checklist.Find(model.ConjunctElementCode);
-        node.SetOutcome(InspectionOutcome.Unset);
-        node.SetInspectorComment("");
-        node.SetFarmerComment("");
-        node.SetDefect(Defect.None, DefectSeriousness.Empty);
+        checklist.Find(model.ConjunctElementCode)
+                 .SetOutcome(InspectionOutcome.Unset)
+                 .SetInspectorComment("")
+                 .SetFarmerComment("")
+                 .SetDefect(Defect.None, DefectSeriousness.Empty)
+                 .SetAuto(false);
         progressBarModel.Progress(checklist.Percent);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         needsSaving = true;
@@ -214,14 +227,18 @@
         saving = true;
         await Task.Delay(1);
         StateHasChanged();
+
         await Repository.SaveChecklistAsync(checklist);
+        // below should be performed with domain event dispatching mechanism
         var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
         await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
         await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
+
         Console.WriteLine("...checklist saved.");
         saving = false;
         needsSaving = false;
         StateHasChanged();
+        Toast.Success();
     }
 
     private async Task UpdateAndSaveInspectionPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)

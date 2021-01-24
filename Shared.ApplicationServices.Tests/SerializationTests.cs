@@ -57,6 +57,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         }
 
         [Fact]
+        public void Can_serialize_then_parse_autoset()
+        {
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist_);
+            checklist_.Find("R1,P2").SetAuto();
+            var checklistFactory = new ChecklistFactory();
+            string json = checklistFactory.Serialize(checklist_);
+            var checklist = checklistFactory.Parse(json);
+            TestDataHelper.ChecklistTreeStructureShouldBeConsistent(checklist);
+            checklist.Find("R1,P2").IsAutoSet.Should().Be(true);
+        }
+
+        [Fact]
         public void Can_serialize_inspection()
         {
             string json = new InspectionFactory().Serialize(inspection_);
@@ -72,6 +84,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             string json = factory.Serialize(inspection_);
             var inspection = factory.Parse(json);
             TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection);
+        }
+
+        [Fact]
+        public void Can_serialize_then_parse_inspection_with_pdf_report()
+        {
+            TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection_);
+            inspection_.SetPdfReport(new PdfReport(inspection_.GenerateInspectionPdf(farm_, false)));
+            var factory = new InspectionFactory();
+            string json = factory.Serialize(inspection_);
+            var inspection = factory.Parse(json);
+            TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection);
+            inspection.PdfReport.Should().Be(inspection_.PdfReport);
         }
 
         [Fact]

@@ -1,14 +1,16 @@
-﻿@page "/MandateDetail/{FarmId:int}"
-@attribute [Authorize]
-@inject NavigationManager Navigation
-@inject IRepository Repository
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Ardalis.GuardClauses
 @using Microsoft.AspNetCore.Authorization
+@page "/MandateDetail/{FarmId:int}"
+@attribute [Authorize]
+@inject NavigationManager Navigation
+@inject IRepository Repository
+@inject IJSRuntime Js
 
 @if (mandateViewModel?.Farm != null)
 {
@@ -28,14 +30,14 @@
             </p>
         </div>
         @*<div class="card-body">
-            <p class="mb-1">
-                <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.AgriculturalArea</span>
-                <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.NonAgriculturalArea</span>
-                <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandateViewModel.Farm.BovineStandardUnits</span>
-                <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandateViewModel.Farm.BovineStandardUnitsFromBdta</span>
-            </p>
-            <BadgeBar Badges="@mandateViewModel.Farm.Badges" />
-        </div>*@
+                <p class="mb-1">
+                    <label class="badge-label">SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.AgriculturalArea</span>
+                    <label class="badge-label">non SAU:</label> <span class="badge badge-round badge-info text-white p-1 mr-3">@mandateViewModel.Farm.NonAgriculturalArea</span>
+                    <label class="badge-label">UGB:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandateViewModel.Farm.BovineStandardUnits</span>
+                    <label class="badge-label">dont BDTA:</label> <span class="badge badge-round bg-animal text-white p-1 mr-3">@mandateViewModel.Farm.BovineStandardUnitsFromBdta</span>
+                </p>
+                <BadgeBar Badges="@mandateViewModel.Farm.Badges" />
+            </div>*@
     </div>
 }
 else
@@ -120,11 +122,21 @@ else
                         }
                         @if (inspection.CanGeneratePdfReport)
                         {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-file-download"></i> Enregistrer le rapport de contrôle</button>
+                            <button @onclick="@(() => SavePdfReport(inspection.FarmInspectionId))" class="btn btn-primary mr-1 mb-1">
+                                @if (pdfSaving)
+                                {
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-save"></i>
+                                }
+                                Enregistrer le rapport de contrôle
+                            </button>
                         }
                         @if (inspection.CanDisplayPdfReport)
                         {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter / Envoyer le rapport de contrôle</button>
+                            <button @onclick="@(() => DisplayPdfReport(inspection.FarmInspectionId))" class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter le rapport de contrôle</button>
                         }
                         @if (inspection.CanClose)
                         {
@@ -286,6 +298,7 @@ else
     private CommentForOfficeModel commentForOffice;
     private Blazorise.Modal complianceModal;
     private ComplianceModel compliance;
+    bool pdfSaving;
 
     protected override async Task OnInitializedAsync()
     {
@@ -379,6 +392,34 @@ else
         StateHasChanged();
         complianceModal.Hide();
         await Repository.SaveMandateAsync(mandate, FarmId);
+    }
+
+    async Task SavePdfReport(int farmInspectionId)
+    {
+        if (pdfSaving) return;
+        Console.WriteLine($"Saving pdf report for inspection {farmInspectionId}...");
+        pdfSaving = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+        Guard.Against.Null(inspection, nameof(inspection));
+        var bytes = inspection.GenerateInspectionPdf(farm, false);
+        inspection.SetPdfReport(new PdfReport(bytes));
+        mandateViewModel = Mandate.FromDomain(farm, mandate);
+        await Repository.SaveMandateAsync(mandate, FarmId);
+        Console.WriteLine("... pdf report succesfully saved.");
+        pdfSaving = false;
+        StateHasChanged();
+    }
+
+    async void DisplayPdfReport(int farmInspectionId)
+    {
+        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+        Guard.Against.Null(inspection, nameof(inspection));
+        var bytes = inspection.GenerateInspectionPdf(farm);
+        string filename = $"{2021} {farm.Ktidb} {farm.FarmName} {inspection.Domain.ShortName}";
+        await Js.InvokeVoidAsync("BlazorDownloadFile", $"Rapport de controle {filename}.pdf", "application/octet-stream", bytes);
     }
 
     public class ComplianceModel

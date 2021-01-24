@@ -1,6 +1,5 @@
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth;
@@ -8,6 +7,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
 using Agridea.DomainDrivenDesign;
 using Blazored.LocalStorage;
+using Blazored.Toast;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
@@ -26,22 +26,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.RootComponents.Add<App>("app");
 
             // Acordacontrol api
-            builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(Settings.ApiBaseAddres) });
+            builder.Services.AddSingleton(sp => new HttpClient() { BaseAddress = new Uri(Settings.Default.ApiBaseAddres) });
             builder.Services.AddScoped<IApiClient, ApiClient>();
-            //builder.Services.AddHttpClient<IApiClient, ApiClient>(nameof(ApiClient),
-            //                                                              client =>
-            //                                                              {
-            //                                                                  // sample data in local json file
-            //                                                                  //client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-
-            //                                                                  // real api
-            //                                                                  client.BaseAddress = new Uri(Settings.ApiBaseAddres);
-            //                                                                  //client.DefaultRequestHeaders.Add("api-key", apiSettings.ApiKey);
-            //                                                              });
+            // todo find some way to configure the api BaseAddress at runtime by the user.
             
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
+
+            // settings
+            builder.Services.AddScoped<ISettingsService, SettingsService>();
 
             // auth
             builder.Services.AddAuthorizationCore();
@@ -51,6 +45,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // Events
             builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
             builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            // Toasts
+            builder.Services.AddBlazoredToast();
 
             builder.Services
                    .AddBlazorise(options =>

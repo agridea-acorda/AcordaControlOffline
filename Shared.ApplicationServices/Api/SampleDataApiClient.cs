@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
 using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate;
@@ -45,6 +46,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
         public async Task<Result<ChecklistSample>> FetchChecklistSampleAsync(string uri)
         {
             return await FetchTypedAsync<ChecklistSample>(uri);
+        }
+
+        public async Task<Result<string>> SendMergePackage(string uri, MergePackage mergePackage)
+        {
+            await Task.Delay(2 * 1000);
+            return Result.Success("thisisafakehashstring");
         }
 
         private async Task<Result<T>> FetchTypedAsync<T>(string uri, int delayInMs = DefaultDelayInMs)
