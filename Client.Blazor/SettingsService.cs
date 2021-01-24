@@ -16,22 +16,32 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             httpClient_ = httpClient;
         }
 
-        public async Task Save(Settings settings)
+        public async Task<string> Save(Settings settings)
         {
-            await jsRuntime_.InvokeAsync<string>(JsInterop.SetCookie, Settings.CookieName, JsonConvert.SerializeObject(settings));
-            httpClient_.BaseAddress = new Uri(settings.ApiBaseAddres);
+            var uri = new Uri(settings.ApiBaseAddres);
+            bool urisAreEqual = Uri.Compare(httpClient_.BaseAddress, uri, UriComponents.HostAndPort | UriComponents.Path, UriFormat.UriEscaped, StringComparison.Ordinal) == 0;
+            if (httpClient_.BaseAddress != null && !urisAreEqual)
+                return "L'adresse de l'api doit être configurée avant d'effectuer une requête.";
+
+            if (!urisAreEqual) 
+                httpClient_.BaseAddress = uri;
+            
+            await jsRuntime_.InvokeVoidAsync(JsInterop.SetCookie, Settings.CookieName, JsonConvert.SerializeObject(settings));
+            return "";
+
         }
 
         public async Task<Settings> Read()
         {
-            var savedSettings = await jsRuntime_.InvokeAsync<Settings>(JsInterop.ReadCookie, Settings.CookieName);
-            return savedSettings ?? Settings.Default;
+            var jsonSettings = await jsRuntime_.InvokeAsync<string>(JsInterop.ReadCookie, Settings.CookieName);
+            if (string.IsNullOrWhiteSpace(jsonSettings)) return Settings.Default;
+            return JsonConvert.DeserializeObject<Settings>(jsonSettings);
         }
     }
 
     public interface ISettingsService
     {
-        Task Save(Settings settings);
+        Task<string> Save(Settings settings);
         Task<Settings> Read();
     }
 }
