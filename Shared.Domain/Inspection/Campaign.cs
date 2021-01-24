@@ -5,7 +5,7 @@ using Agridea.DomainDrivenDesign;
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
     public class Campaign : ValueObject
     {
-        public Campaign(int id, string name)
+        public Campaign(int id, string name, int year)
         {
             if (id <= 0)
                 throw new ArgumentOutOfRangeException(nameof(id), $"{nameof(id)} must be > 0");
@@ -15,6 +15,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
 
             Id = id;
             Name = name;
+            Year = year;
         }
         public int Id { get; }
         public string Name { get; }

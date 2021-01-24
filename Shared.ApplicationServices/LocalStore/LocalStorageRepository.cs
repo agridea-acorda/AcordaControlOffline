@@ -20,7 +20,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public const string Mandates = "mandates";
         public const string Checklist = "checklist";
         public const string ActionsOrDocuments = "actionsOrDocuments";
-
+        
         private readonly ILocalStorageService localStorage_;
         public LocalStorageRepository(ILocalStorageService localStorage)
         {
@@ -48,10 +48,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return await localStorage_.ContainKeyAsync(key);
         }
 
+        public async ValueTask<string> ReadMandateJsonAsync(int farmId)
+        {
+            return await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+        }
+
         public async ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId)
         {
-            string json = await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+            string json = await ReadMandateJsonAsync(farmId);
             return new MandateFactory().Parse(json);
+        }
+
+        public async ValueTask DeleteMandateAsync(int farmId)
+        {
+            await localStorage_.RemoveItemAsync(MandateDetailKey(farmId));
         }
 
         public async ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId)
@@ -95,22 +105,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return new FarmFactory().Parse(json);
         }
 
+        public async ValueTask DeleteFarmAsync(int farmId)
+        {
+            await localStorage_.RemoveItemAsync(FarmKey(farmId));
+        }
+
         public async ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id)
         {
             string key = MandateDetailKey(id); 
             await localStorage_.SetItemAsync(key, new MandateFactory().Serialize(mandate));
-        }
-
-        public async ValueTask SaveProvisoryControlePdf(byte[] pdfData, string key)
-        {
-            await localStorage_.SetItemAsync(key, Convert.ToBase64String(pdfData));
-        }
-
-
-        public async ValueTask<byte[]> ReadProvisoryControlePdf(string key)
-        {
-            string base64 = await localStorage_.GetItemAsStringAsync(key);
-            return Convert.FromBase64String(base64);
         }
 
         public async ValueTask SaveMandateJsonAsync(string json, int id)
@@ -147,10 +150,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
         }
 
+        public async Task<string> ReadChecklistJsonAsync(int farmInspectionId)
+        {
+            return await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
+        }
+
         public async Task<Checklist> ReadChecklistAsync(int farmInspectionId)
         {
-            string json = await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
+            string json = await ReadChecklistJsonAsync(farmInspectionId);
             return new ChecklistFactory().Parse(json);
+        }
+
+        public async ValueTask DeleteChecklistAsync(int farmInspectionId)
+        {
+            await localStorage_.RemoveItemAsync(ChecklistKey(farmInspectionId));
         }
 
         public async ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync()

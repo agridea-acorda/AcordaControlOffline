@@ -195,6 +195,11 @@ option.fa-font-family {
     background-color: #ff9f1f;
 }
 
+.striped {
+    background: repeating-linear-gradient( -45deg, #ddd, #ddd 10px, #fff 10px, #fff 20px);
+    color: #888;
+}
+
 /* Buttons
 -------------------------------------------------------------*/
 .btn-circle {

@@ -53,6 +53,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(targetType, nameof(Result.InspectorComment), targetInstance, dto.InspectorComment);
             SetPropertyValueViaBackingField(targetType, nameof(Result.FarmerComment), targetInstance, dto.FarmerComment);
             SetPropertyValueViaBackingField(targetType, nameof(Result.Outcome), targetInstance, Parse(dto.Outcome));
+            SetPropertyValueViaBackingField(targetType, nameof(Result.IsAutoSet), targetInstance, dto.IsAutoSet);
             SetPropertyValueViaBackingField(targetType, nameof(Result.Defect), targetInstance, Parse(dto.Defect));
             SetPropertyValueViaBackingField(targetType, nameof(Result.Seriousness), targetInstance, Parse(dto.Seriousness));
             // todo PredefinedDefect

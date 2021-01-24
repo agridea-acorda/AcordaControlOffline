@@ -141,10 +141,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             if (dto == null) return PdfReport.None;
             var targetInstance = (PdfReport)FormatterServices.GetUninitializedObject(typeof(PdfReport));
-            SetPropertyValueViaBackingField(typeof(PdfReport), nameof(PdfReport.Bytes), targetInstance, dto.Bytes);
+            SetPropertyValueViaBackingField(typeof(PdfReport), nameof(PdfReport.Bytes), targetInstance, string.IsNullOrWhiteSpace(dto.Bytes) 
+                                                                                                            ? Array.Empty<byte>() 
+                                                                                                            : Convert.FromBase64String(dto.Bytes));
+
             return targetInstance;
         }
-
+        
         private FinishStatus Parse(InspectionDeserializationDto.FinishStatus dto)
         {
             if (dto == null) return FinishStatus.NotFinished;

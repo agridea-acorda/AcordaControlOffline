@@ -3,13 +3,16 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
+@using Ardalis.GuardClauses
+@using EnsureThat
 @using Microsoft.AspNetCore.Authorization
 @using Signature = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Signature
 @page "/Signatures/{FarmInspectionId:int}"
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime Js
+@inject IToastService Toast
 
 @if (isInitialized)
 {
@@ -29,11 +32,11 @@
         </div>
         <div class="card-body">
             <div class="form-group">
-                <button class="btn btn-primary" @onclick="(() => GenerateReportPdf())"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
+                <button class="btn btn-primary" @onclick="@GeneratePdfReport"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
             </div>
             <div class="form-group">
                 <div class="callout callout-info">
-                    <p>L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle. En cas de contestation, une réclamation écrite avec les points contestés peut être adressée dans les trois jours ouvrables suivant le contrôle à l'organisme d'inspection ayant effectué le contrôle.</p>
+                    <p>L'exploitant ou son représentant atteste avoir pris connaissance du rapport de contrôle ci-dessus. En cas de contestation, une réclamation écrite avec les points contestés peut être adressée dans les trois jours ouvrables suivant le contrôle à l'organisme d'inspection ayant effectué le contrôle.</p>
                 </div>
             </div>
         </div>
@@ -42,7 +45,7 @@
 
 @if (isInitialized)
 {
-    <EditForm Model="@actionsOrDocumentEditModel_" OnSubmit="@SaveActionsOrDocuments">
+    <EditForm Model="@actionsOrDocumentEditModel" OnSubmit="@SaveActionsOrDocuments">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Remarques / Documents / Mesures</h3>
@@ -50,16 +53,16 @@
             <div class="card-body">
                 <div class="form-group"></div>
                 <div class="form-group">
-                    <label for="@nameof(actionsOrDocumentEditModel_.CommentForFarmer)">Remarque générale</label>
-                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel_.CommentForFarmer" TextChanged="@OnCommentForFarmerChanged" id="@nameof(actionsOrDocumentEditModel_.CommentForFarmer)" />
+                    <label for="@nameof(actionsOrDocumentEditModel.CommentForFarmer)">Remarque générale</label>
+                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel.CommentForFarmer" TextChanged="@OnCommentForFarmerChanged" id="@nameof(actionsOrDocumentEditModel.CommentForFarmer)" />
                 </div>
                 <div class="form-group">
-                    <label for="@nameof(actionsOrDocumentEditModel_.ActionsOrDocuments)">Documents à livrer / mesures à prendre</label>
-                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel_.ActionsOrDocuments" TextChanged="@OnActionsOrDocumentsChanged" id="@nameof(actionsOrDocumentEditModel_.ActionsOrDocuments)" />
+                    <label for="@nameof(actionsOrDocumentEditModel.ActionsOrDocuments)">Documents à livrer / mesures à prendre</label>
+                    <Blazorise.MemoEdit Text="@actionsOrDocumentEditModel.ActionsOrDocuments" TextChanged="@OnActionsOrDocumentsChanged" id="@nameof(actionsOrDocumentEditModel.ActionsOrDocuments)" />
                 </div>
                 <div class="form-group">
-                    <label for="@nameof(actionsOrDocumentEditModel_.DueDate)">Délai</label>
-                    <Blazorise.DateEdit TValue="DateTime?" Date="@actionsOrDocumentEditModel_.DueDate" DateChanged="@OnDueDateChanged" id="@nameof(actionsOrDocumentEditModel_.DueDate)" />
+                    <label for="@nameof(actionsOrDocumentEditModel.DueDate)">Délai</label>
+                    <Blazorise.DateEdit TValue="DateTime?" Date="@actionsOrDocumentEditModel.DueDate" DateChanged="@OnDueDateChanged" id="@nameof(actionsOrDocumentEditModel.DueDate)" />
                 </div>
             </div>
             <div class="card-footer">
@@ -100,7 +103,7 @@
                                 <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
                                 @if (signatures.ExistingInspectorSignature.HasSigned)
                                 {
-                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"><i class="far fa-clone"></i> Réutiliser la signature</button>
+                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
                                 }
                             </div>
                         </div>
@@ -125,7 +128,7 @@
                                 <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
                                 @if (signatures.ExistingFarmerSignature.HasSigned)
                                 {
-                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingFarmerSignature, "farmer"))" class="btn btn-default"><i class="far fa-clone"></i> Réutiliser la signature</button>
+                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingFarmerSignature, "farmer"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
                                 }
                             </div>
                         </div>
@@ -148,7 +151,7 @@
                     </p>
                     @if (signatures.ExistingAdditionalSignature.HasSigned)
                     {
-                        <p><button @onclick="@(() => ReuseSignature(signatures.ExistingAdditionalSignature, "inspector2"))" class="btn btn-xs btn-default"><i class="far fa-clone"></i> Réutiliser la signature</button></p>
+                        <p><button @onclick="@(() => ReuseSignature(signatures.ExistingAdditionalSignature, "inspector2"))" class="btn btn-xs btn-default"><i class="far fa-clone"></i> Apposer la signature</button></p>
                     }
                 }
             </li>
@@ -161,8 +164,10 @@
     [Parameter]
     public int FarmInspectionId { get; set; }
     private int farmId;
+    Mandate mandate;
+    Inspection inspection;
 
-    ActionsOrDocumentEditModel actionsOrDocumentEditModel_;
+    ActionsOrDocumentEditModel actionsOrDocumentEditModel;
     bool needsSaving = false;
 
     SignaturesDisplay signatures;
@@ -183,29 +188,27 @@
 
     protected override async Task OnInitializedAsync()
     {
-        actionsOrDocumentEditModel_ = await Repository.ReadActionsOrDocumentsAsync() ?? new ActionsOrDocumentEditModel();
+        //actionsOrDocumentEditModel = await Repository.ReadActionsOrDocumentsAsync() ?? new ActionsOrDocumentEditModel();
         farmId = int.Parse(Navigation.QueryString("FarmId"));
-        var mandate = await Repository.ReadMandateAsync(farmId);
-        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
-        if (inspection == null)
-            Console.WriteLine($"Error loading inspection with FarmInspectionId={FarmInspectionId}");
-        else
+        mandate = await Repository.ReadMandateAsync(farmId);
+        Ensure.That(mandate, nameof(mandate)).IsNotNull();
+        inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
+        Ensure.That(inspection, nameof(inspection)).IsNotNull();
+        actionsOrDocumentEditModel = ActionsOrDocumentEditModel.FromDomain(inspection);
+        signatures = new SignaturesDisplay
         {
-            signatures = new SignaturesDisplay
-            {
-                FarmerSignature = SignatureModel.FromDomain(inspection.FarmerSignature),
-                InspectorSignature = SignatureModel.FromDomain(inspection.InspectorSignature),
-                AdditionalSignature = SignatureModel.FromDomain(inspection.Inspector2Signature),
-                FarmerDisplay = inspection.FarmerSignature.HasProxy
-                                    ? $"(représenté par {inspection.FarmerSignature.Proxy})"
-                                    : $"({inspection.FarmerSignature.Signatory})",
-                InspectorDisplay = $"({inspection.InspectorSignature.Signatory})",
-                AdditionalInspectorDisplay = $"({inspection.Inspector2Signature.Signatory})"
-            };
-            signatures.ExistingInspectorSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.InspectorSignature.HasSigned));
-            signatures.ExistingFarmerSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.FarmerSignature.HasSigned));
-            signatures.ExistingAdditionalSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.Inspector2Signature.HasSigned));
-        }
+            FarmerSignature = SignatureModel.FromDomain(inspection.FarmerSignature),
+            InspectorSignature = SignatureModel.FromDomain(inspection.InspectorSignature),
+            AdditionalSignature = SignatureModel.FromDomain(inspection.Inspector2Signature),
+            FarmerDisplay = inspection.FarmerSignature.HasProxy
+                                ? $"(représenté par {inspection.FarmerSignature.Proxy})"
+                                : $"({inspection.FarmerSignature.Signatory})",
+            InspectorDisplay = $"({inspection.InspectorSignature.Signatory})",
+            AdditionalInspectorDisplay = $"({inspection.Inspector2Signature.Signatory})",
+            ExistingInspectorSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.InspectorSignature.HasSigned)),
+            ExistingFarmerSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.FarmerSignature.HasSigned)),
+            ExistingAdditionalSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.Inspector2Signature.HasSigned))
+        };
         isInitialized = true;
     }
 
@@ -236,30 +239,6 @@
         }
     }
 
-    async void SaveActionsOrDocuments(EditContext editContext)
-    {
-        needsSaving = false;
-        await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);
-    }
-
-    void OnDueDateChanged(DateTime? date)
-    {
-        actionsOrDocumentEditModel_.DueDate = date;
-        needsSaving = true;
-    }
-
-    void OnCommentForFarmerChanged(string value)
-    {
-        actionsOrDocumentEditModel_.CommentForFarmer = value;
-        needsSaving = true;
-    }
-
-    void OnActionsOrDocumentsChanged(string value)
-    {
-        actionsOrDocumentEditModel_.ActionsOrDocuments = value;
-        needsSaving = true;
-    }
-
     private Signature GetExistingOtherSignature(Mandate mandate, int farmInspectionId, Func<Inspection, bool> predicate)
     {
         return mandate.Inspections
@@ -268,20 +247,49 @@
                       ?.InspectorSignature ?? Signature.None;
     }
 
-    async void GenerateReportPdf()
+    void OnDueDateChanged(DateTime? date)
     {
-        farmId = int.Parse(Navigation.QueryString("FarmId"));
-        var mandate = await Repository.ReadMandateAsync(farmId);
-        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == FarmInspectionId);
-        if (inspection == null)
-            Console.WriteLine($"Error loading inspection with FarmInspectionId={FarmInspectionId}");
-        else
-        {
-            var farm = await Repository.ReadFarmAsync(farmId);
-            var file = inspection.GenerateInspectionPdf(inspection,farm);
-            //BlazorDownloadFile defined in app.js
-            await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", $"Rapport de controle {FarmInspectionId}.pdf", "application/octet-stream", file);
-        }
+        actionsOrDocumentEditModel.DueDate = date;
+        needsSaving = true;
+    }
+
+    void OnCommentForFarmerChanged(string value)
+    {
+        actionsOrDocumentEditModel.CommentForFarmer = value;
+        needsSaving = true;
+    }
+
+    void OnActionsOrDocumentsChanged(string value)
+    {
+        actionsOrDocumentEditModel.ActionsOrDocuments = value;
+        needsSaving = true;
+    }
+
+    async void SaveActionsOrDocuments()
+    {
+        var complianceBackup = inspection.Compliance;
+        inspection.SetCommentForFarmer(actionsOrDocumentEditModel.CommentForFarmer);
+        inspection.SetCompliance(new Compliance(actionsOrDocumentEditModel.ActionsOrDocuments,
+                                                actionsOrDocumentEditModel.DueDate,
+                                                complianceBackup.DueDateNotRespected,
+                                                complianceBackup.DueDateRespected,
+                                                complianceBackup.FurtherInvestigationNeeded,
+                                                complianceBackup.IncompleteOrNonCompliant));
+        await Repository.SaveMandateAsync(mandate, farmId);
+        //await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);
+        Toast.Success();
+        needsSaving = false;
+        await Task.Delay(1);
+        StateHasChanged();
+    }
+
+    async void GeneratePdfReport()
+    {
+        var farm = await Repository.ReadFarmAsync(farmId);
+        Guard.Against.Null(farm, nameof(farm));
+        var file = inspection.GenerateInspectionPdf(farm);
+        string filename = $"{2021} {farm.Ktidb} {farm.FarmName} {inspection.Domain.ShortName}";
+        await Js.InvokeVoidAsync("BlazorDownloadFile", $"Rapport de controle {filename}.pdf", "application/octet-stream", file);
     }
 }
 
