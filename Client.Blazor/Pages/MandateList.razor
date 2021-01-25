@@ -2,8 +2,6 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 @using CSharpFunctionalExtensions
@@ -11,7 +9,6 @@
 @using Microsoft.AspNetCore.Authorization
 @using Newtonsoft.Json
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
-@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
 
 @page "/MandateList"
 @attribute [Authorize]
@@ -305,19 +302,9 @@
         StateHasChanged();
 
         int farmId = mandateModel.Farm.Id;
-        //string mandateJson = await Repository.ReadMandateJsonAsync(farmId);
-        //Ensure.That(mandateJson, nameof(mandateJson)).IsNotEmptyOrWhiteSpace();
-        //var mandate = new MandateFactory().Parse(mandateJson);
         var mandate = await Repository.ReadMandateAsync(farmId);
         Ensure.That(mandate, nameof(mandate)).IsNotNull();
         var checklistsArray = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistAsync(x.FarmInspectionId)).ToArray());
-        //string checklistsJson = JsonConvert.SerializeObject(checklistsArray, Formatting.None,
-        //                                                    new JsonSerializerSettings
-        //                                                    {
-        //                                                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-        //                                                        ContractResolver = new ChecklistContractResolver()
-        //                                                    });
-        //var mergePackage = MergePackage.FromJson(mandateJson, checklistsJson);
         var mergePackage = MergePackage.FromDomain(mandate, checklistsArray);
         string sourceHash = JsonConvert.SerializeObject(mergePackage).ComputeSha256Hash();
         var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
