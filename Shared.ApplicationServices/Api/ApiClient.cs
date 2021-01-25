@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -47,13 +48,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 
         public async Task<Result<string>> SendMergePackage(string uri, MergePackage mergePackage)
         {
-            await Task.Delay(2 * 1000);
-            return Result.Success("thisisafakehashstring");
+            var payload = new Dictionary<string, string>
+            {
+                {nameof(MergePackage.Mandate), mergePackage.Mandate},
+                {nameof(MergePackage.Checklists), mergePackage.Checklists}
+            };
+            return await PostAsync(uri, payload);
         }
 
         private async Task<Result<T>> FetchTypedAsync<T>(string uri, int delayInMs = DefaultDelayInMs)
         {
-            var httpResponse = await SendRequest(uri, delayInMs);
+            var httpResponse = await SendGetRequest(uri, delayInMs);
             if (httpResponse.Content == null || httpResponse.Content.Headers.ContentType.MediaType != "application/json")
                 return Result.Failure<T>("HTTP Response has no content or content is not json.");
 
@@ -78,7 +83,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 
         private async Task<Result<string>> FetchJsonAsync(string uri, int delayInMs = DefaultDelayInMs)
         {
-            var httpResponse = await SendRequest(uri, delayInMs);
+            var httpResponse = await SendGetRequest(uri, delayInMs);
             if (httpResponse.Content == null || httpResponse.Content.Headers.ContentType.MediaType != "application/json")
                 return Result.Failure<string>("HTTP Response has no content or content is not json.");
 
@@ -94,7 +99,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             }
         }
 
-        private async Task<HttpResponseMessage> SendRequest(string uri, int delayInMs)
+        private async Task<HttpResponseMessage> SendGetRequest(string uri, int delayInMs)
         {
             if (delayInMs > 0)
             {
@@ -102,12 +107,35 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            //string authHeaderValue = "Basic " + basicAuthToken_;
-            //request.Headers.Add("Authorization", "Basic " + basicAuthToken_);
-            //Console.WriteLine($"ApiClient sending request with basic auth token={{{authHeaderValue}}}");
             var httpResponse = await httpClient_.SendAsync(request);
             httpResponse.EnsureSuccessStatusCode();
             return httpResponse;
+        }
+
+        private async Task<HttpResponseMessage> SendPostRequest(string uri, Dictionary<string, string> payload, int delayInMs)
+        {
+            if (delayInMs > 0)
+            {
+                await Task.Delay(delayInMs);
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Post, uri) {Content = new FormUrlEncodedContent(payload)};
+            var httpResponse = await httpClient_.SendAsync(request);
+            httpResponse.EnsureSuccessStatusCode();
+            return httpResponse;
+        }
+
+        private async Task<Result<string>> PostAsync(string uri, Dictionary<string, string> payload, int delayInMs = DefaultDelayInMs)
+        {
+            var httpResponse = await SendPostRequest(uri, payload, delayInMs);
+            if (!httpResponse.IsSuccessStatusCode)
+                return Result.Failure<string>($"HTTP status code is no success: {httpResponse.StatusCode}");
+
+            if (httpResponse.Content == null)
+                return Result.Failure<string>("Null content returned from POST request. Expected: string.");
+
+            var contentString = await httpResponse.Content.ReadAsStringAsync();
+            return Result.Success(contentString);
         }
     }
 }

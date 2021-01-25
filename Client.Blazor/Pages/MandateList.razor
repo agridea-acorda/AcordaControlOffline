@@ -2,6 +2,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
@@ -51,12 +52,12 @@
                                             <i class="fas fa-spinner fa-spin"></i> <span class="sr-only">Suppression en cours...</span>
                                         }
                                     </button>
-                                    <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="modal" data-target="#exampleModal">
-                                        @if (mandate.SyncStatus != SyncStatus.Deleting)
+                                    <button @onclick="() => SelectMandate(mandate, mergeModal)" class="btn btn-outline-primary btn-sm float-right ml-1">
+                                        @if (mandate.SyncStatus != SyncStatus.Merging)
                                         {
                                             <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span><span> Renvoyer</span>
                                         }
-                                        @if (mandate.SyncStatus == SyncStatus.Deleting)
+                                        @if (mandate.SyncStatus == SyncStatus.Merging)
                                         {
                                             <i class="fas fa-spinner fa-spin"></i><span class="sr-only">Renvoi des données en cours...</span><span> En cours...</span>
                                         }
@@ -125,6 +126,28 @@
     </div>
 </div>
 
+<Blazorise.Modal @ref="@mergeModal">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent IsCentered="true">
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Envoyer le mandat vers le serveur</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => mergeModal.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <div class="alert alert-danger" role="alert">
+                <u>Attention</u>: les données du mandat (checklist, signatures, suivi, ...) saisies seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
+                Etes-vous sûr(e) ?
+            </div>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button @onclick="() => MergeMandate(selectedMandate)" data-dismiss="modal" type="button" class="btn btn-primary">
+                <i class="fas fa-cloud-upload-alt"></i> J'ai compris, envoyer
+            </button>
+            <button @onclick="() => mergeModal.Hide()" type="button" class="btn btn-default">Annuler</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -159,7 +182,8 @@
                      mandates.Length > 1 ? "s"
                      : "";
     Mandate selectedMandate;
-    
+    Blazorise.Modal mergeModal;
+
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Executing OnInitialized Async from MandateList");
@@ -247,9 +271,10 @@
         mandateModel.SyncStatus = SyncStatus.Loaded;
     }
 
-    void SelectMandate(Mandate mandate)
+    void SelectMandate(Mandate mandate, Blazorise.Modal modal = null)
     {
         selectedMandate = mandate;
+        modal?.Show();
     }
 
     async Task DeleteMandate(Mandate mandateModel)
@@ -273,15 +298,27 @@
 
     async Task MergeMandate(Mandate mandateModel)
     {
+        mergeModal.Hide();
         var originalSyncStatus = mandateModel.SyncStatus;
-        mandateModel.SyncStatus = SyncStatus.Deleting;
+        mandateModel.SyncStatus = SyncStatus.Merging;
+        await Task.Delay(1); // force re-render
+        StateHasChanged();
+
         int farmId = mandateModel.Farm.Id;
-        var mandateJson = await Repository.ReadMandateJsonAsync(farmId);
-        Ensure.That(mandateJson, nameof(mandateJson)).IsNotEmptyOrWhiteSpace();
-        var mandate = new MandateFactory().Parse(mandateJson);
+        //string mandateJson = await Repository.ReadMandateJsonAsync(farmId);
+        //Ensure.That(mandateJson, nameof(mandateJson)).IsNotEmptyOrWhiteSpace();
+        //var mandate = new MandateFactory().Parse(mandateJson);
+        var mandate = await Repository.ReadMandateAsync(farmId);
         Ensure.That(mandate, nameof(mandate)).IsNotNull();
-        var checklistsJson = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistJsonAsync(x.FarmInspectionId)).ToArray());
-        var mergePackage = MergePackage.FromJson(mandateJson, checklistsJson);
+        var checklistsArray = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistAsync(x.FarmInspectionId)).ToArray());
+        //string checklistsJson = JsonConvert.SerializeObject(checklistsArray, Formatting.None,
+        //                                                    new JsonSerializerSettings
+        //                                                    {
+        //                                                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        //                                                        ContractResolver = new ChecklistContractResolver()
+        //                                                    });
+        //var mergePackage = MergePackage.FromJson(mandateJson, checklistsJson);
+        var mergePackage = MergePackage.FromDomain(mandate, checklistsArray);
         string sourceHash = JsonConvert.SerializeObject(mergePackage).ComputeSha256Hash();
         var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
         if (apiCallResult.IsFailure)
