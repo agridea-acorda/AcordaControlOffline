@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using CSharpFunctionalExtensions;
@@ -13,6 +14,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api {
         Task<Result<string>> FetchRawJsonAsync(string uri);
         Task<Result<ViewModel.Farm.Farm>> FetchFarmDetailAsync(string uri);
         Task<Result<ChecklistSample>> FetchChecklistSampleAsync(string uri);
-        Task<Result<string>> SendMergePackage(string uri, MergePackage mergePackage);
+        Task<Result<MergeResult>> SendMergePackage(string uri, MergePackage mergePackage);
+        Task<Result<string>> CancelMergePackage(string uri, int id, string state);
     }
 }

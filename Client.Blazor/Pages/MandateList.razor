@@ -307,6 +307,7 @@
         var checklistsArray = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistAsync(x.FarmInspectionId)).ToArray());
         var mergePackage = MergePackage.FromDomain(mandate, checklistsArray);
         string sourceHash = JsonConvert.SerializeObject(mergePackage).ComputeSha256Hash();
+        Console.WriteLine("Calling api /merge action...");
         var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
         if (apiCallResult.IsFailure)
         {
@@ -316,16 +317,30 @@
             mandateModel.SyncStatus = originalSyncStatus;
             return;
         }
-        var receivedHash = apiCallResult.Value;
-        if (sourceHash != receivedHash)
+        var mergeResult = apiCallResult.Value;
+        if (sourceHash != mergeResult.Hash)
         {
-            string errorMessage = "Erreur de renvoi du paquet de données. Motif: package hashes do not match.";
+            string errorMessage = "Erreur de renvoi du paquet de données. Motif: les checksums ne correspondent pas. Opération annulée.";
             Console.WriteLine(errorMessage);
             Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
+            Console.WriteLine("Cancelling merge package...");
+            var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResult.Id, MergeStates.InvalidHash);
+            if (cancelResult.IsFailure)
+            {
+                string errorMessage2 = $"Erreur lors de l'annulation (Id d'opération={mergeResult.Id}, une erreur inconnue s'est produite. Merci de contacter votre administrateur.";
+                Console.WriteLine(errorMessage2);
+                Toast.ShowError(errorMessage2, ToastMessages.ErrorHeader);
+                mandateModel.SyncStatus = originalSyncStatus;
+                return;
+            }
+            Console.WriteLine($"... Successfully cancelled merge Id={mergeResult.Id}.");
+            
             mandateModel.SyncStatus = originalSyncStatus;
             return;
         }
+        Console.WriteLine("... merge action succesful");
         await DeleteMandate(mandateModel);
+        Toast.Success();
     }
 
     async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)

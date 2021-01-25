@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using CSharpFunctionalExtensions;
@@ -46,12 +47,22 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await FetchTypedAsync<ChecklistSample>(uri);
         }
 
-        public async Task<Result<string>> SendMergePackage(string uri, MergePackage mergePackage)
+        public async Task<Result<MergeResult>> SendMergePackage(string uri, MergePackage mergePackage)
         {
             var payload = new Dictionary<string, string>
             {
                 {nameof(MergePackage.Mandate), mergePackage.Mandate},
                 {nameof(MergePackage.Checklists), mergePackage.Checklists}
+            };
+            return await PostWithTypedResponseAsync<MergeResult>(uri, payload);
+        }
+
+        public async Task<Result<string>> CancelMergePackage(string uri, int id, string state)
+        {
+            var payload = new Dictionary<string, string>
+            {
+                {"Id", id.ToString()},
+                {"State", state}
             };
             return await PostAsync(uri, payload);
         }
@@ -136,6 +147,34 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 
             var contentString = await httpResponse.Content.ReadAsStringAsync();
             return Result.Success(contentString);
+        }
+
+        private async Task<Result<T>> PostWithTypedResponseAsync<T>(string uri, Dictionary<string, string> payload, int delayInMs = DefaultDelayInMs)
+        {
+            var httpResponse = await SendPostRequest(uri, payload, delayInMs);
+            if (!httpResponse.IsSuccessStatusCode)
+                return Result.Failure<T>($"HTTP status code is no success: {httpResponse.StatusCode}");
+
+            if (httpResponse.Content == null || httpResponse.Content.Headers.ContentType.MediaType != "application/json")
+                return Result.Failure<T>("HTTP Response has no content or content is not json.");
+
+            var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+            using var streamReader = new StreamReader(contentStream);
+            using var jsonReader = new JsonTextReader(streamReader);
+            var serializer = new JsonSerializer();
+            try
+            {
+                var data = serializer.Deserialize<T>(jsonReader);
+                return Result.Success(data);
+            }
+            catch (JsonReaderException)
+            {
+                return Result.Failure<T>($"Error while deserializing json: {nameof(JsonReaderException)} exception encountered.");
+            }
+            catch
+            {
+                return Result.Failure<T>($"Unknown error occured while fetching typed data at {uri}.");
+            }
         }
     }
 }
