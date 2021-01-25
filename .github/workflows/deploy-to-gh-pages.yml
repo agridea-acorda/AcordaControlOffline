@@ -13,27 +13,31 @@ jobs:
     # uses GitHub's checkout action to checkout code form the master branch
     - uses: actions/checkout@v2
     
-    # sets up .NET Core SDK 3.1
-    - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1.6.0
+    # sets up .NET SDK
+    - name: Setup .NET v5.0
+      uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1
+        dotnet-version: '5.0.x'
 
     # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project
       run: dotnet publish Client.Blazor/Client.Blazor.csproj -c Release -o release --nologo
     
-    # changes the base-tag in index.html from '/' to 'AcordaControlOffline' to match GitHub Pages repository subdirectory
-    - name: Change base-tag in index.html from / to BlazorGitHubPagesDemo
+    # changes the base-tag in index.html from '/' to 'AcordaControlOffline/' to match GitHub Pages repository subdirectory
+    - name: Change base-tag in index.html from / to /AcordaControlOffline/
       run: sed -i 's/<base href="\/" \/>/<base href="\/AcordaControlOffline\/" \/>/g' release/wwwroot/index.html
     
+    # changes the start_url property in manifest.json from './' to './AcordaControlOffline/' to match GitHub Pages repository subdirectory
+    - name: Change start_url in manifest.json from ./ to ./AcordaControlOffline/
+      run: sed -i 's/"start_url"\s*:\s*"\.\/"/"start_url":"\.\/AcordaControlOffline\/"/g' release/wwwroot/manifest.json
+    
     # copy index.html to 404.html to serve the same file when a file is not found
-    - name: copy index.html to 404.html
-      run: cp release/wwwroot/index.html release/wwwroot/404.html
+    #- name: copy index.html to 404.html
+    #  run: cp release/wwwroot/index.html release/wwwroot/404.html
     
     # commit wwwroot folder to gh-pages branch
     - name: Commit wwwroot to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@3.5.9
+      uses: JamesIves/github-pages-deploy-action@3.7.1
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BRANCH: gh-pages
