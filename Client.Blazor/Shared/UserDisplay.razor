@@ -3,6 +3,7 @@
 @inject IRepository Repository
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
 @using System.Security.Claims
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 
@@ -36,7 +37,7 @@
                     <button type="button" class="btn btn-default mb-1"><i class="fas fa-lock"></i> Changer mot de passe</button>
                 </Authorized>
                 <NotAuthorized>
-                    <button type="button" class="btn btn-default mb-1" @onclick="@(() => Navigation.NavigateTo("/Login"))"><i class="fas fa-sign-in-alt"></i> Connexion</button>
+                    <button type="button" class="btn btn-default mb-1" @onclick="@(() => Navigation.NavigateTo(Config.BaseUrl + "/Login"))"><i class="fas fa-sign-in-alt"></i> Connexion</button>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
@@ -49,6 +50,6 @@
         Console.WriteLine("Logging out...");
         await Repository.ClearMandatesListAsync();
         await AuthService.Logout();
-        Navigation.NavigateTo("/Login");
+        Navigation.NavigateTo(Config.BaseUrl + "/Login");
     }
 }

@@ -1,4 +1,5 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Login
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
@@ -34,6 +35,6 @@
         var model = (LoginModel)editContext.Model;
         await AuthService.Login(model);
         Console.WriteLine("...Login info Saved.");
-        Navigation.NavigateTo("/MandateList");
+        Navigation.NavigateTo(Config.BaseUrl + "/MandateList");
     }
 }

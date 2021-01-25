@@ -77,9 +77,9 @@
 
 @if (isInitialized)
 {
-    string inspectorSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector&ReturnUrl={Navigation.Uri}";
-    string farmerSignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={farmId}&type=farmer&ReturnUrl={Navigation.Uri}";
-    string inspector2SignatureUrl = $"/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
+    string inspectorSignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector&ReturnUrl={Navigation.Uri}";
+    string farmerSignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=farmer&ReturnUrl={Navigation.Uri}";
+    string inspector2SignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Signatures</h3>
