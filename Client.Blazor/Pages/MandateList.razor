@@ -10,7 +10,6 @@
 @using Microsoft.AspNetCore.Authorization
 @using Newtonsoft.Json
 @using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Config
-@using ProgressBar = Agridea.Acorda.AcordaControlOffline.Client.Blazor.Shared.ProgressBar
 
 @page "/MandateList"
 @attribute [Authorize]
@@ -27,6 +26,9 @@
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>
             <div class="card-body p-0">
+                <p class="ml-3 mt-2">
+                    <Blazorise.Switch TValue="bool" @bind-Checked="@showClosed"><span class="font-weight-normal">Afficher clôturés</span></Blazorise.Switch>
+                </p>
                 <div class="list-group">
                     @if (loading)
                     {
@@ -34,12 +36,12 @@
                     }
                     else
                     {
-                        foreach (var mandate in mandates)
+                        foreach (var mandate in mandatesToDisplay)
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                                    mandate.SyncStatus == SyncStatus.Deleting ||
-                                    mandate.SyncStatus == SyncStatus.Merging)
+                                     mandate.SyncStatus == SyncStatus.Deleting ||
+                                     mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -51,12 +53,12 @@
                                             <i class="fas fa-spinner fa-spin"></i> <span class="sr-only">Suppression en cours...</span>
                                         }
                                     </button>
-                                    <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-primary btn-sm float-right ml-1" data-toggle="modal" data-target="#exampleModal">
-                                        @if (mandate.SyncStatus != SyncStatus.Deleting)
+                                    <button @onclick="() => SelectMandate(mandate, mergeModal)" class="btn btn-outline-primary btn-sm float-right ml-1">
+                                        @if (mandate.SyncStatus != SyncStatus.Merging)
                                         {
                                             <i class="fas fa-cloud-upload-alt"></i><span class="sr-only">Renvoyer les données saisies</span><span> Renvoyer</span>
                                         }
-                                        @if (mandate.SyncStatus == SyncStatus.Deleting)
+                                        @if (mandate.SyncStatus == SyncStatus.Merging)
                                         {
                                             <i class="fas fa-spinner fa-spin"></i><span class="sr-only">Renvoi des données en cours...</span><span> En cours...</span>
                                         }
@@ -87,7 +89,7 @@
 
                                 <BadgeBar Badges="@mandate.Farm.Badges" />
 
-                                @foreach (var inspection in mandate.Inspections)
+                                @foreach (var inspection in mandate.Inspections.Where(i => !i.IsClosed || i.IsClosed && showClosed))
                                 {
                                     <ProgressBar Progress="@inspection" />
                                 }
@@ -125,6 +127,28 @@
     </div>
 </div>
 
+<Blazorise.Modal @ref="@mergeModal">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent IsCentered="true">
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Envoyer le mandat vers le serveur</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => mergeModal.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <div class="alert alert-danger" role="alert">
+                <u>Attention</u>: les données du mandat (checklist, signatures, suivi, ...) saisies seront envoyées au serveur puis <strong>effacées de la tablette</strong>.
+                Etes-vous sûr(e) ?
+            </div>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button @onclick="() => MergeMandate(selectedMandate)" data-dismiss="modal" type="button" class="btn btn-primary">
+                <i class="fas fa-cloud-upload-alt"></i> J'ai compris, envoyer
+            </button>
+            <button @onclick="() => mergeModal.Hide()" type="button" class="btn btn-default">Annuler</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -152,14 +176,19 @@
 
 @code {
 
+    bool showClosed = false;
     private Mandate[] mandates;
     bool loading => mandates == null;
-    string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    Mandate[] mandatesToDisplay => mandates != null ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray() 
+                                       : Enumerable.Empty<Mandate>().ToArray();
+    //string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    string numMandates => mandatesToDisplay.Length.ToString() + " ";
     string plural => mandates == null ? "s" :
                      mandates.Length > 1 ? "s"
                      : "";
     Mandate selectedMandate;
-    
+    Blazorise.Modal mergeModal;
+
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Executing OnInitialized Async from MandateList");
@@ -247,9 +276,10 @@
         mandateModel.SyncStatus = SyncStatus.Loaded;
     }
 
-    void SelectMandate(Mandate mandate)
+    void SelectMandate(Mandate mandate, Blazorise.Modal modal = null)
     {
         selectedMandate = mandate;
+        modal?.Show();
     }
 
     async Task DeleteMandate(Mandate mandateModel)
@@ -273,16 +303,19 @@
 
     async Task MergeMandate(Mandate mandateModel)
     {
+        mergeModal.Hide();
         var originalSyncStatus = mandateModel.SyncStatus;
-        mandateModel.SyncStatus = SyncStatus.Deleting;
+        mandateModel.SyncStatus = SyncStatus.Merging;
+        await Task.Delay(1); // force re-render
+        StateHasChanged();
+
         int farmId = mandateModel.Farm.Id;
-        var mandateJson = await Repository.ReadMandateJsonAsync(farmId);
-        Ensure.That(mandateJson, nameof(mandateJson)).IsNotEmptyOrWhiteSpace();
-        var mandate = new MandateFactory().Parse(mandateJson);
+        var mandate = await Repository.ReadMandateAsync(farmId);
         Ensure.That(mandate, nameof(mandate)).IsNotNull();
-        var checklistsJson = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistJsonAsync(x.FarmInspectionId)).ToArray());
-        var mergePackage = MergePackage.FromJson(mandateJson, checklistsJson);
+        var checklistsArray = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistAsync(x.FarmInspectionId)).ToArray());
+        var mergePackage = MergePackage.FromDomain(mandate, checklistsArray);
         string sourceHash = JsonConvert.SerializeObject(mergePackage).ComputeSha256Hash();
+        Console.WriteLine("Calling api /merge action...");
         var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
         if (apiCallResult.IsFailure)
         {
@@ -292,16 +325,30 @@
             mandateModel.SyncStatus = originalSyncStatus;
             return;
         }
-        var receivedHash = apiCallResult.Value;
-        if (sourceHash != receivedHash)
+        var mergeResult = apiCallResult.Value;
+        if (sourceHash != mergeResult.Hash)
         {
-            string errorMessage = "Erreur de renvoi du paquet de données. Motif: package hashes do not match.";
+            string errorMessage = "Erreur de renvoi du paquet de données. Motif: les checksums ne correspondent pas. Opération annulée.";
             Console.WriteLine(errorMessage);
             Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
+            Console.WriteLine("Cancelling merge package...");
+            var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResult.Id, MergeStates.InvalidHash);
+            if (cancelResult.IsFailure)
+            {
+                string errorMessage2 = $"Erreur lors de l'annulation (Id d'opération={mergeResult.Id}, une erreur inconnue s'est produite. Merci de contacter votre administrateur.";
+                Console.WriteLine(errorMessage2);
+                Toast.ShowError(errorMessage2, ToastMessages.ErrorHeader);
+                mandateModel.SyncStatus = originalSyncStatus;
+                return;
+            }
+            Console.WriteLine($"... Successfully cancelled merge Id={mergeResult.Id}.");
+
             mandateModel.SyncStatus = originalSyncStatus;
             return;
         }
+        Console.WriteLine("... merge action succesful");
         await DeleteMandate(mandateModel);
+        Toast.Success();
     }
 
     async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)

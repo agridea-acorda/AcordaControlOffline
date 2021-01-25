@@ -40,6 +40,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                                                });
         }
 
+        public string Serialize(Domain.Checklist.Checklist[] checklists)
+        {
+            return JsonConvert.SerializeObject(checklists,
+                                               Formatting.None,
+                                               new JsonSerializerSettings
+                                               {
+                                                   ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                                                   ContractResolver = new ChecklistContractResolver()
+                                               });
+        }
+
         private Result ParseResult(ChecklistDeserializationDto.Result dto, Result parent = null, int depth = 0)
         {
             var targetType = depth == 0 ? typeof(RubricResult) :

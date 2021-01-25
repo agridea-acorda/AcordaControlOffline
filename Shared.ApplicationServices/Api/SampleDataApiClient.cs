@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using CSharpFunctionalExtensions;
@@ -48,10 +49,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await FetchTypedAsync<ChecklistSample>(uri);
         }
 
-        public async Task<Result<string>> SendMergePackage(string uri, MergePackage mergePackage)
+        public async Task<Result<MergeResult>> SendMergePackage(string uri, MergePackage mergePackage)
         {
             await Task.Delay(2 * 1000);
-            return Result.Success("thisisafakehashstring");
+            return Result.Success(new MergeResult
+            {
+                Id = 0,
+                Hash = "thisisafakehash"
+            });
+        }
+
+        public async Task<Result<string>> CancelMergePackage(string uri, int id, string state)
+        {
+            await Task.Delay(2 * 1000);
+            return Result.Success("");
         }
 
         private async Task<Result<T>> FetchTypedAsync<T>(string uri, int delayInMs = DefaultDelayInMs)

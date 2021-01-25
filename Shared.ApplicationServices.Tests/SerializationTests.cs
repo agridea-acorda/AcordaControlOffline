@@ -4,6 +4,8 @@ using System.Linq;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Inspection;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests;
@@ -11,6 +13,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
+using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate.Mandate;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
 {
@@ -163,6 +166,45 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             var node = checklist.Find("12.02_2018");
             node.Should().NotBeNull();
             node.ConjunctElementCode.Should().Be("12.02_2018");
+        }
+
+        [Fact]
+        void Can_prepare_merge_package()
+        {
+            // client end
+            var inspection = TestDataHelper.ConstructInspection();
+            var checklist = TestDataHelper.ConstructChecklist();
+            var mandate = new Mandate(1, new[] { inspection });
+            var mergePackage = MergePackage.FromDomain(mandate, new[] { checklist, checklist });
+            string filename = Path.GetTempFileName() + ".json";
+            File.WriteAllText(filename, JsonConvert.SerializeObject(mergePackage));
+
+            // server end
+            var receivedMergePackage = JsonConvert.DeserializeObject<MergePackage>(File.ReadAllText(filename));
+            receivedMergePackage.Should().NotBeNull();
+            var mandateOnServer = JsonConvert.DeserializeObject<MandateDeserializationDto>(receivedMergePackage.Mandate);
+            mandateOnServer.Should().NotBeNull();
+            var checklistsOnServer = JsonConvert.DeserializeObject<ChecklistDeserializationDto[]>(receivedMergePackage.Checklists);
+            checklistsOnServer.Should().NotBeNull();
+            checklistsOnServer.Length.Should().Be(2);
+        }
+
+        [Fact]
+        void Can_deserialize_transmitted_checklist_array()
+        {
+            string json = File.ReadAllText(Path.Combine("C:\\Users\\nde\\Downloads", "exemple-checklists.json"));
+            var checklistsOnServer = JsonConvert.DeserializeObject<ChecklistDeserializationDto[]>(json);
+            checklistsOnServer.Should().NotBeNull();
+            checklistsOnServer.Length.Should().Be(1);
+        }
+
+        [Fact]
+        void Can_deserialize_transmitted_checklist_array_short()
+        {
+            string json = File.ReadAllText(Path.Combine("C:\\Users\\nde\\Downloads", "exemple-checklists-short.json"));
+            var checklistsOnServer = JsonConvert.DeserializeObject<ChecklistDeserializationDto[]>(json);
+            checklistsOnServer.Should().NotBeNull();
+            checklistsOnServer.Length.Should().Be(1);
         }
     }
 }
