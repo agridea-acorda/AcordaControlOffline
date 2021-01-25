@@ -26,6 +26,9 @@
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>
             <div class="card-body p-0">
+                <p class="ml-3 mt-2">
+                    <Blazorise.Switch TValue="bool" @bind-Checked="@showClosed"><span class="font-weight-normal">Afficher clôturés</span></Blazorise.Switch>
+                </p>
                 <div class="list-group">
                     @if (loading)
                     {
@@ -33,12 +36,12 @@
                     }
                     else
                     {
-                        foreach (var mandate in mandates)
+                        foreach (var mandate in mandatesToDisplay)
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                                    mandate.SyncStatus == SyncStatus.Deleting ||
-                                    mandate.SyncStatus == SyncStatus.Merging)
+                                     mandate.SyncStatus == SyncStatus.Deleting ||
+                                     mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -86,7 +89,7 @@
 
                                 <BadgeBar Badges="@mandate.Farm.Badges" />
 
-                                @foreach (var inspection in mandate.Inspections)
+                                @foreach (var inspection in mandate.Inspections.Where(i => !i.IsClosed || i.IsClosed && showClosed))
                                 {
                                     <ProgressBar Progress="@inspection" />
                                 }
@@ -173,9 +176,13 @@
 
 @code {
 
+    bool showClosed = false;
     private Mandate[] mandates;
     bool loading => mandates == null;
-    string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    Mandate[] mandatesToDisplay => mandates != null ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray() 
+                                       : Enumerable.Empty<Mandate>().ToArray();
+    //string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    string numMandates => mandatesToDisplay.Length.ToString() + " ";
     string plural => mandates == null ? "s" :
                      mandates.Length > 1 ? "s"
                      : "";
@@ -335,7 +342,7 @@
                 return;
             }
             Console.WriteLine($"... Successfully cancelled merge Id={mergeResult.Id}.");
-            
+
             mandateModel.SyncStatus = originalSyncStatus;
             return;
         }
