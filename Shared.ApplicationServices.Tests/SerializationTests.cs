@@ -157,17 +157,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             pdfReport.Should().Be(PdfReport.None);
         }
 
-
-        [Fact]
-        public void Can_find_nodes_in_real_checklist()
-        {
-            var json = File.ReadAllText("./Data/checklist_real_FarmInspectionId83811.json");
-            var checklist = new ChecklistFactory().Parse(json);
-            var node = checklist.Find("12.02_2018");
-            node.Should().NotBeNull();
-            node.ConjunctElementCode.Should().Be("12.02_2018");
-        }
-
         [Fact]
         void Can_prepare_merge_package()
         {
@@ -189,22 +178,22 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
             checklistsOnServer.Length.Should().Be(2);
         }
 
-        [Fact]
-        void Can_deserialize_transmitted_checklist_array()
-        {
-            string json = File.ReadAllText(Path.Combine("C:\\Users\\nde\\Downloads", "exemple-checklists.json"));
-            var checklistsOnServer = JsonConvert.DeserializeObject<ChecklistDeserializationDto[]>(json);
-            checklistsOnServer.Should().NotBeNull();
-            checklistsOnServer.Length.Should().Be(1);
-        }
+        //[Fact]
+        //void Can_deserialize_transmitted_checklist_array()
+        //{
+        //    string json = File.ReadAllText(Path.Combine("C:\\Users\\nde\\Downloads", "exemple-checklists.json"));
+        //    var checklistsOnServer = JsonConvert.DeserializeObject<ChecklistDeserializationDto[]>(json);
+        //    checklistsOnServer.Should().NotBeNull();
+        //    checklistsOnServer.Length.Should().Be(1);
+        //}
 
-        [Fact]
-        void Can_deserialize_transmitted_checklist_array_short()
-        {
-            string json = File.ReadAllText(Path.Combine("C:\\Users\\nde\\Downloads", "exemple-checklists-short.json"));
-            var checklistsOnServer = JsonConvert.DeserializeObject<ChecklistDeserializationDto[]>(json);
-            checklistsOnServer.Should().NotBeNull();
-            checklistsOnServer.Length.Should().Be(1);
-        }
+        //[Fact]
+        //void Can_deserialize_transmitted_checklist_array_short()
+        //{
+        //    string json = File.ReadAllText(Path.Combine("C:\\Users\\nde\\Downloads", "exemple-checklists-short.json"));
+        //    var checklistsOnServer = JsonConvert.DeserializeObject<ChecklistDeserializationDto[]>(json);
+        //    checklistsOnServer.Should().NotBeNull();
+        //    checklistsOnServer.Length.Should().Be(1);
+        //}
     }
 }
