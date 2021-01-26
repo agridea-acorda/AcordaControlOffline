@@ -1,10 +1,6 @@
 ﻿self.assetsManifest = {
   "assets": [
     {
-      "hash": "sha256-8ZRc1sGeVrPBx4lD717BgRaQekyh78QKV9SKsdt638U=",
-      "url": ".nojekyll"
-    },
-    {
       "hash": "sha256-YWN3zLbBq6C6h6zb2EJrctZtTU\/ePS05TKApeHwjJ1M=",
       "url": "404.html"
     },
@@ -93,7 +89,7 @@
       "url": "img\/focaa.png"
     },
     {
-      "hash": "sha256-M2iIlT8QZI0R4yDTFdUX62wjnbyA\/wRT7TORCYYU68s=",
+      "hash": "sha256-Vqizb38RQuRUac+vgrsGsj2HESOmVMTyxmmZBPM5/JQ=",
       "url": "index.html"
     },
     {
@@ -221,48 +217,8 @@
       "url": "logo.png"
     },
     {
-      "hash": "sha256-UGKJf2iuhGvL280yD6EhaflYMhKJne5MXHGcoOHW\/x0=",
+      "hash": "sha256-3dXTFoLMZBSDW+YtG24QfQqzZJjbSpcbaa5qT5WqbsQ=",
       "url": "manifest.json"
-    },
-    {
-      "hash": "sha256-aTrfOei9YSNsT\/ertj0SE5+15qsA29ZMhEQlOOFKLcI=",
-      "url": "sample-data\/checklist_FarmInspectionId83811.json"
-    },
-    {
-      "hash": "sha256-xoQtENAStuohndv0nXxiHUT1FcWzX+mYThM3bD9TtBU=",
-      "url": "sample-data\/checklist_real_FarmInspectionId83811.json"
-    },
-    {
-      "hash": "sha256-DX28EKxRNRwE92vSMw5ovCiwVOmX212w9Xkl2UyflZY=",
-      "url": "sample-data\/farm_Id141.json"
-    },
-    {
-      "hash": "sha256-DU79obaS\/D2SJJOmUFsyrCEqxfjVJyItlIcK6sGrQKc=",
-      "url": "sample-data\/farm_Id226.json"
-    },
-    {
-      "hash": "sha256-2p1Bz1xTYySRyDuu0Y\/sKm1zchZ+HmZPeZA3IXcj7Eo=",
-      "url": "sample-data\/json-generator.json"
-    },
-    {
-      "hash": "sha256-H\/9vm5sH8qO0+v2RzmcdHp2gtMXlGcf1HnFjd26LE4I=",
-      "url": "sample-data\/mandate.json"
-    },
-    {
-      "hash": "sha256-Y8Tse9WoTr1eI4pRyHyt59anZ0Z8CO2Yib1LMLkP88k=",
-      "url": "sample-data\/mandates-from-api.json"
-    },
-    {
-      "hash": "sha256-fnQKiq6SGNr+WxaJttWPwemwCtmU2pqEN2b7doNfsSg=",
-      "url": "sample-data\/mandates.json"
-    },
-    {
-      "hash": "sha256-t\/xezXuIOi9rrlahSnJKiCvxEm4Sf5AY0ancOlCvIAE=",
-      "url": "sample-data\/mandate_FarmId141.json"
-    },
-    {
-      "hash": "sha256-mkB2E3JpyqiGGh1uxG3DlkN2rqy8Ocbtr6Xj42oq4AE=",
-      "url": "sample-data\/mandate_FarmId226.json"
     },
     {
       "hash": "sha256-2uQVzE9u81s1nlsOTu1aLYk+3UQTPoX3oxmceJnogJ0=",
@@ -497,7 +453,7 @@
       "url": "_framework\/Agridea.SpecificationPattern.dll"
     },
     {
-      "hash": "sha256-CWnyjqgLklhV2qWa2N2F6SOrwznW29zvxMmPO5iF9x8=",
+      "hash": "sha256-1J3KceeE9xEkYqaBJRBQOWn6nTr4BtTHnom+uhFRdmM=",
       "url": "_framework\/Shared.ApplicationServices.dll"
     },
     {
@@ -505,7 +461,7 @@
       "url": "_framework\/Shared.Domain.dll"
     },
     {
-      "hash": "sha256-2F6sJ3I2F44nnbV1DJGEBwuLTJvYniqPBnA2uf7t\/yE=",
+      "hash": "sha256-KB8P8gL6GRC37eX6TXrH20X+s6Tm3dPjy9mdfrHK5rM=",
       "url": "_framework\/Client.Blazor.dll"
     },
     {
@@ -585,7 +541,7 @@
       "url": "_framework\/System.Memory.dll"
     },
     {
-      "hash": "sha256-XT1BEjhAlydoieWjv60DYPrOBrr2u294ovVYH+NMLAQ=",
+      "hash": "sha256-PNjZP5lZu5xJBdfd6sAWzk0FauvBZvHM4LW3OYta7uo=",
       "url": "_framework\/System.Net.Http.dll"
     },
     {
@@ -693,7 +649,7 @@
       "url": "_framework\/System.Private.CoreLib.dll"
     },
     {
-      "hash": "sha256-cYu8TeLeoJzeACyg07lQ\/sHnuSe1oKQjqni9aCRA7s4=",
+      "hash": "sha256-MOQfEYgG8H+67Y\/gPRh41Nz3RM6cactkTS3OkmuEWGE=",
       "url": "_framework\/blazor.boot.json"
     },
     {
@@ -701,5 +657,5 @@
       "url": "_framework\/blazor.webassembly.js"
     }
   ],
-  "version": "U3VlulQT"
+  "version": "fzw1eLst"
 };
