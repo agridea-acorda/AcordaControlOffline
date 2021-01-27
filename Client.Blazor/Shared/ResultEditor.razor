@@ -2,6 +2,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
+@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @inject IJSRuntime Js
 @inject NavigationManager Navigation
 
@@ -163,7 +164,7 @@
 
     void NavigateToSubNode()
     {
-        string uri = Config.BaseUrl + "/Checklist/" + Model.FarmInspectionId + "?FarmId=" + Model.FarmId;
+        string uri = Environment.BaseUrl + "/Checklist/" + Model.FarmInspectionId + "?FarmId=" + Model.FarmId;
         uri += "&conjunctElementCode=" + Model.Item.ConjunctElementCode;
         Navigation.NavigateTo(uri, true);
     }

@@ -4,6 +4,7 @@
 @using Ardalis.GuardClauses
 @using Microsoft.AspNetCore.Authorization
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
+@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -15,11 +16,11 @@
     <div class="card-header">
         <h3 class="card-title">Récapitulatif</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + farmId)'>
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/MandateDetail/" + farmId)'>
                 <i class="fas fa-arrow-left"></i>
                 Retour Mandat
             </button>
-            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + farmId)'>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + farmId)'>
                 <i class="fas fa-arrow-right"></i>
                 Rapport de contrôle
             </button>

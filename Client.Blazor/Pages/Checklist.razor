@@ -3,6 +3,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using InspectionOutcome = AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @using System.Timers
+@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @implements IDisposable
@@ -11,11 +12,11 @@
     <div class="card-header">
         <h3 class="card-title">Récapitulatif</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + FarmId)'>
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/MandateDetail/" + FarmId)'>
                 <i class="fas fa-arrow-left"></i>
                 Retour Mandat
             </button>
-            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + FarmId)'>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + FarmId)'>
                 <i class="fas fa-arrow-right"></i>
                 Signatures
             </button>
@@ -125,7 +126,7 @@
                     Console.WriteLine($"node has parent navigation to {parentConjunctElementCode}");
                     if (!string.IsNullOrWhiteSpace(parentConjunctElementCode))
                     {
-                        parentUri = Config.BaseUrl + "/Checklist/" + FarmInspectionId +
+                        parentUri = Environment.BaseUrl + "/Checklist/" + FarmInspectionId +
                                     $"?{FarmIdUriKey}={FarmId}" +
                                     $"&{ConjunctElementCodeUriKey}={parentConjunctElementCode}";
                         Console.WriteLine($"--> navigation uri is {parentUri}");
