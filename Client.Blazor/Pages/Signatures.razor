@@ -3,6 +3,8 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
 @using Ardalis.GuardClauses
 @using EnsureThat
 @using Microsoft.AspNetCore.Authorization
@@ -33,7 +35,7 @@
         </div>
         <div class="card-body">
             <div class="form-group">
-                <button class="btn btn-primary" @onclick="@GeneratePdfReport"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
+                <button class="btn btn-primary" @onclick="@ProvisoryPdfReport"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
             </div>
             <div class="form-group">
                 <div class="callout callout-info">
@@ -277,20 +279,28 @@
                                                 complianceBackup.FurtherInvestigationNeeded,
                                                 complianceBackup.IncompleteOrNonCompliant));
         await Repository.SaveMandateAsync(mandate, farmId);
-        //await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);
         Toast.Success();
         needsSaving = false;
         await Task.Delay(1);
         StateHasChanged();
     }
 
-    async void GeneratePdfReport()
+    async void ProvisoryPdfReport()
     {
         var farm = await Repository.ReadFarmAsync(farmId);
         Guard.Against.Null(farm, nameof(farm));
-        var file = inspection.GenerateInspectionPdf(farm);
-        string filename = $"{2021} {farm.Ktidb} {farm.FarmName} {inspection.Domain.ShortName}";
-        await Js.InvokeVoidAsync("BlazorDownloadFile", $"Rapport de controle {filename}.pdf", "application/octet-stream", file);
+        var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+        Guard.Against.Null(checklist, nameof(checklist));
+        string cantonCode = "NE"; //todo get from authorization system
+        string userName = "johnny-b-goode"; // todo get from authorization system
+        string logoPath = "img/focaa.png";
+        var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
+                                                                  farm,
+                                                                  checklist,
+                                                                  cantonCode,
+                                                                  logoPath), userName, true);
+        string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
+        await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", pdf.CreatePdf());
     }
 }
 

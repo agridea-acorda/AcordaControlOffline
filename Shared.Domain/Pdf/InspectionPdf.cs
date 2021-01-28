@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
@@ -8,8 +9,6 @@ using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Shared;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 {
-
-
     public sealed class InspectionPdf : PdfDocumentBase
     {
 
@@ -113,7 +112,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
         private AcPdfPTable RubricsSummary()
         {
             var table = CustomTable(new[] {15f, 35f, 5f, 45f});
-            var data = model_.InspectionResults.Where(x => x.ResultType == RecapResultListItemModel.ResultTypes.Rubric);
+            var data = model_.InspectionResults.Where(x => x.ResultType == ResultModel.ResultTypes.Rubric);
             table.AddCustomCell("Résumé du contrôle des exigences", Fonts.Helvetica12BlackBold, borderWidth: 0,
                 colspan: 4);
             table.AddTitleCell("Règle N°");
@@ -253,7 +252,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
                     item.TreeLevel == 3 ? Fonts.Helvetica8BlackBold :
                     Fonts.Helvetica8Black;
                 var colspan = 4 - item.TreeLevel;
-                float borderWidth = item.ResultType == RecapResultListItemModel.ResultTypes.Point ? 0f : 0.5f;
+                float borderWidth = item.ResultType == ResultModel.ResultTypes.Point ? 0f : 0.5f;
 
                 switch (item.TreeLevel)
                 {
@@ -307,8 +306,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             table.AddCell(cell);
         }
 
-
-
         private void AddFarmCell(AcPdfPTable table, FarmModel farm)
         {
             var cell = DefaultCell(table.ColorDark);
@@ -319,7 +316,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             table.AddCell(cell);
         }
 
-        private void AddResultCell(AcPdfPTable table, RecapResultListItemModel resultModel, float borderWidth,
+        private void AddResultCell(AcPdfPTable table, ResultModel resultModel, float borderWidth,
             BaseColor backgroundColor = null)
         {
             backgroundColor ??= Colors.White;
@@ -359,7 +356,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
                     new Chunk(resultModel.ResultSize.ToString(), Fonts.Helvetica8BlackBoldItalic),
                 });
 
-            if (resultModel.Seriousness!=null) //TODO a verifier
+            if (resultModel.Seriousness != DefectSeriousness.Empty) //TODO a verifier
                 cell.AddElement(new Phrase
                 {
                     new Chunk("Gravité: ", Fonts.Helvetica8Black),
@@ -389,60 +386,52 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             };
         }
 
-        private string OutcomeString(InspectionOutcome? outcome)
+        private string OutcomeString(InspectionOutcome outcome)
         {
-            //if (!outcome.HasValue)
-            //    return "";
+            if (outcome == InspectionOutcome.Unset)
+                return "";
 
-            //return outcome == InspectionOutcome.Ok ? SpecialCharacters.Check :
-            //    outcome == InspectionOutcome.PartiallyOk ? "P" :
-            //    outcome == InspectionOutcome.NotOk ? "Non" :
-            //    outcome == InspectionOutcome.NotApplicable ? "NA" :
-            //    outcome == InspectionOutcome.NotInspected ? "NC" : "";
-            
-            return "";
+            return outcome == InspectionOutcome.Ok ? "Oui" :
+                outcome == InspectionOutcome.PartiallyOk ? "P" :
+                outcome == InspectionOutcome.NotOk ? "Non" :
+                outcome == InspectionOutcome.NotApplicable ? "NA" :
+                outcome == InspectionOutcome.NotInspected ? "NC" : "";
         }
 
-        private BaseColor OutcomeBackgroundColor(RecapResultListItemModel item, BaseColor defaultColor = null)
+        private BaseColor OutcomeBackgroundColor(ResultModel item, BaseColor defaultColor = null)
         {
             defaultColor ??= BackgroundColor(item, Colors.LightGray);
             var okColor = Colors.Ok;
             var koColor = Colors.Ko;
             var pokColor = Colors.Pok;
 
-            //switch (item.ResultOutcome)
-            //{
-            //    case null: return defaultColor;
-            //    case InspectionOutcome.NotOk: return koColor;
-            //    case InspectionOutcome.PartiallyOk: return pokColor;
-            //    case InspectionOutcome.Ok: return okColor;
-            //    case InspectionOutcome.NotApplicable: return defaultColor;
-            //    case InspectionOutcome.NotInspected: return defaultColor;
-            //}
+            if (item.ResultOutcome == InspectionOutcome.Unset) return defaultColor;
+            if (item.ResultOutcome == InspectionOutcome.NotOk) return koColor;
+            if (item.ResultOutcome == InspectionOutcome.PartiallyOk) return pokColor;
+            if (item.ResultOutcome == InspectionOutcome.Ok) return okColor;
+            if (item.ResultOutcome == InspectionOutcome.NotApplicable) return defaultColor;
+            if (item.ResultOutcome == InspectionOutcome.NotInspected) return defaultColor;
 
             return defaultColor;
         }
 
-        private BaseColor OutcomeDetailsBackgroundColor(RecapResultListItemModel item, BaseColor defaultColor = null)
+        private BaseColor OutcomeDetailsBackgroundColor(ResultModel item, BaseColor defaultColor = null)
         {
             defaultColor ??= BackgroundColor(item, Colors.LightGray);
             var koColor = Colors.Ko;
             var pokColor = Colors.Pok;
 
-            //switch (item.ResultOutcome)
-            //{
-            //    case null: return defaultColor;
-            //    case InspectionOutcomes.NOk: return koColor;
-            //    case InspectionOutcomes.PartiallyOk: return pokColor;
-            //    case InspectionOutcomes.Ok: return defaultColor;
-            //    case InspectionOutcomes.NotApplicable: return defaultColor;
-            //    case InspectionOutcomes.NotInspected:
-            //        return defaultColor;
+            if (item.ResultOutcome == InspectionOutcome.Unset) return defaultColor;
+            if (item.ResultOutcome == InspectionOutcome.NotOk) return koColor;
+            if (item.ResultOutcome == InspectionOutcome.PartiallyOk) return pokColor;
+            if (item.ResultOutcome == InspectionOutcome.Ok) return defaultColor;
+            if (item.ResultOutcome == InspectionOutcome.NotApplicable) return defaultColor;
+            if (item.ResultOutcome == InspectionOutcome.NotInspected) return defaultColor;
 
             return defaultColor;
         }
 
-        private BaseColor BackgroundColor(RecapResultListItemModel item, BaseColor defaultColor = null)
+        private BaseColor BackgroundColor(ResultModel item, BaseColor defaultColor = null)
         {
             defaultColor ??= Colors.White;
 
@@ -465,7 +454,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             if (string.IsNullOrEmpty(imagePath))
                 return;
 
-            var image = Image.GetInstance(imagePath);
+            var image = Image.GetInstance(imagePath); // PlatformNotSupportedException while calling Image.GetInstance(url) which calls System.Net.WebRequest.Create.
+                                                      // Must directly pass byte array of logo image instead.
+
             image.ScalePercent(scalePercent);
             AddImageCell(table, image, rowspan, borderWidth, horizontalAlignment);
 
@@ -504,20 +495,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
         #region Helper
 
-        public static string Filename(string domainShortName,
-            int year,
-            string ktidb)
+        public static string Filename(int year, string ktidb, string farmName, string domainShortName)
         {
-            return $"Rapport de controle {domainShortName} {year} {ktidb}";
-        }
-
-        public static string Filename(string ktidb)
-        {
-            return $"Rapport de controle {ktidb}";
+            return $"Rapport de contrôle {year} {ktidb} {farmName} {domainShortName}.pdf";
         }
 
         #endregion
-
-
     }
 }

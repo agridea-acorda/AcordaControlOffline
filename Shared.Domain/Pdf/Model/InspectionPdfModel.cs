@@ -13,7 +13,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public string DomainShortName { get; set; }
         public string DomainName { get; set; }
         public string FocaaLogoPath { get; set; }
-        public IReadOnlyList<RecapResultListItemModel> InspectionResults { get; set; }
+        public IReadOnlyList<ResultModel> InspectionResults { get; set; }
         public FarmModel Farm { get; set; }
         public string ActionsOrDocuments { get; set; }
         public DateTime? DueDate { get; set; }
@@ -41,7 +41,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
                 DomainShortName = inspection.Domain.ShortName,
                 DomainName = inspection.Domain.ShortName,
                 FocaaLogoPath = logoPath,
-                InspectionResults = RecapResultListItemModel.FromDomain(checklist),
+                InspectionResults = ResultModel.FromDomain(checklist),
                 ActionsOrDocuments = inspection.Compliance.ActionsOrDocuments,
                 DueDate = inspection.Compliance.DueDate,
                 DoneOn = inspection.FinishStatus.DoneOn,
