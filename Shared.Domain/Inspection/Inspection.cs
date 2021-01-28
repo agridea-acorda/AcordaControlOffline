@@ -180,21 +180,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             return new CanReopen().IsSatisfiedBy(this);
         }
 
-        public byte[] GenerateInspectionPdf(Farm.Farm farm, bool showWatermark = true)
-        {
+        //public byte[] GenerateInspectionPdf(Farm.Farm farm, bool showWatermark = true)
+        //{
 
-            string cantonCode = "JU";//AcordaControlSession.Canton.Code;
-            string userName = "DefaultUserName";//AcordaControlSession.UserSecurityContext.UserName;
-            string logoPath = "";//Server.MapPath("~/Content/Images/focaa.png");
-            var model = InspectionPdfModel.FromDomain(this,
-                                                          farm, 
-                                                          cantonCode,
-                                                          logoPath);
-            var pdf = new InspectionPdf(model, userName, showWatermark);
-            return pdf.CreatePdf();
+        //    string cantonCode = "JU";//AcordaControlSession.Canton.Code;
+        //    string userName = "DefaultUserName";//AcordaControlSession.UserSecurityContext.UserName;
+        //    string logoPath = "";//Server.MapPath("~/Content/Images/focaa.png");
+        //    var model = InspectionPdfModel.FromDomain(this,
+        //                                                  farm, 
+        //                                                  cantonCode,
+        //                                                  logoPath);
+        //    var pdf = new InspectionPdf(model, userName, showWatermark);
+        //    return pdf.CreatePdf();
 
 
-        }
+        //}
 
         public class InitObject
         {

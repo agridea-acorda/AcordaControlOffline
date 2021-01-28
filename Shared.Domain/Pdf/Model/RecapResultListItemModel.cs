@@ -1,83 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model.Rubric;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Shared;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
 {
-    public class RecapResultListItemModel : ResultModelBase, IIndexedRenderer
+    public class RecapResultListItemModel : ResultModelBase
     {
         #region Properties
+        public int[] AttachmentList { get; set; }
+        public string ConjunctElementCode { get; set; }
+        public int DefectId { get; set; }
+        public string DefectName { get; set; }
+        public string ElementCode { get; set; }
+        public int FarmInspectionId { get; set; }
+        public bool HasAnyAttachment { get; set; }
+        public bool HasAnyPhoto { get; set; }
+        public bool HasDefect => DefectId != default(int);
+        public bool HasFailure => true;//TODO new ResultHasFailureSpecification().IsSatisfiedBy(this);
+        public bool HasResult => ResultOutcome?.Value != -1; //TODO verifier
+        public int Id { get; set; }
+        public bool IsAutoSet { get; set; }
+        public string Name { get; set; }
+        public int[] PhotoList { get; set; }
+        //public DefectRepetitions Repetition { get; set; }
+        public string ResultDefectDescription { get; set; }
+        public string ResultFarmerComment { get; set; }
+        public int ResultId { get; set; }
+        public string ResultInspectorComment { get; set; }
+        public InspectionOutcome? ResultOutcome { get; set; }
+        public double? ResultSize { get; set; }
+        public DefectSeriousness? Seriousness { get; set; }
+        public string ShortName { get; set; }
+        public string Sort { get; set; }
 
         public ResultTypes ResultType { get; set; }
         public int TreeLevel { get; set; }
         public bool HasAutoSetAncestor { get; set; }
-
-        #endregion
-
-        #region Services
-
-        public string Render(int index)
-        {
-            var sb = new StringBuilder();
-            //TODO recuperer les données
-            string editResultUrl = "http://todo";
-            /*
-            var url = U.Url;
-            string editResultUrl = ResultType == ResultTypes.Rubric ? url.Action(nameof(RubricResultController.Edit),
-                                                                                 nameof(RubricResultController).Controller(),
-                                                                                 new
-                                                                                 {
-                                                                                     id = ResultId,
-                                                                                     farmInspectionId = FarmInspectionId,
-                                                                                     rubricId = Id
-                                                                                     rubricId = Id
-                                                                                 }) :
-                                   ResultType == ResultTypes.PointGroup ? url.Action(nameof(PointGroupResultController.Edit),
-                                                                                     nameof(PointGroupResultController).Controller(),
-                                                                                     new
-                                                                                     {
-                                                                                         id = ResultId,
-                                                                                         farmInspectionId = FarmInspectionId,
-                                                                                         pointGroupId = Id
-                                                                                     }) :
-                                   ResultType == ResultTypes.Point ? url.Action(nameof(PointResultController.Edit),
-                                                                                nameof(PointResultController).Controller(),
-                                                                                new
-                                                                                {
-                                                                                    id = ResultId,
-                                                                                    farmInspectionId = FarmInspectionId,
-                                                                                    pointId = Id
-                                                                                }) : "#";*/
-            string okColor = ResultOutcome == InspectionOutcome.Ok ? Css.BtnSuccess : Css.BtnDefault;
-            string pokColor = ResultOutcome == InspectionOutcome.PartiallyOk ? Css.BtnWarning : Css.BtnDefault;
-            string nokColor = ResultOutcome == InspectionOutcome.NotOk ? Css.BtnDanger : Css.BtnDefault;
-            string ncColor = ResultOutcome == InspectionOutcome.NotInspected ? Css.BtnPrimary : Css.BtnDefault;
-            string naColor = ResultOutcome == InspectionOutcome.NotApplicable ? Css.BtnPrimary : Css.BtnDefault;
-            string commentsColor = ResultOutcome == InspectionOutcome.Ok ? Css.BtnSuccess :
-                                   ResultOutcome == InspectionOutcome.NotOk ? Css.BtnDanger :
-                                   ResultOutcome == InspectionOutcome.PartiallyOk ? Css.BtnWarning : Css.BtnPrimary;
-
-            if (HasAnyAttachment)
-                sb.AppendLine($"<a href=\"{editResultUrl}\" class=\"{Css.Btn} {commentsColor} {Css.BtnSm} {Css.PullRight} {Css.MarginR5}\"><i class=\"{Fa.Base} {Fa.Paperclip}\"></i></a>");
-            if (HasAnyPhoto)
-                sb.AppendLine($"<a href=\"{editResultUrl}\" class=\"{Css.Btn} {commentsColor} {Css.BtnSm} {Css.PullRight} {Css.MarginR5}\"><i class=\"{Fa.Base} {Fa.PictureO}\"></i></a>");
-            if (HasFailure)
-                sb.AppendLine($"<a href=\"{editResultUrl}\" class=\"{Css.Btn} {commentsColor} {Css.BtnSm} {Css.PullRight} {Css.MarginR5}\"><i class=\"{Fa.Base} {Fa.CommentingO}\"></i></a>");
-
-            sb.AppendLine($"<h4 class=\"{Css.ListGroupItemHeading}\">{ConjunctElementCode}</h4>");
-            sb.AppendLine($"<p class=\"{Css.ListGroupItemText}\">{ShortName}</p>");
-            sb.AppendLine($"<div class=\"{Css.Btn} {okColor} {Css.BtnCircle} {Css.BtnCircleSm}\"><i class=\"{Fa.Base} {Fa.ThumbsOUp}\"></i></div>");
-            sb.AppendLine($"<div class=\"{Css.Btn} {pokColor} {Css.BtnCircle} {Css.BtnCircleSm}\">P</div>");
-            sb.AppendLine($"<div class=\"{Css.Btn} {nokColor} {Css.BtnCircle} {Css.BtnCircleSm}\"><i class=\"{Fa.Base} {Fa.ThumbsODown}\"></i></div>");
-            sb.AppendLine($"<div class=\"{Css.Btn} {ncColor} {Css.BtnCircle} {Css.BtnCircleSm}\">NC</div>");
-            sb.AppendLine($"<div class=\"{Css.Btn} {naColor} {Css.BtnCircle} {Css.BtnCircleSm}\">NA</div>");
-            sb.AppendLine($"<a href=\"{editResultUrl}\" class=\"{Css.Btn} {Css.BtnDefault} {Css.BtnCircle} {Css.BtnCircleSm}\">...</a>");
-
-            return sb.ToString();
-        }
 
         #endregion
 
@@ -86,6 +48,19 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
             Rubric,
             PointGroup,
             Point
+        }
+
+        public static RecapResultListItemModel FromDomain(ITreeNode<Result> node)
+        {
+            var model = new RecapResultListItemModel();
+            model.ConjunctElementCode = node.ConjunctElementCode;
+            model.ShortName = node.ShortName;
+            return model;
+        }
+
+        public static List<RecapResultListItemModel> FromDomain(Checklist.Checklist checklist)
+        {
+            return new List<RecapResultListItemModel>();
         }
     }
 }

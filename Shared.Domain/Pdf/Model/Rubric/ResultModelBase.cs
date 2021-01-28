@@ -10,32 +10,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model.Rubric
     {
         #region Properties
 
-        public int[] AttachmentList { get; set; }
-        public string ConjunctElementCode { get; set; }
-        public int DefectId { get; set; }
-        public string DefectName { get; set; }
-        public string ElementCode { get; set; }
-        public int FarmInspectionId { get; set; }
-        public bool HasAnyAttachment { get; set; }
-        public bool HasAnyPhoto { get; set; }
-        public bool HasDefect => DefectId != default(int);
-        public bool HasFailure => true;//TODO new ResultHasFailureSpecification().IsSatisfiedBy(this);
-        public bool HasResult => ResultOutcome?.Value!=-1; //TODO verifier
-        public int Id { get; set; }
-        public bool IsAutoSet { get; set; }
-        public string Name { get; set; }
-        public int[] PhotoList { get; set; }
-        //public DefectRepetitions Repetition { get; set; }
-        public string ResultDefectDescription { get; set; }
-        public string ResultFarmerComment { get; set; }
-        public int ResultId { get; set; }
-        public string ResultInspectorComment { get; set; }
-        public InspectionOutcome? ResultOutcome { get; set; }
-        public double? ResultSize { get; set; }
-        public DefectSeriousness? Seriousness { get; set; }
-        public string ShortName { get; set; }
-        public string Sort { get; set; }
-
+        
         #endregion
 
         #region Services

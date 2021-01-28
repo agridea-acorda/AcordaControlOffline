@@ -21,6 +21,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
         {
             var inspection = TestDataHelper.ConstructInspection();
             var farm = TestDataHelper.ConstructFarm();
+            var checklist = TestDataHelper.ConstructChecklist();
+            checklist = TestDataHelper.AllOk(checklist);
             inspection.RequireActionOfDocuments("Livret des sorties à jour", new DateTime(2021, 01, 29));
             inspection.InspectorSigns(new Signature("Joe the inspector",
                                                     "",
@@ -34,6 +36,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             string logoPath = AppDomain.CurrentDomain.BaseDirectory + "\\img\\focaa.png";
             var model = InspectionPdfModel.FromDomain(inspection,
                                                       farm,
+                                                      checklist,
                                                       cantonCode,
                                                       logoPath);
             var pdf = new InspectionPdf(model, userName);

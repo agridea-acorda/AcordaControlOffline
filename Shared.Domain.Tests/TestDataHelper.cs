@@ -99,6 +99,28 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             checklist.Rubrics["R2"].Children["R2,G2"].Children["R2,G2,SG2"].Children.Should().ContainKeys("R2,G2,SG2,P1", "R2,G2,SG2,P2");
         }
 
+        public static Checklist.Checklist AllOk(Checklist.Checklist checklist)
+        {
+            checklist.SetOutcome("R1,P1", InspectionOutcome.Ok);
+            checklist.SetOutcome("R1,P2", InspectionOutcome.Ok);
+            checklist.SetOutcome("R1", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG1,P1", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG1,P2", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG1,P3", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG1,P4", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG1", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG2,P1", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG2,P2", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2,SG2", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G2", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G1,P1", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G1,P2", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G1,P3", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2,G1", InspectionOutcome.Ok);
+            checklist.SetOutcome("R2", InspectionOutcome.Ok);
+            return checklist;
+        }
+
         public const int FarmInspectionId = 1;
         public static readonly Guid InspectionId = Guid.NewGuid();
         public const long ChecklistId = 1;
