@@ -36,15 +36,7 @@
         <div class="card-body">
             <div class="form-group">
                 <button class="btn btn-primary" @onclick="@ProvisoryPdfReport" disabled=@generatingPdf>
-                    @if (generatingPdf)
-                    {
-                        <i class="fas fa-spinner fa-spin"></i>
-                    }
-                    else
-                    {
-                        <i class="far fa-file-pdf"></i>
-                    }
-
+                    <i class="@(generatingPdf ? "fas fa-spinner fa-spin" : "far fa-file-pdf")"></i>
                     Afficher le rapport de contrôle provisoire
                 </button>
             </div>
@@ -104,7 +96,7 @@
                 {
                     <div class="form-group">
                         <label>Le contrôleur @signatures.InspectorDisplay</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
                         <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%" />
                     </div>
                 }
@@ -114,7 +106,7 @@
                         <label>Le contrôleur n'a pas signé</label>
                         <div class="d-block">
                             <div class="btn-group w-100" role="group">
-                                <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
+                                <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
                                 @if (signatures.ExistingInspectorSignature.HasSigned)
                                 {
                                     <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
@@ -139,7 +131,7 @@
                         <label>L'exploitant n'a pas signé</label>
                         <div class="d-block">
                             <div class="btn-group w-100">
-                                <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
+                                <button @onclick="() => Navigation.NavigateTo(farmerSignatureUrl)" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
                                 @if (signatures.ExistingFarmerSignature.HasSigned)
                                 {
                                     <button @onclick="@(() => ReuseSignature(signatures.ExistingFarmerSignature, "farmer"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
@@ -154,7 +146,7 @@
                 {
                     <div class="form-group">
                         <label>Contrôleur additionnel @signatures.AdditionalInspectorDisplay</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(inspector2SignatureUrl))" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <button @onclick="() => Navigation.NavigateTo(inspector2SignatureUrl)" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
                         <img src="@signatures.AdditionalSignature.DataUrl" style="width: 100%" />
                     </div>
                 }
