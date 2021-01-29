@@ -183,7 +183,7 @@ else
             <Blazorise.ModalContent IsCentered="true">
                 <Blazorise.ModalHeader>
                     <Blazorise.ModalTitle>Prendre rendez-vous avec l'exploitant</Blazorise.ModalTitle>
-                    <Blazorise.CloseButton Clicked="@HideAppointmentModal" />
+                    <Blazorise.CloseButton Clicked="() => appointmentModal.Hide()" />
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
@@ -204,8 +204,10 @@ else
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
-                    <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
-                    <button class="btn btn-default float-left mr-2" @onclick="@HideAppointmentModal">Annuler</button>
+                    <Blazorise.Button Type="Blazorise.ButtonType.Submit" class="btn btn-primary float-left mr-2" disabled=@savingAppointment>
+                        <i class="@(savingAppointment ? "fas fa-spinner fa-spin" : "far fa-save")"></i> Enregistrer
+                    </Blazorise.Button>
+                    <Blazorise.Button class="btn btn-default float-left mr-2" Clicked="() => appointmentModal.Hide()">Annuler</Blazorise.Button>
                 </Blazorise.ModalFooter>
             </Blazorise.ModalContent>
         </EditForm>
@@ -220,7 +222,7 @@ else
             <Blazorise.ModalContent IsCentered="true">
                 <Blazorise.ModalHeader>
                     <Blazorise.ModalTitle>Commentaires et détails à l'attention de la gérance</Blazorise.ModalTitle>
-                    <Blazorise.CloseButton Clicked="@HideCommentForOfficeModal" />
+                    <Blazorise.CloseButton Clicked="() => commentForOfficeModal.Hide()" />
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
@@ -228,8 +230,10 @@ else
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
-                    <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
-                    <button class="btn btn-default float-left mr-2" @onclick="@HideCommentForOfficeModal">Annuler</button>
+                    <Blazorise.Button Type="Blazorise.ButtonType.Submit" class="btn btn-primary float-left mr-2" disabled=@savingCommentForOffice>
+                        <i class="@(savingCommentForOffice ? "fas fa-spinner fa-spin" : "far fa-save")"></i> Enregistrer
+                    </Blazorise.Button>
+                    <Blazorise.Button class="btn btn-default float-left mr-2" Clicked="() => commentForOfficeModal.Hide()">Annuler</Blazorise.Button>
                 </Blazorise.ModalFooter>
             </Blazorise.ModalContent>
         </EditForm>
@@ -244,7 +248,7 @@ else
             <Blazorise.ModalContent IsCentered="true">
                 <Blazorise.ModalHeader>
                     <Blazorise.ModalTitle>Suivi documents et délai</Blazorise.ModalTitle>
-                    <Blazorise.CloseButton Clicked="@HideComplianceModal" />
+                    <Blazorise.CloseButton Clicked="() => complianceModal.Hide()" />
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
@@ -273,8 +277,10 @@ else
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
-                    <button type="submit" class="btn btn-primary float-left mr-2"><i class="far fa-save"></i> Enregistrer</button>
-                    <button class="btn btn-default float-left mr-2" @onclick="@HideComplianceModal">Annuler</button>
+                    <Blazorise.Button Type="Blazorise.ButtonType.Submit" class="btn btn-primary float-left mr-2" disabled=@savingCompliance>
+                        <i class="@(savingCompliance ? "fas fa-spinner fa-spin" : "far fa-save")"></i> Enregistrer
+                    </Blazorise.Button>
+                    <Blazorise.Button class="btn btn-default float-left mr-2" @onclick="() => complianceModal.Hide()">Annuler</Blazorise.Button>
                 </Blazorise.ModalFooter>
             </Blazorise.ModalContent>
         </EditForm>
@@ -293,10 +299,13 @@ else
     private AcordaControlOffline.Shared.Domain.Mandate.Mandate mandate;
     private Blazorise.Modal appointmentModal;
     private AppointmentModel appointment;
+    bool savingAppointment;
     private Blazorise.Modal commentForOfficeModal;
     private CommentForOfficeModel commentForOffice;
+    bool savingCommentForOffice;
     private Blazorise.Modal complianceModal;
     private ComplianceModel compliance;
+    bool savingCompliance;
     bool savingPdf;
     bool displayingPdf;
 
@@ -337,19 +346,24 @@ else
         appointmentModal.Show();
     }
 
-    private void HideAppointmentModal()
+    async void SaveAppointementDetails()
     {
-        appointmentModal.Hide();
-    }
-
-    async void SaveAppointementDetails(EditContext editContext)
-    {
-        var model = (AppointmentModel)editContext.Model;
-        mandate.Inspections[model.InspectionIndex].SetAppointment(new Appointment(model.Date, model.FirstContactDate));
-        mandateViewModel = Mandate.FromDomain(farm, mandate);
+        if (savingAppointment) return;
+        savingAppointment = true;
+        await Task.Delay(1);
         StateHasChanged();
-        appointmentModal.Hide();
-        await Repository.SaveMandateAsync(mandate, FarmId);
+        try
+        {
+            mandate.Inspections[appointment.InspectionIndex].SetAppointment(new Appointment(appointment.Date, appointment.FirstContactDate));
+            mandateViewModel = Mandate.FromDomain(farm, mandate);
+            await Repository.SaveMandateAsync(mandate, FarmId);
+            appointmentModal.Hide();
+        }
+        finally
+        {
+            savingAppointment = false;
+            StateHasChanged();
+        }
     }
 
     private void ShowCommentForOfficeModal(int index)
@@ -358,19 +372,24 @@ else
         commentForOfficeModal.Show();
     }
 
-    private void HideCommentForOfficeModal()
+    async void SaveCommentForOffice()
     {
-        commentForOfficeModal.Hide();
-    }
-
-    async void SaveCommentForOffice(EditContext editContext)
-    {
-        var model = (CommentForOfficeModel)editContext.Model;
-        mandate.Inspections[model.InspectionIndex].SetCommentForOffice(model.CommentForOffice);
-        mandateViewModel = Mandate.FromDomain(farm, mandate);
+        if (savingCommentForOffice) return;
+        savingCommentForOffice = true;
+        await Task.Delay(1);
         StateHasChanged();
-        commentForOfficeModal.Hide();
-        await Repository.SaveMandateAsync(mandate, FarmId);
+        try
+        {
+            mandate.Inspections[commentForOffice.InspectionIndex].SetCommentForOffice(commentForOffice.CommentForOffice);
+            mandateViewModel = Mandate.FromDomain(farm, mandate);
+            await Repository.SaveMandateAsync(mandate, FarmId);
+            commentForOfficeModal.Hide();
+        }
+        finally
+        {
+            savingCommentForOffice = false;
+            StateHasChanged();
+        }
     }
 
     private void ShowComplianceModal(int index)
@@ -379,19 +398,29 @@ else
         complianceModal.Show();
     }
 
-    private void HideComplianceModal()
+    async void SaveCompliance()
     {
-        complianceModal.Hide();
-    }
-
-    async void SaveCompliance(EditContext editContext)
-    {
-        var model = (ComplianceModel)editContext.Model;
-        mandate.Inspections[model.InspectionIndex].SetCompliance(new Compliance(model.ActionsOrDocuments, model.DueDate, model.DueDateNotRespected, model.DueDateRespected, model.FurtherInvestigationNeeded, model.IncompleteOrNonCompliant));
-        mandateViewModel = Mandate.FromDomain(farm, mandate);
+        if (savingCompliance) return;
+        savingCompliance = true;
+        await Task.Delay(1);
         StateHasChanged();
-        complianceModal.Hide();
-        await Repository.SaveMandateAsync(mandate, FarmId);
+        try
+        {
+            mandate.Inspections[compliance.InspectionIndex].SetCompliance(new Compliance(compliance.ActionsOrDocuments, 
+                                                                                         compliance.DueDate, 
+                                                                                         compliance.DueDateNotRespected, 
+                                                                                         compliance.DueDateRespected, 
+                                                                                         compliance.FurtherInvestigationNeeded, 
+                                                                                         compliance.IncompleteOrNonCompliant));
+            mandateViewModel = Mandate.FromDomain(farm, mandate);
+            await Repository.SaveMandateAsync(mandate, FarmId);
+            complianceModal.Hide();
+        }
+        finally
+        {
+            savingCompliance = false;
+            StateHasChanged();
+        }
     }
 
     async Task SavePdfReport(int farmInspectionId)
