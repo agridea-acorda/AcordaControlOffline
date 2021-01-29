@@ -121,7 +121,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             table.AddTitleCell("Validation");
             table.AddTitleCell("Commentaire");
 
-            Phrase Comment(InspectionOutcome? outcome, string inspectorComment)
+            Phrase Comment(InspectionOutcome outcome, string inspectorComment)
             {
                 var result = new Phrase {new Chunk(inspectorComment, Fonts.Helvetica8BlackBoldItalic)};
                 if (outcome == InspectionOutcome.NotOk || outcome == InspectionOutcome.PartiallyOk)
