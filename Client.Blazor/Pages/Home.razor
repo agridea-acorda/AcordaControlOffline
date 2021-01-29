@@ -1,5 +1,6 @@
 ﻿@using System.Security.Claims
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @page "/"
 @inject NavigationManager Navigation
 
@@ -14,7 +15,7 @@
         var principal = authState.User;
         string username = principal.FindFirst(x => x.Type == ClaimTypes.Name)?.Value ?? "";
         bool isSignedIn = !string.IsNullOrEmpty(username);
-        Navigation.NavigateTo(!isSignedIn ? Config.BaseUrl + "/Login" : Config.BaseUrl + "/MandateList");
+        Navigation.NavigateTo(!isSignedIn ? Environment.BaseUrl + "/Login" : Environment.BaseUrl + "/MandateList");
     }
 
 }

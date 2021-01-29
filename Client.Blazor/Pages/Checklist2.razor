@@ -4,6 +4,7 @@
 @using Ardalis.GuardClauses
 @using Microsoft.AspNetCore.Authorization
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
+@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -15,11 +16,11 @@
     <div class="card-header">
         <h3 class="card-title">Récapitulatif</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + farmId)'>
+            <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/MandateDetail/" + farmId)'>
                 <i class="fas fa-arrow-left"></i>
                 Retour Mandat
             </button>
-            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + farmId)'>
+            <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + farmId)'>
                 <i class="fas fa-arrow-right"></i>
                 Rapport de contrôle
             </button>
@@ -49,22 +50,10 @@
 
 <div class="card">
     <div class="card-header">
-        @*@if (autosave != null)
-            {
-                <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Saving ? "": "d-none")"><i class="far fa-save"></i> Enregistrement en cours...</p>
-                <p class="float-right text-sm text-secondary mb-0 @(autosave.State == Autosave.SavingState.Displaying ? "" : "d-none")" ><i class="far fa-save"></i> Enregistré.</p>
-            }*@
         @if (needsSaving)
         {
-            <button class="btn btn-primary float-right @saveButtonDisabled" @onclick="@Save">
-                @if (saving)
-                {
-                    <i class="fas fa-spinner fa-spin"></i>
-                }
-                else
-                {
-                    <i class="far fa-save"></i>
-                }
+            <button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
+                <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
                 Enregistrer
             </button>
         }
@@ -79,7 +68,9 @@
                 @if (parent != null)
                 {
                     <div id="@parent.Id" class="list-group-item">
-                        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))"><i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i></a>
+                        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
+                            <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
+                        </a>
                         <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
                         <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
                         <h4 class="list-group-item-heading">@parent.ShortName</h4>
@@ -90,7 +81,7 @@
                                 {
                                     @foreach (var child in children)
                                     {
-                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
+                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
                                     }
                                 }
                                 else
@@ -107,7 +98,7 @@
                     {
                         @foreach (var child in children)
                         {
-                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@OutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@Deleted"></ChecklistItem>
+                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
                         }
                     }
                     else
@@ -133,7 +124,6 @@
     AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo progressBarModel;
     bool saving;
     bool needsSaving;
-    string saveButtonDisabled => needsSaving ? "" : "disabled";
     bool showAutoSet = false;
 
     protected override async Task OnInitializedAsync()
@@ -182,7 +172,7 @@
                        .ToList();
     }
 
-    void OutcomeChanged(ChecklistItem.ResultModel model)
+    void NodeOutcomeChanged(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s outcome was set to {model.Outcome}.");
         var node = checklist.Find(model.ConjunctElementCode);
@@ -206,7 +196,7 @@
         needsSaving = true;
     }
 
-    void Deleted(ChecklistItem.ResultModel model)
+    void NodeDeleted(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
         checklist.Find(model.ConjunctElementCode)
@@ -223,22 +213,28 @@
     async Task Save()
     {
         if (saving || !needsSaving) return;
-        Console.WriteLine("Saving checklist...");
         saving = true;
         await Task.Delay(1);
         StateHasChanged();
 
-        await Repository.SaveChecklistAsync(checklist);
-        // below should be performed with domain event dispatching mechanism
-        var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
-        await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
-        await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
+        try
+        {
+            Console.WriteLine("Saving checklist...");
+            await Repository.SaveChecklistAsync(checklist);
 
-        Console.WriteLine("...checklist saved.");
-        saving = false;
-        needsSaving = false;
-        StateHasChanged();
-        Toast.Success();
+            // below should be performed with domain event dispatching mechanism
+            var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
+            await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
+            await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
+            Console.WriteLine("...checklist saved.");
+            Toast.Success();
+        }
+        finally
+        {
+            saving = false;
+            needsSaving = false;
+            StateHasChanged();
+        }
     }
 
     private async Task UpdateAndSaveInspectionPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)

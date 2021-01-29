@@ -2,8 +2,12 @@
 
 <div class="float-right d-none d-sm-block">
     <b>version:</b> <small><i>@FileVersion, @BuildDate</i>   </small>
-    <b>runtime:</b> <small><i>@runtime</i>   </small>
-    <b>host:</b> <small><i>@host</i></small>
+    @* ReSharper disable once ConditionIsAlwaysTrueOrFalse *@
+    @if (UiServices.Environment.IsDebug)
+    {
+        <b>runtime:</b> <small><i>@runtime</i>   </small>
+        <b>host:</b> <small><i>@host</i></small>
+    }
 </div>
 
 <strong>&copy; @DateTime.Now.Year <a href="https://www.agridea.ch" target="_blank">Agridea</a></strong>
@@ -16,5 +20,4 @@
 
     string host = Environment.MachineName;
     string runtime = Assembly.GetExecutingAssembly().GetCustomAttribute<System.Runtime.Versioning.TargetFrameworkAttribute>()?.FrameworkName;
-    // todo: display host and runtime only if environment is dev. Did not manage to inject IWebAssemblyHostEnvironment.
 }

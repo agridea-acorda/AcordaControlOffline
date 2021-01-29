@@ -12,7 +12,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
 
         public static SelectListItem<string> AsSelectListItem(this Canton canton)
         {
-            return new SelectListItem<string>(canton.Code, canton.Code);
+            return canton == Canton.None
+                       ? new SelectListItem<string>(canton.Code, "")
+                       : new SelectListItem<string>(canton.Code, canton.Code);
         }
     }
 }
