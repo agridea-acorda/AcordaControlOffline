@@ -8,6 +8,8 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -93,7 +95,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         public void Can_serialize_then_parse_inspection_with_pdf_report()
         {
             TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection_);
-            inspection_.SetPdfReport(new PdfReport(inspection_.GenerateInspectionPdf(farm_, false)));
+            inspection_.SetPdfReport(new PdfReport(new InspectionPdf(InspectionPdfModel.FromDomain(inspection_, farm_, checklist_, "JU", "")
+                                                                          , "the_user").CreatePdf()));
             var factory = new InspectionFactory();
             string json = factory.Serialize(inspection_);
             var inspection = factory.Parse(json);

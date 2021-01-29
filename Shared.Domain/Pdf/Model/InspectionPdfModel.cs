@@ -13,7 +13,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public string DomainShortName { get; set; }
         public string DomainName { get; set; }
         public string FocaaLogoPath { get; set; }
-        public IReadOnlyList<RecapResultListItemModel> InspectionResults { get; set; }
+        public IReadOnlyList<ResultModel> InspectionResults { get; set; }
         public FarmModel Farm { get; set; }
         public string ActionsOrDocuments { get; set; }
         public DateTime? DueDate { get; set; }
@@ -32,7 +32,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public string CommentForFarmer { get; set; }
 
 
-        public static InspectionPdfModel FromDomain(Inspection.Inspection inspection, Farm.Farm farm, string cantonCode, string logoPath)
+        public static InspectionPdfModel FromDomain(Inspection.Inspection inspection, Farm.Farm farm, Checklist.Checklist checklist, string cantonCode, string logoPath)
         {
             var model = new InspectionPdfModel
             {
@@ -41,7 +41,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
                 DomainShortName = inspection.Domain.ShortName,
                 DomainName = inspection.Domain.ShortName,
                 FocaaLogoPath = logoPath,
-                //InspectionResults = RecapResultListItemModelFactory.All(inspection),
+                InspectionResults = ResultModel.FromDomain(checklist),
                 ActionsOrDocuments = inspection.Compliance.ActionsOrDocuments,
                 DueDate = inspection.Compliance.DueDate,
                 DoneOn = inspection.FinishStatus.DoneOn,

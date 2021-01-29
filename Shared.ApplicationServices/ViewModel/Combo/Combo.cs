@@ -22,6 +22,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         {
             return new List<SelectListItem<string>>
             {
+                Canton.None.AsSelectListItem(),
                 Canton.GE.AsSelectListItem(),
                 Canton.NE.AsSelectListItem(),
                 Canton.JU.AsSelectListItem(),

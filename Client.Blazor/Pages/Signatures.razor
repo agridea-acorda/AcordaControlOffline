@@ -3,10 +3,13 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
 @using Ardalis.GuardClauses
 @using EnsureThat
 @using Microsoft.AspNetCore.Authorization
 @using Signature = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Signature
+@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @page "/Signatures/{FarmInspectionId:int}"
 @attribute [Authorize]
 @inject NavigationManager Navigation
@@ -20,11 +23,11 @@
         <div class="card-header">
             <div class="card-title">Rapport de contrôle</div>
             <div class="card-tools">
-                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + farmId)'>
+                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + farmId)'>
                     <i class="fas fa-arrow-left"></i>
                     Retour Check-Liste
                 </button>
-                <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + farmId)'>
+                <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/MandateDetail/" + farmId)'>
                     <i class="fas fa-arrow-right"></i>
                     Mandat
                 </button>
@@ -32,7 +35,10 @@
         </div>
         <div class="card-body">
             <div class="form-group">
-                <button class="btn btn-primary" @onclick="@GeneratePdfReport"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
+                <button class="btn btn-primary" @onclick="@ProvisoryPdfReport" disabled=@generatingPdf>
+                    <i class="@(generatingPdf ? "fas fa-spinner fa-spin" : "far fa-file-pdf")"></i>
+                    Afficher le rapport de contrôle provisoire
+                </button>
             </div>
             <div class="form-group">
                 <div class="callout callout-info">
@@ -77,9 +83,9 @@
 
 @if (isInitialized)
 {
-    string inspectorSignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector&ReturnUrl={Navigation.Uri}";
-    string farmerSignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=farmer&ReturnUrl={Navigation.Uri}";
-    string inspector2SignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
+    string inspectorSignatureUrl = $"{Environment.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector&ReturnUrl={Navigation.Uri}";
+    string farmerSignatureUrl = $"{Environment.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=farmer&ReturnUrl={Navigation.Uri}";
+    string inspector2SignatureUrl = $"{Environment.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Signatures</h3>
@@ -90,7 +96,7 @@
                 {
                     <div class="form-group">
                         <label>Le contrôleur @signatures.InspectorDisplay</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
                         <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%" />
                     </div>
                 }
@@ -100,7 +106,7 @@
                         <label>Le contrôleur n'a pas signé</label>
                         <div class="d-block">
                             <div class="btn-group w-100" role="group">
-                                <button @onclick="@(() => Navigation.NavigateTo(inspectorSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
+                                <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
                                 @if (signatures.ExistingInspectorSignature.HasSigned)
                                 {
                                     <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
@@ -125,7 +131,7 @@
                         <label>L'exploitant n'a pas signé</label>
                         <div class="d-block">
                             <div class="btn-group w-100">
-                                <button @onclick="@(() => Navigation.NavigateTo(farmerSignatureUrl))" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
+                                <button @onclick="() => Navigation.NavigateTo(farmerSignatureUrl)" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
                                 @if (signatures.ExistingFarmerSignature.HasSigned)
                                 {
                                     <button @onclick="@(() => ReuseSignature(signatures.ExistingFarmerSignature, "farmer"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
@@ -140,7 +146,7 @@
                 {
                     <div class="form-group">
                         <label>Contrôleur additionnel @signatures.AdditionalInspectorDisplay</label>
-                        <button @onclick="@(() => Navigation.NavigateTo(inspector2SignatureUrl))" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <button @onclick="() => Navigation.NavigateTo(inspector2SignatureUrl)" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
                         <img src="@signatures.AdditionalSignature.DataUrl" style="width: 100%" />
                     </div>
                 }
@@ -172,6 +178,7 @@
 
     SignaturesDisplay signatures;
     bool isInitialized;
+    bool generatingPdf;
 
     public class SignaturesDisplay
     {
@@ -276,20 +283,41 @@
                                                 complianceBackup.FurtherInvestigationNeeded,
                                                 complianceBackup.IncompleteOrNonCompliant));
         await Repository.SaveMandateAsync(mandate, farmId);
-        //await Repository.SaveActionsOrDocumentsAsync((ActionsOrDocumentEditModel)editContext.Model);
         Toast.Success();
         needsSaving = false;
         await Task.Delay(1);
         StateHasChanged();
     }
 
-    async void GeneratePdfReport()
+    async void ProvisoryPdfReport()
     {
-        var farm = await Repository.ReadFarmAsync(farmId);
-        Guard.Against.Null(farm, nameof(farm));
-        var file = inspection.GenerateInspectionPdf(farm);
-        string filename = $"{2021} {farm.Ktidb} {farm.FarmName} {inspection.Domain.ShortName}";
-        await Js.InvokeVoidAsync("BlazorDownloadFile", $"Rapport de controle {filename}.pdf", "application/octet-stream", file);
+        if (generatingPdf) return;
+        generatingPdf = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        try 
+        { 
+            var farm = await Repository.ReadFarmAsync(farmId);
+            Guard.Against.Null(farm, nameof(farm));
+            var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+            Guard.Against.Null(checklist, nameof(checklist));
+            string cantonCode = "NE"; //todo get from authorization system
+            string userName = "johnny-b-goode"; // todo get from authorization system
+            string logoPath = "img/focaa.png";
+            var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
+                                                                      farm,
+                                                                      checklist,
+                                                                      cantonCode,
+                                                                      logoPath), userName, true);
+            string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
+            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", pdf.CreatePdf());
+        }
+        finally
+        {
+            generatingPdf = false;
+            StateHasChanged();
+        }
     }
 }
 

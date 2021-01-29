@@ -1,27 +1,34 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Login
+@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
 
-<EditForm Model="@Model" OnSubmit="@FormSubmitted">
-    <Blazorise.Field>
-        <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
-        <Blazorise.TextEdit @bind-Text="@Model.Username"></Blazorise.TextEdit>
-    </Blazorise.Field>
-    <Blazorise.Field>
-        <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
-        <Blazorise.TextEdit Role="@Blazorise.TextRole.Password" @bind-Text="@Model.Password"></Blazorise.TextEdit>
-    </Blazorise.Field>
-    <Blazorise.Field>
-        <Blazorise.FieldLabel>Canton</Blazorise.FieldLabel>
-        <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.CantonCode">
-            @foreach (var option in Model.ComboCantons)
-            {
-                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-            }
-        </Blazorise.Select>
-    </Blazorise.Field>
+<EditForm Model="@Model" OnValidSubmit="@ValidSubmit" OnInvalidSubmit="@InvalidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+        <Blazorise.Field>
+            <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
+            <Blazorise.TextEdit @bind-Text="@Model.Username">
+            </Blazorise.TextEdit>
+        </Blazorise.Field>
+        <Blazorise.Field>
+            <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
+            <Blazorise.TextEdit Role="@Blazorise.TextRole.Password" @bind-Text="@Model.Password">
+            </Blazorise.TextEdit>
+        </Blazorise.Field>
+        <Blazorise.Field>
+            <Blazorise.FieldLabel>Canton</Blazorise.FieldLabel>
+            <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.CantonCode">
+                <ChildContent>
+                    @foreach (var option in Model.ComboCantons)
+                    {
+                        <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                    }
+                </ChildContent>
+            </Blazorise.Select>
+        </Blazorise.Field>
     <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="false">Connexion</Blazorise.Button>
 </EditForm>
 
@@ -29,12 +36,16 @@
     [Parameter]
     public LoginModel Model { get; set; }
 
-    public async Task FormSubmitted(EditContext editContext)
+    async Task ValidSubmit()
     {
         Console.WriteLine("Saving login info...");
-        var model = (LoginModel)editContext.Model;
-        await AuthService.Login(model);
+        await AuthService.Login(Model);
         Console.WriteLine("...Login info Saved.");
-        Navigation.NavigateTo(Config.BaseUrl + "/MandateList");
+        Navigation.NavigateTo(Environment.BaseUrl + "/MandateList");
+    }
+
+    void InvalidSubmit()
+    {
+        Console.WriteLine("Invalid login info.");
     }
 }
