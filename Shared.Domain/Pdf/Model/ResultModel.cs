@@ -19,6 +19,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public string ResultInspectorComment { get; set; }
         public InspectionOutcome ResultOutcome { get; set; }
         public double? ResultSize { get; set; }
+        public string ResultUnit { get; set; }
         public DefectSeriousness Seriousness { get; set; }
         public string ShortName { get; set; }
         
@@ -56,6 +57,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
                 if (node.Defect.Size != Defect.Measurement.Unspecified)
                 {
                     model.ResultSize = node.Defect.Size.Size;
+                    model.ResultUnit = node.Defect.Size.Unit;
                 }
             }
 

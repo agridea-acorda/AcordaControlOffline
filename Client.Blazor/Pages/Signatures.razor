@@ -35,7 +35,18 @@
         </div>
         <div class="card-body">
             <div class="form-group">
-                <button class="btn btn-primary" @onclick="@ProvisoryPdfReport"><i class="far fa-file-pdf"></i> Afficher le rapport de contrôle provisoire</button>
+                <button class="btn btn-primary" @onclick="@ProvisoryPdfReport" disabled=@generatingPdf>
+                    @if (generatingPdf)
+                    {
+                        <i class="fas fa-spinner fa-spin"></i>
+                    }
+                    else
+                    {
+                        <i class="far fa-file-pdf"></i>
+                    }
+
+                    Afficher le rapport de contrôle provisoire
+                </button>
             </div>
             <div class="form-group">
                 <div class="callout callout-info">
@@ -175,6 +186,7 @@
 
     SignaturesDisplay signatures;
     bool isInitialized;
+    bool generatingPdf;
 
     public class SignaturesDisplay
     {
@@ -287,20 +299,33 @@
 
     async void ProvisoryPdfReport()
     {
-        var farm = await Repository.ReadFarmAsync(farmId);
-        Guard.Against.Null(farm, nameof(farm));
-        var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
-        Guard.Against.Null(checklist, nameof(checklist));
-        string cantonCode = "NE"; //todo get from authorization system
-        string userName = "johnny-b-goode"; // todo get from authorization system
-        string logoPath = "img/focaa.png";
-        var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
-                                                                  farm,
-                                                                  checklist,
-                                                                  cantonCode,
-                                                                  logoPath), userName, true);
-        string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
-        await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", pdf.CreatePdf());
+        if (generatingPdf) return;
+        generatingPdf = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        try 
+        { 
+            var farm = await Repository.ReadFarmAsync(farmId);
+            Guard.Against.Null(farm, nameof(farm));
+            var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
+            Guard.Against.Null(checklist, nameof(checklist));
+            string cantonCode = "NE"; //todo get from authorization system
+            string userName = "johnny-b-goode"; // todo get from authorization system
+            string logoPath = "img/focaa.png";
+            var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
+                                                                      farm,
+                                                                      checklist,
+                                                                      cantonCode,
+                                                                      logoPath), userName, true);
+            string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
+            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", pdf.CreatePdf());
+        }
+        finally
+        {
+            generatingPdf = false;
+            StateHasChanged();
+        }
     }
 }
 

@@ -125,8 +125,8 @@ else
                         }
                         @if (inspection.CanGeneratePdfReport)
                         {
-                            <button @onclick="@(() => SavePdfReport(inspection.FarmInspectionId))" class="btn btn-primary mr-1 mb-1">
-                                @if (pdfSaving)
+                            <button @onclick="() => SavePdfReport(inspection.FarmInspectionId)" disabled=@savingPdf class="btn btn-primary mr-1 mb-1">
+                                @if (savingPdf)
                                 {
                                     <i class="fas fa-spinner fa-spin"></i>
                                 }
@@ -139,11 +139,14 @@ else
                         }
                         @if (inspection.CanDisplayPdfReport)
                         {
-                            <button @onclick="@(() => DisplayPdfReport(inspection.FarmInspectionId))" class="btn btn-primary mr-1 mb-1"><i class="far fa-file-pdf"></i> Consulter le rapport de contrôle</button>
+                            <button @onclick="() => DisplayPdfReport(inspection.FarmInspectionId)" disabled=@displayingPdf class="btn btn-primary mr-1 mb-1">
+                                <i class="@(displayingPdf ? "fas fa-spinner fa-spin" : "far fa-file-pdf") "></i> 
+                                Consulter le rapport de contrôle
+                            </button>
                         }
                         @if (inspection.CanClose)
                         {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
+                            <button disabled="disabled" class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock"></i> Clôturer</button>
                         }
                         @if (inspection.IsClosed)
                         {
@@ -151,7 +154,7 @@ else
                         }
                         @if (inspection.CanReopen)
                         {
-                            <button class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
+                            <button disabled="disabled" class="btn btn-primary mr-1 mb-1"><i class="fas fa-lock-open"></i> Rouvrir</button>
                         }
                     </div>
                 }
@@ -301,7 +304,8 @@ else
     private CommentForOfficeModel commentForOffice;
     private Blazorise.Modal complianceModal;
     private ComplianceModel compliance;
-    bool pdfSaving;
+    bool savingPdf;
+    bool displayingPdf;
 
     protected override async Task OnInitializedAsync()
     {
@@ -399,38 +403,58 @@ else
 
     async Task SavePdfReport(int farmInspectionId)
     {
-        if (pdfSaving) return;
-        Console.WriteLine($"Saving pdf report for inspection {farmInspectionId}...");
-        pdfSaving = true;
+        if (savingPdf) return;
+        savingPdf = true;
         await Task.Delay(1);
         StateHasChanged();
 
-        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
-        var checklist = await Repository.ReadChecklistAsync(farmInspectionId);
-        Guard.Against.Null(inspection, nameof(inspection));
-        string cantonCode = "NE"; //todo get from authorization system
-        string userName = "johnny-b-goode"; // todo get from authorization system
-        string logoPath = "img/focaa.png";
-        var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
-                                                                  farm,
-                                                                  checklist,
-                                                                  cantonCode,
-                                                                  logoPath), userName);
-        inspection.SetPdfReport(new PdfReport(pdf.CreatePdf()));
-        mandateViewModel = Mandate.FromDomain(farm, mandate);
-        await Repository.SaveMandateAsync(mandate, FarmId);
-        Console.WriteLine("... pdf report succesfully saved.");
-        pdfSaving = false;
-        StateHasChanged();
+        try
+        {
+            Console.WriteLine($"Saving pdf report for inspection {farmInspectionId}...");
+            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+            var checklist = await Repository.ReadChecklistAsync(farmInspectionId);
+            Guard.Against.Null(inspection, nameof(inspection));
+            string cantonCode = "NE"; //todo get from authorization system
+            string userName = "johnny-b-goode"; // todo get from authorization system
+            string logoPath = "img/focaa.png";
+            var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
+                                                                      farm,
+                                                                      checklist,
+                                                                      cantonCode,
+                                                                      logoPath), userName);
+            inspection.SetPdfReport(new PdfReport(pdf.CreatePdf()));
+            mandateViewModel = Mandate.FromDomain(farm, mandate);
+            await Repository.SaveMandateAsync(mandate, FarmId);
+            Console.WriteLine("... pdf report succesfully saved.");
+
+        }
+        finally
+        {
+            savingPdf = false;
+            StateHasChanged();
+        }
     }
 
     async void DisplayPdfReport(int farmInspectionId)
     {
-        var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
-        Guard.Against.Null(inspection, nameof(inspection));
-        var bytes = inspection.PdfReport.Bytes;
-        string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
-        await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", bytes);
+        if (displayingPdf) return;
+        displayingPdf = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        try
+        {
+            var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+            Guard.Against.Null(inspection, nameof(inspection));
+            var bytes = inspection.PdfReport.Bytes;
+            string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
+            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", bytes);
+        }
+        finally
+        {
+            displayingPdf = false;
+            StateHasChanged();
+        }
     }
 
     public class ComplianceModel
