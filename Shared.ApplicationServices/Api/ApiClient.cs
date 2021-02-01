@@ -67,6 +67,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await PostAsync(uri, payload);
         }
 
+        public async Task<Result<string>> AcknowledgeMerge(string uri, int id)
+        {
+            var payload = new Dictionary<string, string>
+            {
+                {"MergePackageId", id.ToString()}
+            };
+            return await PostAsync(uri, payload);
+        }
+
         private async Task<Result<T>> FetchTypedAsync<T>(string uri, int delayInMs = DefaultDelayInMs)
         {
             var httpResponse = await SendGetRequest(uri, delayInMs);
