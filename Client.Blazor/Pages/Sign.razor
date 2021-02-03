@@ -22,7 +22,10 @@
     SignatureModel signatureModel;
     string title;
     bool isInitialized;
-    static readonly string[] AllowedTypes = {"inspector", "farmer", "inspector2"};
+    const string Inspector = "inspector";
+    const string Farmer = "farmer";
+    const string Inspector2 = "inspector2";
+    static readonly string[] AllowedTypes = {Inspector, Farmer, Inspector2};
 
     protected override async Task OnInitializedAsync()
     {
@@ -30,7 +33,7 @@
         returnUrl = Navigation.QueryString("ReturnUrl");
         type = Navigation.QueryString("Type");
         if (!AllowedTypes.Contains(type))
-            throw new ArgumentException($"Invalid querystring value [Type], must be one of {{inspector,farmer,inspector2}}");
+            throw new ArgumentException($"Invalid querystring value [Type], must be one of {{{Inspector},{Farmer},{Inspector2}}}");
 
         AcordaControlOffline.Shared.Domain.Inspection.Signature signature = null;
         switch (type)
@@ -51,6 +54,7 @@
                 break;
         }
         signatureModel = SignatureModel.FromDomain(signature);
+        signatureModel.ShowProxy = type == Farmer;
         isInitialized = true;
     }
 

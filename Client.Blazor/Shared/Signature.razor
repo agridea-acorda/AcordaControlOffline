@@ -39,7 +39,9 @@
             </div>
         </div>
         <div class="card-footer">
-            <button type="submit" class="btn btn-primary"><i class="far fa-save"></i> Enregistrer</button>
+            <button type="submit" class="btn btn-primary" disabled=@saving>
+                <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i> Enregistrer
+            </button>
         </div>
     </div>
 </EditForm>
@@ -59,6 +61,7 @@
     public string Title { get; set; } = "Signature";
 
     SignaturePad signaturePad;
+    bool saving = false;
 
     protected override void OnInitialized()
     {
@@ -72,14 +75,22 @@
         Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
     }
 
-    async Task Save(EditContext editContext)
+    async Task Save()
     {
-        var model = (SignatureModel) editContext.Model;
-        Model.Signatory = model.Signatory;
-        Model.Proxy = model.Proxy;
-        await OnSave.InvokeAsync(Model);
-        await Task.Delay(500); // trick to prevent error with SignaturePad (may need to adjust wait time)
-        Navigation.NavigateTo(ReturnUrl);
+        if (saving) return;
+        saving = true;
+        await Task.Delay(1);
+        StateHasChanged();
+        try
+        {
+            await OnSave.InvokeAsync(Model);
+            await Task.Delay(500); // trick to prevent error with SignaturePad (may need to adjust wait time)
+            Navigation.NavigateTo(ReturnUrl);
+        }
+        finally
+        {
+            saving = false;
+        }
     }
 
 }
