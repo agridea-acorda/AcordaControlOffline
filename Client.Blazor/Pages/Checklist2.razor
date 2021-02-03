@@ -22,7 +22,7 @@
             </button>
             <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/Signatures/" + FarmInspectionId + "?FarmId=" + farmId)'>
                 <i class="fas fa-arrow-right"></i>
-                Rapport de contrôle
+                Rapport pdf et signatures
             </button>
         </div>
     </div>
@@ -118,7 +118,7 @@
     public int FarmInspectionId { get; set; }
 
     int farmId;
-    Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist.Checklist checklist;
+    Checklist checklist;
     ChecklistItem.ResultModel parent;
     List<ChecklistItem.ResultModel> children = new List<ChecklistItem.ResultModel>();
     AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo progressBarModel;

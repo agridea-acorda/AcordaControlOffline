@@ -60,7 +60,6 @@ else
     </div>
 }
 
-
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Check-listes</h3>
@@ -97,8 +96,6 @@ else
                                 <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
                             }
                         </Blazorise.Button>
-                        @*<div class="btn btn-app h-auto"><i class="fas fa-question"></i>@inspection.Reason</div>*@
-                        @*<div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>*@
                         <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowCommentForOfficeModal(index)">
                             <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
                             <span style="white-space: pre-wrap">Remarque pour gérance</span>
