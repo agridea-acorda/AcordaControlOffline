@@ -2,6 +2,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 
 @page "/Sign/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -36,11 +37,13 @@
             throw new ArgumentException($"Invalid querystring value [Type], must be one of {{{Inspector},{Farmer},{Inspector2}}}");
 
         AcordaControlOffline.Shared.Domain.Inspection.Signature signature = null;
+        FinishStatus finishStatus = null;
         switch (type)
         {
             case "inspector":
                 title = "Signature contrôleur";
                 signature = await Repository.ReadInspectorSignatureAsync(farmId, FarmInspectionId);
+                finishStatus = (await Repository.ReadMandateAsync(farmId)).Inspection(FarmInspectionId).FinishStatus;
                 break;
 
             case "farmer":
@@ -53,14 +56,22 @@
                 signature = await Repository.ReadInspector2SignatureAsync(farmId, FarmInspectionId);
                 break;
         }
-        signatureModel = SignatureModel.FromDomain(signature);
+        signatureModel = SignatureModel.FromDomain(signature, finishStatus);
         signatureModel.ShowProxy = type == Farmer;
+        signatureModel.ShowDoneOn = type == Inspector;
         isInitialized = true;
     }
 
     async Task Save(SignatureModel model)
     {
         var signature = new AcordaControlOffline.Shared.Domain.Inspection.Signature(model.Signatory, model.Proxy, model.Data, model.DataUrl);
+        if (model.DoneOn.HasValue)
+        {
+            var mandate = await Repository.ReadMandateAsync(farmId);
+            mandate.Inspection(FarmInspectionId).Finish(new FinishStatus(model.DoneOn, model.Signatory));
+            await Repository.SaveMandateAsync(mandate, farmId);
+        }
+        
         switch (type)
         {
             case "inspector":
