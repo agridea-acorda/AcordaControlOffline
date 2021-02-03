@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
@@ -76,6 +77,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             return await PostAsync(uri, payload);
         }
 
+        #region GET Helpers
+
         private async Task<Result<T>> FetchTypedAsync<T>(string uri, int delayInMs = DefaultDelayInMs)
         {
             var httpResponse = await SendGetRequest(uri, delayInMs);
@@ -97,7 +100,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             }
             catch
             {
-                return Result.Failure<T>($"Unknown error occured while fetching typed data at {uri}.");
+                return Result.Failure<T>($"Api error occured while fetching typed data at {uri}, HttpStatusCode = {(int)httpResponse.StatusCode} {httpResponse.StatusCode}.");
             }
         }
 
@@ -128,22 +131,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
             var httpResponse = await httpClient_.SendAsync(request);
-            httpResponse.EnsureSuccessStatusCode();
+            //httpResponse.EnsureSuccessStatusCode();
             return httpResponse;
         }
 
-        private async Task<HttpResponseMessage> SendPostRequest(string uri, Dictionary<string, string> payload, int delayInMs)
-        {
-            if (delayInMs > 0)
-            {
-                await Task.Delay(delayInMs);
-            }
+        #endregion
 
-            var request = new HttpRequestMessage(HttpMethod.Post, uri) {Content = new FormUrlEncodedContent(payload)};
-            var httpResponse = await httpClient_.SendAsync(request);
-            httpResponse.EnsureSuccessStatusCode();
-            return httpResponse;
-        }
+        #region POST Helpers
 
         private async Task<Result<string>> PostAsync(string uri, Dictionary<string, string> payload, int delayInMs = DefaultDelayInMs)
         {
@@ -185,5 +179,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
                 return Result.Failure<T>($"Unknown error occured while fetching typed data at {uri}.");
             }
         }
+
+        private async Task<HttpResponseMessage> SendPostRequest(string uri, Dictionary<string, string> payload, int delayInMs)
+        {
+            if (delayInMs > 0)
+            {
+                await Task.Delay(delayInMs);
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Post, uri) {Content = new FormUrlEncodedContent(payload)};
+            var httpResponse = await httpClient_.SendAsync(request);
+            //httpResponse.EnsureSuccessStatusCode();
+            return httpResponse;
+        }
+
+        #endregion
     }
 }

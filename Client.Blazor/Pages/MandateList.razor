@@ -225,6 +225,17 @@
             else
             {
                 Console.WriteLine("Failed to fetch mandates from api. Reason: " + mandatesResult.Error);
+                int httpStatusCodeIndex = mandatesResult.Error.IndexOf("HttpStatusCode =", StringComparison.Ordinal);
+                if (httpStatusCodeIndex > -1)
+                {
+                    string httpStatusCode = mandatesResult.Error.Substring(httpStatusCodeIndex);
+                    Toast.Error($"Erreur d'api, {httpStatusCode}");
+                }
+                else
+                {
+                    Toast.Error("Erreur inconnue.");
+                }
+
                 return;
             }
         }
@@ -357,8 +368,10 @@
             await DeleteMandate(mandateModel);
             Toast.Success();
         }
-        finally
+        catch
         {
+            Console.WriteLine($"Unknown error while merging mandate at {DateTime.Now.ToDetailedTime()}.");
+            Toast.Error($"Une erreur inconnue s'est produite à {DateTime.Now.ToDetailedTime()}, merci de contacter le support");
             mandateModel.SyncStatus = originalSyncStatus;
         }
     }
