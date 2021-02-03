@@ -81,8 +81,11 @@ else
                             <i class="fas fa-arrow-right"></i> Check-Liste
                         </button>
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
-                        <p class="list-group-item-text"><span class="badge bg-purple"><i class="far fa-folder-open"></i> @inspection.Campaign</span></p>
-                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowAppointmentModal(index)">
+                        <p class="list-group-item-text">
+                            <span class="badge bg-purple mr-1"><i class="far fa-folder-open"></i> @inspection.Campaign</span>
+                            <span class="badge bg-purple mr-1"><i class="fas fa-question"></i> @inspection.Reason</span>
+                        </p>
+                        <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowAppointmentModal(index)">
                             <i class="far fa-calendar-alt"></i>
                             <span class="d-block">@inspection.VisitDate</span>
                             @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
@@ -94,14 +97,14 @@ else
                                 <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
                             }
                         </Blazorise.Button>
-                        <div class="btn btn-app h-auto"><i class="fas fa-question"></i>@inspection.Reason</div>
+                        @*<div class="btn btn-app h-auto"><i class="fas fa-question"></i>@inspection.Reason</div>*@
                         @*<div class="btn btn-app h-auto"><i class="far fa-flag"></i>Planifié</div>*@
-                        <Blazorise.Button class="btn-app h-auto" Clicked="() => ShowCommentForOfficeModal(index)">
+                        <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowCommentForOfficeModal(index)">
                             <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
-                            <span style="white-space: pre-wrap">Pour la gérance</span>
+                            <span style="white-space: pre-wrap">Remarque pour gérance</span>
                         </Blazorise.Button>
                         @{ string complianceButtonColor = inspection.HasComplianceRequirements ? "text-danger" : ""; }
-                        <button class="btn btn-app h-auto @complianceButtonColor" @onclick="() => ShowComplianceModal(index)">
+                        <button class="btn btn-app h-auto ml-0 mr-2 @complianceButtonColor" @onclick="() => ShowComplianceModal(index)">
                             <i class="far fa-copy"></i>Suivi documents
                         </button>
                         <ProgressBar Progress="@inspection" />
