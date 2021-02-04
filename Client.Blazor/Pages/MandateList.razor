@@ -179,9 +179,11 @@
     bool showClosed = false;
     private Mandate[] mandates;
     bool loading => mandates == null;
-    Mandate[] mandatesToDisplay => mandates != null ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
-                                       : Enumerable.Empty<Mandate>().ToArray();
-    //string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    Mandate[] mandatesToDisplay => (mandates != null
+                                        ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
+                                        : Enumerable.Empty<Mandate>().ToArray())
+        .OrderBy(x => x.Farm.FarmName)
+        .ToArray();
     string numMandates => mandatesToDisplay.Length.ToString() + " ";
     string plural => mandates == null ? "s" :
                      mandates.Length > 1 ? "s"
