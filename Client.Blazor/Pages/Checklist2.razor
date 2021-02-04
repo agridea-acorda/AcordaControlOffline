@@ -121,6 +121,7 @@
     Checklist checklist;
     ChecklistItem.ResultModel parent;
     List<ChecklistItem.ResultModel> children = new List<ChecklistItem.ResultModel>();
+    Dictionary<string, (ChecklistItem.ResultModel, List<ChecklistItem.ResultModel>)> viewCache = new Dictionary<string, (ChecklistItem.ResultModel, List<ChecklistItem.ResultModel>)>();
     AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo progressBarModel;
     bool saving;
     bool needsSaving;
@@ -137,21 +138,25 @@
         Console.WriteLine($"Checklist data read succesfully (elapsed {elapsed}).");
         parent = null;
         if (checklist != null)
+        {
             children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
                                 .Where(x => x != null)
                                 .ToList();
-        if (checklist != null)
             progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo.FromChecklist(checklist);
+            viewCache.Add("", (parent, children));
+        }
     }
 
     void NodeViewChanged(string conjunctElementCode)
     {
         if (string.IsNullOrWhiteSpace(conjunctElementCode))
         {
-            parent = null;
-            children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
-                                .Where(x => x != null)
-                                .ToList();
+            //parent = null;
+            //children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
+            //                    .Where(x => x != null)
+            //                    .ToList();
+            parent = viewCache[""].Item1;
+            children = viewCache[""].Item2;
             return;
         }
 
@@ -159,17 +164,26 @@
         var node = checklist.Find(conjunctElementCode);
         if (node == null)
         {
-            parent = null;
-            children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
-                                .Where(x => x != null)
-                                .ToList();
+            //parent = null;
+            //children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
+            //                    .Where(x => x != null)
+            //                    .ToList();
+            parent = viewCache[""].Item1;
+            children = viewCache[""].Item2;
             return;
         }
 
+        if (viewCache.TryGetValue(node.ConjunctElementCode, out var entry))
+        {
+            parent = entry.Item1;
+            children = entry.Item2;
+            return;
+        }
         parent = ChecklistItem.ResultModel.MapFrom(node);
         children = node.Children.Select(x => ChecklistItem.ResultModel.MapFrom(x.Value))
                        .Where(x => x != null)
                        .ToList();
+        viewCache.TryAdd(node.ConjunctElementCode, (parent, children));
     }
 
     void NodeOutcomeChanged(ChecklistItem.ResultModel model)
