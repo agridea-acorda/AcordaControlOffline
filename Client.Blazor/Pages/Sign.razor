@@ -56,9 +56,10 @@
                 signature = await Repository.ReadInspector2SignatureAsync(farmId, FarmInspectionId);
                 break;
         }
-        signatureModel = SignatureModel.FromDomain(signature, finishStatus);
+        signatureModel = SignatureModel.FromDomain(signature);
         signatureModel.ShowProxy = type == Farmer;
         signatureModel.ShowDoneOn = type == Inspector;
+        if (type == Inspector) signatureModel.DoneOn = finishStatus?.DoneOn ?? DateTime.Now;
         isInitialized = true;
     }
 

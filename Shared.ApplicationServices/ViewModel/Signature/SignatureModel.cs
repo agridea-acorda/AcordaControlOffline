@@ -15,15 +15,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public DateTime? DoneOn { get; set; }
         public bool ShowDoneOn { get; set; }
 
-        public static SignatureModel FromDomain(Domain.Inspection.Signature signature, FinishStatus finishStatus = null)
+        public static SignatureModel FromDomain(Domain.Inspection.Signature signature)
         {
             return new SignatureModel
             {
                 Signatory = signature.Signatory,
                 Proxy = signature.Proxy,
                 Data = signature.Data,
-                DataUrl = signature.DataUrl,
-                DoneOn = finishStatus?.DoneOn ?? DateTime.Now
+                DataUrl = signature.DataUrl
             };
         }
     }

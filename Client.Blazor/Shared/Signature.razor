@@ -70,7 +70,7 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("Loading signature with data: " + Model.Data);
+        //Console.WriteLine("Loading signature with data: " + Model.Data);
         LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
     }
 
