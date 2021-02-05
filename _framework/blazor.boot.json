@@ -1,5 +1,5 @@
 {
-  "cacheBootResources": true,
+  "cacheBootResources": false,
   "config": [ ],
   "debugBuild": false,
   "entryAssembly": "Client.Blazor",
@@ -50,7 +50,7 @@
       "Agridea.SpecificationPattern.dll": "sha256-XG\/Y+ktzcEuLBNyItVqSqf5izd5\/tDh5hbgIqu9xdrI=",
       "Shared.ApplicationServices.dll": "sha256-FN2ngYH9d8vQ6TuLilUFnVBAh9WS76Znwqp4eBAvR9c=",
       "Shared.Domain.dll": "sha256-J6ogUgdqewIWh1jNxQHnZwjvS9qQ5afyM1GZ7nILw9I=",
-      "Client.Blazor.dll": "sha256-vR7Iq2\/5WmsmfvQVB7zLeZXWoAzQyh4l918fOw\/N2MY=",
+      "Client.Blazor.dll": "sha256-+TWiKmFuJ6UMB5B2JoXZeDIzPSPJONZbxUIbxDadkc4=",
       "System.Collections.Concurrent.dll": "sha256-TDJnXdMHJLkGgc2NkSkR1FZ64Xd86lb8CDeTEcK1h6s=",
       "System.Collections.Immutable.dll": "sha256-7vHm8P1nA6dLCk3L4Kyk7T21ZkCkOSrQODL7bVIzdkM=",
       "System.Collections.NonGeneric.dll": "sha256-5x\/Iq\/VHZNl9ZgYPO0U3ZA+FpYAVZ2l8oeJ8w2QYW3A=",
