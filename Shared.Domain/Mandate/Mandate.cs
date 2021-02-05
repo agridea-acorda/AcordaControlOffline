@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
@@ -16,5 +17,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
         }
         public int FarmId { get; }
         public IReadOnlyList<Inspection.Inspection> Inspections { get; }
+
+        public Inspection.Inspection Inspection(int farmInspectionId)
+        {
+            return Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
+        }
     }
 }
