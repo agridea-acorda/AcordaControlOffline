@@ -353,7 +353,7 @@
       "url": "_framework\/Microsoft.AspNetCore.Components.Forms.dll"
     },
     {
-      "hash": "sha256-F9rKBp5IB3S+g3Hq8Uxt0dDgKCIyVh0\/yYZ6smP6pd0=",
+      "hash": "sha256-A7u+rqzKB5irh4cOSQx0fqONVy4wwwnjwLzosUIixfs=",
       "url": "_framework\/Microsoft.AspNetCore.Components.Web.dll"
     },
     {
@@ -445,7 +445,7 @@
       "url": "_framework\/Agridea.DomainDrivenDesign.dll"
     },
     {
-      "hash": "sha256-OAMtWPYBeOrtayr+tAoPUdBh1ddXU6qKPXJdytGVOFE=",
+      "hash": "sha256-rtvHCrw643Pe9r3xz7aRd3HWuvj8N2Zl\/vqtAmbKfNI=",
       "url": "_framework\/Agridea.ProductInfo.dll"
     },
     {
@@ -453,15 +453,15 @@
       "url": "_framework\/Agridea.SpecificationPattern.dll"
     },
     {
-      "hash": "sha256-e+riN0Ml\/UiP0Sq+\/E3ZcdLScvtlHl\/3F9KWPXswsNA=",
+      "hash": "sha256-FN2ngYH9d8vQ6TuLilUFnVBAh9WS76Znwqp4eBAvR9c=",
       "url": "_framework\/Shared.ApplicationServices.dll"
     },
     {
-      "hash": "sha256-FXPweIVgR7Nv\/JO9gvhnedSnhpmunGxBSm0QLQL42Qw=",
+      "hash": "sha256-J6ogUgdqewIWh1jNxQHnZwjvS9qQ5afyM1GZ7nILw9I=",
       "url": "_framework\/Shared.Domain.dll"
     },
     {
-      "hash": "sha256-BajXKn23cckYCCm8BMKzWF61gRYHUuhFl1TFHTDptv8=",
+      "hash": "sha256-iyUWGiXrC\/6ESMaFqZAzOF1vgyJM6wZox3V7SnooO74=",
       "url": "_framework\/Client.Blazor.dll"
     },
     {
@@ -649,7 +649,7 @@
       "url": "_framework\/System.Private.CoreLib.dll"
     },
     {
-      "hash": "sha256-A9XM7+0qNyk2pXDi33je+cyFVL+sV8pXxrgN89ACNeM=",
+      "hash": "sha256-nvwyMbwK8MDgiqdP5IW4zyaxEMK7Y7S2XIHJwYZ+Sdg=",
       "url": "_framework\/blazor.boot.json"
     },
     {
@@ -657,5 +657,5 @@
       "url": "_framework\/blazor.webassembly.js"
     }
   ],
-  "version": "H8dCNrMh"
+  "version": "vsTMq+Kl"
 };
