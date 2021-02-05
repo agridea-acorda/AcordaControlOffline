@@ -15,5 +15,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
         {
             toast.ShowSuccess(ToastMessages.Success, ToastMessages.SuccessHeader);
         }
+
+        public static void Error(this IToastService toast, string message)
+        {
+            toast.ShowError(message, ToastMessages.ErrorHeader);
+        }
     }
 }

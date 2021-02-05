@@ -24,7 +24,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
         
         protected override IEnumerable<object> GetEqualityComponents()
         {
-            yield return Code;
+            yield return Value;
         }
     }
 }

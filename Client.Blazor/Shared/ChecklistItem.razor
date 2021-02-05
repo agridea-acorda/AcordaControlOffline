@@ -140,7 +140,7 @@
         await OnOutcomeChanged.InvokeAsync(Node);
     }
 
-    async Task OnSubmit(EditContext editContext)
+    async Task OnSubmit()
     {
         edit.Hide();
         Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
@@ -177,7 +177,7 @@
         public int SeriousnessCode { get; set; }
         public string Id { get; set; }
         public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
-        
+
         public void Clear()
         {
             Outcome = InspectionOutcome.Unset;
