@@ -2,6 +2,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 
 @page "/Sign/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -22,7 +23,10 @@
     SignatureModel signatureModel;
     string title;
     bool isInitialized;
-    static readonly string[] AllowedTypes = {"inspector", "farmer", "inspector2"};
+    const string Inspector = "inspector";
+    const string Farmer = "farmer";
+    const string Inspector2 = "inspector2";
+    static readonly string[] AllowedTypes = {Inspector, Farmer, Inspector2};
 
     protected override async Task OnInitializedAsync()
     {
@@ -30,14 +34,16 @@
         returnUrl = Navigation.QueryString("ReturnUrl");
         type = Navigation.QueryString("Type");
         if (!AllowedTypes.Contains(type))
-            throw new ArgumentException($"Invalid querystring value [Type], must be one of {{inspector,farmer,inspector2}}");
+            throw new ArgumentException($"Invalid querystring value [Type], must be one of {{{Inspector},{Farmer},{Inspector2}}}");
 
         AcordaControlOffline.Shared.Domain.Inspection.Signature signature = null;
+        FinishStatus finishStatus = null;
         switch (type)
         {
             case "inspector":
                 title = "Signature contrôleur";
                 signature = await Repository.ReadInspectorSignatureAsync(farmId, FarmInspectionId);
+                finishStatus = (await Repository.ReadMandateAsync(farmId)).Inspection(FarmInspectionId).FinishStatus;
                 break;
 
             case "farmer":
@@ -51,12 +57,22 @@
                 break;
         }
         signatureModel = SignatureModel.FromDomain(signature);
+        signatureModel.ShowProxy = type == Farmer;
+        signatureModel.ShowDoneOn = type == Inspector;
+        if (type == Inspector) signatureModel.DoneOn = finishStatus?.DoneOn ?? DateTime.Now;
         isInitialized = true;
     }
 
     async Task Save(SignatureModel model)
     {
         var signature = new AcordaControlOffline.Shared.Domain.Inspection.Signature(model.Signatory, model.Proxy, model.Data, model.DataUrl);
+        if (model.DoneOn.HasValue)
+        {
+            var mandate = await Repository.ReadMandateAsync(farmId);
+            mandate.Inspection(FarmInspectionId).Finish(new FinishStatus(model.DoneOn, model.Signatory));
+            await Repository.SaveMandateAsync(mandate, farmId);
+        }
+        
         switch (type)
         {
             case "inspector":

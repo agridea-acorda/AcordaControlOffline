@@ -22,7 +22,7 @@
     <div class="col-sm-12">
         <div class="card">
             <div class="card-header">
-                <button @onclick="@Refresh" class="btn btn-default btn-sm float-right"><i class="fas fa-sync-alt"></i></button>
+                <button @onclick="@Refresh" class="btn btn-default btn-sm float-right"><i class="fas fa-cloud-download-alt"></i> Synchroniser la liste</button>
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>
             <div class="card-body p-0">
@@ -179,9 +179,11 @@
     bool showClosed = false;
     private Mandate[] mandates;
     bool loading => mandates == null;
-    Mandate[] mandatesToDisplay => mandates != null ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray() 
-                                       : Enumerable.Empty<Mandate>().ToArray();
-    //string numMandates => mandates == null ? "" : $"{mandates.Length} ";
+    Mandate[] mandatesToDisplay => (mandates != null
+                                        ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
+                                        : Enumerable.Empty<Mandate>().ToArray())
+        .OrderBy(x => x.Farm.FarmName)
+        .ToArray();
     string numMandates => mandatesToDisplay.Length.ToString() + " ";
     string plural => mandates == null ? "s" :
                      mandates.Length > 1 ? "s"
@@ -225,6 +227,17 @@
             else
             {
                 Console.WriteLine("Failed to fetch mandates from api. Reason: " + mandatesResult.Error);
+                int httpStatusCodeIndex = mandatesResult.Error.IndexOf("HttpStatusCode =", StringComparison.Ordinal);
+                if (httpStatusCodeIndex > -1)
+                {
+                    string httpStatusCode = mandatesResult.Error.Substring(httpStatusCodeIndex);
+                    Toast.Error($"Erreur d'api, {httpStatusCode}");
+                }
+                else
+                {
+                    Toast.Error("Erreur inconnue.");
+                }
+
                 return;
             }
         }
@@ -303,52 +316,66 @@
 
     async Task MergeMandate(Mandate mandateModel)
     {
-        mergeModal.Hide();
+        if (mandateModel.SyncStatus == SyncStatus.Merging) return;
         var originalSyncStatus = mandateModel.SyncStatus;
         mandateModel.SyncStatus = SyncStatus.Merging;
+        mergeModal.Hide();
         await Task.Delay(1); // force re-render
         StateHasChanged();
 
-        int farmId = mandateModel.Farm.Id;
-        var mandate = await Repository.ReadMandateAsync(farmId);
-        Ensure.That(mandate, nameof(mandate)).IsNotNull();
-        var checklistsArray = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistAsync(x.FarmInspectionId)).ToArray());
-        var mergePackage = MergePackage.FromDomain(mandate, checklistsArray);
-        string sourceHash = JsonConvert.SerializeObject(mergePackage).ComputeSha256Hash();
-        Console.WriteLine("Calling api /merge action...");
-        var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
-        if (apiCallResult.IsFailure)
+        try
         {
-            string errorMessage = $"Erreur de renvoi du paquet de données. Motif: {apiCallResult.Error}";
-            Console.WriteLine(errorMessage);
-            Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
-            mandateModel.SyncStatus = originalSyncStatus;
-            return;
-        }
-        var mergeResult = apiCallResult.Value;
-        if (sourceHash != mergeResult.Hash)
-        {
-            string errorMessage = "Erreur de renvoi du paquet de données. Motif: les checksums ne correspondent pas. Opération annulée.";
-            Console.WriteLine(errorMessage);
-            Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
-            Console.WriteLine("Cancelling merge package...");
-            var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResult.Id, MergeStates.InvalidHash);
-            if (cancelResult.IsFailure)
+            int farmId = mandateModel.Farm.Id;
+            var mandate = await Repository.ReadMandateAsync(farmId);
+            Ensure.That(mandate, nameof(mandate)).IsNotNull();
+            var checklistsArray = await Task.WhenAll(mandate.Inspections.Select(async x => await Repository.ReadChecklistAsync(x.FarmInspectionId)).ToArray());
+            var mergePackage = MergePackage.FromDomain(mandate, checklistsArray);
+            string sourceHash = JsonConvert.SerializeObject(mergePackage).ComputeSha256Hash();
+            Console.WriteLine("Calling api /merge action...");
+            var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
+            if (apiCallResult.IsFailure)
             {
-                string errorMessage2 = $"Erreur lors de l'annulation (Id d'opération={mergeResult.Id}, une erreur inconnue s'est produite. Merci de contacter votre administrateur.";
-                Console.WriteLine(errorMessage2);
-                Toast.ShowError(errorMessage2, ToastMessages.ErrorHeader);
-                mandateModel.SyncStatus = originalSyncStatus;
+                string errorMessage = $"Erreur de renvoi du paquet de données. Motif: {apiCallResult.Error}";
+                Console.WriteLine(errorMessage);
+                Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
                 return;
             }
-            Console.WriteLine($"... Successfully cancelled merge Id={mergeResult.Id}.");
-
-            mandateModel.SyncStatus = originalSyncStatus;
-            return;
+            var mergeResult = apiCallResult.Value;
+            if (sourceHash != mergeResult.Hash)
+            {
+                string checksumsDoNotMatchError = "Erreur de renvoi du paquet de données. Motif: les checksums ne correspondent pas. Opération annulée.";
+                Console.WriteLine(checksumsDoNotMatchError);
+                Toast.ShowError(checksumsDoNotMatchError, ToastMessages.ErrorHeader);
+                Console.WriteLine("Cancelling merge package...");
+                var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResult.Id, MergeStates.InvalidHash);
+                if (cancelResult.IsFailure)
+                {
+                    string cancelError = $"Erreur inconnue lors de l'annulation (Id d'opération={mergeResult.Id}), merci de contacter le support.";
+                    Console.WriteLine(cancelError);
+                    Toast.ShowError(cancelError, ToastMessages.ErrorHeader);
+                    return;
+                }
+                Console.WriteLine($"... Successfully cancelled merge Id={mergeResult.Id}.");
+                return;
+            }
+            var acknowledgeResult = await Api.AcknowledgeMerge("acknowledgemerge", mergeResult.Id);
+            if (acknowledgeResult.IsFailure)
+            {
+                string acknowledgeError = $"Erreur inconnue lors de la confirmation (Id d'opération={mergeResult.Id}), merci de contacter le support.";
+                Console.WriteLine(acknowledgeError);
+                Toast.ShowError(acknowledgeError, ToastMessages.ErrorHeader);
+                return;
+            }
+            Console.WriteLine("... merge action succesful");
+            await DeleteMandate(mandateModel);
+            Toast.Success();
         }
-        Console.WriteLine("... merge action succesful");
-        await DeleteMandate(mandateModel);
-        Toast.Success();
+        catch
+        {
+            Console.WriteLine($"Unknown error while merging mandate at {DateTime.Now.ToDetailedTime()}.");
+            Toast.Error($"Une erreur inconnue s'est produite à {DateTime.Now.ToDetailedTime()}, merci de contacter le support");
+            mandateModel.SyncStatus = originalSyncStatus;
+        }
     }
 
     async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)

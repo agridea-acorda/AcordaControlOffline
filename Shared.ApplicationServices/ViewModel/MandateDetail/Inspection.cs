@@ -6,6 +6,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
 {
     public class Inspection: MandateList.InspectionInfo
     {
+        public string Reason { get; set; }
         public string Campaign { get; set; }
         public string CommentForOffice { get; set; }
         public bool HasComplianceRequirements { get; set; }
@@ -27,6 +28,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             var model = new Inspection
             {
                 FarmInspectionId = inspection.FarmInspectionId,
+                Reason = inspection.Reason.Name,
                 Campaign = inspection.Campaign.Name,
                 CommentForOffice = inspection.CommentForOffice,
                 HasComplianceRequirements = inspection.HasComplianceRequirements(),
@@ -37,7 +39,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 CanClose = inspection.CanClose(),
                 CanReopen = inspection.CanReopen(),
                 Domain = inspection.Domain.ShortName,
-                Inspector = "Mr Bean",
+                //Inspector = "Mr Bean",
                 Percent = (int)Math.Round(inspection.PercentComputed),
                 Outcome = inspection.OutcomeComputed.ToViewModel(),
                 IsClosed = inspection.CloseStatus.IsClosed,
