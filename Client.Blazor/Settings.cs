@@ -13,7 +13,7 @@
 
         public static Settings Default => new Settings
         {
-            ApiBaseAddres = TestApiBaseAddres,
+            ApiBaseAddres = ProdApiBaseAddres,
             AuthCookieExpiryDays = ThirtyDays
         };
     }
