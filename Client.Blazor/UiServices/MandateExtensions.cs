@@ -1,4 +1,5 @@
-﻿using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
+﻿using System;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices

@@ -16,5 +16,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api {
         Task<Result<ChecklistSample>> FetchChecklistSampleAsync(string uri);
         Task<Result<MergeResult>> SendMergePackage(string uri, MergePackage mergePackage);
         Task<Result<string>> CancelMergePackage(string uri, int id, string state);
+        Task<Result<string>> AcknowledgeMerge(string uri, int id);
     }
 }

@@ -212,9 +212,9 @@
                                 : $"({inspection.FarmerSignature.Signatory})",
             InspectorDisplay = $"({inspection.InspectorSignature.Signatory})",
             AdditionalInspectorDisplay = $"({inspection.Inspector2Signature.Signatory})",
-            ExistingInspectorSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.InspectorSignature.HasSigned)),
-            ExistingFarmerSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.FarmerSignature.HasSigned)),
-            ExistingAdditionalSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.Inspector2Signature.HasSigned))
+            ExistingInspectorSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.InspectorSignature.HasSigned, i => i.InspectorSignature)),
+            ExistingFarmerSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.FarmerSignature.HasSigned, i => i.FarmerSignature)),
+            ExistingAdditionalSignature = SignatureModel.FromDomain(GetExistingOtherSignature(mandate, FarmInspectionId, i => i.Inspector2Signature.HasSigned, i => i.Inspector2Signature))
         };
         isInitialized = true;
     }
@@ -246,12 +246,12 @@
         }
     }
 
-    private Signature GetExistingOtherSignature(Mandate mandate, int farmInspectionId, Func<Inspection, bool> predicate)
+    private Signature GetExistingOtherSignature(Mandate mandate, int farmInspectionId, Func<Inspection, bool> predicate, Func<Inspection, Signature> signature)
     {
-        return mandate.Inspections
+        var inspectionWithSignature = mandate.Inspections
                       .Where(i => i.FarmInspectionId != farmInspectionId)
-                      .FirstOrDefault(predicate)
-                      ?.InspectorSignature ?? Signature.None;
+                      .FirstOrDefault(predicate);
+        return inspectionWithSignature == null ? Signature.None : signature(inspectionWithSignature);
     }
 
     void OnDueDateChanged(DateTime? date)
