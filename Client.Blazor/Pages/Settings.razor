@@ -1,7 +1,12 @@
 ﻿@page "/Settings"
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
+@using Blazored.LocalStorage
+@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
+
 @inject ISettingsService SettingsService
 @inject IToastService Toast
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
 
 <div class="card">
     <div class="card-header">
@@ -33,6 +38,18 @@
     </div>
 </div>
 
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Réinitialisation de l'application</h3>
+    </div>
+    <div class="card-body">
+        <div class="callout callout-danger">
+            <p class="text-danger"><u>Attention</u>, les mandats téléchargés sur la tablette seront tous effacés. Etes-vous sûr(e) ?</p>
+        </div>
+        <p><a class="btn btn-outline-danger" href="#" @onclick="Reset">Réinitialiser</a></p>
+    </div>
+</div>
+
 @code {
     AcordaControlOffline.Client.Blazor.Settings model;
     string error;
@@ -54,5 +71,11 @@
             Toast.ShowSuccess(ToastMessages.Success, ToastMessages.SuccessHeader);
         }
 
+    }
+
+    async void Reset()
+    {
+        await LocalStorage.ClearAsync();
+        Navigation.NavigateTo(Config.BaseUrl + "/", true);
     }
 }

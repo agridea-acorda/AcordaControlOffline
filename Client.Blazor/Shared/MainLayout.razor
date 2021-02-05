@@ -19,9 +19,9 @@
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
+            @*<li class="nav-item">
                 <a class="nav-link btn btn-outline-warning" href="#" @onclick="Reset">Réinitialiser</a>
-            </li>
+            </li>*@
             <UserDisplay />
             <CantonDisplay />
         </ul>
@@ -87,10 +87,10 @@
         }
     }
 
-    async void Reset()
-    {
-        await LocalStorage.ClearAsync();
-        Navigation.NavigateTo(Config.BaseUrl + "/", true);
-    }
+    //async void Reset()
+    //{
+    //    await LocalStorage.ClearAsync();
+    //    Navigation.NavigateTo(Config.BaseUrl + "/", true);
+    //}
 
 }
