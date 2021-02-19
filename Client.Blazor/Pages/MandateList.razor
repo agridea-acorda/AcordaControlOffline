@@ -2,14 +2,13 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList
 @using CSharpFunctionalExtensions
 @using EnsureThat
 @using Microsoft.AspNetCore.Authorization
 @using Newtonsoft.Json
-@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 
 @page "/MandateList"
 @attribute [Authorize]
@@ -17,6 +16,7 @@
 @inject IRepository Repository
 @inject IApiClient Api
 @inject IToastService Toast
+@inject AppConfiguration Config
 
 <div class="row">
     <div class="col-sm-12">

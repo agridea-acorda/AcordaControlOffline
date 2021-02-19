@@ -1,12 +1,13 @@
 ﻿@page "/Settings"
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Blazored.LocalStorage
-@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 
 @inject ISettingsService SettingsService
 @inject IToastService Toast
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
+@inject AppConfiguration Config
 
 <div class="card">
     <div class="card-header">
@@ -22,7 +23,7 @@
             <EditForm Model="@model" OnSubmit="@Save">
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Adresse de l'api AcordaControl</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit @bind-Text="@model.ApiBaseAddres" Disabled="true" />
+                    <Blazorise.TextEdit Text="@Config.ApiEndpoint" Disabled="true" />
                 </Blazorise.Field>
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Se souvenir des identifiants de connexion pendant (jours)</Blazorise.FieldLabel>

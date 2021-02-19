@@ -1,12 +1,13 @@
 ﻿@using Agridea.ProductInfo
 @using Blazored.LocalStorage
 @using Blazored.Toast.Configuration
-@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 
 @inherits LayoutComponentBase
 @inject IJSRuntime Js
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
+@inject AppConfiguration Config 
 
 <div class="wrapper">
     <nav class="main-header navbar navbar-expand navbar-dark navbar-success">

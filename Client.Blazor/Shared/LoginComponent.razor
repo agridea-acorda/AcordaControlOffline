@@ -1,9 +1,10 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Login
-@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @inject NavigationManager Navigation
 @inject IAuthService AuthService
+@inject AppConfiguration Config 
 
 <EditForm Model="@Model" OnValidSubmit="@ValidSubmit" OnInvalidSubmit="@InvalidSubmit">
     <DataAnnotationsValidator />
@@ -41,7 +42,7 @@
         Console.WriteLine("Saving login info...");
         await AuthService.Login(Model);
         Console.WriteLine("...Login info Saved.");
-        Navigation.NavigateTo(Environment.BaseUrl + "/MandateList");
+        Navigation.NavigateTo(Config.BaseUrl + "/MandateList");
     }
 
     void InvalidSubmit()

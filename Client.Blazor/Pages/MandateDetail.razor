@@ -1,19 +1,20 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
-@using Config = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
 @using Ardalis.GuardClauses
 @using Microsoft.AspNetCore.Authorization
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 
 @page "/MandateDetail/{FarmId:int}"
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IJSRuntime Js
+@inject AppConfiguration Config
 
 @if (mandateViewModel?.Farm != null)
 {

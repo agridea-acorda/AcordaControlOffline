@@ -18,20 +18,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
 
         public async Task<string> Save(Settings settings)
         {
-            var uri = new Uri(settings.ApiBaseAddres);
-            bool urisAreEqual = Uri.Compare(httpClient_.BaseAddress, uri, UriComponents.HostAndPort | UriComponents.Path, UriFormat.UriEscaped, StringComparison.Ordinal) == 0;
-            if (!urisAreEqual)
-            {
-                try
-                {
-                    httpClient_.BaseAddress = uri;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Exception occured when setting HttpClient.BaseAddress: {e.Message}");
-                    return "L'adresse de l'api doit être configurée avant d'effectuer une requête.";
-                }
-            }
+            //var uri = new Uri(settings.ApiBaseAddres);
+            //bool urisAreEqual = Uri.Compare(httpClient_.BaseAddress, uri, UriComponents.HostAndPort | UriComponents.Path, UriFormat.UriEscaped, StringComparison.Ordinal) == 0;
+            //if (!urisAreEqual)
+            //{
+            //    try
+            //    {
+            //        httpClient_.BaseAddress = uri;
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        Console.WriteLine($"Exception occured when setting HttpClient.BaseAddress: {e.Message}");
+            //        return "L'adresse de l'api doit être configurée avant d'effectuer une requête.";
+            //    }
+            //}
             
             await jsRuntime_.InvokeVoidAsync(JsInterop.SetCookie, Settings.CookieName, JsonConvert.SerializeObject(settings));
             return "";

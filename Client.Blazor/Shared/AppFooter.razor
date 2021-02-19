@@ -1,9 +1,11 @@
 ﻿@using System.Reflection
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
+@inject AppConfiguration Config 
 
 <div class="float-right d-none d-sm-block">
     <b>version:</b> <small><i>@FileVersion, @BuildDate</i>   </small>
     @* ReSharper disable once ConditionIsAlwaysTrueOrFalse *@
-    @if (UiServices.Environment.IsDebug)
+    @if (Config.IsDebug)
     {
         <b>runtime:</b> <small><i>@runtime</i>   </small>
         <b>host:</b> <small><i>@host</i></small>

@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth;
+using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
 using Agridea.DomainDrivenDesign;
@@ -14,6 +15,7 @@ using Blazorise.Icons.FontAwesome;
 using MediatR;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
@@ -25,16 +27,27 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            // Acordacontrol api
-            builder.Services.AddSingleton(sp => new HttpClient() { BaseAddress = new Uri(Settings.Default.ApiBaseAddres) });
-            builder.Services.AddScoped<IApiClient, ApiClient>();
+            // api
             // todo find some way to configure the api BaseAddress at runtime by the user.
-            
+            builder.Services.AddSingleton(sp =>
+            {
+                var config = sp.GetService<IConfiguration>().GetSection("AppConfiguration").Get<AppConfiguration>();
+                Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}:{config?.ApiEndpoint}, " +
+                                  $"{nameof(AppConfiguration.BaseUrl)}:{config?.BaseUrl}, " +
+                                  $"{nameof(AppConfiguration.IsDebug)}:{config?.IsDebug}, " +
+                                  "}}");
+                return new HttpClient { BaseAddress = new Uri(config.ApiEndpoint) };
+            });
+            builder.Services.AddScoped<IApiClient, ApiClient>();
+
+            // config
+            builder.Services.AddSingleton(sp => sp.GetService<IConfiguration>().GetSection("AppConfiguration").Get<AppConfiguration>());
+
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
 
-            // settings
+            // (user-)settings
             builder.Services.AddScoped<ISettingsService, SettingsService>();
 
             // auth

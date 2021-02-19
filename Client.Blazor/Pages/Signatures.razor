@@ -9,13 +9,14 @@
 @using EnsureThat
 @using Microsoft.AspNetCore.Authorization
 @using Signature = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Signature
-@using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 @page "/Signatures/{FarmInspectionId:int}"
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IJSRuntime Js
 @inject IToastService Toast
+@inject AppConfiguration Config
 
 @if (isInitialized)
 {
@@ -23,11 +24,11 @@
         <div class="card-header">
             <div class="card-title">Rapport de contrôle</div>
             <div class="card-tools">
-                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + farmId)'>
+                <button type="button" class="btn btn-sm btn-default" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/Checklist2/" + FarmInspectionId + "?FarmId=" + farmId)'>
                     <i class="fas fa-arrow-left"></i>
                     Retour Check-Liste
                 </button>
-                <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Environment.BaseUrl + "/MandateDetail/" + farmId)'>
+                <button type="button" class="btn btn-sm btn-success" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/MandateDetail/" + farmId)'>
                     <i class="fas fa-arrow-right"></i>
                     Mandat
                 </button>
@@ -83,9 +84,9 @@
 
 @if (isInitialized)
 {
-    string inspectorSignatureUrl = $"{Environment.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector&ReturnUrl={Navigation.Uri}";
-    string farmerSignatureUrl = $"{Environment.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=farmer&ReturnUrl={Navigation.Uri}";
-    string inspector2SignatureUrl = $"{Environment.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
+    string inspectorSignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector&ReturnUrl={Navigation.Uri}";
+    string farmerSignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=farmer&ReturnUrl={Navigation.Uri}";
+    string inspector2SignatureUrl = $"{Config.BaseUrl}/Sign/{FarmInspectionId}?FarmId={farmId}&type=inspector2&ReturnUrl={Navigation.Uri}";
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Signatures</h3>
