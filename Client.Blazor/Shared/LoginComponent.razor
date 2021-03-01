@@ -38,9 +38,13 @@
                 </button>
             </div>
         </div>
-        
     </Blazorise.Field>
-    <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="false">Connexion</Blazorise.Button>
+    <Blazorise.Button Type="@Blazorise.ButtonType.Submit"
+                      Color="@Blazorise.Color.Primary"
+                      PreventDefaultOnSubmit="false"
+                      Disabled="@isLogging">
+        <i class="@(isLogging ? "fas fa-spinner fa-spin" : "fas fa-sign-in-alt")"></i> Connexion
+    </Blazorise.Button>
 </EditForm>
 
 @code {
@@ -49,13 +53,26 @@
     string passwordDisplayButtonIconClass = "fa-eye-slash";
     Blazorise.TextRole passwordRole = Blazorise.TextRole.Password;
     bool IsPasswordEditDisabled => string.IsNullOrEmpty(Model.Password);
+    bool isLogging = false;
 
     async Task ValidSubmit()
     {
-        Console.WriteLine("Saving login info...");
-        await AuthService.Login(Model);
-        Console.WriteLine("...Login info Saved.");
-        Navigation.NavigateTo(Environment.BaseUrl + "/MandateList");
+        if (isLogging) return;
+        isLogging = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        try
+        {
+            Console.WriteLine("Saving login info...");
+            await AuthService.Login(Model);
+            Console.WriteLine("...Login info Saved.");
+        }
+        finally
+        {
+            isLogging = false;
+            Navigation.NavigateTo(Environment.BaseUrl + "/MandateList");
+        }
     }
 
     void InvalidSubmit()
