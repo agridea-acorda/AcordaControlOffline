@@ -71,8 +71,8 @@
                         <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
                             <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
                         </a>
-                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumGroups</span>
-                        <span class="badge bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                        <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                        <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
                         <h4 class="list-group-item-heading">@parent.ShortName</h4>
                         <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
                         <div class="mt-2">
