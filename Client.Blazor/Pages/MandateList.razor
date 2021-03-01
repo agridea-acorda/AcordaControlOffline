@@ -22,7 +22,9 @@
     <div class="col-sm-12">
         <div class="card">
             <div class="card-header">
-                <button @onclick="@Refresh" class="btn btn-default btn-sm float-right"><i class="fas fa-cloud-download-alt"></i> Synchroniser la liste</button>
+                <button @onclick="@Refresh" class="btn btn-default btn-sm float-right" disabled="@loading">
+                    <i class="@(loading ? "fas fa-spinner fa-spin": "fas fa-cloud-download-alt")"></i> Synchroniser la liste
+                </button>
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>
             <div class="card-body p-0">
@@ -200,13 +202,29 @@
     async Task Refresh()
     {
         if (loading) return;
-
-        await Repository.ClearMandatesListAsync();
         mandates = null;
         await Task.Delay(1);
         StateHasChanged();
 
-        await Init();
+        try
+        {
+            await Repository.ClearMandatesListAsync();
+            StateHasChanged();
+            await Init();
+        }
+        finally
+        {
+            mandates ??= Enumerable.Empty<Mandate>().ToArray();
+            StateHasChanged();
+        }
+
+        //if (loading) return;
+
+        //mandates = null;
+        //await Task.Delay(1);
+        //StateHasChanged();
+
+        //await Init();
     }
 
     private async Task Init()
