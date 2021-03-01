@@ -43,11 +43,24 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
             httpClient_.RemoveAuthToken();
             ((ApiAuthenticationStateProvider)authenticationStateProvider_).MarkUserAsLoggedOut();
         }
+
+        public async Task<AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth> ReadAuthInfo()
+        {
+            var authCookie = await jsRuntime_.InvokeAsync<string>(JsInterop.ReadCookie, AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth.CookieName);
+            if (string.IsNullOrWhiteSpace(authCookie))
+            {
+                // user is not logged-in
+                return AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth.UnknownUser;
+            }
+            var authData = JsonConvert.DeserializeObject<AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth>(authCookie);
+            return authData;
+        }
     }
 
     public interface IAuthService
     {
         Task Login(LoginModel loginModel);
         Task Logout();
+        Task<AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth> ReadAuthInfo();
     }
 }

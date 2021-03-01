@@ -8,12 +8,16 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
 @using Ardalis.GuardClauses
 @using Microsoft.AspNetCore.Authorization
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 
 @page "/MandateDetail/{FarmId:int}"
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IJSRuntime Js
+@inject IAuthService AuthService
+@inject IToastService Toast
 
 @if (mandateViewModel?.Farm != null)
 {
@@ -406,11 +410,11 @@ else
         StateHasChanged();
         try
         {
-            mandate.Inspections[compliance.InspectionIndex].SetCompliance(new Compliance(compliance.ActionsOrDocuments, 
-                                                                                         compliance.DueDate, 
-                                                                                         compliance.DueDateNotRespected, 
-                                                                                         compliance.DueDateRespected, 
-                                                                                         compliance.FurtherInvestigationNeeded, 
+            mandate.Inspections[compliance.InspectionIndex].SetCompliance(new Compliance(compliance.ActionsOrDocuments,
+                                                                                         compliance.DueDate,
+                                                                                         compliance.DueDateNotRespected,
+                                                                                         compliance.DueDateRespected,
+                                                                                         compliance.FurtherInvestigationNeeded,
                                                                                          compliance.IncompleteOrNonCompliant));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
@@ -436,8 +440,14 @@ else
             var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
             var checklist = await Repository.ReadChecklistAsync(farmInspectionId);
             Guard.Against.Null(inspection, nameof(inspection));
-            string cantonCode = "NE"; //todo get from authorization system
-            string userName = "johnny-b-goode"; // todo get from authorization system
+            var auth = await AuthService.ReadAuthInfo();
+            if (auth == Auth.UnknownUser)
+            {
+                Toast.Error("Aucun utilisateur connecté, opération impossible");
+                return;
+            }
+            string cantonCode = auth.CantonCode;
+            string userName = auth.Username;
             string logoPath = "img/focaa.png";
             var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
                                                                       farm,

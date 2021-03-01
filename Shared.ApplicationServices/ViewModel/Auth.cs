@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain;
 using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
@@ -14,6 +15,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             CantonCode = cantonCode;
             Token = token;
         }
+        public static Auth UnknownUser => new Auth(Unauthenticated, Unauthenticated, Canton.None.Code, "");
         public string Username { get; }
         public string CantonCode { get;}
         public string Token { get; }

@@ -137,6 +137,10 @@ option.fa-font-family {
     font-weight: bold;
 }
 
+.badge.badge-outline.text-indigo {
+    border: 1px solid #6610f2 !important;
+}
+
 
 /* List group item colors and overrides
 -------------------------------------------------------------*/

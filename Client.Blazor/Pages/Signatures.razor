@@ -10,12 +10,15 @@
 @using Microsoft.AspNetCore.Authorization
 @using Signature = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Signature
 @using Environment = Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices.Environment
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel
 @page "/Signatures/{FarmInspectionId:int}"
 @attribute [Authorize]
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IJSRuntime Js
 @inject IToastService Toast
+@inject IAuthService AuthService
 
 @if (isInitialized)
 {
@@ -302,8 +305,14 @@
             Guard.Against.Null(farm, nameof(farm));
             var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
             Guard.Against.Null(checklist, nameof(checklist));
-            string cantonCode = "NE"; //todo get from authorization system
-            string userName = "johnny-b-goode"; // todo get from authorization system
+            var auth = await AuthService.ReadAuthInfo();
+            if (auth == Auth.UnknownUser)
+            {
+                Toast.Error("Aucun utilisateur connecté, opération impossible");
+                return;
+            }
+            string cantonCode = auth.CantonCode;
+            string userName = auth.Username;
             string logoPath = "img/focaa.png";
             var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
                                                                       farm,

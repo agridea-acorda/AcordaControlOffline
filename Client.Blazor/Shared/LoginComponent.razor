@@ -8,44 +8,89 @@
 <EditForm Model="@Model" OnValidSubmit="@ValidSubmit" OnInvalidSubmit="@InvalidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-        <Blazorise.Field>
-            <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
-            <Blazorise.TextEdit @bind-Text="@Model.Username">
-            </Blazorise.TextEdit>
-        </Blazorise.Field>
-        <Blazorise.Field>
-            <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
-            <Blazorise.TextEdit Role="@Blazorise.TextRole.Password" @bind-Text="@Model.Password">
-            </Blazorise.TextEdit>
-        </Blazorise.Field>
-        <Blazorise.Field>
-            <Blazorise.FieldLabel>Canton</Blazorise.FieldLabel>
-            <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.CantonCode">
-                <ChildContent>
-                    @foreach (var option in Model.ComboCantons)
-                    {
-                        <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                    }
-                </ChildContent>
-            </Blazorise.Select>
-        </Blazorise.Field>
-    <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="false">Connexion</Blazorise.Button>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Canton</Blazorise.FieldLabel>
+        <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.CantonCode">
+            <ChildContent>
+                @foreach (var option in Model.ComboCantons)
+                {
+                    <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                }
+            </ChildContent>
+        </Blazorise.Select>
+    </Blazorise.Field>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
+        <Blazorise.TextEdit @bind-Text="@Model.Username">
+        </Blazorise.TextEdit>
+    </Blazorise.Field>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
+        <div class="input-group">
+            <Blazorise.TextEdit Role="@passwordRole" @bind-Text="@Model.Password"></Blazorise.TextEdit>
+            <div class="input-group-append">
+                <button class="btn btn-default"
+                        @onclick="TogglePasswordDisplay"
+                        @onclick:preventDefault="true"
+                        @onkeypress:preventDefault="true"
+                        disabled="@IsPasswordEditDisabled">
+                    <i class="far @passwordDisplayButtonIconClass"></i>
+                </button>
+            </div>
+        </div>
+    </Blazorise.Field>
+    <Blazorise.Button Type="@Blazorise.ButtonType.Submit"
+                      Color="@Blazorise.Color.Primary"
+                      PreventDefaultOnSubmit="false"
+                      Disabled="@isLogging">
+        <i class="@(isLogging ? "fas fa-spinner fa-spin" : "fas fa-sign-in-alt")"></i> Connexion
+    </Blazorise.Button>
 </EditForm>
 
 @code {
     [Parameter]
     public LoginModel Model { get; set; }
+    string passwordDisplayButtonIconClass = "fa-eye-slash";
+    Blazorise.TextRole passwordRole = Blazorise.TextRole.Password;
+    bool IsPasswordEditDisabled => string.IsNullOrEmpty(Model.Password);
+    bool isLogging = false;
 
     async Task ValidSubmit()
     {
-        Console.WriteLine("Saving login info...");
-        await AuthService.Login(Model);
-        Console.WriteLine("...Login info Saved.");
-        Navigation.NavigateTo(Environment.BaseUrl + "/MandateList");
+        if (isLogging) return;
+        isLogging = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        try
+        {
+            Console.WriteLine("Saving login info...");
+            await AuthService.Login(Model);
+            Console.WriteLine("...Login info Saved.");
+        }
+        finally
+        {
+            isLogging = false;
+            Navigation.NavigateTo(Environment.BaseUrl + "/MandateList");
+        }
     }
 
     void InvalidSubmit()
     {
         Console.WriteLine("Invalid login info.");
+    }
+
+    void TogglePasswordDisplay()
+    {
+        if (passwordRole == Blazorise.TextRole.Password)
+        {
+            passwordRole = Blazorise.TextRole.Text;
+            passwordDisplayButtonIconClass = "fa-eye";
+        }
+        else
+        {
+            passwordRole = Blazorise.TextRole.Password;
+            passwordDisplayButtonIconClass = "fa-eye-slash";
+        }
     }
 }
