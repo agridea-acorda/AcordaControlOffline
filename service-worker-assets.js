@@ -445,7 +445,7 @@
       "url": "_framework\/Agridea.DomainDrivenDesign.dll"
     },
     {
-      "hash": "sha256-T9kXxNwdtFaHez3qHbvWozpFuZdJkqD2INjNJhq4HSY=",
+      "hash": "sha256-kBgPdCuFR1oLg4T68eP8Mh4AA0lwPQODLD+wPq2HgQg=",
       "url": "_framework\/Agridea.ProductInfo.dll"
     },
     {
@@ -461,7 +461,7 @@
       "url": "_framework\/Shared.Domain.dll"
     },
     {
-      "hash": "sha256-af5pWg+abJVGz6D9g1zpNWHcf5JaAj60y5CPfZ7qrSk=",
+      "hash": "sha256-Oo9jUI6I88aqEc8L2SAIOKJ+8Nf1CFJonYG9a5W6rDU=",
       "url": "_framework\/Client.Blazor.dll"
     },
     {
@@ -649,7 +649,7 @@
       "url": "_framework\/System.Private.CoreLib.dll"
     },
     {
-      "hash": "sha256-TtNPq9gMJrHt7Gl\/BY47x8r2h49EWWHf4iAyK0foazw=",
+      "hash": "sha256-M3jws80jL2QKaqXMdHj7WUNNgeSqAeMSIjsLJOfXPB0=",
       "url": "_framework\/blazor.boot.json"
     },
     {
@@ -657,5 +657,5 @@
       "url": "_framework\/blazor.webassembly.js"
     }
   ],
-  "version": "\/vVbKXev"
+  "version": "QIlDxJ+t"
 };
