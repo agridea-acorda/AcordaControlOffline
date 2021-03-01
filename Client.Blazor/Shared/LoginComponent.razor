@@ -26,8 +26,19 @@
     </Blazorise.Field>
     <Blazorise.Field>
         <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
-        <Blazorise.TextEdit Role="@Blazorise.TextRole.Password" @bind-Text="@Model.Password">
-        </Blazorise.TextEdit>
+        <div class="input-group">
+            <Blazorise.TextEdit Role="@passwordRole" @bind-Text="@Model.Password"></Blazorise.TextEdit>
+            <div class="input-group-append">
+                <button class="btn btn-default"
+                        @onclick="TogglePasswordDisplay"
+                        @onclick:preventDefault="true"
+                        @onkeypress:preventDefault="true"
+                        disabled="@IsPasswordEditDisabled">
+                    <i class="far @passwordDisplayButtonIconClass"></i>
+                </button>
+            </div>
+        </div>
+        
     </Blazorise.Field>
     <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="false">Connexion</Blazorise.Button>
 </EditForm>
@@ -35,6 +46,9 @@
 @code {
     [Parameter]
     public LoginModel Model { get; set; }
+    string passwordDisplayButtonIconClass = "fa-eye-slash";
+    Blazorise.TextRole passwordRole = Blazorise.TextRole.Password;
+    bool IsPasswordEditDisabled => string.IsNullOrEmpty(Model.Password);
 
     async Task ValidSubmit()
     {
@@ -47,5 +61,19 @@
     void InvalidSubmit()
     {
         Console.WriteLine("Invalid login info.");
+    }
+
+    void TogglePasswordDisplay()
+    {
+        if (passwordRole == Blazorise.TextRole.Password)
+        {
+            passwordRole = Blazorise.TextRole.Text;
+            passwordDisplayButtonIconClass = "fa-eye";
+        }
+        else
+        {
+            passwordRole = Blazorise.TextRole.Password;
+            passwordDisplayButtonIconClass = "fa-eye-slash";
+        }
     }
 }
