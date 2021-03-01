@@ -8,27 +8,27 @@
 <EditForm Model="@Model" OnValidSubmit="@ValidSubmit" OnInvalidSubmit="@InvalidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-        <Blazorise.Field>
-            <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
-            <Blazorise.TextEdit @bind-Text="@Model.Username">
-            </Blazorise.TextEdit>
-        </Blazorise.Field>
-        <Blazorise.Field>
-            <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
-            <Blazorise.TextEdit Role="@Blazorise.TextRole.Password" @bind-Text="@Model.Password">
-            </Blazorise.TextEdit>
-        </Blazorise.Field>
-        <Blazorise.Field>
-            <Blazorise.FieldLabel>Canton</Blazorise.FieldLabel>
-            <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.CantonCode">
-                <ChildContent>
-                    @foreach (var option in Model.ComboCantons)
-                    {
-                        <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                    }
-                </ChildContent>
-            </Blazorise.Select>
-        </Blazorise.Field>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Canton</Blazorise.FieldLabel>
+        <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.CantonCode">
+            <ChildContent>
+                @foreach (var option in Model.ComboCantons)
+                {
+                    <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                }
+            </ChildContent>
+        </Blazorise.Select>
+    </Blazorise.Field>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
+        <Blazorise.TextEdit @bind-Text="@Model.Username">
+        </Blazorise.TextEdit>
+    </Blazorise.Field>
+    <Blazorise.Field>
+        <Blazorise.FieldLabel>Mot de passe</Blazorise.FieldLabel>
+        <Blazorise.TextEdit Role="@Blazorise.TextRole.Password" @bind-Text="@Model.Password">
+        </Blazorise.TextEdit>
+    </Blazorise.Field>
     <Blazorise.Button Type="@Blazorise.ButtonType.Submit" Color="@Blazorise.Color.Primary" PreventDefaultOnSubmit="false">Connexion</Blazorise.Button>
 </EditForm>
 
