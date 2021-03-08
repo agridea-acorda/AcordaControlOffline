@@ -29,19 +29,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.RootComponents.Add<App>("app");
 
             var executingAssembly = Assembly.GetExecutingAssembly();
-            Console.WriteLine("assembly: " + executingAssembly.GetName().Name);
-            Console.WriteLine("embedded config files: " + string.Join(",", executingAssembly.GetManifestResourceNames()));
-            Console.WriteLine("reconstructed config filename: " + typeof(Program).Namespace + ".Config.appsettings.json");
+            //Console.WriteLine("assembly: " + executingAssembly.GetName().Name);
+            //Console.WriteLine("embedded config files: " + string.Join(",", executingAssembly.GetManifestResourceNames()));
+            //Console.WriteLine("reconstructed config filename: " + typeof(Program).Namespace + ".Config.appsettings.json");
             string configFileName = typeof(Program).Namespace + ".Config.appsettings.json";
 
             //var stream = Assembly.GetExecutingAssembly()
             //                     .GetManifestResourceStream(fileName);
 
             var configRoot = new ConfigurationBuilder()
-                         .AddJsonStream(executingAssembly
-                                                .GetManifestResourceStream(configFileName))
-                                                .Build();
-            var config = configRoot.GetSection("AppConfiguration").Get<AppConfiguration>();
+                             .AddJsonStream(executingAssembly.GetManifestResourceStream(configFileName))
+                             .Build();
+            var config = configRoot.GetSection(nameof(AppConfiguration)).Get<AppConfiguration>();
 
             // api
             // todo find some way to configure the api BaseAddress at runtime by the user.
@@ -49,7 +48,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             {
                 Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}:{config?.ApiEndpoint}, " +
                                   $"{nameof(AppConfiguration.BaseUrl)}:{config?.BaseUrl}, " +
-                                  $"{nameof(AppConfiguration.IsDebug)}:{config?.IsDebug}, " +
+                                  $"{nameof(AppConfiguration.IsDebug)}:{config?.IsDebug} " +
                                   "}}");
                 return new HttpClient { BaseAddress = new Uri(config.ApiEndpoint) };
                 //return new HttpClient { BaseAddress = new Uri("https://my.api.endpoint.ch/api") };

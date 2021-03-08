@@ -208,6 +208,16 @@
 
         try
         {
+            // todo implement mandates refresh with an api check like the code below (taken from MergeMandate)
+            //var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
+            //if (apiCallResult.IsFailure)
+            //{
+            //    string errorMessage = $"Erreur de renvoi du paquet de données. Motif: {apiCallResult.Error}";
+            //    Console.WriteLine(errorMessage);
+            //    Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
+            //    return;
+            //}
+
             await Repository.ClearMandatesListAsync();
             StateHasChanged();
             await Init();
