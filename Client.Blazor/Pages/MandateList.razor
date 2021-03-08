@@ -196,51 +196,34 @@
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Executing OnInitialized Async from MandateList");
-        await Init();
+        var localMandates = await Repository.ReadAllMandatesAsync();
+        if (localMandates == null)
+        {
+            mandates = Enumerable.Empty<Mandate>().ToArray();
+            await Refresh();
+        }
+        mandates = localMandates;
+        if (mandates != null)
+            foreach (var mandate in mandates)
+            {
+                bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);
+                mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
+            }
     }
 
     async Task Refresh()
     {
-        if (loading) return;
+        if (loading)
+        {
+            Console.WriteLine("Mandate list is already refreshing, exit.");
+            return;
+        }
+        var originalMandates = mandates;
         mandates = null;
         await Task.Delay(1);
         StateHasChanged();
 
         try
-        {
-            // todo implement mandates refresh with an api check like the code below (taken from MergeMandate)
-            //var apiCallResult = await Api.SendMergePackage("merge", mergePackage);
-            //if (apiCallResult.IsFailure)
-            //{
-            //    string errorMessage = $"Erreur de renvoi du paquet de données. Motif: {apiCallResult.Error}";
-            //    Console.WriteLine(errorMessage);
-            //    Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
-            //    return;
-            //}
-
-            await Repository.ClearMandatesListAsync();
-            StateHasChanged();
-            await Init();
-        }
-        finally
-        {
-            mandates ??= Enumerable.Empty<Mandate>().ToArray();
-            StateHasChanged();
-        }
-
-        //if (loading) return;
-
-        //mandates = null;
-        //await Task.Delay(1);
-        //StateHasChanged();
-
-        //await Init();
-    }
-
-    private async Task Init()
-    {
-        mandates = await Repository.ReadAllMandatesAsync();
-        if (mandates == null)
         {
             DateTime started = DateTime.Now;
             Console.WriteLine($"Reading mandates from api (started {started.ToDetailedTime()})...");
@@ -254,6 +237,7 @@
             }
             else
             {
+                // error response received from api
                 Console.WriteLine("Failed to fetch mandates from api. Reason: " + mandatesResult.Error);
                 int httpStatusCodeIndex = mandatesResult.Error.IndexOf("HttpStatusCode =", StringComparison.Ordinal);
                 if (httpStatusCodeIndex > -1)
@@ -265,15 +249,15 @@
                 {
                     Toast.Error("Erreur inconnue.");
                 }
-
-                return;
+                mandates = originalMandates;
             }
         }
-
-        foreach (var mandate in mandates)
+        catch
         {
-            bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);
-            mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
+            // unknown error while calling api (e.g. no connection available)
+            Console.WriteLine($"Api call for /api/mandates at {DateTime.Now.ToDetailedTime()} failed, no response received (probably offline).");
+            Toast.Error("Synchronisation impossible, cause probable: absence de connexion internet.");
+            mandates = originalMandates;
         }
     }
 
