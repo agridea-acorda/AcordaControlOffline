@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -27,24 +28,39 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
+            var executingAssembly = Assembly.GetExecutingAssembly();
+            Console.WriteLine("assembly: " + executingAssembly.GetName().Name);
+            Console.WriteLine("embedded config files: " + string.Join(",", executingAssembly.GetManifestResourceNames()));
+            Console.WriteLine("reconstructed config filename: " + typeof(Program).Namespace + ".Config.appsettings.json");
+            string configFileName = typeof(Program).Namespace + ".Config.appsettings.json";
+
+            //var stream = Assembly.GetExecutingAssembly()
+            //                     .GetManifestResourceStream(fileName);
+
+            var configRoot = new ConfigurationBuilder()
+                         .AddJsonStream(executingAssembly
+                                                .GetManifestResourceStream(configFileName))
+                                                .Build();
+            var config = configRoot.GetSection("AppConfiguration").Get<AppConfiguration>();
+
             // api
             // todo find some way to configure the api BaseAddress at runtime by the user.
             builder.Services.AddSingleton(sp =>
             {
-                var config = sp.GetService<IConfiguration>().GetSection("AppConfiguration").Get<AppConfiguration>();
                 Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}:{config?.ApiEndpoint}, " +
                                   $"{nameof(AppConfiguration.BaseUrl)}:{config?.BaseUrl}, " +
                                   $"{nameof(AppConfiguration.IsDebug)}:{config?.IsDebug}, " +
                                   "}}");
                 return new HttpClient { BaseAddress = new Uri(config.ApiEndpoint) };
+                //return new HttpClient { BaseAddress = new Uri("https://my.api.endpoint.ch/api") };
             });
             builder.Services.AddScoped<IApiClient, ApiClient>();
 
             // config
-            builder.Services.AddSingleton(sp => sp.GetService<IConfiguration>().GetSection("AppConfiguration").Get<AppConfiguration>());
+            builder.Services.AddSingleton<AppConfiguration>(sp => config);
 
             // local storage and repository using it
-            builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);
+            builder.Services.AddBlazoredLocalStorage(conf => conf.JsonSerializerOptions.WriteIndented = true);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
 
             // (user-)settings

@@ -9,7 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Config\appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Auth\ApiAuthenticationStateProvider.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Config\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\appsettings.*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -43,9 +56,5 @@
   <ItemGroup>
     <Folder Include="wwwroot\img\cantons\" />
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(ProjectDir)Config\Dev\*&quot; &quot;$(TargetDir)\wwwroot&quot;" />
-  </Target>
 
 </Project>
