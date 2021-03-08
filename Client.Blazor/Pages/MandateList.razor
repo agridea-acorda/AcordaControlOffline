@@ -271,6 +271,7 @@
 
     async Task DownloadMandate(Mandate mandateModel, int farmId)
     {
+        // todo fix when trying to execute while offline => implement api response check with try/catch pattern (see Refresh())
         var savedSyncStatus = mandateModel.SyncStatus;
         mandateModel.SyncStatus = SyncStatus.Loading;
 
