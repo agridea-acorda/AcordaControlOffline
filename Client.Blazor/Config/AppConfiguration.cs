@@ -4,6 +4,6 @@
     {
         public string ApiEndpoint { get; set; }
         public string BaseUrl { get; set; }
-        public bool IsDebug { get; set; }
+        public bool IsDev { get; set; }
     }
 }

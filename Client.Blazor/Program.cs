@@ -29,13 +29,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.RootComponents.Add<App>("app");
 
             var executingAssembly = Assembly.GetExecutingAssembly();
-            //Console.WriteLine("assembly: " + executingAssembly.GetName().Name);
-            //Console.WriteLine("embedded config files: " + string.Join(",", executingAssembly.GetManifestResourceNames()));
-            //Console.WriteLine("reconstructed config filename: " + typeof(Program).Namespace + ".Config.appsettings.json");
             string configFileName = typeof(Program).Namespace + ".Config.appsettings.json";
-
-            //var stream = Assembly.GetExecutingAssembly()
-            //                     .GetManifestResourceStream(fileName);
 
             var configRoot = new ConfigurationBuilder()
                              .AddJsonStream(executingAssembly.GetManifestResourceStream(configFileName))
@@ -46,12 +40,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // todo find some way to configure the api BaseAddress at runtime by the user.
             builder.Services.AddSingleton(sp =>
             {
-                Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}:{config?.ApiEndpoint}, " +
-                                  $"{nameof(AppConfiguration.BaseUrl)}:{config?.BaseUrl}, " +
-                                  $"{nameof(AppConfiguration.IsDebug)}:{config?.IsDebug} " +
+                Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}: {config?.ApiEndpoint}, " +
+                                  $"{nameof(AppConfiguration.BaseUrl)}: {config?.BaseUrl}, " +
+                                  $"{nameof(AppConfiguration.IsDev)}: {config?.IsDev} " +
                                   "}}");
                 return new HttpClient { BaseAddress = new Uri(config.ApiEndpoint) };
-                //return new HttpClient { BaseAddress = new Uri("https://my.api.endpoint.ch/api") };
             });
             builder.Services.AddScoped<IApiClient, ApiClient>();
 
