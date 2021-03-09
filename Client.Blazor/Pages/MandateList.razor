@@ -203,12 +203,7 @@
             await Refresh();
         }
         mandates = localMandates;
-        if (mandates != null)
-            foreach (var mandate in mandates)
-            {
-                bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);
-                mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
-            }
+        await SetSyncStatus();
     }
 
     async Task Refresh()
@@ -237,28 +232,19 @@
             }
             else
             {
-                // error response received from api
-                Console.WriteLine("Failed to fetch mandates from api. Reason: " + mandatesResult.Error);
-                int httpStatusCodeIndex = mandatesResult.Error.IndexOf("HttpStatusCode =", StringComparison.Ordinal);
-                if (httpStatusCodeIndex > -1)
-                {
-                    string httpStatusCode = mandatesResult.Error.Substring(httpStatusCodeIndex);
-                    Toast.Error($"Erreur d'api, {httpStatusCode}");
-                }
-                else
-                {
-                    Toast.Error("Erreur inconnue.");
-                }
+                Console.WriteLine(mandatesResult.ToLogErrorMessage());
+                Toast.Error(mandatesResult.ToUserErrorMessage());
                 mandates = originalMandates;
             }
         }
-        catch
+        catch (Exception e)
         {
-            // unknown error while calling api (e.g. no connection available)
-            Console.WriteLine($"Api call for /api/mandates at {DateTime.Now.ToDetailedTime()} failed, no response received (probably offline).");
-            Toast.Error("Echec de la synchronisation, cause probable: absence de connexion internet.");
+            Console.WriteLine(e.ToLogErrorMessage());
+            Toast.Error(e.ToUserErrorMessage());
             mandates = originalMandates;
         }
+
+        await SetSyncStatus();
     }
 
     void NavigateToMandateDetail(int id)
@@ -277,40 +263,49 @@
         await Task.Delay(1); // force re-render
         StateHasChanged();
 
-        try 
-        { 
-            if (!await FetchThenSave(() => Api.FetchRawJsonAsync($"mandates/{farmId}"),
-                                     json => Repository.SaveMandateJsonAsync(json, farmId)))
+        try
+        {
+            if ((await FetchThenSave(() => Api.FetchRawJsonAsync($"mandates/{farmId}"),
+                                    json => Repository.SaveMandateJsonAsync(json, farmId)))
+                .IsFailure)
             {
-                Toast.Error("Erreur d'API.");
                 mandateModel.SyncStatus = savedSyncStatus;
+                return;
             }
 
-            if (!await FetchThenSave(() => Api.FetchRawJsonAsync($"farms/{farmId}"),
+            if ((await FetchThenSave(() => Api.FetchRawJsonAsync($"farms/{farmId}"),
                                      json => Repository.SaveFarmJsonAsync(json, farmId)))
+                .IsFailure)
             {
-                Toast.Error("Erreur d'API.");
                 mandateModel.SyncStatus = savedSyncStatus;
+                return;
             }
 
             var mandate = await Repository.ReadMandateAsync(farmId);
-            if (mandate != null)
-                foreach (var inspection in mandate.Inspections)
-                {
-                    if (!await FetchThenSave(() => Api.FetchRawJsonAsync($"checklists/{inspection.FarmInspectionId}"),
-                                             data => Repository.SaveChecklistJsonAsync(data, inspection.FarmInspectionId)))
-                    {
-                        Toast.Error("Erreur d'API.");
-                        mandateModel.SyncStatus = savedSyncStatus;
-                    }
-                }
-            else mandateModel.SyncStatus = savedSyncStatus;
+            if (mandate == null)
+            {
+                mandateModel.SyncStatus = savedSyncStatus;
+                return;
+            }
 
-            mandateModel.SyncStatus = SyncStatus.Loaded;}
-        catch
+            foreach (var inspection in mandate.Inspections)
+            {
+                if ((await FetchThenSave(() => Api.FetchRawJsonAsync($"checklists/{inspection.FarmInspectionId}"),
+                                         data => Repository.SaveChecklistJsonAsync(data, inspection.FarmInspectionId)))
+                    .IsFailure)
+                {
+                    mandateModel.SyncStatus = savedSyncStatus;
+                    return;
+                }
+            }
+
+            mandateModel.SyncStatus = SyncStatus.Loaded;
+        }
+
+        catch (Exception e)
         {
-            Console.WriteLine($"Api call failed at {DateTime.Now.ToDetailedTime()} failed, no response received (probably offline).");
-            Toast.Error("Echec du téléchargement, cause probable: absence de connexion internet.");
+            Console.WriteLine(e.ToLogErrorMessage());
+            Toast.Error(e.ToUserErrorMessage());
             mandateModel.SyncStatus = savedSyncStatus;
         }
     }
@@ -404,17 +399,29 @@
         }
     }
 
-    async ValueTask<bool> FetchThenSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
+    async ValueTask<Result<T>> FetchThenSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
     {
         var result = await fetchFunc();
         if (result.IsFailure)
         {
-            Console.WriteLine("Fetch operation failed.");
-            return false;
+            Console.WriteLine(result.ToLogErrorMessage());
+            Toast.Error(result.ToUserErrorMessage());
+            return result;
         }
+
         var data = result.Value;
         await saveFunc(data);
-        return true;
+        return result;
+    }
+
+    async Task SetSyncStatus()
+    {
+        if (mandates != null)
+            foreach (var mandate in mandates)
+            {
+                bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);
+                mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
+            }
     }
 
 }
