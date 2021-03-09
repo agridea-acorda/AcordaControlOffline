@@ -256,7 +256,7 @@
         {
             // unknown error while calling api (e.g. no connection available)
             Console.WriteLine($"Api call for /api/mandates at {DateTime.Now.ToDetailedTime()} failed, no response received (probably offline).");
-            Toast.Error("Synchronisation impossible, cause probable: absence de connexion internet.");
+            Toast.Error("Echec de la synchronisation, cause probable: absence de connexion internet.");
             mandates = originalMandates;
         }
     }
@@ -271,35 +271,48 @@
 
     async Task DownloadMandate(Mandate mandateModel, int farmId)
     {
-        // todo fix when trying to execute while offline => implement api response check with try/catch pattern (see Refresh())
+        if (mandateModel.SyncStatus == SyncStatus.Loading) return;
         var savedSyncStatus = mandateModel.SyncStatus;
         mandateModel.SyncStatus = SyncStatus.Loading;
+        await Task.Delay(1); // force re-render
+        StateHasChanged();
 
-        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"mandates/{farmId}"),
-                                   json => Repository.SaveMandateJsonAsync(json, farmId)))
-        {
-            mandateModel.SyncStatus = savedSyncStatus;
-        }
-
-        if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"farms/{farmId}"),
-                                   json => Repository.SaveFarmJsonAsync(json, farmId)))
-        {
-            mandateModel.SyncStatus = savedSyncStatus;
-        }
-
-        var mandate = await Repository.ReadMandateAsync(farmId);
-        if (mandate != null)
-            foreach (var inspection in mandate.Inspections)
+        try 
+        { 
+            if (!await FetchThenSave(() => Api.FetchRawJsonAsync($"mandates/{farmId}"),
+                                     json => Repository.SaveMandateJsonAsync(json, farmId)))
             {
-                if (!await TryFetchAndSave(() => Api.FetchRawJsonAsync($"checklists/{inspection.FarmInspectionId}"),
-                                           data => Repository.SaveChecklistJsonAsync(data, inspection.FarmInspectionId)))
-                {
-                    mandateModel.SyncStatus = savedSyncStatus;
-                }
+                Toast.Error("Erreur d'API.");
+                mandateModel.SyncStatus = savedSyncStatus;
             }
-        else mandateModel.SyncStatus = savedSyncStatus;
 
-        mandateModel.SyncStatus = SyncStatus.Loaded;
+            if (!await FetchThenSave(() => Api.FetchRawJsonAsync($"farms/{farmId}"),
+                                     json => Repository.SaveFarmJsonAsync(json, farmId)))
+            {
+                Toast.Error("Erreur d'API.");
+                mandateModel.SyncStatus = savedSyncStatus;
+            }
+
+            var mandate = await Repository.ReadMandateAsync(farmId);
+            if (mandate != null)
+                foreach (var inspection in mandate.Inspections)
+                {
+                    if (!await FetchThenSave(() => Api.FetchRawJsonAsync($"checklists/{inspection.FarmInspectionId}"),
+                                             data => Repository.SaveChecklistJsonAsync(data, inspection.FarmInspectionId)))
+                    {
+                        Toast.Error("Erreur d'API.");
+                        mandateModel.SyncStatus = savedSyncStatus;
+                    }
+                }
+            else mandateModel.SyncStatus = savedSyncStatus;
+
+            mandateModel.SyncStatus = SyncStatus.Loaded;}
+        catch
+        {
+            Console.WriteLine($"Api call failed at {DateTime.Now.ToDetailedTime()} failed, no response received (probably offline).");
+            Toast.Error("Echec du téléchargement, cause probable: absence de connexion internet.");
+            mandateModel.SyncStatus = savedSyncStatus;
+        }
     }
 
     void SelectMandate(Mandate mandate, Blazorise.Modal modal = null)
@@ -391,7 +404,7 @@
         }
     }
 
-    async ValueTask<bool> TryFetchAndSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
+    async ValueTask<bool> FetchThenSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
     {
         var result = await fetchFunc();
         if (result.IsFailure)
