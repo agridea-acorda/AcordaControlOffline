@@ -40,13 +40,13 @@ $fileVersion = "$major.$minor.$julianDate.$revision"
 $InformationalVersion = "$major.$minor $branchName $commitID"
 $buildDate = Get-Date -format "yyyy.MM.dd HH:mm:ss"
 Write-Host "Updating $file with ..."
-Write-Host "version="$version ","
+Write-Host "version="$fileVersion ","
 Write-Host "file version="$fileVersion ","
 Write-Host "informational version="$InformationalVersion ","
 Write-Host "build date="$buildDate
 
 (Get-Content $file) |
-%{$_ -replace 'Version\s+=\s+"([0-9\.]*)"', "Version = ""$version""" } |
+%{$_ -replace 'Version\s+=\s+"([0-9\.]*)"', "Version = ""$fileVersion""" } |
 %{$_ -replace 'FileVersion\s+=\s+"([0-9\.]*)"', "FileVersion = ""$fileVersion""" } |
 %{$_ -replace 'InformationalVersion\s+=\s+"([0-9a-zA-Z\.\s]*)"', "InformationalVersion = ""$InformationalVersion""" } |
 %{$_ -replace 'BuildDate\s+=\s+"([0-9\.\s:]*)"', "BuildDate = ""$buildDate""" } |
