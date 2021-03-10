@@ -9,7 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Config\appsettings - Copy (2).json" />
+    <Content Remove="Config\appsettings - Copy (3).json" />
+    <Content Remove="Config\appsettings - Copy.json" />
+    <Content Remove="Config\appsettings.Dev.json" />
+    <Content Remove="Config\appsettings.GitHub.json" />
     <Content Remove="Config\appsettings.json" />
+    <Content Remove="Config\appsettings.Netlify.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +42,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Mobsites.Blazor.BaseComponents" Version="1.0.4" />
     <PackageReference Include="Mobsites.Blazor.SignaturePad" Version="1.1.7" />
