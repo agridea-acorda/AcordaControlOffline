@@ -32,7 +32,7 @@
                     <Blazorise.Switch TValue="bool" @bind-Checked="@showClosed"><span class="font-weight-normal">Afficher clôturés</span></Blazorise.Switch>
                 </p>
                 <div class="list-group">
-                    @if (loading)
+                    @if (loading || mandates == null)
                     {
                         <MandateListPlaceholderLoading />
                     }
@@ -180,7 +180,7 @@
 
     bool showClosed = false;
     private Mandate[] mandates;
-    bool loading => mandates == null;
+    bool loading = false;
     Mandate[] mandatesToDisplay => (mandates != null
                                         ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
                                         : Enumerable.Empty<Mandate>().ToArray())
@@ -196,54 +196,20 @@
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Executing OnInitialized Async from MandateList");
-        var localMandates = await Repository.ReadAllMandatesAsync();
-        if (localMandates == null)
+        mandates = await Repository.ReadAllMandatesAsync();
+        if (mandates == null)
         {
-            mandates = Enumerable.Empty<Mandate>().ToArray();
-            await Refresh();
+            await TryFetchMandatesAndSave();
         }
-        mandates = localMandates;
+        mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
         await SetSyncStatus();
     }
 
     async Task Refresh()
     {
-        if (loading)
-        {
-            Console.WriteLine("Mandate list is already refreshing, exit.");
-            return;
-        }
-        var originalMandates = mandates;
-        mandates = null;
-        await Task.Delay(1);
-        StateHasChanged();
-
-        try
-        {
-            DateTime started = DateTime.Now;
-            Console.WriteLine($"Reading mandates from api (started {started.ToDetailedTime()})...");
-            var mandatesResult = await Api.FetchAllMandatesAsync("mandates");
-            TimeSpan elapsed = DateTime.Now - started;
-            Console.WriteLine($"Mandates read succesfully (elasped {elapsed}).");
-            if (mandatesResult.IsSuccess)
-            {
-                mandates = mandatesResult.Value;
-                await Repository.SaveMandatesAsync(mandates);
-            }
-            else
-            {
-                Console.WriteLine(mandatesResult.ToLogErrorMessage());
-                Toast.Error(mandatesResult.ToUserErrorMessage());
-                mandates = originalMandates;
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.ToLogErrorMessage());
-            Toast.Error(e.ToUserErrorMessage());
-            mandates = originalMandates;
-        }
-
+        if (loading) return;
+        await TryFetchMandatesAndSave();
+        mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
         await SetSyncStatus();
     }
 
@@ -412,6 +378,39 @@
         var data = result.Value;
         await saveFunc(data);
         return result;
+    }
+
+    async Task TryFetchMandatesAndSave()
+    {
+        loading = true;
+        await Task.Delay(1);
+        StateHasChanged();
+        try
+        {
+            DateTime started = DateTime.Now;
+            Console.WriteLine($"Reading mandates from api (started {started.ToDetailedTime()})...");
+            var mandatesResult = await Api.FetchAllMandatesAsync("mandates");
+            TimeSpan elapsed = DateTime.Now - started;
+            Console.WriteLine($"Mandates read succesfully (elasped {elapsed}).");
+            if (mandatesResult.IsSuccess)
+            {
+                await Repository.SaveMandatesAsync(mandatesResult.Value);
+            }
+            else
+            {
+                Console.WriteLine(mandatesResult.ToLogErrorMessage());
+                Toast.Error(mandatesResult.ToUserErrorMessage());
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToLogErrorMessage());
+            Toast.Error(e.ToUserErrorMessage());
+        }
+        finally
+        {
+            loading = false;
+        }
     }
 
     async Task SetSyncStatus()
