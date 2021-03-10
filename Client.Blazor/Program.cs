@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -28,28 +27,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            var executingAssembly = Assembly.GetExecutingAssembly();
-            string configFileName = typeof(Program).Namespace + ".Config.appsettings.json";
-
-            var configRoot = new ConfigurationBuilder()
-                             .AddJsonStream(executingAssembly.GetManifestResourceStream(configFileName))
-                             .Build();
-            var config = configRoot.GetSection(nameof(AppConfiguration)).Get<AppConfiguration>();
+            // config
+            var config = builder.Services.AddAppConfiguration(
+                builder.HostEnvironment.BaseAddress, // this is not the complete url, env overriding vial querystring param won't work
+                () => new EnvironmentChooser("Dev")
+                    .Add("localhost:5000", "Dev", true)
+                    .Add("acordacontrolapp.acorda.dev", "Netlify", true)
+                    .Add("agridea-acorda.github.io", "GitHub"));
 
             // api
-            // todo find some way to configure the api BaseAddress at runtime by the user.
-            builder.Services.AddSingleton(sp =>
-            {
-                Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}: {config?.ApiEndpoint}, " +
-                                  $"{nameof(AppConfiguration.BaseUrl)}: {config?.BaseUrl}, " +
-                                  $"{nameof(AppConfiguration.IsDev)}: {config?.IsDev} " +
-                                  "}}");
-                return new HttpClient { BaseAddress = new Uri(config.ApiEndpoint) };
-            });
+            builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(config.ApiEndpoint) });
             builder.Services.AddScoped<IApiClient, ApiClient>();
-
-            // config
-            builder.Services.AddSingleton<AppConfiguration>(sp => config);
 
             // local storage and repository using it
             builder.Services.AddBlazoredLocalStorage(conf => conf.JsonSerializerOptions.WriteIndented = true);
@@ -70,6 +58,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // Toasts
             builder.Services.AddBlazoredToast();
 
+            // Blazorise, Bootatrap, FontAwesome
             builder.Services
                    .AddBlazorise(options =>
                    {
@@ -86,6 +75,32 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
                 .UseFontAwesomeIcons();
 
             await host.RunAsync();
+        }
+    }
+
+    public static class Configuration
+    {
+        public static AppConfiguration AddAppConfiguration(this IServiceCollection serviceCollection, string url, Func<EnvironmentChooser> environmentChooserFactory)
+        {
+            var environementChooser = environmentChooserFactory();
+            var uri = new Uri(url);
+            string environment = environementChooser.GetCurrent(uri);
+            var executingAssembly = Assembly.GetExecutingAssembly();
+            string configFileName = !string.IsNullOrWhiteSpace(environment)
+                                        ? typeof(Program).Namespace + ".Config.appsettings." + environment + ".json"
+                                        : typeof(Program).Namespace + ".Config.appsettings.json";
+
+            var configRoot = new ConfigurationBuilder()
+                             .AddJsonStream(executingAssembly.GetManifestResourceStream(configFileName))
+                             .Build();
+            var config = configRoot.GetSection(nameof(AppConfiguration)).Get<AppConfiguration>();
+            Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}: {config?.ApiEndpoint}, " +
+                              $"{nameof(AppConfiguration.BaseUrl)}: {config?.BaseUrl}, " +
+                              $"{nameof(AppConfiguration.IsDev)}: {config?.IsDev} " +
+                              "}}");
+
+            serviceCollection.AddSingleton(s => config);
+            return config;
         }
     }
 }

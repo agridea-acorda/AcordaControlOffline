@@ -18,6 +18,11 @@ option.fa-font-family {
     font-size: 0.66rem;
 }
 
+/* disable pull-to-refresh */
+body {
+    overscroll-behavior-y: contain;
+}
+
 /* progress-bar overrides
 -------------------------------------------------------------*/
 .progress .progress-bar-text [role="label"] {
