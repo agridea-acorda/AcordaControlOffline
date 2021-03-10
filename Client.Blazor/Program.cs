@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,10 +13,8 @@ using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using MediatR;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,22 +28,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.RootComponents.Add<App>("app");
 
             // config
-            //var executingAssembly = Assembly.GetExecutingAssembly();
-            //string configFileName = typeof(Program).Namespace + ".Config.appsettings.json";
-
-            //var configRoot = new ConfigurationBuilder()
-            //                 .AddJsonStream(executingAssembly.GetManifestResourceStream(configFileName))
-            //                 .Build();
-            //var config = configRoot.GetSection(nameof(AppConfiguration)).Get<AppConfiguration>();
-            //Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}: {config?.ApiEndpoint}, " +
-            //                  $"{nameof(AppConfiguration.BaseUrl)}: {config?.BaseUrl}, " +
-            //                  $"{nameof(AppConfiguration.IsDev)}: {config?.IsDev} " +
-            //                  "}}");
-
-            //builder.Services.AddSingleton(sp => config);
-
-            var config = builder.Services.AddEnvironmentConfiguration<AppConfiguration>(() => 
-                new EnvironmentChooser("Dev")
+            var config = builder.Services.AddAppConfiguration(
+                builder.HostEnvironment.BaseAddress, // this is not the complete url, env overriding vial querystring param won't work
+                () => new EnvironmentChooser("Dev")
                     .Add("localhost:5000", "Dev", true)
                     .Add("acordacontrolapp.acorda.dev", "Netlify", true)
                     .Add("agridea-acorda.github.io", "GitHub"));
@@ -74,6 +58,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             // Toasts
             builder.Services.AddBlazoredToast();
 
+            // Blazorise, Bootatrap, FontAwesome
             builder.Services
                    .AddBlazorise(options =>
                    {
@@ -95,55 +80,26 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
 
     public static class Configuration
     {
-        public static AppConfiguration AddEnvironmentConfiguration<TResource>(
-            this IServiceCollection serviceCollection,
-            Func<EnvironmentChooser> environmentChooserFactory)
+        public static AppConfiguration AddAppConfiguration(this IServiceCollection serviceCollection, string url, Func<EnvironmentChooser> environmentChooserFactory)
         {
-            AppConfiguration config = AppConfiguration.Empty;
-            serviceCollection.AddSingleton(s =>
-            {
-                var environementChooser = environmentChooserFactory();
-                var uri = new Uri(s.GetRequiredService<NavigationManager>().Uri);
-                string environment = environementChooser.GetCurrent(uri);
-                var executingAssembly = Assembly.GetExecutingAssembly();
-                string configFileName = !string.IsNullOrWhiteSpace(environment)
-                                            ? typeof(Program).Namespace + ".Config.appsettings." + environment + ".json"
-                                            : typeof(Program).Namespace + ".Config.appsettings.json";
+            var environementChooser = environmentChooserFactory();
+            var uri = new Uri(url);
+            string environment = environementChooser.GetCurrent(uri);
+            var executingAssembly = Assembly.GetExecutingAssembly();
+            string configFileName = !string.IsNullOrWhiteSpace(environment)
+                                        ? typeof(Program).Namespace + ".Config.appsettings." + environment + ".json"
+                                        : typeof(Program).Namespace + ".Config.appsettings.json";
 
-                var configRoot = new ConfigurationBuilder()
-                                 .AddJsonStream(executingAssembly.GetManifestResourceStream(configFileName))
-                                 .Build();
-                config = configRoot.GetSection(nameof(AppConfiguration)).Get<AppConfiguration>();
-                Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}: {config?.ApiEndpoint}, " +
-                                  $"{nameof(AppConfiguration.BaseUrl)}: {config?.BaseUrl}, " +
-                                  $"{nameof(AppConfiguration.IsDev)}: {config?.IsDev} " +
-                                  "}}");
+            var configRoot = new ConfigurationBuilder()
+                             .AddJsonStream(executingAssembly.GetManifestResourceStream(configFileName))
+                             .Build();
+            var config = configRoot.GetSection(nameof(AppConfiguration)).Get<AppConfiguration>();
+            Console.WriteLine($"Config: {{ {nameof(AppConfiguration.ApiEndpoint)}: {config?.ApiEndpoint}, " +
+                              $"{nameof(AppConfiguration.BaseUrl)}: {config?.BaseUrl}, " +
+                              $"{nameof(AppConfiguration.IsDev)}: {config?.IsDev} " +
+                              "}}");
 
-                return config;
-
-                //var ressourceNames = new[]
-                //{
-                //    assembly.GetName().Name + ".Configuration.appsettings.json",
-                //    assembly.GetName().Name + ".Configuration.appsettings." + environment + ".json"
-                //};
-                //ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-                //configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>()
-                //{
-                //    { "Environment", environment }
-                //});
-                //Console.WriteLine(string.Join(",", assembly.GetManifestResourceNames()));
-                //Console.WriteLine(string.Join(",", ressourceNames));
-                //foreach (var resource in ressourceNames)
-                //{
-
-                //    if (assembly.GetManifestResourceNames().Contains(resource))
-                //    {
-                //        configurationBuilder.AddJsonFile(
-                //            new InMemoryFileProvider(assembly.GetManifestResourceStream(resource)), resource, false, false);
-                //    }
-                //}
-                //return configurationBuilder.Build();
-            });
+            serviceCollection.AddSingleton(s => config);
             return config;
         }
     }

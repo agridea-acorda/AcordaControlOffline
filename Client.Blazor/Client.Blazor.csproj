@@ -9,16 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Config\appsettings - Copy (2).json" />
-    <Content Remove="Config\appsettings - Copy (3).json" />
-    <Content Remove="Config\appsettings - Copy.json" />
-    <Content Remove="Config\appsettings.Dev.json" />
-    <Content Remove="Config\appsettings.GitHub.json" />
-    <Content Remove="Config\appsettings.json" />
-    <Content Remove="Config\appsettings.Netlify.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Auth\ApiAuthenticationStateProvider.cs" />
   </ItemGroup>
 

@@ -3,7 +3,7 @@ using Agridea.DomainDrivenDesign;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 {
-    public class AppConfiguration : ValueObject
+    public class AppConfiguration : ValueObject, IAppConfiguration
     {
         public string ApiEndpoint { get; set; }
         public string BaseUrl { get; set; }
@@ -16,5 +16,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
         }
 
         public static AppConfiguration Empty => new AppConfiguration();
+    }
+
+    public interface IAppConfiguration
+    {
+        public string ApiEndpoint { get; }
+        public string BaseUrl { get; }
+        public bool IsDev { get; }
     }
 }
