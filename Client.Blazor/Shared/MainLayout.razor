@@ -23,6 +23,12 @@
             @*<li class="nav-item">
                 <a class="nav-link btn btn-outline-warning" href="#" @onclick="Reset">Réinitialiser</a>
             </li>*@
+            @if (updateAvailable)
+            {
+                <li class="nav-item">
+                    <a class="nav-link btn btn-outline-info" href="#" >Mise à jour disponible</a>
+                </li>
+            }
             <UserDisplay />
             <CantonDisplay />
         </ul>
@@ -75,9 +81,12 @@
 
 @code {
 
-    protected override void OnInitialized()
+    bool updateAvailable;
+
+    protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("Executing OnInitialized from MainLayout");
+        await Js.InvokeAsync<object>("registerClient", new DotNetObjectRef(this));
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -86,6 +95,15 @@
         {
             await Js.InvokeVoidAsync(JsInterop.InitAdminLte);
         }
+    }
+
+    [JSInvokable("onupdateavailable")]
+    public async Task<string> AppUpdate()
+    {
+        Console.WriteLine("New version of app is available");
+        updateAvailable = true;
+        StateHasChanged();
+        return await Task.FromResult("Alerted client");
     }
 
     //async void Reset()

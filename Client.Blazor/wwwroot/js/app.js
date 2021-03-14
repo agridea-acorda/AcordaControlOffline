@@ -40,6 +40,15 @@ window.blazorExtensions = {
             }
         }
         return "";
+    },
+
+    registerClient: function (caller) {
+        window['updateAvailable']
+            .then(isAvailable => {
+                if (isAvailable) {
+                    caller.invokeMethodAsync("onupdateavailable").then(r => console.log(r));
+                }
+            });
     }
 }
 
