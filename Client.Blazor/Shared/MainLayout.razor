@@ -16,17 +16,14 @@
                 <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a class="nav-link" href="#" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'>Liste des mandats</a>
+                <a class="nav-link" href="#" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'><i class="fas fa-home"></i></a>
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
-            @*<li class="nav-item">
-                <a class="nav-link btn btn-outline-warning" href="#" @onclick="Reset">Réinitialiser</a>
-            </li>*@
             @if (updateAvailable)
             {
                 <li class="nav-item">
-                    <a class="nav-link btn btn-outline-info" href="#" >Mise à jour disponible</a>
+                    <button class="nav-link btn btn-info" @onclick="() => updateAppModal.Show()" ><i class="fas fa-info-circle"></i> Mise à jour disponible...</button>
                 </li>
             }
             <UserDisplay />
@@ -75,6 +72,28 @@
     </footer>
 </div>
 
+<Blazorise.Modal @ref="@updateAppModal">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent IsCentered="true">
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Mise à jour de l'application</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => updateAppModal.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <div class="alert alert-danger" role="alert">
+                <u>Attention</u>: La mise à jour nécessite que tous les mandats téléchargés soient <strong>renvoyés</strong> ou <strong>effacés</strong>.
+                Si vous poursuivez, ils seront <u>automatiquement effacés</u>. Pour renvoyer des mandats avant de faire la mise à jour, cliquer sur <strong>Annuler</strong>
+            </div>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button @onclick="Reset" data-dismiss="modal" type="button" class="btn btn-primary mb-1">
+                <i class="fas fa-download"></i> J'ai compris, Mettre à jour
+            </button>
+            <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-default mb-1">Annuler, je souhaite d'abord renvoyer des mandats</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 RemoveToastsOnNavigation="true"
                 Timeout="10"/>
@@ -82,11 +101,13 @@
 @code {
 
     bool updateAvailable;
+    JsInteropActionProxy newVersionAvailableProxy;
+    Blazorise.Modal updateAppModal;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Console.WriteLine("Executing OnInitialized from MainLayout");
-        await Js.InvokeAsync<object>("registerClient", new DotNetObjectRef(this));
+        newVersionAvailableProxy = new JsInteropActionProxy(NewVersionAvailable);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -94,22 +115,27 @@
         if (firstRender)
         {
             await Js.InvokeVoidAsync(JsInterop.InitAdminLte);
+            await Js.InvokeVoidAsync(JsInterop.RegisterNewAppVersionCallback,
+                                     DotNetObjectReference.Create(newVersionAvailableProxy));
         }
     }
 
-    [JSInvokable("onupdateavailable")]
-    public async Task<string> AppUpdate()
+    void NewVersionAvailable()
     {
-        Console.WriteLine("New version of app is available");
+        Console.WriteLine("A new version of the app is available");
         updateAvailable = true;
         StateHasChanged();
-        return await Task.FromResult("Alerted client");
     }
 
-    //async void Reset()
-    //{
-    //    await LocalStorage.ClearAsync();
-    //    Navigation.NavigateTo(Config.BaseUrl + "/", true);
-    //}
+    /// <summary>
+    /// This is a wrong approach => to ensure data-consistency, all local data must be deleted, BUT we must let the
+    /// user do it herself, either deleting of sending local mandates. We should block the update until all local
+    /// mandates have been (knowingly) removed from local storage by the user.
+    /// </summary>
+    async void Reset()
+    {
+        await LocalStorage.ClearAsync();
+        Navigation.NavigateTo(Config.BaseUrl + "/", true);
+    }
 
 }

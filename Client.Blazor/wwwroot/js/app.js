@@ -40,16 +40,17 @@ window.blazorExtensions = {
             }
         }
         return "";
-    },
-
-    registerClient: function (caller) {
-        window['updateAvailable']
-            .then(isAvailable => {
-                if (isAvailable) {
-                    caller.invokeMethodAsync("onupdateavailable").then(r => console.log(r));
-                }
-            });
     }
+
+}
+
+window.registerNewAppVersionCallback = function (dotnetHelper) {
+    window['updateAvailable']
+        .then(newVersionAvailable => {
+            if (newVersionAvailable) {
+                dotnetHelper.invokeMethodAsync('Client.Blazor', 'InvokeAction').then(r => console.log(r));
+            }
+        });
 }
 
 //source: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm
@@ -73,12 +74,6 @@ function BlazorDownloadFile(filename, contentType, content) {
     URL.revokeObjectURL(exportUrl);
 }
 
-// Convert a base64 string to a Uint8Array. This is needed to create a blob object from the base64 string.
-// The code comes from: https://developer.mozilla.org/fr/docs/Web/API/WindowBase64/D%C3%A9coder_encoder_en_base64
-function b64ToUint6(nChr) {
-    return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
-}
-
 function base64DecToArr(sBase64, nBlocksSize) {
     var
         sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, ""),
@@ -97,4 +92,10 @@ function base64DecToArr(sBase64, nBlocksSize) {
         }
     }
     return taBytes;
+}
+
+// Convert a base64 string to a Uint8Array. This is needed to create a blob object from the base64 string.
+// The code comes from: https://developer.mozilla.org/fr/docs/Web/API/WindowBase64/D%C3%A9coder_encoder_en_base64
+function b64ToUint6(nChr) {
+    return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
 }

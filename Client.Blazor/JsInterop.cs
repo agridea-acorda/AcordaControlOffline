@@ -1,4 +1,7 @@
-﻿namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
+﻿using System;
+using Microsoft.JSInterop;
+
+namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
 {
     public class JsInterop
     {
@@ -6,5 +9,23 @@
         public const string SetCookie = "blazorExtensions.SetCookie";
         public const string RemoveCookie = "blazorExtensions.RemoveCookie";
         public const string InitAdminLte = "initAdminlte";
+        public const string RegisterNewAppVersionCallback = "registerNewAppVersionCallback";
     }
+
+    public class JsInteropActionProxy
+    {
+        private readonly Action action;
+        
+        public JsInteropActionProxy(Action action)
+        {
+            this.action = action;
+        }
+
+        [JSInvokable("Client.Blazor")]
+        public void InvokeAction()
+        {
+            action.Invoke();
+        }
+    }
+
 }
