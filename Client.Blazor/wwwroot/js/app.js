@@ -44,14 +44,14 @@ window.blazorExtensions = {
 
 }
 
-window.registerNewAppVersionCallback = function (dotnetHelper) {
-    window['updateAvailable']
-        .then(newVersionAvailable => {
-            if (newVersionAvailable) {
-                dotnetHelper.invokeMethodAsync('Client.Blazor', 'InvokeAction').then(r => console.log(r));
-            }
-        });
-}
+//window.registerNewAppVersionCallback = function (dotnetHelper) {
+//    window['updateAvailable']
+//        .then(newVersionAvailable => {
+//            if (newVersionAvailable) {
+//                dotnetHelper.invokeMethodAsync('Client.Blazor', 'InvokeAction').then(r => console.log(r));
+//            }
+//        });
+//}
 
 //source: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm
 function BlazorDownloadFile(filename, contentType, content) {

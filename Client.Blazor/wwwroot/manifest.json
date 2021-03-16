@@ -5,16 +5,41 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",
+  "orientation": "portrait-primary",
+  "categories": [ "government", "productivity" ],
+  "shortcuts": [
+    {
+      "name": "Mandats de contrôle",
+      "short_name": "Mandats",
+      "description": "Voir la liste des mandats",
+      "url": "/MandateList",
+      "icons": [
+        {
+          "src": "logo-144.png",
+          "type": "image/png",
+          "sizes": "144x144"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "logo-32.png",
       "type": "image/png",
-      "sizes": "32x32"
+      "sizes": "32x32",
+      "purpose": "any"
     },
     {
       "src": "logo-144.png",
       "type": "image/png",
-      "sizes": "144x144"
+      "sizes": "144x144",
+      "purpose": "any"
+    },
+    {
+      "src": "logo-512-maskable.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ]
 }

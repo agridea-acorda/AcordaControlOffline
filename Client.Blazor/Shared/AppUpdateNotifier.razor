@@ -1,0 +1,87 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
+@inject IJSRuntime Js
+@inject AppConfiguration Config
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+@if (updateAvailable)
+{
+    <li class="nav-item">
+        <button class="nav-link btn btn-info" @onclick="() => updateAppModal.Show()"><i class="fas fa-info-circle"></i> Mise à jour disponible...</button>
+    </li>
+}
+
+<Blazorise.Modal @ref="@updateAppModal">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent IsCentered="true">
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Mise à jour de l'application</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => updateAppModal.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <div class="alert alert-danger" role="alert">
+                <u>Attention</u>: La mise à jour nécessite que tous les mandats téléchargés soient <strong>renvoyés</strong> ou <strong>effacés</strong>.
+            </div>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button @onclick="DoUpdate" data-dismiss="modal" type="button" class="btn btn-primary mb-1">
+                <i class="fas fa-download"></i> Mettre à jour
+            </button>
+            <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-default mb-1">Annuler, j'ai encore des mandats téléchargés.</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+    // Thanks to https://www.meziantou.net/javascript-isolation-in-blazor-components.htm
+    bool updateAvailable;
+    Blazorise.Modal updateAppModal;
+    JsInteropActionProxy newVersionAvailableProxy;
+    private Task<IJSObjectReference> _module;
+    private Task<IJSObjectReference> Module => _module ??= Js.InvokeAsync<IJSObjectReference>("import", Config.BaseUrl + "/js/appUpdateNotifier.js").AsTask();
+
+    protected override void OnInitialized()
+    {
+        newVersionAvailableProxy = new JsInteropActionProxy(NewVersionAvailable);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var module = await Module;
+            await module.InvokeVoidAsync("registerNewAppVersionCallback",
+                                         DotNetObjectReference.Create(newVersionAvailableProxy));
+        }
+    }
+
+    void NewVersionAvailable()
+    {
+        Console.WriteLine("A new version of the app is available");
+        updateAvailable = true;
+        // todo save updateavailable info in localstorage or a cookie
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// This is a wrong approach => to ensure data-consistency, all local data must be deleted, BUT we must let the
+    /// user do it herself, either deleting of sending local mandates. We should block the update until all local
+    /// mandates have been (knowingly) removed from local storage by the user.
+    /// </summary>
+    void DoUpdate()
+    {
+        // todo clear updateavailable info from persistance
+        // todo force update like this https://dev.to/drbragg/handling-service-worker-updates-in-your-vue-pwa-1pip
+        Navigation.NavigateTo(Config.BaseUrl + "/", true);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module != null)
+        {
+            var module = await _module;
+            await module.DisposeAsync();
+        }
+    }
+
+}

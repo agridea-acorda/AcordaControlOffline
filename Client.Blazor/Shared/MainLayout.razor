@@ -20,12 +20,13 @@
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
-            @if (updateAvailable)
+            @*@if (updateAvailable)
             {
                 <li class="nav-item">
                     <button class="nav-link btn btn-info" @onclick="() => updateAppModal.Show()" ><i class="fas fa-info-circle"></i> Mise à jour disponible...</button>
                 </li>
-            }
+            }*@
+            <AppUpdateNotifier />
             <UserDisplay />
             <CantonDisplay />
         </ul>
@@ -72,7 +73,7 @@
     </footer>
 </div>
 
-<Blazorise.Modal @ref="@updateAppModal">
+@*<Blazorise.Modal @ref="@updateAppModal">
     <Blazorise.ModalBackdrop />
     <Blazorise.ModalContent IsCentered="true">
         <Blazorise.ModalHeader>
@@ -92,7 +93,7 @@
             <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-default mb-1">Annuler, je souhaite d'abord renvoyer des mandats</button>
         </Blazorise.ModalFooter>
     </Blazorise.ModalContent>
-</Blazorise.Modal>
+</Blazorise.Modal>*@
 
 <BlazoredToasts Position="ToastPosition.BottomRight"
                 RemoveToastsOnNavigation="true"
@@ -100,14 +101,14 @@
 
 @code {
 
-    bool updateAvailable;
-    JsInteropActionProxy newVersionAvailableProxy;
-    Blazorise.Modal updateAppModal;
+    //bool updateAvailable;
+    //JsInteropActionProxy newVersionAvailableProxy;
+    //Blazorise.Modal updateAppModal;
 
     protected override void OnInitialized()
     {
         Console.WriteLine("Executing OnInitialized from MainLayout");
-        newVersionAvailableProxy = new JsInteropActionProxy(NewVersionAvailable);
+        //newVersionAvailableProxy = new JsInteropActionProxy(NewVersionAvailable);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -115,27 +116,29 @@
         if (firstRender)
         {
             await Js.InvokeVoidAsync(JsInterop.InitAdminLte);
-            await Js.InvokeVoidAsync(JsInterop.RegisterNewAppVersionCallback,
-                                     DotNetObjectReference.Create(newVersionAvailableProxy));
+            //await Js.InvokeVoidAsync(JsInterop.RegisterNewAppVersionCallback,
+            //                         DotNetObjectReference.Create(newVersionAvailableProxy));
         }
     }
 
-    void NewVersionAvailable()
-    {
-        Console.WriteLine("A new version of the app is available");
-        updateAvailable = true;
-        StateHasChanged();
-    }
+    //void NewVersionAvailable()
+    //{
+    //    Console.WriteLine("A new version of the app is available");
+    //    updateAvailable = true;
+    //    // todo save updateavailable info in localstorage or a cookie
+    //    StateHasChanged();
+    //}
 
     /// <summary>
     /// This is a wrong approach => to ensure data-consistency, all local data must be deleted, BUT we must let the
     /// user do it herself, either deleting of sending local mandates. We should block the update until all local
     /// mandates have been (knowingly) removed from local storage by the user.
     /// </summary>
-    async void Reset()
-    {
-        await LocalStorage.ClearAsync();
-        Navigation.NavigateTo(Config.BaseUrl + "/", true);
-    }
+    //async void Reset()
+    //{
+    //    await LocalStorage.ClearAsync();
+    //    Navigation.NavigateTo(Config.BaseUrl + "/", true);
+    //    // todo clear updateavailable info from persistance
+    //}
 
 }
