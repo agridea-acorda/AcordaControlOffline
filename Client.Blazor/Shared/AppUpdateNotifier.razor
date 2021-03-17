@@ -67,7 +67,7 @@
 
     async Task OnNewVersionAvailable()
     {
-        Console.WriteLine("A new version of the app is available");
+        Console.WriteLine("A new version of the app is available (service worker installed).");
         updateAvailable = true;
         await Repository.SetAppUpdateAvailable();
         StateHasChanged();
@@ -75,11 +75,12 @@
 
     async Task OnNewVersionDeployed()
     {
+        Console.WriteLine("New version deployed (service worker activated).");
         updateAvailable = false;
         await Repository.ResetAppUpdateAvailable();
         StateHasChanged();
     }
-    
+
     void SkipWaiting()
     {
         // todo force update like this https://dev.to/drbragg/handling-service-worker-updates-in-your-vue-pwa-1pip
