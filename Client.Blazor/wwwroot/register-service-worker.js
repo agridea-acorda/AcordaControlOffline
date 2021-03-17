@@ -8,6 +8,7 @@
                     newServiceWorker.onstatechange = () => {
                         switch (newServiceWorker.state) {
                         case 'installed': // latest version of service-worker is installed and waiting to activate (a.k.a. 'new version of the app available')
+                            console.log('installing sw is in the "installed" state');
                             if (navigator.serviceWorker.controller) {
                                 resolve('installedAndWaiting');
                             } else {
@@ -15,6 +16,7 @@
                             }
                             break;
                         case 'activated': // new service-worker is has activated
+                            console.log('installing sw is in the "activated" state');
                             resolve('activated');
                             break;
                         default:

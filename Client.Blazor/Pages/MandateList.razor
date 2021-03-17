@@ -17,6 +17,7 @@
 @inject IApiClient Api
 @inject IToastService Toast
 @inject AppConfiguration Config
+@inject IJSRuntime Js
 
 <div class="row">
     <div class="col-sm-12">
@@ -181,6 +182,7 @@
     bool showClosed = false;
     private Mandate[] mandates;
     bool loading = false;
+    bool online = true;
     Mandate[] mandatesToDisplay => (mandates != null
                                         ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
                                         : Enumerable.Empty<Mandate>().ToArray())
@@ -197,7 +199,8 @@
     {
         Console.WriteLine("Executing OnInitialized Async from MandateList");
         mandates = await Repository.ReadAllMandatesAsync();
-        if (mandates == null)
+        online = await Js.InvokeAsync<bool>(JsInterop.IsOnline);
+        if (mandates == null && online)
         {
             await TryFetchMandatesAndSave();
         }

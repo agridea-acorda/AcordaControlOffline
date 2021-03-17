@@ -15,8 +15,7 @@ window.blazorExtensions = {
             var date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toGMTString();
-        }
-        else {
+        } else {
             expires = "";
         }
         document.cookie = name + "=" + value + expires + "; path=/";
@@ -26,7 +25,7 @@ window.blazorExtensions = {
         document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     },
 
-    ReadCookie: function (cname) {
+    ReadCookie: function(cname) {
         var name = cname + "=";
         var decodedCookie = decodeURIComponent(document.cookie);
         var ca = decodedCookie.split(';');
@@ -40,18 +39,18 @@ window.blazorExtensions = {
             }
         }
         return "";
+    },
+
+    IsOnline: function() {
+        console.log('Checking navigator.onLine property.');
+        if (navigator.onLine) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }
-
-//window.registerNewAppVersionCallback = function (dotnetHelper) {
-//    window['updateAvailable']
-//        .then(newVersionAvailable => {
-//            if (newVersionAvailable) {
-//                dotnetHelper.invokeMethodAsync('Client.Blazor', 'InvokeAction').then(r => console.log(r));
-//            }
-//        });
-//}
 
 //source: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm
 function BlazorDownloadFile(filename, contentType, content) {
