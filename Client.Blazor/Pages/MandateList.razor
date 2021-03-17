@@ -182,7 +182,6 @@
     bool showClosed = false;
     private Mandate[] mandates;
     bool loading = false;
-    bool online = true;
     Mandate[] mandatesToDisplay => (mandates != null
                                         ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
                                         : Enumerable.Empty<Mandate>().ToArray())
@@ -199,8 +198,7 @@
     {
         Console.WriteLine("Executing OnInitialized Async from MandateList");
         mandates = await Repository.ReadAllMandatesAsync();
-        online = await Js.InvokeAsync<bool>(JsInterop.IsOnline);
-        if (mandates == null && online)
+        if (mandates == null)
         {
             await TryFetchMandatesAndSave();
         }
