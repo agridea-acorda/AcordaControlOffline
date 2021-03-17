@@ -21,7 +21,7 @@
             <Blazorise.CloseButton Clicked="() => updateAppModal.Hide()" />
         </Blazorise.ModalHeader>
         <Blazorise.ModalBody>
-            <div class="alert alert-danger" role="alert">
+            <div class="alert alert-info" role="alert">
                 <p>Une mise à jour est disponible et sera automatiquement installée au prochain démarrage de l'application.</p>
                 <u>Attention</u>: Il est recommandé que tous les mandats téléchargés soient <strong>renvoyés</strong> ou <strong>effacés</strong> avant de faire la mise à jour.
             </div>
@@ -30,7 +30,9 @@
             <button @onclick="SkipWaiting" data-dismiss="modal" type="button" class="btn btn-primary mb-1">
                 <i class="fas fa-download"></i> Mettre à jour immédiatement
             </button>
-            <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-default mb-1">Attendre la mise à jour automatique</button>
+            <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-default mb-1">
+                <i class="far fa-clock"></i> Attendre la mise à jour automatique
+            </button>
         </Blazorise.ModalFooter>
     </Blazorise.ModalContent>
 </Blazorise.Modal>
