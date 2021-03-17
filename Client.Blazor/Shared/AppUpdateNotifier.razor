@@ -1,7 +1,9 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @inject IJSRuntime Js
 @inject AppConfiguration Config
 @inject NavigationManager Navigation
+@inject IRepository Repository
 @implements IAsyncDisposable
 
 @if (updateAvailable)
@@ -20,29 +22,34 @@
         </Blazorise.ModalHeader>
         <Blazorise.ModalBody>
             <div class="alert alert-danger" role="alert">
-                <u>Attention</u>: La mise à jour nécessite que tous les mandats téléchargés soient <strong>renvoyés</strong> ou <strong>effacés</strong>.
+                <p>Une mise à jour est disponible et sera automatiquement installée au prochain démarrage de l'application.</p>
+                <u>Attention</u>: Il est recommandé que tous les mandats téléchargés soient <strong>renvoyés</strong> ou <strong>effacés</strong> avant de faire la mise à jour.
             </div>
         </Blazorise.ModalBody>
         <Blazorise.ModalFooter>
-            <button @onclick="DoUpdate" data-dismiss="modal" type="button" class="btn btn-primary mb-1">
-                <i class="fas fa-download"></i> Mettre à jour
+            <button @onclick="SkipWaiting" data-dismiss="modal" type="button" class="btn btn-primary mb-1">
+                <i class="fas fa-download"></i> Mettre à jour immédiatement
             </button>
-            <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-default mb-1">Annuler, j'ai encore des mandats téléchargés.</button>
+            <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-default mb-1">Attendre la mise à jour automatique</button>
         </Blazorise.ModalFooter>
     </Blazorise.ModalContent>
 </Blazorise.Modal>
 
 @code {
+
     // Thanks to https://www.meziantou.net/javascript-isolation-in-blazor-components.htm
     bool updateAvailable;
     Blazorise.Modal updateAppModal;
-    JsInteropActionProxy newVersionAvailableProxy;
+    JsInteropAsyncActionProxy onNewVersionAvailableProxy;
+    JsInteropAsyncActionProxy onNewVersionDeployedProxy;
     private Task<IJSObjectReference> _module;
     private Task<IJSObjectReference> Module => _module ??= Js.InvokeAsync<IJSObjectReference>("import", Config.BaseUrl + "/js/appUpdateNotifier.js").AsTask();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        newVersionAvailableProxy = new JsInteropActionProxy(NewVersionAvailable);
+        onNewVersionAvailableProxy = new JsInteropAsyncActionProxy(OnNewVersionAvailable);
+        onNewVersionDeployedProxy = new JsInteropAsyncActionProxy(OnNewVersionDeployed);
+        updateAvailable = await Repository.GetAppUpdateAvailableFlag();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -51,26 +58,28 @@
         {
             var module = await Module;
             await module.InvokeVoidAsync("registerNewAppVersionCallback",
-                                         DotNetObjectReference.Create(newVersionAvailableProxy));
+                                         DotNetObjectReference.Create(onNewVersionAvailableProxy),
+                                         DotNetObjectReference.Create(onNewVersionDeployedProxy));
         }
     }
 
-    void NewVersionAvailable()
+    async Task OnNewVersionAvailable()
     {
         Console.WriteLine("A new version of the app is available");
         updateAvailable = true;
-        // todo save updateavailable info in localstorage or a cookie
+        await Repository.SetAppUpdateAvailable();
         StateHasChanged();
     }
 
-    /// <summary>
-    /// This is a wrong approach => to ensure data-consistency, all local data must be deleted, BUT we must let the
-    /// user do it herself, either deleting of sending local mandates. We should block the update until all local
-    /// mandates have been (knowingly) removed from local storage by the user.
-    /// </summary>
-    void DoUpdate()
+    async Task OnNewVersionDeployed()
     {
-        // todo clear updateavailable info from persistance
+        updateAvailable = false;
+        await Repository.ResetAppUpdateAvailable();
+        StateHasChanged();
+    }
+    
+    void SkipWaiting()
+    {
         // todo force update like this https://dev.to/drbragg/handling-service-worker-updates-in-your-vue-pwa-1pip
         Navigation.NavigateTo(Config.BaseUrl + "/", true);
     }

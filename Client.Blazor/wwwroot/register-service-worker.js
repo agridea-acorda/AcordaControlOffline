@@ -1,20 +1,21 @@
-﻿//navigator.serviceWorker.register('service-worker.js');
-
-window.updateAvailable = new Promise(function (resolve, reject) {
+﻿window.swUpdateStatus = new Promise(function (resolve, reject) {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
             .then(registration => {
                 console.log('Registration successful, scope is:', registration.scope);
                 registration.onupdatefound = () => {
-                    const installingWorker = registration.installing;
-                    installingWorker.onstatechange = () => {
-                        switch (installingWorker.state) {
+                    const newServiceWorker = registration.installing;
+                    newServiceWorker.onstatechange = () => {
+                        switch (newServiceWorker.state) {
                         case 'installed': // latest version of service-worker is installed and waiting to activate (a.k.a. 'new version of the app available')
                             if (navigator.serviceWorker.controller) {
-                                resolve(true);
+                                resolve('installedAndWaiting');
                             } else {
-                                resolve(false);
+                                resolve('noControllingServiceWorker');
                             }
+                            break;
+                        case 'activated': // new service-worker is has activated
+                            resolve('activated');
                             break;
                         default:
                         }

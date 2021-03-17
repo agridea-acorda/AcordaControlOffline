@@ -193,6 +193,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await localStorage_.SetItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
         }
 
+        public async ValueTask SetAppUpdateAvailable()
+        {
+            await localStorage_.SetItemAsync(AppUpdateAvailableKey(), true);
+        }
+
+        public async ValueTask<bool> GetAppUpdateAvailableFlag()
+        {
+            return await localStorage_.GetItemAsync<bool>(AppUpdateAvailableKey());
+        }
+
+        public async ValueTask ResetAppUpdateAvailable()
+        {
+            await localStorage_.RemoveItemAsync(AppUpdateAvailableKey());
+        }
+
         private static string MandateDetailKey(int farmId)
         {
             return $"mandate_FarmId{farmId}";
@@ -211,6 +226,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         private static string ChecklistKey(int farmInspectionId)
         {
             return $"{Checklist}_FarmInspectionId{farmInspectionId}";
+        }
+
+        private static string AppUpdateAvailableKey()
+        {
+            return "appupdateavailable";
         }
     }
 }

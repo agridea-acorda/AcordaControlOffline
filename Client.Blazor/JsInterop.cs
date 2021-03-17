@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
 namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
@@ -25,6 +26,22 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
         public void InvokeAction()
         {
             action.Invoke();
+        }
+    }
+
+    public class JsInteropAsyncActionProxy
+    {
+        private readonly Func<Task> asyncAction;
+
+        public JsInteropAsyncActionProxy(Func<Task> asyncAction)
+        {
+            this.asyncAction = asyncAction;
+        }
+
+        [JSInvokable("Client.Blazor")]
+        public void InvokeAction()
+        {
+            asyncAction.Invoke();
         }
     }
 
