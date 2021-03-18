@@ -48,7 +48,7 @@
     private Task<IJSObjectReference> _module;
     private Task<IJSObjectReference> Module => _module ??= Js.InvokeAsync<IJSObjectReference>("import", Config.BaseUrl + "/js/appUpdateNotifier.js").AsTask();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         onNewVersionAvailableProxy = new JsInteropActionProxy(OnNewVersionAvailable);
         onNewVersionDeployedProxy = new JsInteropActionProxy(OnNewVersionDeployed);
