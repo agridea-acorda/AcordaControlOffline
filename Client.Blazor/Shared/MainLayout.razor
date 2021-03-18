@@ -18,9 +18,9 @@
             <li class="nav-item d-none d-sm-inline-block">
                 <a class="nav-link" href="#" @onclick='() => Navigation.NavigateTo(Config.BaseUrl + "/")'><i class="fas fa-home"></i></a>
             </li>
+            <AppUpdateNotifier />
         </ul>
         <ul class="navbar-nav ml-auto">
-            <AppUpdateNotifier />
             <UserDisplay />
             <CantonDisplay />
         </ul>

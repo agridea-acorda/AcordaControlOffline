@@ -8,8 +8,8 @@
 
 @if (updateAvailable)
 {
-    <li class="nav-item">
-        <button class="nav-link btn btn-info" @onclick="() => updateAppModal.Show()"><i class="fas fa-info-circle"></i> Mise à jour disponible...</button>
+    <li class="nav-item d-none d-sm-inline-block">
+        <button class="nav-link btn btn-outline-warning text-warning" href="#" @onclick="() => updateAppModal.Show()"><i class="fas fa-bell"></i></button>
     </li>
 }
 
@@ -21,7 +21,7 @@
             <Blazorise.CloseButton Clicked="() => updateAppModal.Hide()" />
         </Blazorise.ModalHeader>
         <Blazorise.ModalBody>
-            <div class="alert alert-info" role="alert">
+            <div class="alert alert-warning" role="alert">
                 <p>Une mise à jour est disponible et sera automatiquement installée au prochain démarrage de l'application (fermer, puis redémarrer l'app).</p>
                 <p>Il est recommandé de <strong>renvoyer</strong> ou <strong>effacer</strong> les mandats téléchargés avant de faire la mise à jour.</p>
             </div>
