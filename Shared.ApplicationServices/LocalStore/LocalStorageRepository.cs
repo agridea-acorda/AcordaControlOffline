@@ -20,6 +20,10 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 {
+    /// <summary>
+    /// todo rewrite with pure IJSRuntime optimized calls (get rid of Blazored.LocalStorage)
+    /// todo then rewrite with localforage calls (remove local storage size limitation) + move code in LocalForageRepository
+    /// </summary>
     public class LocalStorageRepository : IRepository
     {
         public const string Mandates = "mandates";
