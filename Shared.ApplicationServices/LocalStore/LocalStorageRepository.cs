@@ -11,6 +11,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Blazored.LocalStorage;
+using Microsoft.JSInterop;
 using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
@@ -22,9 +23,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public const string ActionsOrDocuments = "actionsOrDocuments";
         
         private readonly ILocalStorageService localStorage_;
-        public LocalStorageRepository(ILocalStorageService localStorage)
+        private readonly IJSRuntime jsRuntime_; // for profiling, to be removed
+        public LocalStorageRepository(ILocalStorageService localStorage, IJSRuntime jsRuntime)
         {
             localStorage_ = localStorage;
+            jsRuntime_ = jsRuntime;
         }
 
         public async ValueTask SaveMandatesAsync(Mandate[] mandates)
@@ -146,8 +149,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask SaveChecklistAsync(Checklist checklist)
         {
+            await jsRuntime_.InvokeVoidAsync("console.time", "ChecklistFactory.Serialize");
             string json = new ChecklistFactory().Serialize(checklist);
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ChecklistFactory.Serialize");
+            
+            await jsRuntime_.InvokeVoidAsync("console.time", "localStorage_.SetItemAsync");
             await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "localStorage_.SetItemAsync");
         }
 
         public async Task<string> ReadChecklistJsonAsync(int farmInspectionId)

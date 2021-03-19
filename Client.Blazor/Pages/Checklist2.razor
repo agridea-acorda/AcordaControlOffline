@@ -12,6 +12,7 @@
 @inject IRepository Repository
 @inject IToastService Toast
 @inject AppConfiguration Config
+@inject IJSRuntime Js
 
 <div class="card">
     <div class="card-header">
@@ -235,12 +236,17 @@
         try
         {
             Console.WriteLine("Saving checklist...");
+            await Js.InvokeVoidAsync("console.time", "Checklist2.Save");
             await Repository.SaveChecklistAsync(checklist);
 
             // below should be performed with domain event dispatching mechanism
             var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
+            await Js.InvokeVoidAsync("console.time", "UpdateAndSaveInspectionPercentAndOutcome");
             await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
+            await Js.InvokeVoidAsync("console.timeEnd", "UpdateAndSaveInspectionPercentAndOutcome");
+            await Js.InvokeVoidAsync("console.time", "UpdateAndSaveInspectionInfoPercentAndOutcome");
             await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
+            await Js.InvokeVoidAsync("console.timeEnd", "UpdateAndSaveInspectionInfoPercentAndOutcome");
             Console.WriteLine("...checklist saved.");
             Toast.Success();
         }
@@ -248,6 +254,7 @@
         {
             saving = false;
             needsSaving = false;
+            await Js.InvokeVoidAsync("console.timeEnd", "Checklist2.Save");
             StateHasChanged();
         }
     }
@@ -262,7 +269,9 @@
 
         inspection.Progress(e.Percent * 100);
         inspection.SetOutcome(e.Outcome);
+        await Js.InvokeVoidAsync("console.time", "Repository.SaveMandateAsync");
         await repository.SaveMandateAsync(mandate, farmId);
+        await Js.InvokeVoidAsync("console.timeEnd", "Repository.SaveMandateAsync");
     }
 
     private async Task UpdateAndSaveInspectionInfoPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
@@ -278,7 +287,9 @@
 
         inspectionInfo.SetOutcome(e.Outcome);
         inspectionInfo.Progress(e.Percent);
+        await Js.InvokeVoidAsync("console.time", "Repository.SaveMandatesAsync");
         await repository.SaveMandatesAsync(mandates);
+        await Js.InvokeVoidAsync("console.timeEnd", "Repository.SaveMandatesAsync");
     }
 
 }
