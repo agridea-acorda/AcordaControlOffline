@@ -333,7 +333,7 @@
                 Toast.Error(error);
                 return;
             }
-            await Js.InvokeVoidAsync("console.timeEnd", "Repository.ReadChecklistAsync");
+            await Js.InvokeVoidAsync("console.timeEnd", "AuthService.ReadAuthInfo");
 
             await Js.InvokeVoidAsync("console.time", "CreatePdf");
             string organizationName = auth.OrganizationName;
