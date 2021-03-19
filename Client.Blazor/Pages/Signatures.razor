@@ -302,6 +302,7 @@
 
         try
         {
+            await Js.InvokeVoidAsync("console.time", "Repository.ReadFarmAsync");
             var farm = await Repository.ReadFarmAsync(farmId);
             if (farm == null)
             {
@@ -310,6 +311,9 @@
                 Toast.Error(error);
                 return;
             }
+            await Js.InvokeVoidAsync("console.timeEnd", "Repository.ReadFarmAsync");
+
+            await Js.InvokeVoidAsync("console.time", "Repository.ReadChecklistAsync");
             var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
             if (checklist == null)
             {
@@ -318,6 +322,9 @@
                 Toast.Error(error);
                 return;
             }
+            await Js.InvokeVoidAsync("console.timeEnd", "Repository.ReadChecklistAsync");
+
+            await Js.InvokeVoidAsync("console.time", "AuthService.ReadAuthInfo");
             var auth = await AuthService.ReadAuthInfo();
             if (auth == Auth.UnknownUser)
             {
@@ -326,6 +333,9 @@
                 Toast.Error(error);
                 return;
             }
+            await Js.InvokeVoidAsync("console.timeEnd", "Repository.ReadChecklistAsync");
+
+            await Js.InvokeVoidAsync("console.time", "CreatePdf");
             string organizationName = auth.OrganizationName;
             string userName = auth.Username;
             string logoPath = "img/focaa.png";
@@ -335,7 +345,12 @@
                                                                       organizationName,
                                                                       logoPath), userName, true);
             string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
-            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", pdf.CreatePdf());
+            byte[] bytes = pdf.CreatePdf();
+            await Js.InvokeVoidAsync("console.timeEnd", "CreatePdf");
+
+            await Js.InvokeVoidAsync("console.time", "BlazorDownloadFile");
+            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", bytes);
+            await Js.InvokeVoidAsync("console.timeEnd", "BlazorDownloadFile");
         }
         finally
         {
