@@ -300,25 +300,39 @@
         await Task.Delay(1);
         StateHasChanged();
 
-        try 
-        { 
+        try
+        {
             var farm = await Repository.ReadFarmAsync(farmId);
-            Guard.Against.Null(farm, nameof(farm));
+            if (farm == null)
+            {
+                string error = $"Exploitation introuvable (FarmId={farmId})";
+                Console.WriteLine(error);
+                Toast.Error(error);
+                return;
+            }
             var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
-            Guard.Against.Null(checklist, nameof(checklist));
+            if (checklist == null)
+            {
+                string error = $"Checkliste introuvable (FarmInspectionId={FarmInspectionId})";
+                Console.WriteLine(error);
+                Toast.Error(error);
+                return;
+            }
             var auth = await AuthService.ReadAuthInfo();
             if (auth == Auth.UnknownUser)
             {
-                Toast.Error("Aucun utilisateur connecté, opération impossible");
+                string error = "Aucun utilisateur connecté, opération impossible";
+                Console.WriteLine(error);
+                Toast.Error(error);
                 return;
             }
-            string cantonCode = auth.CantonCode;
+            string organizationName = auth.OrganizationName;
             string userName = auth.Username;
             string logoPath = "img/focaa.png";
             var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
                                                                       farm,
                                                                       checklist,
-                                                                      cantonCode,
+                                                                      organizationName,
                                                                       logoPath), userName, true);
             string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
             await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", pdf.CreatePdf());

@@ -21,6 +21,17 @@
         </Blazorise.Select>
     </Blazorise.Field>
     <Blazorise.Field>
+        <Blazorise.FieldLabel>Organisation</Blazorise.FieldLabel>
+        <Blazorise.Select TValue="string" @bind-SelectedValue="@Model.OrganizationName">
+            <ChildContent>
+                @foreach (var option in Model.ComboOrganizationss)
+                {
+                    <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                }
+            </ChildContent>
+        </Blazorise.Select>
+    </Blazorise.Field>
+    <Blazorise.Field>
         <Blazorise.FieldLabel>Identifiant</Blazorise.FieldLabel>
         <Blazorise.TextEdit @bind-Text="@Model.Username">
         </Blazorise.TextEdit>
@@ -43,8 +54,8 @@
     <Blazorise.Button Type="@Blazorise.ButtonType.Submit"
                       Color="@Blazorise.Color.Primary"
                       PreventDefaultOnSubmit="false"
-                      Disabled="@isLogging">
-        <i class="@(isLogging ? "fas fa-spinner fa-spin" : "fas fa-sign-in-alt")"></i> Connexion
+                      Disabled="@isSigningIn">
+        <i class="@(isSigningIn ? "fas fa-spinner fa-spin" : "fas fa-sign-in-alt")"></i> Connexion
     </Blazorise.Button>
 </EditForm>
 
@@ -54,12 +65,12 @@
     string passwordDisplayButtonIconClass = "fa-eye-slash";
     Blazorise.TextRole passwordRole = Blazorise.TextRole.Password;
     bool IsPasswordEditDisabled => string.IsNullOrEmpty(Model.Password);
-    bool isLogging = false;
+    bool isSigningIn = false;
 
     async Task ValidSubmit()
     {
-        if (isLogging) return;
-        isLogging = true;
+        if (isSigningIn) return;
+        isSigningIn = true;
         await Task.Delay(1);
         StateHasChanged();
 
@@ -71,7 +82,7 @@
         }
         finally
         {
-            isLogging = false;
+            isSigningIn = false;
             Navigation.NavigateTo(Config.BaseUrl + "/MandateList");
         }
     }

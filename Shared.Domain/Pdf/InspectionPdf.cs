@@ -290,7 +290,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
             Phrase OrganizationPhrase(Organization organization)
             {
-                bool check = organization.IsCantonalOrgForCanton(model_.CantonCode);
+                bool check = model_.OrganizationName == organization.Name;
                 return new Phrase
                 {
                     new Chunk(check ? "[x] " : "[  ] ", Fonts.Helvetica10BlackBold),

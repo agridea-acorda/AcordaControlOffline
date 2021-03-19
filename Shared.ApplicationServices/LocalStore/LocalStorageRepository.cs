@@ -27,7 +27,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public const string ActionsOrDocuments = "actionsOrDocuments";
         
         private readonly ILocalStorageService localStorage_;
-        private readonly IJSRuntime jsRuntime_; // for profiling, to be removed
+        private readonly IJSRuntime jsRuntime_;
 
         private JsonSerializerOptions JsonSerializerOptions { get; } = new JsonSerializerOptions
         {

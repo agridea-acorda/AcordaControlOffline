@@ -439,27 +439,34 @@ else
         {
             Console.WriteLine($"Saving pdf report for inspection {farmInspectionId}...");
             var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == farmInspectionId);
-            var checklist = await Repository.ReadChecklistAsync(farmInspectionId);
-            Guard.Against.Null(inspection, nameof(inspection));
-            var auth = await AuthService.ReadAuthInfo();
-            if (auth == Auth.UnknownUser)
+            if (inspection == null)
             {
+                string error = $"Contrôle introuvable (FarmInspectionId={farmInspectionId})";
+                Console.WriteLine(error);
                 Toast.Error("Aucun utilisateur connecté, opération impossible");
                 return;
             }
-            string cantonCode = auth.CantonCode;
+            var checklist = await Repository.ReadChecklistAsync(farmInspectionId);
+            var auth = await AuthService.ReadAuthInfo();
+            if (auth == Auth.UnknownUser)
+            {
+                string error = "Aucun utilisateur connecté, opération impossible";
+                Console.WriteLine(error);
+                Toast.Error("Aucun utilisateur connecté, opération impossible");
+                return;
+            }
+            string organizationName = auth.OrganizationName;
             string userName = auth.Username;
             string logoPath = "img/focaa.png";
             var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
                                                                       farm,
                                                                       checklist,
-                                                                      cantonCode,
+                                                                      organizationName,
                                                                       logoPath), userName);
             inspection.SetPdfReport(new PdfReport(pdf.CreatePdf()));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
             Console.WriteLine("... pdf report succesfully saved.");
-
         }
         finally
         {

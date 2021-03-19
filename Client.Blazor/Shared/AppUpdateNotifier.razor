@@ -1,9 +1,11 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
 @inject IJSRuntime Js
 @inject AppConfiguration Config
 @inject NavigationManager Navigation
 @inject IRepository Repository
+@inject IAuthService AuthService
 @implements IAsyncDisposable
 
 @if (updateAvailable)
@@ -74,11 +76,16 @@
         StateHasChanged();
     }
 
+    /// <remarks>
+    /// This does not work, method is never called. Would be safer to delete auth cookie on new version
+    /// (especially if changes are made to Auth, otherwise it's safe to activate new service worker).
+    /// </remarks>
     void OnNewVersionDeployed()
     {
         Console.WriteLine("New version deployed (service worker activated).");
         updateAvailable = false;
         //await Repository.ResetAppUpdateAvailable();
+        //await AuthService.Logout();
         StateHasChanged();
     }
 

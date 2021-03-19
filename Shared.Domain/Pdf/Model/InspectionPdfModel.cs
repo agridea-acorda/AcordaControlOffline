@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
 {
@@ -28,11 +27,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public string FarmerSignatureImage { get; set; }
         public string InspectorSignatureImage { get; set; }
         public string Inspector2SignatureImage { get; set; }
-        public string CantonCode { get; set; }
+        public string OrganizationName { get; set; }
         public string CommentForFarmer { get; set; }
 
 
-        public static InspectionPdfModel FromDomain(Inspection.Inspection inspection, Farm.Farm farm, Checklist.Checklist checklist, string cantonCode, string logoPath)
+        public static InspectionPdfModel FromDomain(Inspection.Inspection inspection, Farm.Farm farm, Checklist.Checklist checklist, string organizationName, string logoPath)
         {
             var model = new InspectionPdfModel
             {
@@ -54,7 +53,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
                 FarmerSignatureImage = inspection.FarmerSignature.DataUrl,
                 InspectorSignatureImage = inspection.InspectorSignature.DataUrl,
                 Inspector2SignatureImage = inspection.Inspector2Signature.DataUrl,
-                CantonCode = cantonCode,
+                OrganizationName = organizationName,
                 Farm = FarmModel.FromDomain(farm),
                 CommentForFarmer = inspection.CommentForFarmer
             };
