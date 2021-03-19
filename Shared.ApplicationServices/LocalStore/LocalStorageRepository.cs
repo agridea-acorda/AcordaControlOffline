@@ -24,6 +24,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         
         private readonly ILocalStorageService localStorage_;
         private readonly IJSRuntime jsRuntime_; // for profiling, to be removed
+        
         public LocalStorageRepository(ILocalStorageService localStorage, IJSRuntime jsRuntime)
         {
             localStorage_ = localStorage;
@@ -154,7 +155,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ChecklistFactory.Serialize");
             
             await jsRuntime_.InvokeVoidAsync("console.time", "localStorage_.SetItemAsync");
-            await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
+            //await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
+            string key = ChecklistKey(checklist);
+            if (jsRuntime_ is IJSUnmarshalledRuntime jsUnmarshalledRuntime)
+            {
+                jsUnmarshalledRuntime.InvokeUnmarshalled<string, string, bool>("setItemInLocalStorageUnmarshalled", key, json);
+            }
+            else if (jsRuntime_ is IJSInProcessRuntime jsInProcessRuntime)
+            {
+                jsInProcessRuntime.InvokeVoid("localStorage.setItem", key, json);
+            }
+            else
+            {
+                // Fall back to the (slowest) async method if not in WebAssembly
+                await localStorage_.SetItemAsync(key, json);
+            }
             await jsRuntime_.InvokeVoidAsync("console.timeEnd", "localStorage_.SetItemAsync");
         }
 
