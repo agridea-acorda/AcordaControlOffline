@@ -241,12 +241,8 @@
 
             // below should be performed with domain event dispatching mechanism
             var checklistEvent = new NodeOutcomeChanged(checklist.OutcomeComputed, checklist.Percent, FarmInspectionId);
-            await Js.InvokeVoidAsync("console.time", "UpdateAndSaveInspectionPercentAndOutcome");
             await UpdateAndSaveInspectionPercentAndOutcome(Repository, farmId, checklistEvent);
-            await Js.InvokeVoidAsync("console.timeEnd", "UpdateAndSaveInspectionPercentAndOutcome");
-            await Js.InvokeVoidAsync("console.time", "UpdateAndSaveInspectionInfoPercentAndOutcome");
             await UpdateAndSaveInspectionInfoPercentAndOutcome(Repository, farmId, checklistEvent);
-            await Js.InvokeVoidAsync("console.timeEnd", "UpdateAndSaveInspectionInfoPercentAndOutcome");
             Console.WriteLine("...checklist saved.");
             Toast.Success();
         }
@@ -262,34 +258,51 @@
     private async Task UpdateAndSaveInspectionPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
     {
         var mandate = await repository.ReadMandateAsync(farmId);
-        Guard.Against.Null(mandate, nameof(mandate));
+        if (mandate == null)
+        {
+            string error = $"Mandat introuvable (FarmId={farmId})";
+            Console.WriteLine(error);
+            Toast.Error(error);
+            return;
+        }
 
         var inspection = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == e.FarmInspectionId);
-        Guard.Against.Null(inspection, nameof(inspection));
-
+        if (inspection == null)
+        {
+            string error = $"Contrôle introuvable (FarmInspectionId={e.FarmInspectionId})";
+            Console.WriteLine(error);
+            Toast.Error(error);
+            return;
+        }
         inspection.Progress(e.Percent * 100);
         inspection.SetOutcome(e.Outcome);
-        await Js.InvokeVoidAsync("console.time", "Repository.SaveMandateAsync");
         await repository.SaveMandateAsync(mandate, farmId);
-        await Js.InvokeVoidAsync("console.timeEnd", "Repository.SaveMandateAsync");
     }
 
     private async Task UpdateAndSaveInspectionInfoPercentAndOutcome(IRepository repository, int farmId, NodeOutcomeChanged e)
     {
         var mandates = await repository.ReadAllMandatesAsync();
-        Guard.Against.Null(mandates, nameof(mandates));
-
         var mandate = mandates.FirstOrDefault(x => x.Farm.Id == farmId);
-        Guard.Against.Null(mandate, nameof(mandate));
+        if (mandate == null)
+        {
+            string error = $"Mandat introuvable (FarmId={farmId})";
+            Console.WriteLine(error);
+            Toast.Error(error);
+            return;
+        }
 
         var inspectionInfo = mandate.Inspections.FirstOrDefault(x => x.FarmInspectionId == e.FarmInspectionId);
-        Guard.Against.Null(inspectionInfo, nameof(inspectionInfo));
+        if (inspectionInfo == null)
+        {
+            string error = $"Contrôle introuvable (FarmInspectionId={e.FarmInspectionId})";
+            Console.WriteLine(error);
+            Toast.Error(error);
+            return;
+        }
 
         inspectionInfo.SetOutcome(e.Outcome);
         inspectionInfo.Progress(e.Percent);
-        await Js.InvokeVoidAsync("console.time", "Repository.SaveMandatesAsync");
         await repository.SaveMandatesAsync(mandates);
-        await Js.InvokeVoidAsync("console.timeEnd", "Repository.SaveMandatesAsync");
     }
 
 }

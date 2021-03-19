@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate;
@@ -12,7 +14,9 @@ using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Inspection;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 {
@@ -24,7 +28,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         
         private readonly ILocalStorageService localStorage_;
         private readonly IJSRuntime jsRuntime_; // for profiling, to be removed
-        
+
+        private JsonSerializerOptions JsonSerializerOptions { get; } = new JsonSerializerOptions
+        {
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            IgnoreNullValues = true,
+            IgnoreReadOnlyProperties = true,
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            WriteIndented = false
+        };
+
         public LocalStorageRepository(ILocalStorageService localStorage, IJSRuntime jsRuntime)
         {
             localStorage_ = localStorage;
@@ -33,7 +48,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask SaveMandatesAsync(Mandate[] mandates)
         {
-            await localStorage_.SetItemAsync(Mandates, mandates);
+            await jsRuntime_.InvokeVoidAsync("console.time", "Mandate[] Serialize");
+            // force use of System.Text.Json when Json.NET is not used explicitly (temporary fix that mimics Blazored.LocalStorage, it 'just works').
+            string json = JsonSerializer.Serialize(mandates, JsonSerializerOptions); 
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "Mandate[] Serialize");
+
+            await SetItemWithOptimization(Mandates, json);
         }
 
         public async ValueTask<Mandate[]> ReadAllMandatesAsync()
@@ -116,8 +136,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id)
         {
-            string key = MandateDetailKey(id); 
-            await localStorage_.SetItemAsync(key, new MandateFactory().Serialize(mandate));
+            string key = MandateDetailKey(id);
+            await jsRuntime_.InvokeVoidAsync("console.time", "MandateFactory.Serialize");
+            string json = new MandateFactory().Serialize(mandate);
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "MandateFactory.Serialize");
+
+            await SetItemWithOptimization(key, json);
         }
 
         public async ValueTask SaveMandateJsonAsync(string json, int id)
@@ -150,27 +174,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask SaveChecklistAsync(Checklist checklist)
         {
+            string key = ChecklistKey(checklist);
+
             await jsRuntime_.InvokeVoidAsync("console.time", "ChecklistFactory.Serialize");
             string json = new ChecklistFactory().Serialize(checklist);
             await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ChecklistFactory.Serialize");
-            
-            await jsRuntime_.InvokeVoidAsync("console.time", "localStorage_.SetItemAsync");
-            //await localStorage_.SetItemAsync(ChecklistKey(checklist), json);
-            string key = ChecklistKey(checklist);
-            if (jsRuntime_ is IJSUnmarshalledRuntime jsUnmarshalledRuntime)
-            {
-                jsUnmarshalledRuntime.InvokeUnmarshalled<string, string, bool>("setItemInLocalStorageUnmarshalled", key, json);
-            }
-            else if (jsRuntime_ is IJSInProcessRuntime jsInProcessRuntime)
-            {
-                jsInProcessRuntime.InvokeVoid("localStorage.setItem", key, json);
-            }
-            else
-            {
-                // Fall back to the (slowest) async method if not in WebAssembly
-                await localStorage_.SetItemAsync(key, json);
-            }
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "localStorage_.SetItemAsync");
+
+            await SetItemWithOptimization(key, json);
         }
 
         public async Task<string> ReadChecklistJsonAsync(int farmInspectionId)
@@ -254,6 +264,24 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         private static string AppUpdateAvailableKey()
         {
             return "appupdateavailable";
+        }
+
+        private async ValueTask SetItemWithOptimization(string key, string json)
+        {
+            await jsRuntime_.InvokeVoidAsync("console.time", "SetItemWithOptimization");
+            if (jsRuntime_ is IJSUnmarshalledRuntime jsUnmarshalledRuntime)
+            {
+                jsUnmarshalledRuntime.InvokeUnmarshalled<string, string, bool>("setItemInLocalStorageUnmarshalled", key, json);
+            }
+            else if (jsRuntime_ is IJSInProcessRuntime jsInProcessRuntime)
+            {
+                jsInProcessRuntime.InvokeVoid("localStorage.setItem", key, json);
+            }
+            else // not webassembly, async call necessary to accomodate server-side scenario
+            {
+                await jsRuntime_.InvokeVoidAsync("localStorage.setItem", key, json);
+            }
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "SetItemWithOptimization");
         }
     }
 }
