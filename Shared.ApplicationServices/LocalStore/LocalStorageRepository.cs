@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Mandate;
@@ -12,17 +11,15 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.S
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
-using Blazored.LocalStorage;
 using Microsoft.JSInterop;
-using Newtonsoft.Json;
 using Inspection = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.Inspection;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 {
     /// <summary>
-    /// todo rewrite with pure IJSRuntime optimized calls (get rid of Blazored.LocalStorage)
-    /// todo then rewrite with localforage calls (remove local storage size limitation) + move code in LocalForageRepository
+    /// todo new version with localforage instead of localstorage (to remove local storage size limitation)
+    /// todo (move code in new LocalForageRepository)
     /// </summary>
     /// <remarks>
     /// System.Text.Json.JsonSerializer is used where no explicit serialization/deserialization is provided.
@@ -33,8 +30,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public const string Mandates = "mandates";
         public const string Checklist = "checklist";
         public const string ActionsOrDocuments = "actionsOrDocuments";
-        
-        private readonly ILocalStorageService localStorage_;
         private readonly IJSRuntime jsRuntime_;
 
         private JsonSerializerOptions JsonSerializerOptions { get; } = new JsonSerializerOptions
@@ -48,18 +43,17 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             WriteIndented = false
         };
 
-        public LocalStorageRepository(ILocalStorageService localStorage, IJSRuntime jsRuntime)
+        public LocalStorageRepository(IJSRuntime jsRuntime)
         {
-            localStorage_ = localStorage;
             jsRuntime_ = jsRuntime;
         }
 
         public async ValueTask SaveMandatesAsync(Mandate[] mandates)
         {
-            await jsRuntime_.InvokeVoidAsync("console.time", "Mandate[] Serialize");
+            //await jsRuntime_.InvokeVoidAsync("console.time", "Mandate[] Serialize");
             // force use of System.Text.Json when Json.NET is not used explicitly (temporary fix that mimics Blazored.LocalStorage, it 'just works').
             string json = JsonSerializer.Serialize(mandates, JsonSerializerOptions); 
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "Mandate[] Serialize");
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "Mandate[] Serialize");
 
             await SetStringItemAsync(Mandates, json);
         }
@@ -67,7 +61,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public async ValueTask<Mandate[]> ReadAllMandatesAsync()
         {
             string json = await GetItemAsStringAsync(Mandates);
-            return JsonSerializer.Deserialize<Mandate[]>(json, JsonSerializerOptions);
+            return json == null ? null : JsonSerializer.Deserialize<Mandate[]>(json, JsonSerializerOptions);
         }
 
         public async ValueTask ClearMandatesListAsync()
@@ -109,7 +103,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             if (inspection != null)
                 inspection.InspectorSigns(signature);
             
-            await localStorage_.SetItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
+            await SetStringItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
         }
 
         public async ValueTask<Signature> ReadFarmerSignatureAsync(int farmId, int farmInspectionId)
@@ -170,12 +164,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask<ChecklistSample> ReadChecklistSampleAsync()
         {
-            return await localStorage_.GetItemAsync<ChecklistSample>(Checklist);
+            string json = await GetItemAsStringAsync(Checklist);
+            return json == null ? null : JsonSerializer.Deserialize<ChecklistSample>(json, JsonSerializerOptions);
         }
 
         public async ValueTask SaveChecklistSampleAsync(ChecklistSample checklist)
         {
-            await localStorage_.SetItemAsync(Checklist, checklist);
+            string json = JsonSerializer.Serialize(checklist, JsonSerializerOptions);
+            await SetStringItemAsync(Checklist, json);
         }
 
         public async ValueTask SaveChecklistAsync(Checklist checklist)
@@ -191,7 +187,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async Task<string> ReadChecklistJsonAsync(int farmInspectionId)
         {
-            return await localStorage_.GetItemAsStringAsync(ChecklistKey(farmInspectionId));
+            return await GetItemAsStringAsync(ChecklistKey(farmInspectionId));
         }
 
         public async Task<Checklist> ReadChecklistAsync(int farmInspectionId)
@@ -202,17 +198,19 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask DeleteChecklistAsync(int farmInspectionId)
         {
-            await localStorage_.RemoveItemAsync(ChecklistKey(farmInspectionId));
+            await RemoveItemAsync(ChecklistKey(farmInspectionId));
         }
 
         public async ValueTask<ActionsOrDocumentEditModel> ReadActionsOrDocumentsAsync()
         {
-            return await localStorage_.GetItemAsync<ActionsOrDocumentEditModel>(ActionsOrDocuments);
+            string json = await GetItemAsStringAsync(ActionsOrDocuments);
+            return json == null ? null : JsonSerializer.Deserialize<ActionsOrDocumentEditModel>(json, JsonSerializerOptions);
         }
 
         public async ValueTask SaveActionsOrDocumentsAsync(ActionsOrDocumentEditModel model)
         {
-            await localStorage_.SetItemAsync(ActionsOrDocuments, model);
+            string json = JsonSerializer.Serialize(model, JsonSerializerOptions);
+            await SetStringItemAsync(ActionsOrDocuments, json);
         }
 
         private async ValueTask<Signature> ReadSignatureAsync(int farmId, int farmInspectionId, Func<Inspection, Signature> getSignature)
@@ -229,22 +227,23 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             if (inspection != null)
                 signAction(inspection, signature);
 
-            await localStorage_.SetItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
+            await SetStringItemAsync(MandateDetailKey(farmId), new MandateFactory().Serialize(mandate));
         }
 
         public async ValueTask SetAppUpdateAvailable()
         {
-            await localStorage_.SetItemAsync(AppUpdateAvailableKey(), true);
+            await SetStringItemAsync(AppUpdateAvailableKey(), JsonSerializer.Serialize(true, JsonSerializerOptions));
         }
 
         public async ValueTask<bool> GetAppUpdateAvailableFlag()
         {
-            return await localStorage_.GetItemAsync<bool>(AppUpdateAvailableKey());
+            string json = await GetItemAsStringAsync(AppUpdateAvailableKey());
+            return json != null && JsonSerializer.Deserialize<bool>(json, JsonSerializerOptions);
         }
 
         public async ValueTask ResetAppUpdateAvailable()
         {
-            await localStorage_.RemoveItemAsync(AppUpdateAvailableKey());
+            await RemoveItemAsync(AppUpdateAvailableKey());
         }
 
         private static string MandateDetailKey(int farmId)
@@ -337,7 +336,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             await jsRuntime_.InvokeVoidAsync("console.time", "ContainsKeyAsync");
             bool returnedValue = jsRuntime_ switch
             {
-                IJSUnmarshalledRuntime jsUnmarshalledRuntime => jsUnmarshalledRuntime.InvokeUnmarshalled<string, bool>("containsKeyUnmarshalled", key),
+                //IJSUnmarshalledRuntime jsUnmarshalledRuntime => jsUnmarshalledRuntime.InvokeUnmarshalled<string, bool>("containsKeyUnmarshalled", key),
                 IJSInProcessRuntime jsInProcessRuntime => jsInProcessRuntime.Invoke<bool>("localStorage.hasOwnProperty", key),
                 _ => await jsRuntime_.InvokeAsync<bool>("localStorage.hasOwnProperty", key)
             };

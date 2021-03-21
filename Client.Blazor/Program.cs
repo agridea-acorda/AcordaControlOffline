@@ -40,7 +40,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.Services.AddScoped<IApiClient, ApiClient>();
 
             // local storage and repository using it
-            builder.Services.AddBlazoredLocalStorage(conf => conf.JsonSerializerOptions.WriteIndented = true);
+            builder.Services.AddBlazoredLocalStorage(conf => conf.JsonSerializerOptions.WriteIndented = false);
             builder.Services.AddScoped<IRepository, LocalStorageRepository>();
 
             // (user-)settings

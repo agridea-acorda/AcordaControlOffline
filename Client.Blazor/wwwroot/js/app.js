@@ -60,7 +60,8 @@ function setItemUnmarshalled(key, json) {
 
 function getItemUnmarshalled(key) {
     const keyStr = BINDING.conv_string(key);
-    return localStorage.getItem(keyStr);
+    var item = localStorage.getItem(keyStr);
+    return BINDING.js_to_mono_obj(item);
 }
 
 function removeItemUnmarshalled(key) {
@@ -68,9 +69,11 @@ function removeItemUnmarshalled(key) {
     localStorage.removeItem(keyStr);
 }
 
+// This does not work, not used by dotnet repository
 function containsKeyUnmarshalled(key) {
     const keyStr = BINDING.conv_string(key);
-    return localStorage.hasOwnProperty(keyStr);
+    var containsKey = localStorage.hasOwnProperty(keyStr);
+    return BINDING.js_to_mono_obj(containsKey);
 }
 
 //source: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm

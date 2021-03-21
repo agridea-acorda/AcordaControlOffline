@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Inspection;
 using Newtonsoft.Json;
 
@@ -10,6 +8,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     {
         public override Domain.Mandate.Mandate Parse(string json)
         {
+            if (json == null) return null;
             var dto = JsonConvert.DeserializeObject<MandateDeserializationDto>(json);
             return Parse(dto);
         }
