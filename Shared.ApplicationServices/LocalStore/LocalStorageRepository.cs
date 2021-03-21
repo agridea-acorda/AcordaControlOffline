@@ -57,7 +57,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             string json = JsonSerializer.Serialize(mandates, JsonSerializerOptions); 
             await jsRuntime_.InvokeVoidAsync("console.timeEnd", "Mandate[] Serialize");
 
-            await SetItemWithOptimization(Mandates, json);
+            await SetStringItemAsync(Mandates, json);
         }
 
         public async ValueTask<Mandate[]> ReadAllMandatesAsync()
@@ -145,7 +145,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             string json = new MandateFactory().Serialize(mandate);
             await jsRuntime_.InvokeVoidAsync("console.timeEnd", "MandateFactory.Serialize");
 
-            await SetItemWithOptimization(key, json);
+            await SetStringItemAsync(key, json);
         }
 
         public async ValueTask SaveMandateJsonAsync(string json, int id)
@@ -184,7 +184,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             string json = new ChecklistFactory().Serialize(checklist);
             await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ChecklistFactory.Serialize");
 
-            await SetItemWithOptimization(key, json);
+            await SetStringItemAsync(key, json);
         }
 
         public async Task<string> ReadChecklistJsonAsync(int farmInspectionId)
@@ -270,22 +270,64 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             return "appupdateavailable";
         }
 
-        private async ValueTask SetItemWithOptimization(string key, string json)
+        private async ValueTask SetStringItemAsync(string key, string json)
         {
-            await jsRuntime_.InvokeVoidAsync("console.time", "SetItemWithOptimization");
-            if (jsRuntime_ is IJSUnmarshalledRuntime jsUnmarshalledRuntime)
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
+
+            await jsRuntime_.InvokeVoidAsync("console.time", "SetStringItemAsync");
+            switch (jsRuntime_)
             {
-                jsUnmarshalledRuntime.InvokeUnmarshalled<string, string, bool>("setItemInLocalStorageUnmarshalled", key, json);
+                case IJSUnmarshalledRuntime jsUnmarshalledRuntime:
+                    jsUnmarshalledRuntime.InvokeUnmarshalled<string, string, bool>("setItemUnmarshalled", key, json);
+                    break;
+                case IJSInProcessRuntime jsInProcessRuntime:
+                    jsInProcessRuntime.InvokeVoid("localStorage.setItem", key, json);
+                    break;
+
+                default:
+                    await jsRuntime_.InvokeVoidAsync("localStorage.setItem", key, json);
+                    break;
             }
-            else if (jsRuntime_ is IJSInProcessRuntime jsInProcessRuntime)
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "SetStringItemAsync");
+        }
+
+        private async ValueTask<string> GetItemAsStringAsync(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
+
+            await jsRuntime_.InvokeVoidAsync("console.time", "GetItemAsStringAsync");
+            string returnedValue = jsRuntime_ switch
             {
-                jsInProcessRuntime.InvokeVoid("localStorage.setItem", key, json);
-            }
-            else // not webassembly, async call necessary to accomodate server-side scenario
+                IJSUnmarshalledRuntime jsUnmarshalledRuntime => jsUnmarshalledRuntime.InvokeUnmarshalled<string, string>("getItemUnmarshalled", key),
+                IJSInProcessRuntime jsInProcessRuntime => jsInProcessRuntime.Invoke<string>("localStorage.getItem", key),
+                _ => await jsRuntime_.InvokeAsync<string>("localStorage.getItem", key)
+            };
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "GetItemAsStringAsync");
+            return returnedValue;
+        }
+
+        public async ValueTask RemoveItemAsync(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
+
+            await jsRuntime_.InvokeVoidAsync("console.time", "RemoveItemAsync");
+            switch (jsRuntime_)
             {
-                await jsRuntime_.InvokeVoidAsync("localStorage.setItem", key, json);
+                case IJSUnmarshalledRuntime jsUnmarshalledRuntime:
+                    jsUnmarshalledRuntime.InvokeUnmarshalled<string, bool>("removeItemUnmarshalled", key);
+                    break;
+                case IJSInProcessRuntime jsInProcessRuntime:
+                    jsInProcessRuntime.InvokeVoid("localStorage.removeItem", key);
+                    break;
+
+                default:
+                    await jsRuntime_.InvokeVoidAsync("localStorage.removeItem", key);
+                    break;
             }
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "SetItemWithOptimization");
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "RemoveItemAsync");
         }
     }
 }

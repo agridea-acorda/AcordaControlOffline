@@ -52,10 +52,20 @@ window.blazorExtensions = {
 
 }
 
-function setItemInLocalStorageUnmarshalled(key, json) {
+function setItemUnmarshalled(key, json) {
     const keyStr = BINDING.conv_string(key);
     const jsonStr = BINDING.conv_string(json);
     localStorage.setItem(keyStr, jsonStr);
+}
+
+function getItemUnmarshalled(key) {
+    const keyStr = BINDING.conv_string(key);
+    localStorage.getItem(keyStr);
+}
+
+function removeItemUnmarshalled(key) {
+    const keyStr = BINDING.conv_string(key);
+    localStorage.removeItem(keyStr);
 }
 
 //source: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm
