@@ -24,6 +24,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     /// todo rewrite with pure IJSRuntime optimized calls (get rid of Blazored.LocalStorage)
     /// todo then rewrite with localforage calls (remove local storage size limitation) + move code in LocalForageRepository
     /// </summary>
+    /// <remarks>
+    /// System.Text.Json.JsonSerializer is used where no explicit serialization/deserialization is provided.
+    /// todo: use either System.Text.Json or NewtonSoft.Json everywhere.
+    /// </remarks>
     public class LocalStorageRepository : IRepository
     {
         public const string Mandates = "mandates";
@@ -62,23 +66,24 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask<Mandate[]> ReadAllMandatesAsync()
         {
-            return await localStorage_.GetItemAsync<Mandate[]>(Mandates);
+            string json = await GetItemAsStringAsync(Mandates);
+            return JsonSerializer.Deserialize<Mandate[]>(json, JsonSerializerOptions);
         }
 
         public async ValueTask ClearMandatesListAsync()
         {
-            await localStorage_.RemoveItemAsync(Mandates);
+            await RemoveItemAsync(Mandates);
         }
 
         public async ValueTask<bool> HasMandateAsync(int farmId)
         {
             string key = MandateDetailKey(farmId);
-            return await localStorage_.ContainKeyAsync(key);
+            return await ContainsKeyAsync(key);
         }
 
         public async ValueTask<string> ReadMandateJsonAsync(int farmId)
         {
-            return await localStorage_.GetItemAsStringAsync(MandateDetailKey(farmId));
+            return await GetItemAsStringAsync(MandateDetailKey(farmId));
         }
 
         public async ValueTask<Domain.Mandate.Mandate> ReadMandateAsync(int farmId)
@@ -89,7 +94,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask DeleteMandateAsync(int farmId)
         {
-            await localStorage_.RemoveItemAsync(MandateDetailKey(farmId));
+            await RemoveItemAsync(MandateDetailKey(farmId));
         }
 
         public async ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId)
@@ -129,41 +134,38 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
 
         public async ValueTask<Farm> ReadFarmAsync(int farmId)
         {
-            string json = await localStorage_.GetItemAsStringAsync(FarmKey(farmId));
+            string json = await GetItemAsStringAsync(FarmKey(farmId));
             return new FarmFactory().Parse(json);
         }
 
         public async ValueTask DeleteFarmAsync(int farmId)
         {
-            await localStorage_.RemoveItemAsync(FarmKey(farmId));
+            await RemoveItemAsync(FarmKey(farmId));
         }
 
         public async ValueTask SaveMandateAsync(Domain.Mandate.Mandate mandate, int id)
         {
             string key = MandateDetailKey(id);
-            await jsRuntime_.InvokeVoidAsync("console.time", "MandateFactory.Serialize");
             string json = new MandateFactory().Serialize(mandate);
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "MandateFactory.Serialize");
-
             await SetStringItemAsync(key, json);
         }
 
         public async ValueTask SaveMandateJsonAsync(string json, int id)
         {
             string key = MandateDetailKey(id);
-            await localStorage_.SetItemAsync(key, json);
+            await SetStringItemAsync(key, json);
         }
 
         public async ValueTask SaveFarmJsonAsync(string json, int id)
         {
             string key = FarmKey(id);
-            await localStorage_.SetItemAsync(key, json);
+            await SetStringItemAsync(key, json);
         }
 
         public async ValueTask SaveChecklistJsonAsync(string json, int id)
         {
             string key = ChecklistKey(id);
-            await localStorage_.SetItemAsync(key, json);
+            await SetStringItemAsync(key, json);
         }
 
         public async ValueTask<ChecklistSample> ReadChecklistSampleAsync()
@@ -328,6 +330,19 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                     break;
             }
             await jsRuntime_.InvokeVoidAsync("console.timeEnd", "RemoveItemAsync");
+        }
+
+        public async ValueTask<bool> ContainsKeyAsync(string key)
+        {
+            await jsRuntime_.InvokeVoidAsync("console.time", "ContainsKeyAsync");
+            bool returnedValue = jsRuntime_ switch
+            {
+                IJSUnmarshalledRuntime jsUnmarshalledRuntime => jsUnmarshalledRuntime.InvokeUnmarshalled<string, bool>("containsKeyUnmarshalled", key),
+                IJSInProcessRuntime jsInProcessRuntime => jsInProcessRuntime.Invoke<bool>("localStorage.hasOwnProperty", key),
+                _ => await jsRuntime_.InvokeAsync<bool>("localStorage.hasOwnProperty", key)
+            };
+            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ContainsKeyAsync");
+            return returnedValue;
         }
     }
 }

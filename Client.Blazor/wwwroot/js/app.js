@@ -60,12 +60,17 @@ function setItemUnmarshalled(key, json) {
 
 function getItemUnmarshalled(key) {
     const keyStr = BINDING.conv_string(key);
-    localStorage.getItem(keyStr);
+    return localStorage.getItem(keyStr);
 }
 
 function removeItemUnmarshalled(key) {
     const keyStr = BINDING.conv_string(key);
     localStorage.removeItem(keyStr);
+}
+
+function containsKeyUnmarshalled(key) {
+    const keyStr = BINDING.conv_string(key);
+    return localStorage.hasOwnProperty(keyStr);
 }
 
 //source: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm
