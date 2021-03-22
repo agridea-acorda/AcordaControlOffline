@@ -15,8 +15,7 @@ window.blazorExtensions = {
             var date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toGMTString();
-        }
-        else {
+        } else {
             expires = "";
         }
         document.cookie = name + "=" + value + expires + "; path=/";
@@ -26,7 +25,7 @@ window.blazorExtensions = {
         document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     },
 
-    ReadCookie: function (cname) {
+    ReadCookie: function(cname) {
         var name = cname + "=";
         var decodedCookie = decodeURIComponent(document.cookie);
         var ca = decodedCookie.split(';');
@@ -40,7 +39,41 @@ window.blazorExtensions = {
             }
         }
         return "";
+    },
+
+    IsOnline: function() {
+        console.log('Checking navigator.onLine property.');
+        if (navigator.onLine) {
+            return true;
+        } else {
+            return false;
+        }
     }
+
+}
+
+function setItemUnmarshalled(key, json) {
+    const keyStr = BINDING.conv_string(key);
+    const jsonStr = BINDING.conv_string(json);
+    localStorage.setItem(keyStr, jsonStr);
+}
+
+function getItemUnmarshalled(key) {
+    const keyStr = BINDING.conv_string(key);
+    var item = localStorage.getItem(keyStr);
+    return BINDING.js_to_mono_obj(item);
+}
+
+function removeItemUnmarshalled(key) {
+    const keyStr = BINDING.conv_string(key);
+    localStorage.removeItem(keyStr);
+}
+
+// This does not work, not used by dotnet repository
+function containsKeyUnmarshalled(key) {
+    const keyStr = BINDING.conv_string(key);
+    var containsKey = localStorage.hasOwnProperty(keyStr);
+    return BINDING.js_to_mono_obj(containsKey);
 }
 
 //source: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm
@@ -64,10 +97,27 @@ function BlazorDownloadFile(filename, contentType, content) {
     URL.revokeObjectURL(exportUrl);
 }
 
-// Convert a base64 string to a Uint8Array. This is needed to create a blob object from the base64 string.
-// The code comes from: https://developer.mozilla.org/fr/docs/Web/API/WindowBase64/D%C3%A9coder_encoder_en_base64
-function b64ToUint6(nChr) {
-    return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
+function BlazorDownloadFileFast(name, contentType, content) {
+    // Convert the parameters to actual JS types
+    const nameStr = BINDING.conv_string(name);
+    const contentTypeStr = BINDING.conv_string(contentType);
+    const contentArray = Blazor.platform.toUint8Array(content);
+
+    // Create the URL
+    const file = new File([contentArray], nameStr, { type: contentTypeStr });
+    const exportUrl = URL.createObjectURL(file);
+
+    // Create the <a> element and click on it
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.href = exportUrl;
+    a.download = nameStr;
+    a.target = "_self";
+    a.click();
+
+    // We don't need to keep the url, let's release the memory
+    // On Safari it seems you need to comment this line... (please let me know if you know why)
+    URL.revokeObjectURL(exportUrl);
 }
 
 function base64DecToArr(sBase64, nBlocksSize) {
@@ -88,4 +138,10 @@ function base64DecToArr(sBase64, nBlocksSize) {
         }
     }
     return taBytes;
+}
+
+// Convert a base64 string to a Uint8Array. This is needed to create a blob object from the base64 string.
+// The code comes from: https://developer.mozilla.org/fr/docs/Web/API/WindowBase64/D%C3%A9coder_encoder_en_base64
+function b64ToUint6(nChr) {
+    return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
 }

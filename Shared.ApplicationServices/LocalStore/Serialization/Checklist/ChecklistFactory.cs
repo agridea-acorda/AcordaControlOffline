@@ -11,6 +11,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     {
         public override Domain.Checklist.Checklist Parse(string json)
         {
+            if (json == null) return null;
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
             return Parse(dto);
         }

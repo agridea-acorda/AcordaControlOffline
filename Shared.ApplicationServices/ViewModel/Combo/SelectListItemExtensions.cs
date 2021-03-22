@@ -1,5 +1,6 @@
 ﻿using Agridea.Acorda.AcordaControlOffline.Shared.Domain;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
 {
@@ -15,6 +16,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             return canton == Canton.None
                        ? new SelectListItem<string>(canton.Code, "")
                        : new SelectListItem<string>(canton.Code, canton.Code);
+        }
+
+        public static SelectListItem<string> AsSelectListItem(this Organization org)
+        {
+            return org == Organization.None
+                       ? new SelectListItem<string>(org.Name, "")
+                       : new SelectListItem<string>(org.Name, org.Name);
         }
     }
 }

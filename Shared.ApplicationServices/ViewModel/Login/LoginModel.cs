@@ -13,6 +13,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         [Required(ErrorMessage = "Le canton est obligatoire")]
         public string CantonCode { get; set; }
         public IEnumerable<SelectListItem<string>> ComboCantons { get; set; } = Combo.Combo.Cantons();
+        public string OrganizationName { get; set; }
+        public IEnumerable<SelectListItem<string>> ComboOrganizationss { get; set; } = Combo.Combo.Organizations();
         public static LoginModel Empty() => new LoginModel();
     }
 }

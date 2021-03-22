@@ -95,7 +95,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         public void Can_serialize_then_parse_inspection_with_pdf_report()
         {
             TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection_);
-            inspection_.SetPdfReport(new PdfReport(new InspectionPdf(InspectionPdfModel.FromDomain(inspection_, farm_, checklist_, "JU", "")
+            inspection_.SetPdfReport(new PdfReport(new InspectionPdf(InspectionPdfModel.FromDomain(inspection_, farm_, checklist_, Organization.Ajapi.Name, "")
                                                                           , "the_user").CreatePdf()));
             var factory = new InspectionFactory();
             string json = factory.Serialize(inspection_);

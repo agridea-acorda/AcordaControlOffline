@@ -35,5 +35,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
         public static Organization Anapi = new Organization("ANAPI", "Aurore 4, 2053 Cernier", "NE");
         public static Organization Ajapi = new Organization("AJAPI", "CP 125, 2582 Courtételle", "JU");
         public static Organization Cobra = new Organization("CoBrA", "CP 1080, 1001 Lausanne", "VD");
+        public static Organization None = new Organization("", "", Canton.Unselected );
     }
 }

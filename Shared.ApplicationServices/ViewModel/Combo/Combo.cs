@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
+using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
 {
@@ -27,6 +28,18 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 Canton.NE.AsSelectListItem(),
                 Canton.JU.AsSelectListItem(),
                 Canton.VD.AsSelectListItem()
+            };
+        }
+
+        public static IEnumerable<SelectListItem<string>> Organizations()
+        {
+            return new List<SelectListItem<string>>
+            {
+                Organization.None.AsSelectListItem(),
+                Organization.Agripige.AsSelectListItem(),
+                Organization.Anapi.AsSelectListItem(),
+                Organization.Ajapi.AsSelectListItem(),
+                Organization.Cobra.AsSelectListItem()
             };
         }
     }

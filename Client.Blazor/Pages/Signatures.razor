@@ -300,28 +300,57 @@
         await Task.Delay(1);
         StateHasChanged();
 
-        try 
-        { 
+        try
+        {
+            await Js.InvokeVoidAsync("console.time", "Repository.ReadFarmAsync");
             var farm = await Repository.ReadFarmAsync(farmId);
-            Guard.Against.Null(farm, nameof(farm));
+            if (farm == null)
+            {
+                string error = $"Exploitation introuvable (FarmId={farmId})";
+                Console.WriteLine(error);
+                Toast.Error(error);
+                return;
+            }
+            await Js.InvokeVoidAsync("console.timeEnd", "Repository.ReadFarmAsync");
+
+            await Js.InvokeVoidAsync("console.time", "Repository.ReadChecklistAsync");
             var checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
-            Guard.Against.Null(checklist, nameof(checklist));
+            if (checklist == null)
+            {
+                string error = $"Checkliste introuvable (FarmInspectionId={FarmInspectionId})";
+                Console.WriteLine(error);
+                Toast.Error(error);
+                return;
+            }
+            await Js.InvokeVoidAsync("console.timeEnd", "Repository.ReadChecklistAsync");
+
+            await Js.InvokeVoidAsync("console.time", "AuthService.ReadAuthInfo");
             var auth = await AuthService.ReadAuthInfo();
             if (auth == Auth.UnknownUser)
             {
-                Toast.Error("Aucun utilisateur connecté, opération impossible");
+                string error = "Aucun utilisateur connecté, opération impossible";
+                Console.WriteLine(error);
+                Toast.Error(error);
                 return;
             }
-            string cantonCode = auth.CantonCode;
+            await Js.InvokeVoidAsync("console.timeEnd", "AuthService.ReadAuthInfo");
+
+            await Js.InvokeVoidAsync("console.time", "CreatePdf");
+            string organizationName = auth.OrganizationName;
             string userName = auth.Username;
             string logoPath = "img/focaa.png";
             var pdf = new InspectionPdf(InspectionPdfModel.FromDomain(inspection,
                                                                       farm,
                                                                       checklist,
-                                                                      cantonCode,
+                                                                      organizationName,
                                                                       logoPath), userName, true);
             string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
-            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", pdf.CreatePdf());
+            byte[] bytes = pdf.CreatePdf();
+            await Js.InvokeVoidAsync("console.timeEnd", "CreatePdf");
+
+            await Js.InvokeVoidAsync("console.time", "BlazorDownloadFile");
+            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", bytes);
+            await Js.InvokeVoidAsync("console.timeEnd", "BlazorDownloadFile");
         }
         finally
         {
