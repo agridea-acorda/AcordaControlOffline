@@ -8,6 +8,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
     {
         public string Reason { get; set; }
         public string Campaign { get; set; }
+        public string Comment { get; set; }
         public string CommentForOffice { get; set; }
         public bool HasComplianceRequirements { get; set; }
         public string ComplianceDeadline { get; set; }
@@ -30,6 +31,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 FarmInspectionId = inspection.FarmInspectionId,
                 Reason = inspection.Reason.Name,
                 Campaign = inspection.Campaign.Name,
+                Comment = inspection.Comment,
                 CommentForOffice = inspection.CommentForOffice,
                 HasComplianceRequirements = inspection.HasComplianceRequirements(),
                 ComplianceDeadline = inspection.Compliance.DueDate?.ToShortDateString() ?? "",
