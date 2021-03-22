@@ -14,7 +14,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
             Date = date;
             FirstContactDate = firstContactDate;
         }
-        public InspectionMode Mode => Date.HasValue ? InspectionMode.Scheduled : InspectionMode.Unscheduled;
+        //public InspectionMode Mode => Date.HasValue ? InspectionMode.Scheduled : InspectionMode.Unscheduled;
+        public InspectionMode Mode
+        {
+            get => Date.HasValue ? InspectionMode.Scheduled : InspectionMode.Unscheduled;
+            set
+            {
+                // do nothing, this is just to bypass the lack of serialization for get-only properties
+                var unused = value;
+            }
+        }
         public DateTime? FirstContactDate { get; }
         public DateTime? Date { get; }
 
