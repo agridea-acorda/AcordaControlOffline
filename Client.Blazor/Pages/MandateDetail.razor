@@ -109,7 +109,11 @@ else
                         <button class="btn btn-app h-auto ml-0 mr-2 @complianceButtonColor" @onclick="() => ShowComplianceModal(index)">
                             <i class="far fa-copy"></i>Suivi documents
                         </button>
-                        <ProgressBar Progress="@inspection" />
+                        @if (!string.IsNullOrWhiteSpace(inspection.Comment))
+                        {
+                            <p class="list-group-item-text"><i>Remarque: @inspection.Comment</i></p>
+                        }
+                        <ProgressBar Progress="@inspection"/>
                         @if (inspection.HasComplianceRequirements)
                         {
                             <p class="mb-1">
@@ -138,7 +142,7 @@ else
                         @if (inspection.CanDisplayPdfReport)
                         {
                             <button @onclick="() => DisplayPdfReport(inspection.FarmInspectionId)" disabled=@displayingPdf class="btn btn-primary mr-1 mb-1">
-                                <i class="@(displayingPdf ? "fas fa-spinner fa-spin" : "far fa-file-pdf") "></i> 
+                                <i class="@(displayingPdf ? "fas fa-spinner fa-spin" : "far fa-file-pdf") "></i>
                                 Consulter le rapport de contrôle
                             </button>
                         }
