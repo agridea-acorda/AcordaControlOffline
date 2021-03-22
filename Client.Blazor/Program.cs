@@ -33,6 +33,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
                 () => new EnvironmentChooser("Dev")
                     .Add("localhost:5000", "Dev", true)
                     .Add("acordacontrolapp.acorda.dev", "Netlify", true)
+                    .Add("test.acordacontrolapp.acorda.dev", "Test", true)
+                    .Add("prod.acordacontrolapp.acorda.dev", "Prod")
                     .Add("agridea-acorda.github.io", "GitHub"));
 
             // api
