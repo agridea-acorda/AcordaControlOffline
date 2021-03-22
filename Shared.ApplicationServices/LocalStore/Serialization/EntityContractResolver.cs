@@ -7,7 +7,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization
 {
-    public class EntityContractResolver : DefaultContractResolver
+    public class EntityContractResolver : ExcludeCalculatedPropertiesContractResolver
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {

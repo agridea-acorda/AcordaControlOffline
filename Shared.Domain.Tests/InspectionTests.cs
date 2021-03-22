@@ -43,13 +43,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
             inspection.FarmerSigns(TestDataHelper.ConstructSignature(farm.FarmName));
             inspection.Finish(new FinishStatus(new DateTime(2021, 01, 22), "Joe the inspector"));
             
-            string cantonCode = "JU";
+            string organizationName = Organization.Ajapi.Name;
             string userName = "username";
             string logoPath = AppDomain.CurrentDomain.BaseDirectory + "\\img\\focaa.png";
             var model = InspectionPdfModel.FromDomain(inspection,
                                                       farm,
                                                       checklist,
-                                                      cantonCode,
+                                                      organizationName,
                                                       logoPath);
             var pdf = new InspectionPdf(model, userName);
             File.WriteAllBytes(Path.GetTempFileName() + ".pdf", pdf.CreatePdf());

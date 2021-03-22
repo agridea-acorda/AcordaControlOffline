@@ -17,13 +17,14 @@
 @inject IApiClient Api
 @inject IToastService Toast
 @inject AppConfiguration Config
+@inject IJSRuntime Js
 
 <div class="row">
     <div class="col-sm-12">
         <div class="card">
             <div class="card-header">
                 <button @onclick="@Refresh" class="btn btn-default btn-sm float-right" disabled="@loading">
-                    <i class="@(loading ? "fas fa-spinner fa-spin": "fas fa-cloud-download-alt")"></i> Synchroniser la liste
+                    <i class="@(loading ? "fas fa-spinner fa-spin": "fas fa-cloud-download-alt")"></i> Rafraîchir la liste
                 </button>
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>

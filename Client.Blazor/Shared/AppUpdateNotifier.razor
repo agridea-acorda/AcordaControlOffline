@@ -1,0 +1,107 @@
+﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+@inject IJSRuntime Js
+@inject AppConfiguration Config
+@inject NavigationManager Navigation
+@inject IRepository Repository
+@inject IAuthService AuthService
+@implements IAsyncDisposable
+
+@if (updateAvailable)
+{
+    <li class="nav-item d-none d-sm-inline-block">
+        <button class="nav-link btn btn-outline-warning text-warning" href="#" @onclick="() => updateAppModal.Show()"><i class="fas fa-bell"></i></button>
+    </li>
+}
+
+<Blazorise.Modal @ref="@updateAppModal">
+    <Blazorise.ModalBackdrop />
+    <Blazorise.ModalContent IsCentered="true">
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Mise à jour de l'application</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => updateAppModal.Hide()" />
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <div class="alert alert-warning" role="alert">
+                <p>Une mise à jour est disponible et sera automatiquement installée au prochain démarrage de l'application (fermer, puis redémarrer l'app).</p>
+                <p>Il est recommandé de <strong>renvoyer</strong> ou <strong>effacer</strong> les mandats téléchargés avant de faire la mise à jour.</p>
+            </div>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            @*<button @onclick="SkipWaiting" data-dismiss="modal" type="button" class="btn btn-primary mb-1">
+                <i class="fas fa-download"></i> Mettre à jour maintenant
+            </button>*@
+            <button @onclick="() => updateAppModal.Hide()" type="button" class="btn btn-primary mb-1">
+                @*<i class="far fa-clock"></i>*@ 
+                Ok, j'ai compris
+            </button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
+@code {
+
+    // Thanks to https://www.meziantou.net/javascript-isolation-in-blazor-components.htm
+    bool updateAvailable;
+    Blazorise.Modal updateAppModal;
+    JsInteropActionProxy onNewVersionAvailableProxy;
+    JsInteropActionProxy onNewVersionDeployedProxy;
+    private Task<IJSObjectReference> _module;
+    private Task<IJSObjectReference> Module => _module ??= Js.InvokeAsync<IJSObjectReference>("import", Config.BaseUrl + "/js/appUpdateNotifier.js").AsTask();
+
+    protected override void OnInitialized()
+    {
+        onNewVersionAvailableProxy = new JsInteropActionProxy(OnNewVersionAvailable);
+        onNewVersionDeployedProxy = new JsInteropActionProxy(OnNewVersionDeployed);
+        //updateAvailable = await Repository.GetAppUpdateAvailableFlag();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var module = await Module;
+            await module.InvokeVoidAsync("registerNewAppVersionCallback",
+                                         DotNetObjectReference.Create(onNewVersionAvailableProxy),
+                                         DotNetObjectReference.Create(onNewVersionDeployedProxy));
+        }
+    }
+
+    void OnNewVersionAvailable()
+    {
+        Console.WriteLine("A new version of the app is available (service worker installed).");
+        updateAvailable = true;
+        //await Repository.SetAppUpdateAvailable();
+        StateHasChanged();
+    }
+
+    /// <remarks>
+    /// This does not work, method is never called. Would be safer to delete auth cookie on new version
+    /// (especially if changes are made to Auth, otherwise it's safe to activate new service worker).
+    /// </remarks>
+    void OnNewVersionDeployed()
+    {
+        Console.WriteLine("New version deployed (service worker activated).");
+        updateAvailable = false;
+        //await Repository.ResetAppUpdateAvailable();
+        //await AuthService.Logout();
+        StateHasChanged();
+    }
+
+    void SkipWaiting()
+    {
+        // todo force update like this https://dev.to/drbragg/handling-service-worker-updates-in-your-vue-pwa-1pip
+        Navigation.NavigateTo(Config.BaseUrl + "/", true);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module != null)
+        {
+            var module = await _module;
+            await module.DisposeAsync();
+        }
+    }
+
+}

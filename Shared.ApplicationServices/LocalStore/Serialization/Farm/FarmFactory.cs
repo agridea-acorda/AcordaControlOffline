@@ -9,6 +9,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     {
         public override Domain.Farm.Farm Parse(string json)
         {
+            if (json == null) return null;
             var dto = JsonConvert.DeserializeObject<FarmDeserializationDto.Root>(json);
             return Parse(dto);
         }

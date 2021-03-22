@@ -30,7 +30,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
         {
             string basicAuthToken = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{loginModel.CantonCode}.{loginModel.Username}:{loginModel.Password}"));
             string role = "inspector"; // todo get role from api POST to /login
-            var auth = new AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth(loginModel.Username, role, loginModel.CantonCode, basicAuthToken);
+            var auth = new AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth(loginModel.Username, role, loginModel.CantonCode, basicAuthToken, loginModel.OrganizationName);
             var settings = await settingsService_.Read();
             await jsRuntime_.InvokeAsync<string>(JsInterop.SetCookie, AcordaControlOffline.Shared.ApplicationServices.ViewModel.Auth.CookieName, JsonConvert.SerializeObject(auth), settings.AuthCookieExpiryDays);
             httpClient_.SetBasicAuthToken(auth.Token);
