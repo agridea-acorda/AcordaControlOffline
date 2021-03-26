@@ -7,7 +7,6 @@ using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore;
 using Agridea.DomainDrivenDesign;
-using Blazored.LocalStorage;
 using Blazored.Toast;
 using Blazorise;
 using Blazorise.Bootstrap;
@@ -44,8 +43,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
             builder.Services.AddScoped<IApiClient, ApiClient>();
 
             // local storage and repository using it
-            builder.Services.AddBlazoredLocalStorage(conf => conf.JsonSerializerOptions.WriteIndented = false);
-            builder.Services.AddScoped<IRepository, LocalStorageRepository>();
+            //builder.Services.AddBlazoredLocalStorage(conf => conf.JsonSerializerOptions.WriteIndented = false);
+            builder.Services.AddScoped<IRepository, LocalForageRepository>();
 
             // (user-)settings
             builder.Services.AddScoped<ISettingsService, SettingsService>();

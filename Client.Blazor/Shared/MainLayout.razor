@@ -1,12 +1,10 @@
 ﻿@using Agridea.ProductInfo
-@using Blazored.LocalStorage
 @using Blazored.Toast.Configuration
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 
 @inherits LayoutComponentBase
 @inject IJSRuntime Js
 @inject NavigationManager Navigation
-@inject ILocalStorageService LocalStorage
 @inject AppConfiguration Config 
 
 <div class="wrapper">
@@ -73,16 +71,22 @@
 
 @code {
 
-    protected override void OnInitialized()
-    {
-        Console.WriteLine("Executing OnInitialized from MainLayout");
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await Js.InvokeVoidAsync(JsInterop.InitAdminLte);
+            switch (Js)
+            {
+                case IJSInProcessRuntime jsInProcessRuntime:
+                    jsInProcessRuntime.InvokeVoid(JsInterop.InitAdminLte);
+                    jsInProcessRuntime.InvokeVoid(JsInterop.CheckLocalForage);
+                    break;
+
+                default:
+                    await Js.InvokeVoidAsync(JsInterop.InitAdminLte);
+                    await Js.InvokeVoidAsync(JsInterop.CheckLocalForage);
+                    break;
+            }
         }
     }
 

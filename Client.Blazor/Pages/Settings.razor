@@ -1,12 +1,11 @@
 ﻿@page "/Settings"
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
-@using Blazored.LocalStorage
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 
 @inject ISettingsService SettingsService
 @inject IToastService Toast
+@inject IJSRuntime Js
 @inject NavigationManager Navigation
-@inject ILocalStorageService LocalStorage
 @inject AppConfiguration Config
 
 <div class="card">
@@ -76,7 +75,18 @@
 
     async void Reset()
     {
-        await LocalStorage.ClearAsync();
+        switch (Js)
+        {
+            case IJSUnmarshalledRuntime jsUnmarshalledRuntime:
+                jsUnmarshalledRuntime.InvokeUnmarshalled<bool>("clear");
+                break;
+            case IJSInProcessRuntime jsInProcessRuntime:
+                jsInProcessRuntime.Invoke<bool>("clear");
+                break;
+            default:
+                await Js.InvokeAsync<bool>("clear");
+                break;
+        }
         Navigation.NavigateTo(Config.BaseUrl + "/", true);
     }
 }

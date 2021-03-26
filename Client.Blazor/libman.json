@@ -65,6 +65,13 @@
       "files": [
         "dist/css/placeholder-loading.min.css"
       ]
+    },
+    {
+      "library": "localforage@1.9.0",
+      "destination": "wwwroot/lib/localforage/",
+      "files": [
+        "localforage.min.js"
+      ]
     }
   ]
 }

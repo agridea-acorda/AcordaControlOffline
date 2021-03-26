@@ -1,6 +1,5 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
-@using Blazored.LocalStorage
-@inject ILocalStorageService LocalStorage
+@inject IJSRuntime Js
 @inject NavigationManager Navigation
 
 <EditForm Model="@Model" OnSubmit="@Save">
@@ -71,12 +70,14 @@
     protected override void OnInitialized()
     {
         //Console.WriteLine("Loading signature with data: " + Model.Data);
-        LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
+        //LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
+        (Js as IJSInProcessRuntime)!.InvokeVoid("localStorage.setItem", "Mobsites.Blazor.SignaturePad.DataURL", Model.Data);
     }
 
     private async Task SignatureChanged(ChangeEventArgs eventArgs)
     {
-        Model.Data = await LocalStorage.GetItemAsStringAsync("Mobsites.Blazor.SignaturePad.DataURL"); // works with KeepState sttribute
+        //Model.Data = await LocalStorage.GetItemAsStringAsync("Mobsites.Blazor.SignaturePad.DataURL"); // works with KeepState sttribute
+        Model.Data = (Js as IJSInProcessRuntime)!.Invoke<string>("localStorage.getItem", "Mobsites.Blazor.SignaturePad.DataURL");
         Model.DataUrl = await signaturePad.ToDataURL(SignaturePad.SupportedSaveAsTypes.png);
     }
 

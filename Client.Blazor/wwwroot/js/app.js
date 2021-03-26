@@ -7,6 +7,10 @@
     console.log('Done.');
 }
 
+function checkLocalForage() {
+    console.log('localforage is: ', localforage);
+}
+
 window.blazorExtensions = {
 
     SetCookie: function (name, value, days) {
@@ -31,10 +35,10 @@ window.blazorExtensions = {
         var ca = decodedCookie.split(';');
         for (var i = 0; i < ca.length; i++) {
             var c = ca[i];
-            while (c.charAt(0) == ' ') {
+            while (c.charAt(0) === ' ') {
                 c = c.substring(1);
             }
-            if (c.indexOf(name) == 0) {
+            if (c.indexOf(name) === 0) {
                 return c.substring(name.length, c.length);
             }
         }
@@ -50,6 +54,63 @@ window.blazorExtensions = {
         }
     }
 
+}
+
+function setItem(key, json) {
+    const keyStr = BINDING.conv_string(key);
+    const jsonStr = BINDING.conv_string(json);
+    localforage.setItem(keyStr, jsonStr)
+        .then(value => {
+            console.log('localforage succesfully set value ' + jsonStr);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+}
+
+function getItem(key) {
+    const keyStr = BINDING.conv_string(key);
+    localforage.getItem(keyStr)
+        .then(value => {
+            return BINDING.js_to_mono_obj(value);
+        })
+        .catch(err => {
+            console.log(err);
+            return BINDING.js_to_mono_obj('');
+        });
+}
+
+function removeItem(key) {
+    const keyStr = BINDING.conv_string(key);
+    localforage.removeItem(keyStr)
+        .then(() => {
+            console.log('localforage succesfully removed item with key ' + keyStr);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+}
+
+function containsKey(key) {
+    const keyStr = BINDING.conv_string(key);
+    localforage.keys()
+        .then(keys => {
+            var containsKey = keys.includes(keyStr);
+            return BINDING.js_to_mono_obj(containsKey);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+}
+
+function clear() {
+    localforage.clear()
+        .then(() => {
+            console.log('localforage succesfully cleared store.');
+        })
+        .catch(err => {
+            console.log(err);
+        });
 }
 
 function setItemUnmarshalled(key, json) {

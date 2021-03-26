@@ -349,7 +349,7 @@
             await Js.InvokeVoidAsync("console.timeEnd", "CreatePdf");
 
             await Js.InvokeVoidAsync("console.time", "BlazorDownloadFile");
-            await Js.InvokeVoidAsync("BlazorDownloadFile", filename, "application/octet-stream", bytes);
+            (Js as IJSUnmarshalledRuntime)!.InvokeUnmarshalled<string, string, byte[], bool>("BlazorDownloadFileFast", filename, "application/octet-stream", bytes);
             await Js.InvokeVoidAsync("console.timeEnd", "BlazorDownloadFile");
         }
         finally
