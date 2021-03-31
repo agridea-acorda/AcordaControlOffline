@@ -358,10 +358,10 @@
             await DeleteMandate(mandateModel);
             Toast.Success();
         }
-        catch
+        catch (Exception e)
         {
-            Console.WriteLine($"Unknown error while merging mandate at {DateTime.Now.ToDetailedTime()}.");
-            Toast.Error($"Une erreur inconnue s'est produite à {DateTime.Now.ToDetailedTime()}, merci de contacter le support");
+            Console.WriteLine(e.ToLogErrorMessage());
+            Toast.Error(e.ToUserErrorMessage());
             mandateModel.SyncStatus = originalSyncStatus;
         }
     }
