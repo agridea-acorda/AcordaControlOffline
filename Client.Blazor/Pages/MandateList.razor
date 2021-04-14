@@ -331,27 +331,21 @@
             var mergeResult = apiCallResult.Value;
             if (sourceHash != mergeResult.Hash)
             {
-                string checksumsDoNotMatchError = "Erreur de renvoi du paquet de données. Motif: les checksums ne correspondent pas. Opération annulée.";
+                string checksumsDoNotMatchError = $"Erreur de renvoi du paquet de données. Motif: les checksums ne correspondent pas, annulation de l'opération (Id d'opération={mergeResult.Id}).";
                 Console.WriteLine(checksumsDoNotMatchError);
                 Toast.ShowError(checksumsDoNotMatchError, ToastMessages.ErrorHeader);
-                Console.WriteLine("Cancelling merge package...");
-                var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResult.Id, MergeStates.InvalidHash);
-                if (cancelResult.IsFailure)
-                {
-                    string cancelError = $"Erreur inconnue lors de l'annulation (Id d'opération={mergeResult.Id}), merci de contacter le support.";
-                    Console.WriteLine(cancelError);
-                    Toast.ShowError(cancelError, ToastMessages.ErrorHeader);
-                    return;
-                }
-                Console.WriteLine($"... Successfully cancelled merge Id={mergeResult.Id}.");
+                await CancelMerge(mergeResult.Id, MergeStates.InvalidHash);
+                mandateModel.SyncStatus = originalSyncStatus;
                 return;
             }
             var acknowledgeResult = await Api.AcknowledgeMerge("acknowledgemerge", mergeResult.Id);
             if (acknowledgeResult.IsFailure)
             {
-                string acknowledgeError = $"Erreur inconnue lors de la confirmation (Id d'opération={mergeResult.Id}), merci de contacter le support.";
+                string acknowledgeError = $"Erreur serveur lors de la confirmation, annulation de l'opération (Id d'opération={mergeResult.Id}). Merci de contacter le support.";
                 Console.WriteLine(acknowledgeError);
                 Toast.ShowError(acknowledgeError, ToastMessages.ErrorHeader);
+                await CancelMerge(mergeResult.Id, MergeStates.CancelledDueToUnknownAckowledgeError);
+                mandateModel.SyncStatus = originalSyncStatus;
                 return;
             }
             Console.WriteLine("... merge action succesful");
@@ -364,6 +358,23 @@
             Toast.Error(e.ToUserErrorMessage());
             mandateModel.SyncStatus = originalSyncStatus;
         }
+    }
+
+    private async Task<bool> CancelMerge(int mergeResultId, string mergeState)
+    {
+        Console.WriteLine("Cancelling merge package...");
+        var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResultId, mergeState);
+        if (cancelResult.IsFailure)
+        {
+            string cancelError = $"Erreur inconnue lors de l'annulation (Id d'opération={mergeResultId}), merci de contacter le support.";
+            Console.WriteLine(cancelError);
+            Toast.ShowError(cancelError, ToastMessages.ErrorHeader);
+            return false;
+        }
+
+        Console.WriteLine($"Successfully cancelled merge Id={mergeResultId}.");
+        Toast.ShowSuccess($"Opération annulée avec succès (Id d'opération={mergeResultId}).", ToastMessages.SuccessHeader);
+        return true;
     }
 
     async ValueTask<Result<T>> FetchThenSave<T>(Func<Task<Result<T>>> fetchFunc, Func<T, ValueTask> saveFunc)
