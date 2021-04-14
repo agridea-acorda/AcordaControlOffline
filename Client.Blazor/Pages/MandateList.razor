@@ -334,7 +334,8 @@
                 string checksumsDoNotMatchError = $"Erreur de renvoi du paquet de données. Motif: les checksums ne correspondent pas, annulation de l'opération (Id d'opération={mergeResult.Id}).";
                 Console.WriteLine(checksumsDoNotMatchError);
                 Toast.ShowError(checksumsDoNotMatchError, ToastMessages.ErrorHeader);
-                await CancelMerge(mergeResult.Id);
+                await CancelMerge(mergeResult.Id, MergeStates.InvalidHash);
+                mandateModel.SyncStatus = originalSyncStatus;
                 return;
             }
             var acknowledgeResult = await Api.AcknowledgeMerge("acknowledgemerge", mergeResult.Id);
@@ -343,7 +344,8 @@
                 string acknowledgeError = $"Erreur serveur lors de la confirmation, annulation de l'opération (Id d'opération={mergeResult.Id}). Merci de contacter le support.";
                 Console.WriteLine(acknowledgeError);
                 Toast.ShowError(acknowledgeError, ToastMessages.ErrorHeader);
-                await CancelMerge(mergeResult.Id);
+                await CancelMerge(mergeResult.Id, MergeStates.CancelledDueToUnknownAckowledgeError);
+                mandateModel.SyncStatus = originalSyncStatus;
                 return;
             }
             Console.WriteLine("... merge action succesful");
@@ -358,10 +360,10 @@
         }
     }
 
-    private async Task<bool> CancelMerge(int mergeResultId)
+    private async Task<bool> CancelMerge(int mergeResultId, string mergeState)
     {
         Console.WriteLine("Cancelling merge package...");
-        var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResultId, MergeStates.InvalidHash);
+        var cancelResult = await Api.CancelMergePackage("cancelmerge", mergeResultId, mergeState);
         if (cancelResult.IsFailure)
         {
             string cancelError = $"Erreur inconnue lors de l'annulation (Id d'opération={mergeResultId}), merci de contacter le support.";
@@ -370,9 +372,8 @@
             return false;
         }
 
-        string message = $"... Successfully cancelled merge Id={mergeResultId}.";
-        Console.WriteLine(message);
-        Toast.ShowSuccess(message, ToastMessages.SuccessHeader);
+        Console.WriteLine($"Successfully cancelled merge Id={mergeResultId}.");
+        Toast.ShowSuccess($"Opération annulée avec succès (Id d'opération={mergeResultId}).", ToastMessages.SuccessHeader);
         return true;
     }
 
