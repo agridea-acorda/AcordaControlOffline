@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build-linux.yml = build-linux.yml
 		.github\workflows\deploy-to-gh-pages.yml = .github\workflows\deploy-to-gh-pages.yml
 		.github\workflows\deploy-to-ju.yml = .github\workflows\deploy-to-ju.yml
+		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
 		documentation.md = documentation.md
 		nginx.conf = nginx.conf
