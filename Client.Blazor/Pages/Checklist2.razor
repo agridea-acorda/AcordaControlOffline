@@ -5,6 +5,8 @@
 @using Microsoft.AspNetCore.Authorization
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
+@using System.Text.Json
+@using System.Text.Json.Serialization
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -31,8 +33,7 @@
     <div class="card-body">
         @if (progressBarModel != null)
         {
-            <ProgressBar Progress="@progressBarModel" />
-        }
+<ProgressBar Progress="@progressBarModel" />}
     </div>
 </div>
 
@@ -54,11 +55,10 @@
     <div class="card-header">
         @if (needsSaving)
         {
-            <button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
-                <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
-                Enregistrer
-            </button>
-        }
+<button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
+    <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
+    Enregistrer
+</button>}
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
@@ -69,52 +69,43 @@
             <div class="list-group">
                 @if (parent != null)
                 {
-                    <div id="@parent.Id" class="list-group-item">
-                        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
-                            <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
-                        </a>
-                        <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
-                        <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
-                        <h4 class="list-group-item-heading">@parent.ShortName</h4>
-                        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
-                        <div class="mt-2">
-                            <div class="list-group">
-                                @if (children.Any())
-                                {
-                                    @foreach (var child in children)
-                                    {
-                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
-                                    }
-                                }
-                                else
-                                {
-                                    <ChecklistPlaceholderLoading />
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-                else
+    <div id="@parent.Id" class="list-group-item">
+        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
+            <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
+        </a>
+        <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+        <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
+        <h4 class="list-group-item-heading">@parent.ShortName</h4>
+        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+        <div class="mt-2">
+            <div class="list-group">
+                @if (children.Any())
                 {
-                    @if (children.Any())
-                    {
-                        @foreach (var child in children)
-                        {
-                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
-                        }
-                    }
-                    else
-                    {
-                        <ChecklistPlaceholderLoading />
-                    }
-                }
+@foreach (var child in children)
+{
+<ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+else
+{
+<ChecklistPlaceholderLoading />}
+            </div>
+        </div>
+    </div> }
+else
+{
+@if (children.Any())
+{
+@foreach (var child in children)
+{
+<ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+else
+{
+<ChecklistPlaceholderLoading />}}
             </div>
         </div>
     </div>
 </div>
 
-@code {
-    const string FarmIdUriKey = "FarmId";
+@code { const string FarmIdUriKey = "FarmId";
 
     [Parameter]
     public int FarmInspectionId { get; set; }
@@ -220,6 +211,7 @@
         if (previousOutcome != model.Outcome) node.SetAuto(false);
         await Task.Delay(1);
         await GetParentOutcomeBasedOnChildren(children);
+        await CheckRulesFromParentToChildren(model.ConjunctElementCode, model.Outcome);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         progressBarModel.Progress(checklist.Percent);
         needsSaving = true;
@@ -340,6 +332,90 @@
         public InspectionOutcome ParentOutcome { get; set; }
     }
 
+    async Task CheckRulesFromParentToChildren(string conjunctElementCode, InspectionOutcome check)
+    {
+        var node = checklist.Find(conjunctElementCode);
+        var tempChildren = new List<ChecklistItem.ResultModel>();
+        if (viewCache.TryGetValue(conjunctElementCode, out var entry))
+        {
+            await Task.Delay(1);
+            tempChildren = entry.Item2;
+        }
+        else
+        {
+            tempChildren = node.Children.Select(x => ChecklistItem.ResultModel.MapFrom(x.Value))
+            .Where(x => x != null)
+            .ToList();
+        }
+
+        var temp = tempChildren.Where(x => x.ParentConjunctElementCode == conjunctElementCode).ToList();
+        int cptNOk = 0;
+        int cptPOk = 0;
+        int cptOk = 0;
+        int cptNa = 0;
+        int cptNc = 0;
+
+        Console.WriteLine($"check child count :" + temp.Count);
+        foreach (var child in temp)
+        {
+            Console.WriteLine($"check child :" + child.Outcome.Code);
+
+            switch (child.Outcome.Code)
+            {
+                case "NOk":
+                    cptNOk++;
+                    break;
+                case "PartiallyOk":
+                    cptPOk++;
+                    break;
+                case "Ok":
+                    cptOk++;
+                    break;
+                case "NotApplicable":
+                    cptNa++;
+                    break;
+                case "NotInspected":
+                    cptNc++;
+                    break;
+            }
+        }
+
+        Console.WriteLine(check.Code);
+        Console.WriteLine(cptNOk);
+        Console.WriteLine(cptPOk);
+        Console.WriteLine(cptOk);
+        Console.WriteLine(cptNa);
+        Console.WriteLine(cptNc);
+        if (cptNOk > 0 && check == InspectionOutcome.NotOk)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (NOk)");
+        }
+        else if (cptPOk > 0 && check == InspectionOutcome.PartiallyOk && cptNOk == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (POk)");
+        }
+        else if (cptOk > 0 && check == InspectionOutcome.Ok && cptNOk == 0 && cptPOk == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (Ok)");
+        }
+        else if (cptNa > 0 && check == InspectionOutcome.NotApplicable && cptNOk == 0 && cptPOk == 0 && cptOk == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (Na)");
+        }
+        else if (cptNc > 0 && check == InspectionOutcome.NotInspected && cptNOk == 0 && cptPOk == 0 && cptOk == 0 && cptNa == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (Nc)");
+        }
+        else if (cptNOk == 0 && cptPOk == 0 && cptOk == 0 && cptNa == 0 && cptNc == 0)
+        {
+
+        }
+        else
+                {
+                    Toast.ShowWarning($"Le point de contrôle est incohérent ({check.Code}), vérifiez le sous-groupe");
+                }
+    }
+
     async Task<ParentOutcomeResult> GetParentOutcomeBasedOnChildren(List<ChecklistItem.ResultModel> children)
     {
         //Console.WriteLine($"children :" + JsonSerializer.Serialize(children, new JsonSerializerOptions(){ReferenceHandler = ReferenceHandler.Preserve }));
@@ -416,9 +492,9 @@
         string parentConjunctElementCode = parent?.ConjunctElementCode;
         if (parentConjunctElementCode != null)
         {
-            Console.WriteLine($"parentConjunctElementCode :" + JsonSerializer.Serialize(parentConjunctElementCode, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+            //Console.WriteLine($"parentConjunctElementCode :" + JsonSerializer.Serialize(parentConjunctElementCode, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
             var node = checklist.Find(parentConjunctElementCode);
-            Console.WriteLine(JsonSerializer.Serialize(node, new JsonSerializerOptions(){ReferenceHandler = ReferenceHandler.Preserve}));
+            //Console.WriteLine(JsonSerializer.Serialize(node, new JsonSerializerOptions(){ReferenceHandler = ReferenceHandler.Preserve}));
             var previousOutcome = node.Outcome;
             node.SetOutcome(parentOutcomeResult.ParentOutcome);
             parent.Outcome = parentOutcomeResult.ParentOutcome;
@@ -429,6 +505,4 @@
         progressBarModel.Progress(checklist.Percent);
 
         return parentOutcomeResult;
-    }
-
-}
+    } }
