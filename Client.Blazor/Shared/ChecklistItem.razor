@@ -12,6 +12,11 @@
     }
     <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@Node.NumPoints</span>
     <span class="badge badge-outline text-indigo disabled float-right mr-1">@Node.NumGroups</span>
+    <!-- TODO: When AC-167 is finished this needs to be updated -->
+    @if (!string.IsNullOrEmpty(Node.InspectorComment) || !string.IsNullOrEmpty(Node.FarmerComment))
+    {
+        <span class="badge badge-outline text-black @Node.Outcome.OutcomeCssClass(Node.Outcome) disabled float-right mr-1"><i class="far fa-comment-dots"></i></span>
+    }
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>

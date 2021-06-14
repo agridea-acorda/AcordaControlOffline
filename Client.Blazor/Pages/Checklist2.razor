@@ -358,10 +358,10 @@ else
         int cptNa = 0;
         int cptNc = 0;
 
-        Console.WriteLine($"check child count :" + temp.Count);
+        //Console.WriteLine($"check child count :" + temp.Count);
         foreach (var child in temp)
         {
-            Console.WriteLine($"check child :" + child.Outcome.Code);
+            //Console.WriteLine($"check child :" + child.Outcome.Code);
 
             switch (child.Outcome.Code)
             {
@@ -436,10 +436,10 @@ else
             int cptOk = 0;
             int cptNa = 0;
             int cptNc = 0;
-            Console.WriteLine($"children :" + children.Count);
+            //Console.WriteLine($"children :" + children.Count);
             foreach (var child in children)
             {
-                Console.WriteLine($"child :" + child.Outcome.Code);
+                //Console.WriteLine($"child :" + child.Outcome.Code);
 
                 switch (child.Outcome.Code)
                 {
@@ -464,32 +464,32 @@ else
 
             if (cptNOk > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NOK");
+                //Console.WriteLine($"outcomeParent SHOULD BE NOK");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.NotOk;
             }
             else if (cptPOk > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE POK");
+                //Console.WriteLine($"outcomeParent SHOULD BE POK");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.PartiallyOk;
             }
             else if (cptOk > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE OK");
+                //Console.WriteLine($"outcomeParent SHOULD BE OK");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.Ok;
             }
             else if (cptNa > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NA");
+                //Console.WriteLine($"outcomeParent SHOULD BE NA");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.NotApplicable;
             }
             else if (cptNc > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NC");
+                //Console.WriteLine($"outcomeParent SHOULD BE NC");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.NotInspected;
             }
             else
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NOTHING");
+                //Console.WriteLine($"outcomeParent SHOULD BE NOTHING");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.Unset;
             }
         }
