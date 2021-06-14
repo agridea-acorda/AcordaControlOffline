@@ -253,7 +253,7 @@ else
         saving = true;
         await Task.Delay(1);
         StateHasChanged();
-
+        await GetParentOutcomeBasedOnChildren(children);
         try
         {
             Console.WriteLine("Saving checklist...");
