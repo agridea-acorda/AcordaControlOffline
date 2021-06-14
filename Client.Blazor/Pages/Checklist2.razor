@@ -332,6 +332,12 @@ else
         public InspectionOutcome ParentOutcome { get; set; }
     }
 
+    /// <summary>Checks if InspectionOutcome of parent is correct (Could be incorrect if children's InspectionOutcome have a value)</summary>
+    /// <returns>
+    /// The values of the mergefields.
+    /// </returns>
+    /// <param name="conjunctElementCode">The code of the id of the node of a InspectionOutcome</param>
+    /// <param name="check">The InspectionOutcome to check</param>
     async Task CheckRulesFromParentToChildren(string conjunctElementCode, InspectionOutcome check)
     {
         var node = checklist.Find(conjunctElementCode);
@@ -380,12 +386,12 @@ else
             }
         }
 
-        Console.WriteLine(check.Code);
-        Console.WriteLine(cptNOk);
-        Console.WriteLine(cptPOk);
-        Console.WriteLine(cptOk);
-        Console.WriteLine(cptNa);
-        Console.WriteLine(cptNc);
+        //Console.WriteLine(check.Code);
+        //Console.WriteLine(cptNOk);
+        //Console.WriteLine(cptPOk);
+        //Console.WriteLine(cptOk);
+        //Console.WriteLine(cptNa);
+        //Console.WriteLine(cptNc);
         if (cptNOk > 0 && check == InspectionOutcome.NotOk)
         {
             //Toast.ShowWarning("Le point de contrôle est cohérent (NOk)");
@@ -411,11 +417,13 @@ else
 
         }
         else
-                {
-                    Toast.ShowWarning($"Le point de contrôle est incohérent ({check.Code}), vérifiez le sous-groupe");
-                }
+        {
+            Toast.ShowWarning($"Le point de contrôle est incohérent ({check.Code}), vérifiez le sous-groupe");
+        }
     }
 
+    /// <summary>Calculates and sets the InspectionOutcome's value of the parents nodes based on children</summary>
+    /// <param name="children">The children, needed to calculate the outcome</param>
     async Task<ParentOutcomeResult> GetParentOutcomeBasedOnChildren(List<ChecklistItem.ResultModel> children)
     {
         //Console.WriteLine($"children :" + JsonSerializer.Serialize(children, new JsonSerializerOptions(){ReferenceHandler = ReferenceHandler.Preserve }));
