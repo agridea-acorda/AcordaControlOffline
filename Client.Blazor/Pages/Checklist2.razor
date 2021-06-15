@@ -7,6 +7,9 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
+@using CSharpFunctionalExtensions
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -15,6 +18,7 @@
 @inject IToastService Toast
 @inject AppConfiguration Config
 @inject IJSRuntime Js
+@inject IApiClient Api
 
 <div class="card">
     <div class="card-header">
@@ -33,7 +37,7 @@
     <div class="card-body">
         @if (progressBarModel != null)
         {
-<ProgressBar Progress="@progressBarModel" />}
+            <ProgressBar Progress="@progressBarModel" />}
     </div>
 </div>
 
@@ -55,10 +59,10 @@
     <div class="card-header">
         @if (needsSaving)
         {
-<button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
-    <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
-    Enregistrer
-</button>}
+            <button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
+                <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
+                Enregistrer
+            </button>}
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
@@ -69,37 +73,37 @@
             <div class="list-group">
                 @if (parent != null)
                 {
-    <div id="@parent.Id" class="list-group-item">
-        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
-            <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
-        </a>
-        <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
-        <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
-        <h4 class="list-group-item-heading">@parent.ShortName</h4>
-        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
-        <div class="mt-2">
-            <div class="list-group">
-                @if (children.Any())
+                    <div id="@parent.Id" class="list-group-item">
+                        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
+                            <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
+                        </a>
+                        <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                        <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
+                        <h4 class="list-group-item-heading">@parent.ShortName</h4>
+                        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+                        <div class="mt-2">
+                            <div class="list-group">
+                                @if (children.Any())
+                                {
+                                    @foreach (var child in children)
+                                    {
+                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+                                else
+                                {
+                                    <ChecklistPlaceholderLoading />}
+                            </div>
+                        </div>
+                    </div> }
+                else
                 {
-@foreach (var child in children)
-{
-<ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
-else
-{
-<ChecklistPlaceholderLoading />}
-            </div>
-        </div>
-    </div> }
-else
-{
-@if (children.Any())
-{
-@foreach (var child in children)
-{
-<ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
-else
-{
-<ChecklistPlaceholderLoading />}}
+                    @if (children.Any())
+                    {
+                        @foreach (var child in children)
+                        {
+                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+                    else
+                    {
+                        <ChecklistPlaceholderLoading />}}
             </div>
         </div>
     </div>
@@ -137,6 +141,22 @@ else
                                 .ToList();
             progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo.FromChecklist(checklist);
             viewCache.Add("", (parent, children));
+        }
+
+
+        await GetSelectListItemsDefects(children);
+    }
+
+    async Task GetSelectListItemsDefects(List<ChecklistItem.ResultModel> children)
+    {
+        foreach (ChecklistItem.ResultModel child in children)
+        {
+            if (child.PointId != null)
+            {
+                var json = await Api.FetchRawJsonAsync($"PossibleDefects/{child.PointId}");
+                Console.WriteLine(json.Value);
+                child.ComboDefects = JsonSerializer.Deserialize<IEnumerable<SelectListItem<string>>>(json.Value);
+            }
         }
     }
 
@@ -200,6 +220,8 @@ else
                        .Where(x => x != null)
                        .ToList();
         viewCache.TryAdd(node.ConjunctElementCode, (parent, children));
+
+        await GetSelectListItemsDefects(children);
     }
 
     async Task NodeOutcomeChanged(ChecklistItem.ResultModel model)
