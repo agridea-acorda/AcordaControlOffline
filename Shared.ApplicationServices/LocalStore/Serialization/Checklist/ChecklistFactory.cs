@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
 using Newtonsoft.Json;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 {
@@ -13,13 +17,15 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             if (json == null) return null;
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
+            Console.WriteLine("JsonConvert.SerializeObject(dto):");
+            Console.WriteLine(JsonConvert.SerializeObject(dto));
             return Parse(dto);
         }
 
         public Domain.Checklist.Checklist Parse(ChecklistDeserializationDto dto)
         {
             if (dto == null) return null;
-            
+
             var checklist = new Domain.Checklist.Checklist(dto.FarmInspectionId);
             foreach (var dtoRubric in dto.Rubrics)
             {
@@ -27,6 +33,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                     checklist.AddRubric(dtoRubric.Key, rubricResult);
             }
 
+            Console.WriteLine("checklist");
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(checklist,
+                new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }
+            ));
             return checklist;
         }
 
@@ -68,6 +78,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(targetType, nameof(Result.IsAutoSet), targetInstance, dto.IsAutoSet);
             SetPropertyValueViaBackingField(targetType, nameof(Result.Defect), targetInstance, Parse(dto.Defect));
             SetPropertyValueViaBackingField(targetType, nameof(Result.Seriousness), targetInstance, Parse(dto.Seriousness));
+            SetPropertyValueViaBackingField(targetType, nameof(Result.PointId), targetInstance, dto.PointId);
+            SetPropertyValueViaBackingField(targetType, nameof(Result.DefectId), targetInstance, dto.DefectId);
+            SetPropertyValueViaBackingField(targetType, nameof(Result.ComboDefects), targetInstance, dto.ComboDefects);
             // todo PredefinedDefect
 
             SetPropertyValueViaBackingField(targetType, nameof(Result.Children), targetInstance, new SortedList<string, ITreeNode<Result>>());

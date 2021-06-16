@@ -7,6 +7,11 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
+@using CSharpFunctionalExtensions
+@using Newtonsoft.Json
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -15,6 +20,7 @@
 @inject IToastService Toast
 @inject AppConfiguration Config
 @inject IJSRuntime Js
+@inject IApiClient Api
 
 <div class="card">
     <div class="card-header">
@@ -33,7 +39,7 @@
     <div class="card-body">
         @if (progressBarModel != null)
         {
-<ProgressBar Progress="@progressBarModel" />}
+            <ProgressBar Progress="@progressBarModel" />}
     </div>
 </div>
 
@@ -55,10 +61,10 @@
     <div class="card-header">
         @if (needsSaving)
         {
-<button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
-    <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
-    Enregistrer
-</button>}
+            <button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
+                <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
+                Enregistrer
+            </button>}
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
@@ -69,37 +75,37 @@
             <div class="list-group">
                 @if (parent != null)
                 {
-    <div id="@parent.Id" class="list-group-item">
-        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
-            <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
-        </a>
-        <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
-        <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
-        <h4 class="list-group-item-heading">@parent.ShortName</h4>
-        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
-        <div class="mt-2">
-            <div class="list-group">
-                @if (children.Any())
+                    <div id="@parent.Id" class="list-group-item">
+                        <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
+                            <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
+                        </a>
+                        <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@parent.NumPoints</span>
+                        <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
+                        <h4 class="list-group-item-heading">@parent.ShortName</h4>
+                        <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
+                        <div class="mt-2">
+                            <div class="list-group">
+                                @if (children.Any())
+                                {
+                                    @foreach (var child in children)
+                                    {
+                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+                                else
+                                {
+                                    <ChecklistPlaceholderLoading />}
+                            </div>
+                        </div>
+                    </div> }
+                else
                 {
-@foreach (var child in children)
-{
-<ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
-else
-{
-<ChecklistPlaceholderLoading />}
-            </div>
-        </div>
-    </div> }
-else
-{
-@if (children.Any())
-{
-@foreach (var child in children)
-{
-<ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
-else
-{
-<ChecklistPlaceholderLoading />}}
+                    @if (children.Any())
+                    {
+                        @foreach (var child in children)
+                        {
+                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+                    else
+                    {
+                        <ChecklistPlaceholderLoading />}}
             </div>
         </div>
     </div>
@@ -138,6 +144,7 @@ else
             progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo.FromChecklist(checklist);
             viewCache.Add("", (parent, children));
         }
+
     }
 
     async Task NodeViewChanged(string conjunctElementCode)
@@ -200,6 +207,7 @@ else
                        .Where(x => x != null)
                        .ToList();
         viewCache.TryAdd(node.ConjunctElementCode, (parent, children));
+
     }
 
     async Task NodeOutcomeChanged(ChecklistItem.ResultModel model)
@@ -220,11 +228,13 @@ else
     void NodeEdited(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
+
         checklist.Find(model.ConjunctElementCode)
                  .SetInspectorComment(model.InspectorComment)
                  .SetFarmerComment(model.FarmerComment)
                  .SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
                             DefectSeriousness.FromCode(model.SeriousnessCode))
+                 .SetDefectId(model.DefectId)
                  .SetAuto(false);
         needsSaving = true;
     }
@@ -237,6 +247,7 @@ else
                  .SetInspectorComment("")
                  .SetFarmerComment("")
                  .SetDefect(Defect.None, DefectSeriousness.Empty)
+                 .SetDefectId(null)
                  .SetAuto(false);
 
         await Task.Delay(1);
@@ -258,6 +269,13 @@ else
         {
             Console.WriteLine("Saving checklist...");
             await Js.InvokeVoidAsync("console.time", "Checklist2.Save");
+            //Console.WriteLine(JsonConvert.SerializeObject(checklist,
+            //    Formatting.None,
+            //    new JsonSerializerSettings
+            //    {
+            //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            //        ContractResolver = new ChecklistContractResolver()
+            //    }));
             await Repository.SaveChecklistAsync(checklist);
 
             // below should be performed with domain event dispatching mechanism
@@ -358,10 +376,10 @@ else
         int cptNa = 0;
         int cptNc = 0;
 
-        Console.WriteLine($"check child count :" + temp.Count);
+        //Console.WriteLine($"check child count :" + temp.Count);
         foreach (var child in temp)
         {
-            Console.WriteLine($"check child :" + child.Outcome.Code);
+            //Console.WriteLine($"check child :" + child.Outcome.Code);
 
             switch (child.Outcome.Code)
             {
@@ -436,10 +454,10 @@ else
             int cptOk = 0;
             int cptNa = 0;
             int cptNc = 0;
-            Console.WriteLine($"children :" + children.Count);
+            //Console.WriteLine($"children :" + children.Count);
             foreach (var child in children)
             {
-                Console.WriteLine($"child :" + child.Outcome.Code);
+                //Console.WriteLine($"child :" + child.Outcome.Code);
 
                 switch (child.Outcome.Code)
                 {
@@ -464,32 +482,32 @@ else
 
             if (cptNOk > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NOK");
+                //Console.WriteLine($"outcomeParent SHOULD BE NOK");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.NotOk;
             }
             else if (cptPOk > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE POK");
+                //Console.WriteLine($"outcomeParent SHOULD BE POK");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.PartiallyOk;
             }
             else if (cptOk > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE OK");
+                //Console.WriteLine($"outcomeParent SHOULD BE OK");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.Ok;
             }
             else if (cptNa > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NA");
+                //Console.WriteLine($"outcomeParent SHOULD BE NA");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.NotApplicable;
             }
             else if (cptNc > 0)
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NC");
+                //Console.WriteLine($"outcomeParent SHOULD BE NC");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.NotInspected;
             }
             else
             {
-                Console.WriteLine($"outcomeParent SHOULD BE NOTHING");
+                //Console.WriteLine($"outcomeParent SHOULD BE NOTHING");
                 parentOutcomeResult.ParentOutcome = InspectionOutcome.Unset;
             }
         }
