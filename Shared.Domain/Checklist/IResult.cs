@@ -16,6 +16,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         string FarmerComment { get; }
         Defect Defect { get; }
         DefectSeriousness Seriousness { get; }
+
+        public int? PointId { get; set; }
+        public int? DefectId { get; set; }
+
+        public dynamic ComboDefects { get; set; }
         //IList<File> Photos { get; set; }
         //IList<File> Attachments { get; set; }
 
@@ -24,5 +29,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         IResult SetInspectorComment(string comment);
         IResult SetFarmerComment(string comment);
         IResult SetDefect(Defect defect, DefectSeriousness seriousness);
+        IResult SetDefectId(int? defectId);
     }
 }

@@ -22,6 +22,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         
         public Defect Defect { get; private set; }
         public DefectSeriousness Seriousness { get; set; }
+
+        public int? PointId { get; set; }
+        public int? DefectId { get; set; }
+        public dynamic ComboDefects { get; set; }
+
         IResult IResult.SetOutcome(InspectionOutcome outcome)
         {
             return SetOutcome(outcome);
@@ -49,6 +54,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         {
             Defect = defect;
             Seriousness = seriousness;
+            return this;
+        }
+
+        public IResult SetDefectId(int? defectId)
+        {
+            DefectId = defectId;
             return this;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 {
@@ -21,6 +22,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public string FarmerComment { get; set; }
             public Defect Defect { get; set; }
             public DefectSeriousness Seriousness { get; set; }
+            public int? PointId { get; set; }
+            public int? DefectId { get; set; }
+            public IEnumerable<SelectListItem<string>> ComboDefects { get; set; }
         }
 
         public class InspectionOutcome
