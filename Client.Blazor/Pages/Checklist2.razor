@@ -8,8 +8,10 @@
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
 @using CSharpFunctionalExtensions
+@using Newtonsoft.Json
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -143,21 +145,6 @@
             viewCache.Add("", (parent, children));
         }
 
-
-        await GetSelectListItemsDefects(children);
-    }
-
-    async Task GetSelectListItemsDefects(List<ChecklistItem.ResultModel> children)
-    {
-        foreach (ChecklistItem.ResultModel child in children)
-        {
-            if (child.PointId != null)
-            {
-                var json = await Api.FetchRawJsonAsync($"PossibleDefects/{child.PointId}");
-                Console.WriteLine(json.Value);
-                child.ComboDefects = JsonSerializer.Deserialize<IEnumerable<SelectListItem<string>>>(json.Value);
-            }
-        }
     }
 
     async Task NodeViewChanged(string conjunctElementCode)
@@ -221,7 +208,6 @@
                        .ToList();
         viewCache.TryAdd(node.ConjunctElementCode, (parent, children));
 
-        await GetSelectListItemsDefects(children);
     }
 
     async Task NodeOutcomeChanged(ChecklistItem.ResultModel model)
@@ -242,11 +228,13 @@
     void NodeEdited(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
+
         checklist.Find(model.ConjunctElementCode)
                  .SetInspectorComment(model.InspectorComment)
                  .SetFarmerComment(model.FarmerComment)
                  .SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
                             DefectSeriousness.FromCode(model.SeriousnessCode))
+                 .SetDefectId(model.DefectId)
                  .SetAuto(false);
         needsSaving = true;
     }
@@ -259,6 +247,7 @@
                  .SetInspectorComment("")
                  .SetFarmerComment("")
                  .SetDefect(Defect.None, DefectSeriousness.Empty)
+                 .SetDefectId(null)
                  .SetAuto(false);
 
         await Task.Delay(1);
@@ -280,6 +269,13 @@
         {
             Console.WriteLine("Saving checklist...");
             await Js.InvokeVoidAsync("console.time", "Checklist2.Save");
+            //Console.WriteLine(JsonConvert.SerializeObject(checklist,
+            //    Formatting.None,
+            //    new JsonSerializerSettings
+            //    {
+            //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            //        ContractResolver = new ChecklistContractResolver()
+            //    }));
             await Repository.SaveChecklistAsync(checklist);
 
             // below should be performed with domain event dispatching mechanism

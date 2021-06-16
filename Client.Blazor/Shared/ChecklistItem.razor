@@ -4,6 +4,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Blazorise
 
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
@@ -12,11 +13,12 @@
     }
     <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@Node.NumPoints</span>
     <span class="badge badge-outline text-indigo disabled float-right mr-1">@Node.NumGroups</span>
-    <!-- TODO: When AC-167 is finished this needs to be updated -->
-    @if (!string.IsNullOrEmpty(Node.InspectorComment) || !string.IsNullOrEmpty(Node.FarmerComment))
+
+    @if (!string.IsNullOrEmpty(Node.InspectorComment) || !string.IsNullOrEmpty(Node.FarmerComment) || Node.DefectId != null || Node.DefectId != 0)
     {
         <span class="badge badge-outline text-black @Node.Outcome.OutcomeCssClass(Node.Outcome) disabled float-right mr-1"><i class="far fa-comment-dots"></i></span>
     }
+
     @*@if (Node.PointId != null)
     {
         <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
@@ -77,30 +79,36 @@
                     <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
                     <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
                 </Blazorise.Field>
-                @if (Node.ComboDefects.Count() > 0)
-                {
-                    <Blazorise.Field>
-                        <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
-                        @*<Blazorise.FieldLabel>DefectId: @Node.DefectId</Blazorise.FieldLabel>*@
-                        <Blazorise.Select TValue="int?" @bind-SelectedValue="@Node.DefectId">
-                            @foreach (var option in Node.ComboDefects)
-                            {
-                                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                            }
-                        </Blazorise.Select>
-                    </Blazorise.Field>
-                }
-                <Blazorise.Field>
-                    @if (Node.ComboDefects.Count() > 0)
-                    {
-                        <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
-                    }
-                    else
-                    {
-                        <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
-                    }
-                    <Blazorise.TextEdit @bind-Text="@Node.DefectDescription"></Blazorise.TextEdit>
-                </Blazorise.Field>
+                <Validations @ref="validations" Mode="ValidationMode.Auto">
+                    <Blazorise.Validation Validator="@ValidateDefectDescription">
+                        @if (Node.ComboDefects.Count() > 0)
+                        {
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
+                                @*<Blazorise.FieldLabel>DefectId: @Node.DefectId</Blazorise.FieldLabel>*@
+                                <Blazorise.Select TValue="int?" @bind-SelectedValue="@Node.DefectId">
+                                    @foreach (var option in Node.ComboDefects)
+                                    {
+                                        <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                                    }
+                                </Blazorise.Select>
+                            </Blazorise.Field>
+                        }
+                        @if (Node.ComboDefects.Count() > 0)
+                        {
+                            <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                        }
+                        else
+                        {
+                            <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
+                        }
+                        <Blazorise.TextEdit @bind-Text="@Node.DefectDescription">
+                            <Feedback>
+                                <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
+                            </Feedback>
+                        </Blazorise.TextEdit>
+                    </Blazorise.Validation>
+                </Validations>
                 <Blazorise.Field>
                     <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
                     <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
@@ -120,8 +128,8 @@
                 </Blazorise.Field>
             </Blazorise.ModalBody>
             <Blazorise.ModalFooter>
-                <button type="submit" class="btn btn-primary float-left mr-2">Ok</button>
-                <button type="button" class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</button>
+                <button class="btn btn-primary float-left mr-2" @onclick="@Submit">Ok</button>
+                <button class="btn btn-default float-left mr-2" @onclick="@Submit">Annuler</button>
             </Blazorise.ModalFooter>
         </Blazorise.ModalContent>
     </EditForm>
@@ -247,10 +255,29 @@
                 DefectUnit = node.Defect.Size.Unit,
                 SeriousnessCode = node.Seriousness.Code,
                 ComboSeriousnesses = Combo.Seriousnesses(),
-                ComboDefects = new List<SelectListItem<string>>(),
+                ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
                 PointId = node.PointId,
                 DefectId = node.DefectId
             };
+        }
+
+    }
+
+    public void ValidateDefectDescription( ValidatorEventArgs e )
+    {
+        e.Status = (Node.DefectId != null && Node.DefectId != 0 && !string.IsNullOrEmpty(Node.DefectDescription)) ? ValidationStatus.Error : ValidationStatus.None;
+    }
+
+    Validations validations;
+    void Submit()
+    {
+        if (validations.ValidateAll())
+        {
+            edit.Hide();
+        }
+        else
+        {
+            Node.DefectDescription = null;
         }
     }
 }
