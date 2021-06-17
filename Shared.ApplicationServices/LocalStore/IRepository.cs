@@ -10,6 +10,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     public interface IRepository
     {
         ValueTask SaveMandatesAsync(Mandate[] mandates);
+        ValueTask SaveInspectorNameAsync(string inspectorName);
         ValueTask<Mandate[]> ReadAllMandatesAsync();
         ValueTask ClearMandatesListAsync();
         ValueTask<bool> HasMandateAsync(int farmId);
@@ -21,6 +22,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         ValueTask SaveFarmJsonAsync(string json, int id);
         ValueTask SaveChecklistJsonAsync(string json, int id);
         ValueTask<Farm> ReadFarmAsync(int farmId);
+        ValueTask<string> ReadInspectorNameAsync();
         ValueTask DeleteFarmAsync(int farmId);
         ValueTask<ChecklistSample> ReadChecklistSampleAsync();
         ValueTask SaveChecklistSampleAsync(ChecklistSample checklist);

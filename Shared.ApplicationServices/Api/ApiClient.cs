@@ -22,6 +22,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             Console.WriteLine("Constructing new instance of ApiClient.");
             httpClient_ = httpClient;
         }
+        public async Task<Result<string>> FetchInspectorNameAsync(string uri)
+        {
+            return await FetchTypedAsync<string>(uri);
+        }
 
         public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchAllMandatesAsync(string uri)
         {

@@ -1,7 +1,10 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature
 @using Blazored.LocalStorage
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
+@using Newtonsoft.Json
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
+@inject IRepository Repository
 
 <EditForm Model="@Model" OnSubmit="@Save">
     <div class="card">
@@ -68,10 +71,14 @@
     SignaturePad signaturePad;
     bool saving = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         //Console.WriteLine("Loading signature with data: " + Model.Data);
         LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
+        await Task.Delay(1);
+        var inspectorName = JsonConvert.DeserializeObject<string>(await Repository.ReadInspectorNameAsync());
+        Console.WriteLine("Inspector name loaded: "+inspectorName);
+        Model.Signatory = inspectorName;
     }
 
     private async Task SignatureChanged(ChangeEventArgs eventArgs)
