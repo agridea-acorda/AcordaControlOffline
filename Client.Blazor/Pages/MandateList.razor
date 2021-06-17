@@ -9,6 +9,8 @@
 @using Microsoft.AspNetCore.Authorization
 @using Newtonsoft.Json
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
+@using System.Web
 
 @page "/MandateList"
 @attribute [Authorize]
@@ -18,6 +20,7 @@
 @inject IToastService Toast
 @inject AppConfiguration Config
 @inject IJSRuntime Js
+@inject IAuthService AuthService
 
 <div class="row">
     <div class="col-sm-12">
@@ -43,8 +46,8 @@
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                                     mandate.SyncStatus == SyncStatus.Deleting ||
-                                     mandate.SyncStatus == SyncStatus.Merging)
+                                    mandate.SyncStatus == SyncStatus.Deleting ||
+                                    mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -397,6 +400,32 @@
         loading = true;
         await Task.Delay(1);
         StateHasChanged();
+
+        try
+        {
+            var auth = await AuthService.ReadAuthInfo();
+            var inspectorInfoResult = await Api.FetchInspectorNameAsync($"inspectors/{auth.Username.Replace(".", "thispointshouldbeerased")}");
+            if (inspectorInfoResult.IsSuccess)
+            {
+                await Repository.SaveInspectorNameAsync(inspectorInfoResult.Value);
+            }
+            else
+            {
+                Console.WriteLine(inspectorInfoResult.ToLogErrorMessage());
+                Toast.Error(inspectorInfoResult.ToUserErrorMessage());
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToLogErrorMessage());
+            Toast.Error(e.ToUserErrorMessage());
+        }
+        finally
+        {
+            loading = false;
+        }
+
         try
         {
             DateTime started = DateTime.Now;

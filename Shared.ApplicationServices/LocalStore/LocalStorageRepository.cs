@@ -28,6 +28,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     public class LocalStorageRepository : IRepository
     {
         public const string Mandates = "mandates";
+        public const string InspectorName = "inspectorName";
         public const string Checklist = "checklist";
         public const string ActionsOrDocuments = "actionsOrDocuments";
         private readonly IJSRuntime jsRuntime_;
@@ -46,6 +47,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public LocalStorageRepository(IJSRuntime jsRuntime)
         {
             jsRuntime_ = jsRuntime;
+        }
+
+        public async ValueTask SaveInspectorNameAsync(string inspectorName)
+        {
+            //await jsRuntime_.InvokeVoidAsync("console.time", "Mandate[] Serialize");
+            // force use of System.Text.Json when Json.NET is not used explicitly (temporary fix that mimics Blazored.LocalStorage, it 'just works').
+            string json = JsonSerializer.Serialize(inspectorName, JsonSerializerOptions);
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "Mandate[] Serialize");
+
+            await SetStringItemAsync(InspectorName, json);
         }
 
         public async ValueTask SaveMandatesAsync(Mandate[] mandates)
@@ -94,6 +105,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         public async ValueTask<Signature> ReadInspectorSignatureAsync(int farmId, int farmInspectionId)
         {
             return await ReadSignatureAsync(farmId, farmInspectionId, x => x?.InspectorSignature);
+        }
+
+        public async ValueTask<string> ReadInspectorNameAsync()
+        {
+            return await GetItemAsStringAsync(InspectorName);
         }
 
         public async ValueTask SaveInspectorSignatureAsync(int farmId, int farmInspectionId, Signature signature)
