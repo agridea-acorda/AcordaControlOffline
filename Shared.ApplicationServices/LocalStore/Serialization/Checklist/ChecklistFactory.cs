@@ -17,8 +17,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             if (json == null) return null;
             var dto = JsonConvert.DeserializeObject<ChecklistDeserializationDto>(json);
-            Console.WriteLine("JsonConvert.SerializeObject(dto):");
-            Console.WriteLine(JsonConvert.SerializeObject(dto));
+            //Console.WriteLine("JsonConvert.SerializeObject(dto):");
+            //Console.WriteLine(JsonConvert.SerializeObject(dto));
             return Parse(dto);
         }
 
@@ -34,9 +34,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             }
 
             Console.WriteLine("checklist");
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(checklist,
-                new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }
-            ));
+            //Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(checklist,
+            //    new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }
+            //));
             return checklist;
         }
 
