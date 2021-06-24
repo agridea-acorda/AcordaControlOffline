@@ -26,9 +26,9 @@
 
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+    <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+    <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
+    <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
 
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)" @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
@@ -79,53 +79,55 @@
                     <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
                     <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
                 </Blazorise.Field>
-                <Validations @ref="validations" Mode="ValidationMode.Auto">
-                    <Blazorise.Validation Validator="@ValidateDefectDescription">
-                        @if (Node.ComboDefects.Count() > 0 && Node.Outcome != InspectionOutcome.Ok)
-                        {
-                            <Blazorise.Field>
-                                <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
-                                @*<Blazorise.FieldLabel>DefectId: @Node.DefectId</Blazorise.FieldLabel>*@
-                                <Blazorise.Select TValue="int?" @bind-SelectedValue="@Node.DefectId">
-                                    @foreach (var option in Node.ComboDefects)
-                                    {
-                                        <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                                    }
-                                </Blazorise.Select>
-                            </Blazorise.Field>
-                        }
-                        @if (Node.ComboDefects.Count() > 0 && Node.Outcome != InspectionOutcome.Ok)
-                        {
-                            <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
-                        }
-                        else
-                        {
-                            <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
-                        }
-                        <Blazorise.TextEdit @bind-Text="@Node.DefectDescription">
-                            <Feedback>
-                                <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
-                            </Feedback>
-                        </Blazorise.TextEdit>
-                    </Blazorise.Validation>
-                </Validations>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
-                    <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
-                    <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
-                        @foreach (var option in Node.ComboSeriousnesses)
-                        {
-                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                        }
-                    </Blazorise.Select>
-                </Blazorise.Field>
+                <div hidden="@(Node.HasChildren)">
+                    <Validations @ref="validations" Mode="ValidationMode.Auto">
+                        <Blazorise.Validation Validator="@ValidateDefectDescription">
+                            @if (Node.ComboDefects.Count() > 0 && Node.Outcome != InspectionOutcome.Ok)
+                            {
+                                <Blazorise.Field>
+                                    <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
+                                    @*<Blazorise.FieldLabel>DefectId: @Node.DefectId</Blazorise.FieldLabel>*@
+                                    <Blazorise.Select TValue="int?" @bind-SelectedValue="@Node.DefectId">
+                                        @foreach (var option in Node.ComboDefects)
+                                        {
+                                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                                        }
+                                    </Blazorise.Select>
+                                </Blazorise.Field>
+                            }
+                            @if (Node.ComboDefects.Count() > 0 && Node.Outcome != InspectionOutcome.Ok)
+                            {
+                                <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            else
+                            {
+                                <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            <Blazorise.TextEdit @bind-Text="@Node.DefectDescription">
+                                <Feedback>
+                                    <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
+                                </Feedback>
+                            </Blazorise.TextEdit>
+                        </Blazorise.Validation>
+                    </Validations>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
+                        <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
+                        <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
+                            @foreach (var option in Node.ComboSeriousnesses)
+                            {
+                                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                            }
+                        </Blazorise.Select>
+                    </Blazorise.Field>
+                </div>
             </Blazorise.ModalBody>
             <Blazorise.ModalFooter>
                 <button class="btn btn-primary float-left mr-2" @onclick="@Submit">Ok</button>
@@ -221,6 +223,7 @@
         public int? DefectId { get; set; }
         public IEnumerable<SelectListItem<string>> ComboDefects { get; set; }
         public int? PointId { get; set; }
+        public bool HasChildren { get; set; }
 
         public void Clear()
         {
@@ -257,7 +260,8 @@
                 ComboSeriousnesses = Combo.Seriousnesses(),
                 ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
                 PointId = node.PointId,
-                DefectId = node.DefectId
+                DefectId = node.DefectId,
+                HasChildren = node.Children?.Any() ?? false
             };
         }
 
