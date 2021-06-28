@@ -79,10 +79,10 @@
                     <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
                     <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
                 </Blazorise.Field>
-                <div hidden="@(Node.HasChildren)">
+                <div hidden="@(Node.HasChildren || Node.Outcome == InspectionOutcome.Ok)">
                     <Validations @ref="validations" Mode="ValidationMode.Auto">
                         <Blazorise.Validation Validator="@ValidateDefectDescription">
-                            @if (Node.ComboDefects.Count() > 0 && Node.Outcome != InspectionOutcome.Ok)
+                            @if (Node.ComboDefects.Count() > 0)
                             {
                                 <Blazorise.Field>
                                     <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
@@ -95,7 +95,7 @@
                                     </Blazorise.Select>
                                 </Blazorise.Field>
                             }
-                            @if (Node.ComboDefects.Count() > 0 && Node.Outcome != InspectionOutcome.Ok)
+                            @if (Node.ComboDefects.Count() > 0)
                             {
                                 <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
                             }
