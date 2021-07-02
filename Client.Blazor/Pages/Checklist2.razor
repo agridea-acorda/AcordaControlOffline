@@ -5,6 +5,13 @@
 @using Microsoft.AspNetCore.Authorization
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
+@using CSharpFunctionalExtensions
+@using Newtonsoft.Json
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -13,6 +20,7 @@
 @inject IToastService Toast
 @inject AppConfiguration Config
 @inject IJSRuntime Js
+@inject IApiClient Api
 
 <div class="card">
     <div class="card-header">
@@ -31,8 +39,7 @@
     <div class="card-body">
         @if (progressBarModel != null)
         {
-            <ProgressBar Progress="@progressBarModel" />
-        }
+            <ProgressBar Progress="@progressBarModel" />}
     </div>
 </div>
 
@@ -57,8 +64,7 @@
             <button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
                 <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
                 Enregistrer
-            </button>
-        }
+            </button>}
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
@@ -83,38 +89,29 @@
                                 {
                                     @foreach (var child in children)
                                     {
-                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
-                                    }
-                                }
+                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
                                 else
                                 {
-                                    <ChecklistPlaceholderLoading />
-                                }
+                                    <ChecklistPlaceholderLoading />}
                             </div>
                         </div>
-                    </div>
-                }
+                    </div> }
                 else
                 {
                     @if (children.Any())
                     {
                         @foreach (var child in children)
                         {
-                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
-                        }
-                    }
+                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
                     else
                     {
-                        <ChecklistPlaceholderLoading />
-                    }
-                }
+                        <ChecklistPlaceholderLoading />}}
             </div>
         </div>
     </div>
 </div>
 
-@code {
-    const string FarmIdUriKey = "FarmId";
+@code { const string FarmIdUriKey = "FarmId";
 
     [Parameter]
     public int FarmInspectionId { get; set; }
@@ -147,9 +144,10 @@
             progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo.FromChecklist(checklist);
             viewCache.Add("", (parent, children));
         }
+
     }
 
-    void NodeViewChanged(string conjunctElementCode)
+    async Task NodeViewChanged(string conjunctElementCode)
     {
         if (string.IsNullOrWhiteSpace(conjunctElementCode))
         {
@@ -157,8 +155,19 @@
             //children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
             //                    .Where(x => x != null)
             //                    .ToList();
+            await Task.Delay(1);
+            var parentOutcomeResult = await GetParentOutcomeBasedOnChildren(children);
+            //Console.WriteLine($"parentOutcomeResult :" + JsonSerializer.Serialize(parentOutcomeResult, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+
             parent = viewCache[""].Item1;
             children = viewCache[""].Item2;
+
+            children.Where(x => x.ConjunctElementCode == parentOutcomeResult.ParentConjunctElementCode).Single().Outcome = parentOutcomeResult.ParentOutcome;
+
+            //Console.WriteLine($"parent :" + JsonSerializer.Serialize(parent, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+            //Console.WriteLine($"children :" + JsonSerializer.Serialize(children, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+
+            Console.WriteLine($"conjunctElementCode is null or space");
             return;
         }
 
@@ -170,15 +179,27 @@
             //children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
             //                    .Where(x => x != null)
             //                    .ToList();
+
             parent = viewCache[""].Item1;
             children = viewCache[""].Item2;
+            Console.WriteLine($"node is null");
             return;
         }
 
         if (viewCache.TryGetValue(node.ConjunctElementCode, out var entry))
         {
+            await Task.Delay(1);
+            var parentOutcomeResult = await GetParentOutcomeBasedOnChildren(children);
+
             parent = entry.Item1;
             children = entry.Item2;
+
+            var temp = children.Where(x => x.ConjunctElementCode == parentOutcomeResult.ParentConjunctElementCode).SingleOrDefault();
+            if (temp != null)
+            {
+                temp.Outcome = parentOutcomeResult.ParentOutcome;
+            }
+            Console.WriteLine($"from view cache");
             return;
         }
         parent = ChecklistItem.ResultModel.MapFrom(node);
@@ -186,15 +207,19 @@
                        .Where(x => x != null)
                        .ToList();
         viewCache.TryAdd(node.ConjunctElementCode, (parent, children));
+
     }
 
-    void NodeOutcomeChanged(ChecklistItem.ResultModel model)
+    async Task NodeOutcomeChanged(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s outcome was set to {model.Outcome}.");
         var node = checklist.Find(model.ConjunctElementCode);
         var previousOutcome = node.Outcome;
         node.SetOutcome(model.Outcome);
         if (previousOutcome != model.Outcome) node.SetAuto(false);
+        await Task.Delay(1);
+        await GetParentOutcomeBasedOnChildren(children);
+        await CheckRulesFromParentToChildren(model.ConjunctElementCode, model.Outcome);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         progressBarModel.Progress(checklist.Percent);
         needsSaving = true;
@@ -203,16 +228,18 @@
     void NodeEdited(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
+
         checklist.Find(model.ConjunctElementCode)
                  .SetInspectorComment(model.InspectorComment)
                  .SetFarmerComment(model.FarmerComment)
                  .SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
                             DefectSeriousness.FromCode(model.SeriousnessCode))
+                 .SetDefectId(model.DefectId)
                  .SetAuto(false);
         needsSaving = true;
     }
 
-    void NodeDeleted(ChecklistItem.ResultModel model)
+    async Task NodeDeleted(ChecklistItem.ResultModel model)
     {
         Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
         checklist.Find(model.ConjunctElementCode)
@@ -220,7 +247,12 @@
                  .SetInspectorComment("")
                  .SetFarmerComment("")
                  .SetDefect(Defect.None, DefectSeriousness.Empty)
+                 .SetDefectId(null)
                  .SetAuto(false);
+
+        await Task.Delay(1);
+        await GetParentOutcomeBasedOnChildren(children);
+
         progressBarModel.Progress(checklist.Percent);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         needsSaving = true;
@@ -232,11 +264,18 @@
         saving = true;
         await Task.Delay(1);
         StateHasChanged();
-
+        await GetParentOutcomeBasedOnChildren(children);
         try
         {
             Console.WriteLine("Saving checklist...");
             await Js.InvokeVoidAsync("console.time", "Checklist2.Save");
+            //Console.WriteLine(JsonConvert.SerializeObject(checklist,
+            //    Formatting.None,
+            //    new JsonSerializerSettings
+            //    {
+            //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            //        ContractResolver = new ChecklistContractResolver()
+            //    }));
             await Repository.SaveChecklistAsync(checklist);
 
             // below should be performed with domain event dispatching mechanism
@@ -305,4 +344,188 @@
         await repository.SaveMandatesAsync(mandates);
     }
 
-}
+    private class ParentOutcomeResult
+    {
+        public string ParentConjunctElementCode { get; set; }
+        public InspectionOutcome ParentOutcome { get; set; }
+    }
+
+    /// <summary>Checks if InspectionOutcome of parent is correct (Could be incorrect if children's InspectionOutcome have a value)</summary>
+    /// <param name="conjunctElementCode">The code of the id of the node of a InspectionOutcome</param>
+    /// <param name="check">The InspectionOutcome to check</param>
+    async Task CheckRulesFromParentToChildren(string conjunctElementCode, InspectionOutcome check)
+    {
+        var node = checklist.Find(conjunctElementCode);
+        var tempChildren = new List<ChecklistItem.ResultModel>();
+        if (viewCache.TryGetValue(conjunctElementCode, out var entry))
+        {
+            await Task.Delay(1);
+            tempChildren = entry.Item2;
+        }
+        else
+        {
+            tempChildren = node.Children.Select(x => ChecklistItem.ResultModel.MapFrom(x.Value))
+            .Where(x => x != null)
+            .ToList();
+        }
+
+        var temp = tempChildren.Where(x => x.ParentConjunctElementCode == conjunctElementCode).ToList();
+        int cptNOk = 0;
+        int cptPOk = 0;
+        int cptOk = 0;
+        int cptNa = 0;
+        int cptNc = 0;
+
+        //Console.WriteLine($"check child count :" + temp.Count);
+        foreach (var child in temp)
+        {
+            //Console.WriteLine($"check child :" + child.Outcome.Code);
+
+            switch (child.Outcome.Code)
+            {
+                case "NOk":
+                    cptNOk++;
+                    break;
+                case "PartiallyOk":
+                    cptPOk++;
+                    break;
+                case "Ok":
+                    cptOk++;
+                    break;
+                case "NotApplicable":
+                    cptNa++;
+                    break;
+                case "NotInspected":
+                    cptNc++;
+                    break;
+            }
+        }
+
+        //Console.WriteLine(check.Code);
+        //Console.WriteLine(cptNOk);
+        //Console.WriteLine(cptPOk);
+        //Console.WriteLine(cptOk);
+        //Console.WriteLine(cptNa);
+        //Console.WriteLine(cptNc);
+        if (cptNOk > 0 && check == InspectionOutcome.NotOk)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (NOk)");
+        }
+        else if (cptPOk > 0 && check == InspectionOutcome.PartiallyOk && cptNOk == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (POk)");
+        }
+        else if (cptOk > 0 && check == InspectionOutcome.Ok && cptNOk == 0 && cptPOk == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (Ok)");
+        }
+        else if (cptNa > 0 && check == InspectionOutcome.NotApplicable && cptNOk == 0 && cptPOk == 0 && cptOk == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (Na)");
+        }
+        else if (cptNc > 0 && check == InspectionOutcome.NotInspected && cptNOk == 0 && cptPOk == 0 && cptOk == 0 && cptNa == 0)
+        {
+            //Toast.ShowWarning("Le point de contrôle est cohérent (Nc)");
+        }
+        else if (cptNOk == 0 && cptPOk == 0 && cptOk == 0 && cptNa == 0 && cptNc == 0)
+        {
+
+        }
+        else
+        {
+            Toast.ShowWarning($"Le point de contrôle est incohérent ({check.Code}), vérifiez le sous-groupe", "ATTENTION");
+        }
+    }
+
+    /// <summary>Calculates and sets the InspectionOutcome's value of the parents nodes based on children</summary>
+    /// <param name="children">The children, needed to calculate the outcome</param>
+    async Task<ParentOutcomeResult> GetParentOutcomeBasedOnChildren(List<ChecklistItem.ResultModel> children)
+    {
+        //Console.WriteLine($"children :" + JsonSerializer.Serialize(children, new JsonSerializerOptions(){ReferenceHandler = ReferenceHandler.Preserve }));
+        ParentOutcomeResult parentOutcomeResult = new ParentOutcomeResult();
+
+        if (children != null)
+        {
+
+            parentOutcomeResult.ParentConjunctElementCode = children.FirstOrDefault()?.ParentConjunctElementCode;
+
+            int cptNOk = 0;
+            int cptPOk = 0;
+            int cptOk = 0;
+            int cptNa = 0;
+            int cptNc = 0;
+            //Console.WriteLine($"children :" + children.Count);
+            foreach (var child in children)
+            {
+                //Console.WriteLine($"child :" + child.Outcome.Code);
+
+                switch (child.Outcome.Code)
+                {
+                    case "NOk":
+                        cptNOk++;
+                        break;
+                    case "PartiallyOk":
+                        cptPOk++;
+                        break;
+                    case "Ok":
+                        cptOk++;
+                        break;
+                    case "NotApplicable":
+                        cptNa++;
+                        break;
+                    case "NotInspected":
+                        cptNc++;
+                        break;
+                }
+            }
+
+
+            if (cptNOk > 0)
+            {
+                //Console.WriteLine($"outcomeParent SHOULD BE NOK");
+                parentOutcomeResult.ParentOutcome = InspectionOutcome.NotOk;
+            }
+            else if (cptPOk > 0)
+            {
+                //Console.WriteLine($"outcomeParent SHOULD BE POK");
+                parentOutcomeResult.ParentOutcome = InspectionOutcome.PartiallyOk;
+            }
+            else if (cptOk > 0)
+            {
+                //Console.WriteLine($"outcomeParent SHOULD BE OK");
+                parentOutcomeResult.ParentOutcome = InspectionOutcome.Ok;
+            }
+            else if (cptNa > 0)
+            {
+                //Console.WriteLine($"outcomeParent SHOULD BE NA");
+                parentOutcomeResult.ParentOutcome = InspectionOutcome.NotApplicable;
+            }
+            else if (cptNc > 0)
+            {
+                //Console.WriteLine($"outcomeParent SHOULD BE NC");
+                parentOutcomeResult.ParentOutcome = InspectionOutcome.NotInspected;
+            }
+            else
+            {
+                //Console.WriteLine($"outcomeParent SHOULD BE NOTHING");
+                parentOutcomeResult.ParentOutcome = InspectionOutcome.Unset;
+            }
+        }
+
+        string parentConjunctElementCode = parent?.ConjunctElementCode;
+        if (parentConjunctElementCode != null)
+        {
+            //Console.WriteLine($"parentConjunctElementCode :" + JsonSerializer.Serialize(parentConjunctElementCode, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
+            var node = checklist.Find(parentConjunctElementCode);
+            //Console.WriteLine(JsonSerializer.Serialize(node, new JsonSerializerOptions(){ReferenceHandler = ReferenceHandler.Preserve}));
+            var previousOutcome = node.Outcome;
+            node.SetOutcome(parentOutcomeResult.ParentOutcome);
+            parent.Outcome = parentOutcomeResult.ParentOutcome;
+            if (previousOutcome != parentOutcomeResult.ParentOutcome) node.SetAuto(false);
+        }
+
+        progressBarModel.SetOutcome(checklist.OutcomeComputed);
+        progressBarModel.Progress(checklist.Percent);
+
+        return parentOutcomeResult;
+    } }

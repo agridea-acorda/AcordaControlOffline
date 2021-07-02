@@ -2,6 +2,9 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Blazorise
 
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
@@ -10,11 +13,23 @@
     }
     <span class="badge badge-outline text-indigo bg-indigo disabled float-right mr-1">@Node.NumPoints</span>
     <span class="badge badge-outline text-indigo disabled float-right mr-1">@Node.NumGroups</span>
+
+    @if (!string.IsNullOrEmpty(Node.InspectorComment) || !string.IsNullOrEmpty(Node.FarmerComment) || (Node.DefectId != null && Node.DefectId != 0))
+    {
+        <span class="badge badge-outline text-black @Node.Outcome.OutcomeCssClass(Node.Outcome) disabled float-right mr-1"><i class="far fa-comment-dots"></i></span>
+    }
+
+    @*@if (Node.PointId != null)
+    {
+        <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
+    }*@
+
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
-    <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+    <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
+    <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
+    <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
+
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)" @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
     @if (Node.Outcome != InspectionOutcome.Unset)
@@ -64,31 +79,59 @@
                     <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
                     <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
                 </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit @bind-Text="@Node.DefectDescription"></Blazorise.TextEdit>
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
-                    <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
-                    <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
-                        @foreach (var option in Node.ComboSeriousnesses)
-                        {
-                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                        }
-                    </Blazorise.Select>
-                </Blazorise.Field>
+                <div hidden="@(Node.HasChildren || Node.Outcome == InspectionOutcome.Ok)">
+                    <Validations @ref="validations" Mode="ValidationMode.Auto">
+                        <Blazorise.Validation Validator="@ValidateDefectDescription">
+                            @if (Node.ComboDefects.Count() > 0)
+                            {
+                                <Blazorise.Field>
+                                    <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
+                                    @*<Blazorise.FieldLabel>DefectId: @Node.DefectId</Blazorise.FieldLabel>*@
+                                    <Blazorise.Select TValue="int?" @bind-SelectedValue="@Node.DefectId">
+                                        @foreach (var option in Node.ComboDefects)
+                                        {
+                                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                                        }
+                                    </Blazorise.Select>
+                                </Blazorise.Field>
+                            }
+                            @if (Node.ComboDefects.Count() > 0)
+                            {
+                                <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            else
+                            {
+                                <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            <Blazorise.TextEdit @bind-Text="@Node.DefectDescription">
+                                <Feedback>
+                                    <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
+                                </Feedback>
+                            </Blazorise.TextEdit>
+                        </Blazorise.Validation>
+                    </Validations>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
+                        <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
+                        <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
+                            @foreach (var option in Node.ComboSeriousnesses)
+                            {
+                                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                            }
+                        </Blazorise.Select>
+                    </Blazorise.Field>
+                </div>
             </Blazorise.ModalBody>
             <Blazorise.ModalFooter>
-                <button type="submit" class="btn btn-primary float-left mr-2">Ok</button>
-                <button type="button" class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</button>
+                <button class="btn btn-primary float-left mr-2" @onclick="@Submit">Ok</button>
+                <button class="btn btn-default float-left mr-2" @onclick="@Submit">Annuler</button>
             </Blazorise.ModalFooter>
         </Blazorise.ModalContent>
     </EditForm>
@@ -130,7 +173,7 @@
     Blazorise.Modal info;
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
-    
+
     async Task SetOutcome(InspectionOutcome outcome)
     {
         var previousOutcome = Node.Outcome;
@@ -177,6 +220,10 @@
         public int SeriousnessCode { get; set; }
         public string Id { get; set; }
         public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
+        public int? DefectId { get; set; }
+        public IEnumerable<SelectListItem<string>> ComboDefects { get; set; }
+        public int? PointId { get; set; }
+        public bool HasChildren { get; set; }
 
         public void Clear()
         {
@@ -210,8 +257,31 @@
                 DefectSize = node.Defect.Size.Size,
                 DefectUnit = node.Defect.Size.Unit,
                 SeriousnessCode = node.Seriousness.Code,
-                ComboSeriousnesses = Combo.Seriousnesses()
+                ComboSeriousnesses = Combo.Seriousnesses(),
+                ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
+                PointId = node.PointId,
+                DefectId = node.DefectId,
+                HasChildren = node.Children?.Any() ?? false
             };
+        }
+
+    }
+
+    public void ValidateDefectDescription( ValidatorEventArgs e )
+    {
+        e.Status = (Node.DefectId != null && Node.DefectId != 0 && !string.IsNullOrEmpty(Node.DefectDescription)) ? ValidationStatus.Error : ValidationStatus.None;
+    }
+
+    Validations validations;
+    void Submit()
+    {
+        if (validations.ValidateAll())
+        {
+            edit.Hide();
+        }
+        else
+        {
+            Node.DefectDescription = null;
         }
     }
 }
