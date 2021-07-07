@@ -7,6 +7,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public int Id { get; set; }
         public string Ktidb { get; set; }
         public string FarmName { get; set; }
+        public string PersonName { get; set; }
+        public int? TvdNumber { get; set; }
         public string Address { get; set; }
         public string FarmType { get; set; }
         public int FarmTypeCode { get; set; }
@@ -34,7 +36,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 NonAgriculturalArea = farm.NonAgriculturalArea,
                 BovineStandardUnits = farm.BovineStandardUnits,
                 BovineStandardUnitsFromBdta = farm.BovineStandardUnitsFromBdta,
-                Badges = farm.Badges?.Select(Badge.Badge.FromDomain).ToArray()
+                Badges = farm.Badges?.Select(Badge.Badge.FromDomain).ToArray(),
+                TvdNumber = farm.TvdNumber,
+                PersonName = farm.PersonName
             };
             return model;
         }
