@@ -8,6 +8,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public string Ktidb { get; set; }
         public string FarmName { get; set; }
         public string Address { get; set; }
+        public string MunicipalityName { get; set; }
+        public string TownName { get; set; }
         public string FarmType { get; set; }
         public int FarmTypeCode { get; set; }
         public string Email { get; set; }
@@ -26,6 +28,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 Ktidb = farm.Ktidb,
                 FarmName = farm.FarmName,
                 Address = farm.Address,
+                MunicipalityName = farm.MunicipalityName,
+                TownName = farm.TownName,
                 FarmType = farm.FarmType,
                 FarmTypeCode = farm.FarmTypeCode,
                 Email = farm.Email,

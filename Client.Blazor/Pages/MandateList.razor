@@ -45,13 +45,13 @@
                         <Select2 TItem="SortListItem"
                                  TSource="List<SortListItem>"
                                  IdSelector="p => p.Id"
-                                 TextSelector="getSortListItemDisplayName"
+                                 TextSelector="SortListItem.GetSortListItemDisplayName"
                                  Datasource="sortListItemsDatasource"
                                  Value="sortListItems"
                                  Multiselect="true"
                                  GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
                                  FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
-                                 OnValueChanged="sortMandates"
+                                 OnValueChanged="OrderMandates"
                                  class="mt-2 mr-2 mb-2"></Select2>
                     </div>
                 </div>
@@ -220,87 +220,11 @@
     Mandate selectedMandate;
     Blazorise.Modal mergeModal;
 
-    private int[] simpleDatasource = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-    private List<int> selectedSimpleInt = new List<int> { };
-
-    private List<SortListItem> sortListItemsDatasource = new List<SortListItem>
-    {
-        new SortListItem()
-        {
-            Id = "NameASC",
-            Name = "Nom",
-            Icon = "<i class=\"fas fa-sort-alpha-down\"></i>",
-            IsAscending = true
-        },
-        new SortListItem()
-        {
-            Id = "NameDESC",
-            Name = "Nom",
-            Icon = "<i class=\"fas fa-sort-alpha-down-alt\"></i>",
-            IsAscending = false
-        },
-        new SortListItem()
-        {
-            Id = "CommuneASC",
-            Name = "Commune",
-            Icon = "<i class=\"fas fa-sort-alpha-down\"></i>",
-            IsAscending = true
-        },
-        new SortListItem()
-        {
-            Id = "CommuneDESC",
-            Name = "Commune",
-            Icon = "<i class=\"fas fa-sort-alpha-down-alt\"></i>",
-            IsAscending = false
-        },
-        new SortListItem()
-        {
-            Id = "LocaliteASC",
-            Name = "Localité",
-            Icon = "<i class=\"fas fa-sort-alpha-down\"></i>",
-            IsAscending = true
-        },
-        new SortListItem()
-        {
-            Id = "LocaliteDESC",
-            Name = "Localité",
-            Icon = "<i class=\"fas fa-sort-alpha-down-alt\"></i>",
-            IsAscending = false
-        },
-        new SortListItem()
-        {
-            Id = "KtidbASC",
-            Name = "Ktidb",
-            Icon = "<i class=\"fas fa-sort-alpha-down\"></i>",
-            IsAscending = true
-        },
-        new SortListItem()
-        {
-            Id = "KtidbDESC",
-            Name = "Ktidb",
-            Icon = "<i class=\"fas fa-sort-alpha-down-alt\"></i>",
-            IsAscending = false
-        },
-        new SortListItem()
-        {
-            Id = "FormeExASC",
-            Name = "Forme d'exploitation",
-            Icon = "<i class=\"fas fa-sort-alpha-down\"></i>",
-            IsAscending = true
-        },
-        new SortListItem()
-        {
-            Id = "FormeExDESC",
-            Name = "Forme d'exploitation",
-            Icon = "<i class=\"fas fa-sort-alpha-down-alt\"></i>",
-            IsAscending = false
-        }
-    };
+    private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
     private List<SortListItem> sortListItems = new List<SortListItem> { };
 
-    private string getSortListItemDisplayName(SortListItem sortListItem) => sortListItem != null ? $"{sortListItem.Name} {sortListItem.Icon}" : null;
 
-    private void sortMandates()
+    private void OrderMandates()
     {
         if (sortListItems.Count > 0)
         {
@@ -326,6 +250,18 @@
                 case "FormeExDESC":
                     sortMandates = sortMandates.OrderByDescending(x => x.Farm.FarmType);
                     break;
+                case "CommuneASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Farm.MunicipalityName);
+                    break;
+                case "CommuneDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.MunicipalityName);
+                    break;
+                case "LocaliteASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Farm.TownName);
+                    break;
+                case "LocaliteDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.TownName);
+                    break;
             }
             foreach (var item in sortListItems)
             {
@@ -348,6 +284,18 @@
                         break;
                     case "FormeExDESC":
                         sortMandates = sortMandates.ThenByDescending(x => x.Farm.FarmType);
+                        break;
+                    case "CommuneASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Farm.MunicipalityName);
+                        break;
+                    case "CommuneDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.MunicipalityName);
+                        break;
+                    case "LocaliteASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Farm.TownName);
+                        break;
+                    case "LocaliteDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.TownName);
                         break;
                 }
             }
