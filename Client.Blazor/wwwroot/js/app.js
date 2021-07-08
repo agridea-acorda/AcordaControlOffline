@@ -145,3 +145,14 @@ function base64DecToArr(sBase64, nBlocksSize) {
 function b64ToUint6(nChr) {
     return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
 }
+
+// Fix select2, this is needed to let the user choose the order of the tags in the multiple select
+$("select").select2();
+$("select").on("select2:select", function (evt) {
+    var element = evt.params.data.element;
+    var $element = $(element);
+
+    $element.detach();
+    $(this).append($element);
+    $(this).trigger("change");
+});

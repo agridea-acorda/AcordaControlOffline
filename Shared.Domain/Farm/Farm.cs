@@ -11,6 +11,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm
         public string FarmName { get; set; }
         public string PersonName { get; set; }
         public string Address { get; set; }
+        public string MunicipalityName { get; set; }
+        public string TownName { get; set; }
         public string FarmType { get; set; }
         public int FarmTypeCode { get; set; }
         public int? TvdNumber { get; set; }
