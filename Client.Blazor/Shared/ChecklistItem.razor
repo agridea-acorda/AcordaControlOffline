@@ -114,9 +114,15 @@
                         <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
                         <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
                     </Blazorise.Field>
+                    <div hidden="true">
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                            <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                        </Blazorise.Field>
+                    </div>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                        <Blazorise.TextEdit @bind-Text="@Node.Unit"></Blazorise.TextEdit>
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
@@ -217,6 +223,7 @@
         public string DefectDescription { get; set; }
         public double DefectSize { get; set; }
         public string DefectUnit { get; set; }
+        public string Unit { get; set; }
         public int SeriousnessCode { get; set; }
         public string Id { get; set; }
         public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
@@ -233,6 +240,7 @@
             DefectDescription = Defect.None.Description;
             DefectSize = Defect.None.Size.Size;
             DefectUnit = Defect.None.Size.Unit;
+            Unit = "";
             SeriousnessCode = DefectSeriousness.Empty.Code;
             IsAutoSet = false;
         }
@@ -256,6 +264,7 @@
                 DefectDescription = node.Defect.Description,
                 DefectSize = node.Defect.Size.Size,
                 DefectUnit = node.Defect.Size.Unit,
+                Unit = node.Unit,
                 SeriousnessCode = node.Seriousness.Code,
                 ComboSeriousnesses = Combo.Seriousnesses(),
                 ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
