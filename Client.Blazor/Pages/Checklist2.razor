@@ -12,6 +12,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
 @using CSharpFunctionalExtensions
 @using Newtonsoft.Json
+@using JsonSerializer = System.Text.Json.JsonSerializer
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -235,6 +236,7 @@
                  .SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
                             DefectSeriousness.FromCode(model.SeriousnessCode))
                  .SetDefectId(model.DefectId)
+                 .SetUnit(model.Unit)
                  .SetAuto(false);
         needsSaving = true;
     }
@@ -269,13 +271,7 @@
         {
             Console.WriteLine("Saving checklist...");
             await Js.InvokeVoidAsync("console.time", "Checklist2.Save");
-            //Console.WriteLine(JsonConvert.SerializeObject(checklist,
-            //    Formatting.None,
-            //    new JsonSerializerSettings
-            //    {
-            //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            //        ContractResolver = new ChecklistContractResolver()
-            //    }));
+
             await Repository.SaveChecklistAsync(checklist);
 
             // below should be performed with domain event dispatching mechanism

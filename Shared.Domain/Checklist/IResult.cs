@@ -14,6 +14,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         bool IsAutoSet { get; }
         string InspectorComment { get; }
         string FarmerComment { get; }
+        string Unit { get; }
         Defect Defect { get; }
         DefectSeriousness Seriousness { get; }
 
@@ -30,5 +31,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         IResult SetFarmerComment(string comment);
         IResult SetDefect(Defect defect, DefectSeriousness seriousness);
         IResult SetDefectId(int? defectId);
+        IResult SetUnit(string unit);
     }
 }
