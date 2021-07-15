@@ -164,3 +164,11 @@ window.setMandatesScrollPosition = () => {
 window.getMandatesScrollPosition = () => {
     $(window).scrollTop(localStorage.getItem("mandatesScrollPosition"));
 };
+
+// Store ordering of mandates list
+window.getSortListItems = () => {
+    return localStorage.getItem("sortListItems");
+};
+window.setSortListItems = (sortListItems) => {
+    localStorage.setItem("sortListItems", sortListItems);
+};
