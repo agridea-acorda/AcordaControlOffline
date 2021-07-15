@@ -316,6 +316,7 @@
         }
         mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
         await SetSyncStatus();
+        await Js.InvokeVoidAsync("getMandatesScrollPosition");
     }
 
     async Task Refresh()
@@ -326,8 +327,9 @@
         await SetSyncStatus();
     }
 
-    void NavigateToMandateDetail(int id)
+    async Task NavigateToMandateDetail(int id)
     {
+        await Js.InvokeVoidAsync("setMandatesScrollPosition");
         if (id > 0)
         {
             Navigation.NavigateTo($"{Config.BaseUrl}/MandateDetail/{id}");

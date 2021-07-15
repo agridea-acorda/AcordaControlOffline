@@ -156,3 +156,11 @@ $("select").on("select2:select", function (evt) {
     $(this).append($element);
     $(this).trigger("change");
 });
+
+// Saves last scrolling position
+window.setMandatesScrollPosition = () => {
+    localStorage.setItem("mandatesScrollPosition", $(window).scrollTop());
+};
+window.getMandatesScrollPosition = () => {
+    $(window).scrollTop(localStorage.getItem("mandatesScrollPosition"));
+};
