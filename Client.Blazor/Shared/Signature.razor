@@ -78,7 +78,12 @@
         await Task.Delay(1);
         var inspectorName = JsonConvert.DeserializeObject<string>(await Repository.ReadInspectorNameAsync());
         Console.WriteLine("Inspector name loaded: "+inspectorName);
-        Model.Signatory = inspectorName;
+
+        if (!Title.Contains("exploitant"))
+        {
+            Model.Signatory = inspectorName;
+        }
+
     }
 
     private async Task SignatureChanged(ChangeEventArgs eventArgs)
