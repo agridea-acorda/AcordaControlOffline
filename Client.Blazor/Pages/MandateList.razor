@@ -322,7 +322,16 @@
         mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
         await SetSyncStatus();
         string sortListitems = await Js.InvokeAsync<string>("getSortListItems");
-        sortListItems = JsonConvert.DeserializeObject<List<SortListItem>>(sortListitems);
+
+        if (sortListitems != null)
+        {
+            sortListItems = JsonConvert.DeserializeObject<List<SortListItem>>(sortListitems);
+        }
+        else
+        {
+            sortListItems = new List<SortListItem>();
+        }
+
         //await Js.InvokeVoidAsync("getMandatesScrollPosition");
     }
 
