@@ -7,6 +7,8 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Unit
 @using Blazorise
 
+@inject IJSRuntime Js
+
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
     {
@@ -123,24 +125,13 @@
                     </div>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit @bind-Text="@Node.Unit"></Blazorise.TextEdit>
-                        <Select2 TItem="SortListItem"
-                                 TSource="List<SortListItem>"
-                                 IdSelector="p => p.Id"
-                                 TextSelector="SortListItem.GetSortListItemDisplayName"
-                                 Datasource="sortListItemsDatasource"
-                                 Value="sortListItems"
-                                 Multiselect="false"
-                                 GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                 FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
-                                 OnValueChanged="UnitChanged"
-                                 class="mt-2 mr-2 mb-2"></Select2>
-                        <Blazorise.Select TValue="string" @bind-SelectedValue="@Node.Unit" class="js-select2-basic-single">
+                        <Blazorise.TextEdit @bind-Text="@Node.Unit" list="units" autocomplete="off" class="clear-datalist"  FocusIn="EraseUnit"></Blazorise.TextEdit>
+                        <datalist id="units">
                             @foreach (var option in sortListItemsDatasource)
                             {
-                                <Blazorise.SelectItem Value="@option.Id">@option.Name</Blazorise.SelectItem>
+                                <option>@option.Id</option>
                             }
-                        </Blazorise.Select>
+                        </datalist>
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
@@ -199,7 +190,12 @@
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
 
     private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
-    private List<SortListItem> sortListItems = new List<SortListItem> { };
+    //private List<SortListItem> sortListItems = new List<SortListItem> { };
+
+    void EraseUnit()
+    {
+        Node.Unit = "";
+    }
 
     async Task SetOutcome(InspectionOutcome outcome)
     {
@@ -313,22 +309,5 @@
         {
             Node.DefectDescription = null;
         }
-    }
-
-    private void UnitChanged()
-    {
-        if (sortListItems.Count > 0)
-        {
-            Console.WriteLine($"this is the FarmerComment: {Node.FarmerComment}");
-            Console.WriteLine($"this is the Unit: {Node.Unit}");
-            Node.Unit = sortListItems.First().Id;
-            Console.WriteLine($"this is the defectunit: {Node.Unit}");
-            StateHasChanged();
-        }
-        else
-        {
-            Node.Unit = "";
-        }
-
     }
 }
