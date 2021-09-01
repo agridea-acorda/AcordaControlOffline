@@ -19,6 +19,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public bool IsAutoSet { get; set; }
         public string InspectorComment { get; set; }
         public string FarmerComment { get; set; }
+        public string Unit { get; set; }
         
         public Defect Defect { get; private set; }
         public DefectSeriousness Seriousness { get; set; }
@@ -63,6 +64,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             return this;
         }
 
+        public IResult SetUnit(string unit)
+        {
+            Unit = unit;
+            return this;
+        }
+
         public int NumGroups => Children?.Count(x => x.Value?.Children?.Any() ?? false) ?? 0;
         public int NumPoints => Children?.Count(x => !x.Value?.Children?.Any() ?? true) ?? 0;
         public List<ITreeNode<Result>> Points => (Children?.Where(child => !child.Value?.Children?.Any() ?? true) ?? Enumerable.Empty<KeyValuePair<string, ITreeNode<Result>>>())
@@ -92,6 +99,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
             Outcome = InspectionOutcome.Unset;
             InspectorComment = "";
             FarmerComment = "";
+            Unit = "";
             Defect = Defect.None;
             Seriousness = DefectSeriousness.Empty;
         }
