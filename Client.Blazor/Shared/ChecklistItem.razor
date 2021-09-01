@@ -4,6 +4,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Unit
 @using Blazorise
 
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
@@ -20,9 +21,9 @@
     }
 
     @*@if (Node.PointId != null)
-    {
-        <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
-    }*@
+        {
+            <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
+        }*@
 
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
@@ -123,6 +124,23 @@
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
                         <Blazorise.TextEdit @bind-Text="@Node.Unit"></Blazorise.TextEdit>
+                        <Select2 TItem="SortListItem"
+                                 TSource="List<SortListItem>"
+                                 IdSelector="p => p.Id"
+                                 TextSelector="SortListItem.GetSortListItemDisplayName"
+                                 Datasource="sortListItemsDatasource"
+                                 Value="sortListItems"
+                                 Multiselect="false"
+                                 GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                 FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
+                                 OnValueChanged="UnitChanged"
+                                 class="mt-2 mr-2 mb-2"></Select2>
+                        <Blazorise.Select TValue="string" @bind-SelectedValue="@Node.Unit" class="js-select2-basic-single">
+                            @foreach (var option in sortListItemsDatasource)
+                            {
+                                <Blazorise.SelectItem Value="@option.Id">@option.Name</Blazorise.SelectItem>
+                            }
+                        </Blazorise.Select>
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
@@ -179,6 +197,9 @@
     Blazorise.Modal info;
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
+
+    private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
+    private List<SortListItem> sortListItems = new List<SortListItem> { };
 
     async Task SetOutcome(InspectionOutcome outcome)
     {
@@ -276,7 +297,7 @@
 
     }
 
-    public void ValidateDefectDescription( ValidatorEventArgs e )
+    public void ValidateDefectDescription(ValidatorEventArgs e)
     {
         e.Status = (Node.DefectId != null && Node.DefectId != 0 && !string.IsNullOrEmpty(Node.DefectDescription)) ? ValidationStatus.Error : ValidationStatus.None;
     }
@@ -292,5 +313,22 @@
         {
             Node.DefectDescription = null;
         }
+    }
+
+    private void UnitChanged()
+    {
+        if (sortListItems.Count > 0)
+        {
+            Console.WriteLine($"this is the FarmerComment: {Node.FarmerComment}");
+            Console.WriteLine($"this is the Unit: {Node.Unit}");
+            Node.Unit = sortListItems.First().Id;
+            Console.WriteLine($"this is the defectunit: {Node.Unit}");
+            StateHasChanged();
+        }
+        else
+        {
+            Node.Unit = "";
+        }
+
     }
 }

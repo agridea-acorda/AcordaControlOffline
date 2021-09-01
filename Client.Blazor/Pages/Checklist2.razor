@@ -146,6 +146,7 @@
             viewCache.Add("", (parent, children));
         }
 
+        await Js.InvokeVoidAsync("forms.init");
     }
 
     async Task NodeViewChanged(string conjunctElementCode)
