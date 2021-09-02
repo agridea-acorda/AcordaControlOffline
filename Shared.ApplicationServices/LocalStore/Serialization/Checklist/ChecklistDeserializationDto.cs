@@ -20,6 +20,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public bool IsAutoSet { get; set; }
             public string InspectorComment { get; set; }
             public string FarmerComment { get; set; }
+            public string Unit { get; set; }
+            public string Sort { get; set; }
             public Defect Defect { get; set; }
             public DefectSeriousness Seriousness { get; set; }
             public int? PointId { get; set; }

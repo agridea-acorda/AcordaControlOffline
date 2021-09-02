@@ -87,7 +87,7 @@
                             <div class="list-group">
                                 @if (children.Any())
                                 {
-                                    @foreach (var child in children)
+                                    @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
                                     {
                                         <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
                                 else
@@ -100,7 +100,7 @@
                 {
                     @if (children.Any())
                     {
-                        @foreach (var child in children)
+                        @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
                         {
                             <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
                     else

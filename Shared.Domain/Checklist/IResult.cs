@@ -14,6 +14,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         bool IsAutoSet { get; }
         string InspectorComment { get; }
         string FarmerComment { get; }
+        string Unit { get; }
+        string Sort { get; }
         Defect Defect { get; }
         DefectSeriousness Seriousness { get; }
 
