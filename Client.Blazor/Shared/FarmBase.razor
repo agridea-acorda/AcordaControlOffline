@@ -1,5 +1,9 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Farm
 
+@if (!string.IsNullOrWhiteSpace(Farm.PersonName))
+{
+    <span class="mr-2 text-nowrap"><i class="far fa-user"></i> @Farm.PersonName</span>
+}
 @if (!string.IsNullOrWhiteSpace(Farm.Address))
 {
     <span class="mr-2 text-nowrap"><i class="far fa-envelope"></i> @Farm.Address</span>
@@ -15,6 +19,10 @@
 @if (!string.IsNullOrWhiteSpace(Farm.PhoneNumber))
 {
     <span class="mr-2 text-nowrap"><i class="fas fa-mobile-alt"></i> @Farm.PhoneNumber</span>
+}
+@if (Farm.TvdNumber != null)
+{
+    <span class="mr-2 text-nowrap"><i class="fas fa-id-badge"></i> N°BDTA: @Farm.TvdNumber</span>
 }
 
 @code {

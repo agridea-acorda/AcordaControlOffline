@@ -32,5 +32,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         IResult SetFarmerComment(string comment);
         IResult SetDefect(Defect defect, DefectSeriousness seriousness);
         IResult SetDefectId(int? defectId);
+        IResult SetUnit(string unit);
     }
 }

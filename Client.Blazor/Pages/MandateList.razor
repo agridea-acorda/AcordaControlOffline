@@ -55,11 +55,11 @@
                                  class="mt-2 mr-2 mb-2"></Select2>
                     </div>
                 </div>
-                
+
                 <div class="list-group">
                     @if (loading || mandates == null)
                     {
-                        <MandateListPlaceholderLoading/>
+                        <MandateListPlaceholderLoading />
                     }
                     else
                     {
@@ -67,8 +67,8 @@
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                                     mandate.SyncStatus == SyncStatus.Deleting ||
-                                     mandate.SyncStatus == SyncStatus.Merging)
+                                    mandate.SyncStatus == SyncStatus.Deleting ||
+                                    mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -114,14 +114,14 @@
 
                                 <h4 class="list-group-item-heading mb-1">@mandate.Farm.Ktidb @mandate.Farm.FarmName</h4>
                                 <p class="list-group-item-text mb-1">
-                                    <FarmBase Farm="@mandate.Farm"/>
+                                    <FarmBase Farm="@mandate.Farm" />
                                 </p>
 
-                                <BadgeBar Badges="@mandate.Farm.Badges"/>
+                                <BadgeBar Badges="@mandate.Farm.Badges" />
 
                                 @foreach (var inspection in mandate.Inspections.Where(i => !i.IsClosed || i.IsClosed && showClosed))
                                 {
-                                    <ProgressBar Progress="@inspection"/>
+                                    <ProgressBar Progress="@inspection" />
                                 }
                             </div>
                         }
@@ -224,8 +224,11 @@
     private List<SortListItem> sortListItems = new List<SortListItem> { };
 
 
-    private void OrderMandates()
+    private async Task OrderMandates()
     {
+        string value = JsonConvert.SerializeObject(sortListItems);
+        await Js.InvokeVoidAsync("setSortListItems", value);
+
         if (sortListItems.Count > 0)
         {
             var sortMandates = mandates.OrderBy(x => 1 == 1);
@@ -304,6 +307,8 @@
             StateHasChanged();
         }
 
+
+
     }
 
     protected override async Task OnInitializedAsync()
@@ -316,6 +321,30 @@
         }
         mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
         await SetSyncStatus();
+        string sortListitems = await Js.InvokeAsync<string>("getSortListItems");
+
+        if (sortListitems != null)
+        {
+            sortListItems = JsonConvert.DeserializeObject<List<SortListItem>>(sortListitems);
+        }
+        else
+        {
+            sortListItems = new List<SortListItem>();
+        }
+
+        //await Js.InvokeVoidAsync("getMandatesScrollPosition");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            //Console.WriteLine("First Render");
+            await Task.Delay(3);
+            await Js.InvokeVoidAsync("getMandatesScrollPosition");
+        }
+
     }
 
     async Task Refresh()
@@ -326,8 +355,9 @@
         await SetSyncStatus();
     }
 
-    void NavigateToMandateDetail(int id)
+    async Task NavigateToMandateDetail(int id)
     {
+        await Js.InvokeVoidAsync("setMandatesScrollPosition");
         if (id > 0)
         {
             Navigation.NavigateTo($"{Config.BaseUrl}/MandateDetail/{id}");

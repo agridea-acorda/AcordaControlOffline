@@ -4,7 +4,10 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Unit
 @using Blazorise
+
+@inject IJSRuntime Js
 
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
@@ -20,9 +23,9 @@
     }
 
     @*@if (Node.PointId != null)
-    {
-        <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
-    }*@
+        {
+            <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
+        }*@
 
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
@@ -114,9 +117,21 @@
                         <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
                         <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
                     </Blazorise.Field>
+                    <div hidden="true">
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                            <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                        </Blazorise.Field>
+                    </div>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
+                        <Blazorise.TextEdit @bind-Text="@Node.Unit" list="units" autocomplete="off" class="clear-datalist"  FocusIn="EraseUnit"></Blazorise.TextEdit>
+                        <datalist id="units">
+                            @foreach (var option in sortListItemsDatasource)
+                            {
+                                <option>@option.Id</option>
+                            }
+                        </datalist>
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
@@ -174,6 +189,14 @@
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
 
+    private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
+    //private List<SortListItem> sortListItems = new List<SortListItem> { };
+
+    void EraseUnit()
+    {
+        Node.Unit = "";
+    }
+
     async Task SetOutcome(InspectionOutcome outcome)
     {
         var previousOutcome = Node.Outcome;
@@ -217,6 +240,7 @@
         public string DefectDescription { get; set; }
         public double DefectSize { get; set; }
         public string DefectUnit { get; set; }
+        public string Unit { get; set; }
         public int SeriousnessCode { get; set; }
         public string Id { get; set; }
         public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
@@ -234,6 +258,7 @@
             DefectDescription = Defect.None.Description;
             DefectSize = Defect.None.Size.Size;
             DefectUnit = Defect.None.Size.Unit;
+            Unit = "";
             SeriousnessCode = DefectSeriousness.Empty.Code;
             IsAutoSet = false;
         }
@@ -257,6 +282,7 @@
                 DefectDescription = node.Defect.Description,
                 DefectSize = node.Defect.Size.Size,
                 DefectUnit = node.Defect.Size.Unit,
+                Unit = node.Unit,
                 SeriousnessCode = node.Seriousness.Code,
                 ComboSeriousnesses = Combo.Seriousnesses(),
                 ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
@@ -269,7 +295,7 @@
 
     }
 
-    public void ValidateDefectDescription( ValidatorEventArgs e )
+    public void ValidateDefectDescription(ValidatorEventArgs e)
     {
         e.Status = (Node.DefectId != null && Node.DefectId != 0 && !string.IsNullOrEmpty(Node.DefectDescription)) ? ValidationStatus.Error : ValidationStatus.None;
     }
