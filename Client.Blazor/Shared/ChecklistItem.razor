@@ -248,6 +248,7 @@
         public IEnumerable<SelectListItem<string>> ComboDefects { get; set; }
         public int? PointId { get; set; }
         public bool HasChildren { get; set; }
+        public string Sort { get; set; }
 
         public void Clear()
         {
@@ -287,7 +288,8 @@
                 ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
                 PointId = node.PointId,
                 DefectId = node.DefectId,
-                HasChildren = node.Children?.Any() ?? false
+                HasChildren = node.Children?.Any() ?? false,
+                Sort = node.Sort
             };
         }
 
