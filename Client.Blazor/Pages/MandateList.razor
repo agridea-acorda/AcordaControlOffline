@@ -14,6 +14,9 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
 @using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.Mandate
 @using System.Threading
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
+@using System.Runtime.CompilerServices
+@using System.Security.Cryptography.X509Certificates
 
 @page "/MandateList"
 @attribute [Authorize]
@@ -35,6 +38,73 @@
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>
             <div class="card-body p-0">
+                <div class="row">
+                    <div class="col ml-3">
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Ktidb</Blazorise.FieldLabel>
+                            <Blazorise.TextEdit @bind-Text="@filter.Ktidb"></Blazorise.TextEdit>
+                        </Blazorise.Field>
+                    </div>
+                    <div class="col mr-3">
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
+                            <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
+                        </Blazorise.Field>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col ml-3">
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Domaine</Blazorise.FieldLabel>
+                            <Select2 TItem="SortListItem"
+                                     TSource="List<SortListItem>"
+                                     IdSelector="p => p.Id"
+                                     TextSelector="SortListItem.GetSortListItemDisplayName"
+                                     Datasource="filter.DomainsDS"
+                                     Value="filter.Domains"
+                                     Multiselect="true"
+                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
+                                     class="mt-2 mr-2 mb-2"></Select2>
+                        </Blazorise.Field>
+                    </div>
+                    <div class="col mr-3">
+                        @*<Blazorise.Field>
+                    <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
+                </Blazorise.Field>*@
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col ml-3">
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Contrôleurs</Blazorise.FieldLabel>
+                            <Select2 TItem="SortListItem"
+                                     TSource="List<SortListItem>"
+                                     IdSelector="p => p.Id"
+                                     TextSelector="SortListItem.GetSortListItemDisplayName"
+                                     Datasource="filter.InspectorsDS"
+                                     Value="filter.Inspectors"
+                                     Multiselect="true"
+                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
+                                     class="mt-2 mr-2 mb-2"></Select2>
+                        </Blazorise.Field>
+                    </div>
+                    <div class="col mr-3">
+                        @*<Blazorise.Field>
+                    <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
+                    <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
+                </Blazorise.Field>*@
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button @onclick="@ApplyFilter" class="btn btn-default btn-sm float-left ml-3" disabled="@loadingFilter">
+                            <i class="@(loadingFilter ? "fas fa-spinner fa-spin" : "")"></i> Appliquer le filtre
+                        </button>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col">
                         <p class="ml-3 mt-2">
@@ -67,8 +137,8 @@
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                                    mandate.SyncStatus == SyncStatus.Deleting ||
-                                    mandate.SyncStatus == SyncStatus.Merging)
+                                  mandate.SyncStatus == SyncStatus.Deleting ||
+                                  mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -208,7 +278,9 @@
 
     bool showClosed = false;
     private Mandate[] mandates;
+    private Mandate[] mandatesBKFilter;
     bool loading = false;
+    bool loadingFilter = false;
     private Mandate[] mandatesToDisplay => (mandates != null
                                         ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
                                         : Enumerable.Empty<Mandate>().ToArray())
@@ -223,11 +295,12 @@
     private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
     private List<SortListItem> sortListItems = new List<SortListItem> { };
 
+    private Filter filter = new Filter();
 
     private async Task OrderMandates()
     {
         string value = JsonConvert.SerializeObject(sortListItems);
-        await Js.InvokeVoidAsync("setSortListItems", value);
+        await Js.InvokeVoidAsync("setFilterMandates", value);
 
         if (sortListItems.Count > 0)
         {
@@ -320,9 +393,10 @@
             await TryFetchMandatesAndSave();
         }
         mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
+        mandatesBKFilter = mandates;
         await SetSyncStatus();
-        string sortListitems = await Js.InvokeAsync<string>("getSortListItems");
 
+        string sortListitems = await Js.InvokeAsync<string>("getSortListItems");
         if (sortListitems != null)
         {
             sortListItems = JsonConvert.DeserializeObject<List<SortListItem>>(sortListitems);
@@ -332,7 +406,17 @@
             sortListItems = new List<SortListItem>();
         }
 
-        //await Js.InvokeVoidAsync("getMandatesScrollPosition");
+        string filterMandates = await Js.InvokeAsync<string>("getFilterMandates");
+        if (filterMandates != null)
+        {
+            filter = JsonConvert.DeserializeObject<Filter>(filterMandates);
+        }
+        else
+        {
+            filter = new Filter();
+        }
+        await PopulateFilters();
+        await ApplyFilter();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -352,6 +436,8 @@
         if (loading) return;
         await TryFetchMandatesAndSave();
         mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
+        mandatesBKFilter = mandates;
+        await PopulateFilters();
         await SetSyncStatus();
     }
 
@@ -601,6 +687,85 @@
                 bool exists = await Repository.HasMandateAsync(mandate.Farm.Id);
                 mandate.SyncStatus = exists ? SyncStatus.Loaded : SyncStatus.Unavailable;
             }
+    }
+
+    private async Task PopulateFilters()
+    {
+        filter.DomainsDS = new List<SortListItem>();
+        foreach (var mandate in mandatesBKFilter)
+        {
+            foreach (var inspection in mandate.Inspections)
+            {
+                if (filter.DomainsDS.All(x => x.Name != inspection.Domain))
+                {
+                    filter.DomainsDS.Add(new SortListItem()
+                    {
+                        Icon = "",
+                        Id = inspection.Domain,
+                        IsAscending = true,
+                        Name = inspection.Domain
+                    });
+                }
+            }
+        }
+        filter.DomainsDS = filter.DomainsDS.OrderBy(x => x.Name).ToList();
+
+        filter.InspectorsDS = new List<SortListItem>();
+        foreach (var mandate in mandatesBKFilter)
+        {
+            foreach (var inspection in mandate.Inspections)
+            {
+                if (filter.InspectorsDS.All(x => x.Name != inspection.Inspector))
+                {
+                    filter.InspectorsDS.Add(new SortListItem()
+                    {
+                        Icon = "",
+                        Id = inspection.Inspector,
+                        IsAscending = true,
+                        Name = inspection.Inspector
+                    });
+                }
+            }
+        }
+        filter.InspectorsDS = filter.InspectorsDS.OrderBy(x => x.Name).ToList();
+    }
+
+    async Task ApplyFilter()
+    {
+        if (loadingFilter) return;
+
+        string value = JsonConvert.SerializeObject(filter);
+        await Js.InvokeVoidAsync("setFilterMandates", value);
+
+        loadingFilter = true;
+
+        mandates = mandatesBKFilter;
+
+        if (!string.IsNullOrEmpty(filter.Ktidb))
+        {
+            mandates = mandates.Where(x => x.Farm.Ktidb.Contains(filter.Ktidb)).ToArray();
+        }
+
+        if (!string.IsNullOrEmpty(filter.FarmName))
+        {
+            mandates = mandates.Where(x => x.Farm.FarmName.Contains(filter.FarmName)).ToArray();
+        }
+
+        if (filter.Domains.Count > 0)
+        {
+            var domains = filter.Domains.Select(x => x.Id).ToList();
+            mandates = mandates.Where(r=> r.Inspections.Any(d => domains.Contains(d.Domain))).ToArray();
+        }
+
+        if (filter.Inspectors.Count > 0)
+        {
+            var inpectors = filter.Inspectors.Select(x => x.Id).ToList();
+            mandates = mandates.Where(r => r.Inspections.Any(d => inpectors.Contains(d.Inspector))).ToArray();
+        }
+
+        loadingFilter = false;
+
+        StateHasChanged();
     }
 
 }
