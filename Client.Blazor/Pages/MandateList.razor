@@ -64,15 +64,24 @@
                                      Value="filter.Domains"
                                      Multiselect="true"
                                      GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
+                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
                                      class="mt-2 mr-2 mb-2"></Select2>
                         </Blazorise.Field>
                     </div>
                     <div class="col mr-3">
-                        @*<Blazorise.Field>
-                    <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
-                </Blazorise.Field>*@
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Motif</Blazorise.FieldLabel>
+                            <Select2 TItem="SortListItem"
+                                     TSource="List<SortListItem>"
+                                     IdSelector="p => p.Id"
+                                     TextSelector="SortListItem.GetSortListItemDisplayName"
+                                     Datasource="filter.ReasonsDS"
+                                     Value="filter.Reasons"
+                                     Multiselect="true"
+                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
+                                     class="mt-2 mr-2 mb-2"></Select2>
+                        </Blazorise.Field>
                     </div>
                 </div>
                 <div class="row">
@@ -87,15 +96,24 @@
                                      Value="filter.Inspectors"
                                      Multiselect="true"
                                      GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
+                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
                                      class="mt-2 mr-2 mb-2"></Select2>
                         </Blazorise.Field>
                     </div>
                     <div class="col mr-3">
-                        @*<Blazorise.Field>
-                    <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
-                    <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
-                </Blazorise.Field>*@
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Campagne</Blazorise.FieldLabel>
+                            <Select2 TItem="SortListItem"
+                                     TSource="List<SortListItem>"
+                                     IdSelector="p => p.Id"
+                                     TextSelector="SortListItem.GetSortListItemDisplayName"
+                                     Datasource="filter.CampaignsDS"
+                                     Value="filter.Campaigns"
+                                     Multiselect="true"
+                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
+                                     class="mt-2 mr-2 mb-2"></Select2>
+                        </Blazorise.Field>
                     </div>
                 </div>
                 <div class="row">
@@ -120,7 +138,7 @@
                                  Value="sortListItems"
                                  Multiselect="true"
                                  GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                 FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().StartsWith(filter)).ToList())"
+                                 FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
                                  OnValueChanged="OrderMandates"
                                  class="mt-2 mr-2 mb-2"></Select2>
                     </div>
@@ -300,7 +318,7 @@
     private async Task OrderMandates()
     {
         string value = JsonConvert.SerializeObject(sortListItems);
-        await Js.InvokeVoidAsync("setFilterMandates", value);
+        await Js.InvokeVoidAsync("setSortListItems", value);
 
         if (sortListItems.Count > 0)
         {
@@ -728,6 +746,44 @@
             }
         }
         filter.InspectorsDS = filter.InspectorsDS.OrderBy(x => x.Name).ToList();
+
+        filter.ReasonsDS = new List<SortListItem>();
+        foreach (var mandate in mandatesBKFilter)
+        {
+            foreach (var inspection in mandate.Inspections)
+            {
+                if (filter.ReasonsDS.All(x => x.Name != inspection.Reason))
+                {
+                    filter.ReasonsDS.Add(new SortListItem()
+                    {
+                        Icon = "",
+                        Id = inspection.Reason,
+                        IsAscending = true,
+                        Name = inspection.Reason
+                    });
+                }
+            }
+        }
+        filter.ReasonsDS = filter.ReasonsDS.OrderBy(x => x.Name).ToList();
+
+        filter.CampaignsDS = new List<SortListItem>();
+        foreach (var mandate in mandatesBKFilter)
+        {
+            foreach (var inspection in mandate.Inspections)
+            {
+                if (filter.CampaignsDS.All(x => x.Name != inspection.Campaign))
+                {
+                    filter.CampaignsDS.Add(new SortListItem()
+                    {
+                        Icon = "",
+                        Id = inspection.Campaign,
+                        IsAscending = true,
+                        Name = inspection.Campaign
+                    });
+                }
+            }
+        }
+        filter.CampaignsDS = filter.CampaignsDS.OrderBy(x => x.Name).ToList();
     }
 
     async Task ApplyFilter()
@@ -748,7 +804,7 @@
 
         if (!string.IsNullOrEmpty(filter.FarmName))
         {
-            mandates = mandates.Where(x => x.Farm.FarmName.Contains(filter.FarmName)).ToArray();
+            mandates = mandates.Where(x => x.Farm.FarmName.Contains(filter.FarmName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
         }
 
         if (filter.Domains.Count > 0)
@@ -761,6 +817,18 @@
         {
             var inpectors = filter.Inspectors.Select(x => x.Id).ToList();
             mandates = mandates.Where(r => r.Inspections.Any(d => inpectors.Contains(d.Inspector))).ToArray();
+        }
+
+        if (filter.Reasons.Count > 0)
+        {
+            var reasons = filter.Reasons.Select(x => x.Id).ToList();
+            mandates = mandates.Where(r => r.Inspections.Any(d => reasons.Contains(d.Reason))).ToArray();
+        }
+
+        if (filter.Campaigns.Count > 0)
+        {
+            var campaigns = filter.Campaigns.Select(x => x.Id).ToList();
+            mandates = mandates.Where(r => r.Inspections.Any(d => campaigns.Contains(d.Campaign))).ToArray();
         }
 
         loadingFilter = false;

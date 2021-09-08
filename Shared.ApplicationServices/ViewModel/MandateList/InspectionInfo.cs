@@ -15,6 +15,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public InspectionOutcome Outcome { get; set; }
         public bool IsClosed { get; set; }
         public string CloseDate { get; set; }
+        public string Reason { get; set; }
+        public string Campaign { get; set; }
 
         //public static InspectionInfo FromDomain(Domain.Inspection.Inspection inspection, Domain.Checklist.Checklist checklist)
         //{
@@ -39,7 +41,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 Percent = (int)Math.Round(checklist.Percent * 100),
                 Outcome = checklist.OutcomeComputed.ToViewModel(),
                 IsClosed = false,
-                CloseDate = ""
+                CloseDate = "",
+                Reason = "",
+                Campaign = ""
             };
             return model;
         }

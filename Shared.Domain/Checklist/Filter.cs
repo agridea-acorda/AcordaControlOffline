@@ -17,5 +17,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public List<SortListItem> Inspectors = new List<SortListItem>();
         // Datasource to populate
         public List<SortListItem> InspectorsDS = new List<SortListItem>();
+
+        public List<SortListItem> Reasons = new List<SortListItem>();
+        // Datasource to populate
+        public List<SortListItem> ReasonsDS = new List<SortListItem>();
+
+        public List<SortListItem> Campaigns = new List<SortListItem>();
+        // Datasource to populate
+        public List<SortListItem> CampaignsDS = new List<SortListItem>();
     }
 }
