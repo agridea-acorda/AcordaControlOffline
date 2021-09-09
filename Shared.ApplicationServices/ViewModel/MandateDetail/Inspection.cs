@@ -47,10 +47,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 IsClosed = inspection.CloseStatus.IsClosed,
                 CloseDate = inspection.CloseStatus.CloseDate?.ToShortDateString() ?? "",
                 VisitDate = inspection.Appointment.Date.HasValue 
-                                ? string.Format(DomainStrings.AppointmentDateString, inspection.Appointment.Date.Value.ToShortDateString())
+                                ? string.Concat("Rendez-vous le ", inspection.Appointment.Date.Value.ToString("dd.MM.yyyy"), " à ", inspection.Appointment.Date.Value.ToString("t"))
                                 : DomainStrings.ApppointmentNotSet,
                 AppointmentDate = inspection.Appointment.FirstContactDate.HasValue
-                                      ? string.Format(DomainStrings.AppointmentContactDateString, inspection.Appointment.FirstContactDate.Value.ToShortDateString())
+                                      ? string.Concat("Contacté le ", inspection.Appointment.FirstContactDate.Value.ToString("dd.MM.yyyy"))
                                       : "",
                 IsUnexpected = inspection.Appointment.Mode == InspectionMode.Unscheduled,
                 IsPastDeadline = inspection.Compliance.IsPastDeadline,
