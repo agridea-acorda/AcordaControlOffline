@@ -38,22 +38,22 @@
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>
             <div class="card-body p-0">
-                <div class="row">
-                    <div class="col ml-3">
+                <div class="row ml-3 mr-3">
+                    <div class="col-6">
                         <Blazorise.Field>
                             <Blazorise.FieldLabel>Ktidb</Blazorise.FieldLabel>
                             <Blazorise.TextEdit @bind-Text="@filter.Ktidb"></Blazorise.TextEdit>
                         </Blazorise.Field>
                     </div>
-                    <div class="col mr-3">
+                    <div class="col-6">
                         <Blazorise.Field>
                             <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
                             <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
                         </Blazorise.Field>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col ml-3">
+                <div class="row ml-3 mr-3">
+                    <div class="col-6">
                         <Blazorise.Field>
                             <Blazorise.FieldLabel>Domaine</Blazorise.FieldLabel>
                             <Select2 TItem="SortListItem"
@@ -68,7 +68,7 @@
                                      class="mt-2 mr-2 mb-2"></Select2>
                         </Blazorise.Field>
                     </div>
-                    <div class="col mr-3">
+                    <div class="col-6">
                         <Blazorise.Field>
                             <Blazorise.FieldLabel>Motif</Blazorise.FieldLabel>
                             <Select2 TItem="SortListItem"
@@ -84,8 +84,8 @@
                         </Blazorise.Field>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col ml-3">
+                <div class="row ml-3 mr-3">
+                    <div class="col-6">
                         <Blazorise.Field>
                             <Blazorise.FieldLabel>Contrôleurs</Blazorise.FieldLabel>
                             <Select2 TItem="SortListItem"
@@ -100,7 +100,7 @@
                                      class="mt-2 mr-2 mb-2"></Select2>
                         </Blazorise.Field>
                     </div>
-                    <div class="col mr-3">
+                    <div class="col-6">
                         <Blazorise.Field>
                             <Blazorise.FieldLabel>Campagne</Blazorise.FieldLabel>
                             <Select2 TItem="SortListItem"
@@ -116,18 +116,28 @@
                         </Blazorise.Field>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <button @onclick="@ApplyFilter" class="btn btn-default btn-sm float-left ml-3" disabled="@loadingFilter">
-                            <i class="@(loadingFilter ? "fas fa-spinner fa-spin" : "")"></i> Appliquer le filtre
-                        </button>
+                <div class="row ml-3 mr-3">
+                        <div class="col-6">
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Status</Blazorise.FieldLabel>
+                            <Select2 TItem="SortListItem"
+                                     TSource="List<SortListItem>"
+                                     IdSelector="p => p.Id"
+                                     TextSelector="SortListItem.GetSortListItemDisplayName"
+                                     Datasource="filter.StatusDS"
+                                     Value="filter.Status"
+                                     Multiselect="true"
+                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
+                                     class="mt-2 mr-2 mb-2"></Select2>
+                        </Blazorise.Field>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row ml-3 mr-3">
                     <div class="col">
-                        <p class="ml-3 mt-2">
-                            <Blazorise.Switch TValue="bool" @bind-Checked="@showClosed"><span class="font-weight-normal">Afficher clôturés</span></Blazorise.Switch>
-                        </p>
+                        <button @onclick="@ApplyFilter" class="btn btn-default btn-sm float-left" disabled="@loadingFilter">
+                            <i class="@(loadingFilter ? "fas fa-spinner fa-spin" : "")"></i> Appliquer le filtre
+                        </button>
                     </div>
                     <div class="col">
                         <Select2 TItem="SortListItem"
@@ -155,8 +165,8 @@
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                                  mandate.SyncStatus == SyncStatus.Deleting ||
-                                  mandate.SyncStatus == SyncStatus.Merging)
+                                 mandate.SyncStatus == SyncStatus.Deleting ||
+                                 mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -207,7 +217,7 @@
 
                                 <BadgeBar Badges="@mandate.Farm.Badges" />
 
-                                @foreach (var inspection in mandate.Inspections.Where(i => !i.IsClosed || i.IsClosed && showClosed))
+                                @foreach (var inspection in mandate.Inspections)
                                 {
                                     <ProgressBar Progress="@inspection" />
                                 }
@@ -294,13 +304,13 @@
 
 @code {
 
-    bool showClosed = false;
+    //bool showClosed = false;
     private Mandate[] mandates;
     private Mandate[] mandatesBKFilter;
     bool loading = false;
     bool loadingFilter = false;
     private Mandate[] mandatesToDisplay => (mandates != null
-                                        ? mandates.Where(m => m.Inspections.Any(i => !i.IsClosed || i.IsClosed && showClosed)).ToArray()
+                                        ? mandates.ToArray()
                                         : Enumerable.Empty<Mandate>().ToArray())
         .ToArray();
     string numMandates => mandatesToDisplay.Length.ToString() + " ";
@@ -314,93 +324,6 @@
     private List<SortListItem> sortListItems = new List<SortListItem> { };
 
     private Filter filter = new Filter();
-
-    private async Task OrderMandates()
-    {
-        string value = JsonConvert.SerializeObject(sortListItems);
-        await Js.InvokeVoidAsync("setSortListItems", value);
-
-        if (sortListItems.Count > 0)
-        {
-            var sortMandates = mandates.OrderBy(x => 1 == 1);
-
-            switch (sortListItems[0].Id)
-            {
-                case "NameASC":
-                    sortMandates = sortMandates.OrderBy(x => x.Farm.FarmName);
-                    break;
-                case "NameDESC":
-                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.FarmName);
-                    break;
-                case "KtidbASC":
-                    sortMandates = sortMandates.OrderBy(x => x.Farm.Ktidb);
-                    break;
-                case "KtidbDESC":
-                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.Ktidb);
-                    break;
-                case "FormeExASC":
-                    sortMandates = sortMandates.OrderBy(x => x.Farm.FarmType);
-                    break;
-                case "FormeExDESC":
-                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.FarmType);
-                    break;
-                case "CommuneASC":
-                    sortMandates = sortMandates.OrderBy(x => x.Farm.MunicipalityName);
-                    break;
-                case "CommuneDESC":
-                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.MunicipalityName);
-                    break;
-                case "LocaliteASC":
-                    sortMandates = sortMandates.OrderBy(x => x.Farm.TownName);
-                    break;
-                case "LocaliteDESC":
-                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.TownName);
-                    break;
-            }
-            foreach (var item in sortListItems)
-            {
-                switch (item.Id)
-                {
-                    case "NameASC":
-                        sortMandates = sortMandates.ThenBy(x => x.Farm.FarmName);
-                        break;
-                    case "NameDESC":
-                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.FarmName);
-                        break;
-                    case "KtidbASC":
-                        sortMandates = sortMandates.ThenBy(x => x.Farm.Ktidb);
-                        break;
-                    case "KtidbDESC":
-                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.Ktidb);
-                        break;
-                    case "FormeExASC":
-                        sortMandates = sortMandates.ThenBy(x => x.Farm.FarmType);
-                        break;
-                    case "FormeExDESC":
-                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.FarmType);
-                        break;
-                    case "CommuneASC":
-                        sortMandates = sortMandates.ThenBy(x => x.Farm.MunicipalityName);
-                        break;
-                    case "CommuneDESC":
-                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.MunicipalityName);
-                        break;
-                    case "LocaliteASC":
-                        sortMandates = sortMandates.ThenBy(x => x.Farm.TownName);
-                        break;
-                    case "LocaliteDESC":
-                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.TownName);
-                        break;
-                }
-            }
-
-            mandates = sortMandates.ToArray();
-            StateHasChanged();
-        }
-
-
-
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -784,6 +707,25 @@
             }
         }
         filter.CampaignsDS = filter.CampaignsDS.OrderBy(x => x.Name).ToList();
+
+        filter.StatusDS = new List<SortListItem>();
+        foreach (var mandate in mandatesBKFilter)
+        {
+            foreach (var inspection in mandate.Inspections)
+            {
+                if (filter.StatusDS.All(x => x.Name != inspection.Status))
+                {
+                    filter.StatusDS.Add(new SortListItem()
+                    {
+                        Icon = "",
+                        Id = inspection.Status,
+                        IsAscending = true,
+                        Name = inspection.Status
+                    });
+                }
+            }
+        }
+        filter.StatusDS = filter.StatusDS.OrderBy(x => x.Name).ToList();
     }
 
     async Task ApplyFilter()
@@ -825,6 +767,12 @@
             mandates = mandates.Where(r => r.Inspections.Any(d => reasons.Contains(d.Reason))).ToArray();
         }
 
+        if (filter.Status.Count > 0)
+        {
+            var reasons = filter.Status.Select(x => x.Id).ToList();
+            mandates = mandates.Where(r => r.Inspections.Any(d => reasons.Contains(d.Status))).ToArray();
+        }
+
         if (filter.Campaigns.Count > 0)
         {
             var campaigns = filter.Campaigns.Select(x => x.Id).ToList();
@@ -835,5 +783,105 @@
 
         StateHasChanged();
     }
+
+    private async Task OrderMandates()
+    {
+        string value = JsonConvert.SerializeObject(sortListItems);
+        await Js.InvokeVoidAsync("setSortListItems", value);
+
+        if (sortListItems.Count > 0)
+        {
+            var sortMandates = mandates.OrderBy(x => 1 == 1);
+
+            switch (sortListItems[0].Id)
+            {
+                case "NameASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Farm.FarmName);
+                    break;
+                case "NameDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.FarmName);
+                    break;
+                case "KtidbASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Farm.Ktidb);
+                    break;
+                case "KtidbDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.Ktidb);
+                    break;
+                case "FormeExASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Farm.FarmType);
+                    break;
+                case "FormeExDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.FarmType);
+                    break;
+                case "CommuneASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Farm.MunicipalityName);
+                    break;
+                case "CommuneDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.MunicipalityName);
+                    break;
+                case "LocaliteASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Farm.TownName);
+                    break;
+                case "LocaliteDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Farm.TownName);
+                    break;
+                case "DateLastVisitASC":
+                    sortMandates = sortMandates.OrderBy(x => x.Inspections.OrderBy(x=> x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
+                    break;
+                case "DateLastVisitDESC":
+                    sortMandates = sortMandates.OrderByDescending(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
+                    break;
+            }
+            foreach (var item in sortListItems)
+            {
+                switch (item.Id)
+                {
+                    case "NameASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Farm.FarmName);
+                        break;
+                    case "NameDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.FarmName);
+                        break;
+                    case "KtidbASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Farm.Ktidb);
+                        break;
+                    case "KtidbDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.Ktidb);
+                        break;
+                    case "FormeExASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Farm.FarmType);
+                        break;
+                    case "FormeExDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.FarmType);
+                        break;
+                    case "CommuneASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Farm.MunicipalityName);
+                        break;
+                    case "CommuneDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.MunicipalityName);
+                        break;
+                    case "LocaliteASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Farm.TownName);
+                        break;
+                    case "LocaliteDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Farm.TownName);
+                        break;
+                    case "DateLastVisitASC":
+                        sortMandates = sortMandates.ThenBy(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x=> x.DateLastVisit).LastOrDefault());
+                        break;
+                    case "DateLastVisitDESC":
+                        sortMandates = sortMandates.ThenByDescending(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
+                        break;
+                }
+            }
+
+            mandates = sortMandates.ToArray();
+            StateHasChanged();
+        }
+
+
+
+    }
+
 
 }

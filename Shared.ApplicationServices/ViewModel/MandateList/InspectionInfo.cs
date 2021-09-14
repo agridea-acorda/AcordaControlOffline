@@ -16,7 +16,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public bool IsClosed { get; set; }
         public string CloseDate { get; set; }
         public string Reason { get; set; }
+        public string Status { get; set; }
         public string Campaign { get; set; }
+        public DateTime? DateLastVisit { get; set; }
 
         //public static InspectionInfo FromDomain(Domain.Inspection.Inspection inspection, Domain.Checklist.Checklist checklist)
         //{
@@ -43,7 +45,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 IsClosed = false,
                 CloseDate = "",
                 Reason = "",
-                Campaign = ""
+                Status = "",
+                Campaign = "",
+                DateLastVisit = null
             };
             return model;
         }

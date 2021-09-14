@@ -25,5 +25,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
         public List<SortListItem> Campaigns = new List<SortListItem>();
         // Datasource to populate
         public List<SortListItem> CampaignsDS = new List<SortListItem>();
+        public List<SortListItem> Status = new List<SortListItem>();
+        // Datasource to populate
+        public List<SortListItem> StatusDS = new List<SortListItem>();
     }
 }
