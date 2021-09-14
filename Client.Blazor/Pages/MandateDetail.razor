@@ -209,7 +209,7 @@ else
                     </Blazorise.Field>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
-                        <Blazorise.DateEdit TValue="DateTime?" @bind-Date="@appointment.Date" />
+                        <input class="form-control form-control" type="datetime-local" @bind="appointmentDate" @bind:format="yyyy-MM-ddTHH:mm">
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
@@ -317,6 +317,7 @@ else
     bool savingCompliance;
     bool savingPdf;
     bool displayingPdf;
+    private DateTime? appointmentDate;
 
     protected override async Task OnInitializedAsync()
     {
@@ -331,6 +332,7 @@ else
         appointment = AppointmentModel.FromDomain(farm, mandate.Inspections.First());
         commentForOffice = CommentForOfficeModel.FromDomain(mandate.Inspections.First());
         compliance = ComplianceModel.FromDomain(mandate.Inspections.First());
+        appointmentDate = DateTime.Now;
     }
 
     private void NavigateToChecklist(int farmInspectionId, int farmId)
@@ -363,6 +365,7 @@ else
         StateHasChanged();
         try
         {
+            appointment.Date = appointmentDate;
             mandate.Inspections[appointment.InspectionIndex].SetAppointment(new Appointment(appointment.Date, appointment.FirstContactDate));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
