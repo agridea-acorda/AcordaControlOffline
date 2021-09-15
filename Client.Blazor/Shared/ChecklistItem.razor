@@ -4,7 +4,10 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Unit
 @using Blazorise
+
+@inject IJSRuntime Js
 
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
@@ -20,9 +23,9 @@
     }
 
     @*@if (Node.PointId != null)
-    {
-        <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
-    }*@
+        {
+            <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
+        }*@
 
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
@@ -122,10 +125,16 @@
                     </div>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit @bind-Text="@Node.Unit"></Blazorise.TextEdit>
+                        <Blazorise.TextEdit @bind-Text="@Node.Unit" list="units" autocomplete="off" class="clear-datalist"  FocusIn="EraseUnit"></Blazorise.TextEdit>
+                        <datalist id="units">
+                            @foreach (var option in sortListItemsDatasource)
+                            {
+                                <option>@option.Id</option>
+                            }
+                        </datalist>
                     </Blazorise.Field>
                     <Blazorise.Field>
-                        <Blazorise.FieldLabel>Gravité</Blazorise.FieldLabel>
+                        <Blazorise.FieldLabel>Gravité (uniquement pour l'OPAn et PPr animale)</Blazorise.FieldLabel>
                         <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
                             @foreach (var option in Node.ComboSeriousnesses)
                             {
@@ -180,6 +189,14 @@
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
 
+    private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
+    //private List<SortListItem> sortListItems = new List<SortListItem> { };
+
+    void EraseUnit()
+    {
+        Node.Unit = "";
+    }
+
     async Task SetOutcome(InspectionOutcome outcome)
     {
         var previousOutcome = Node.Outcome;
@@ -231,6 +248,7 @@
         public IEnumerable<SelectListItem<string>> ComboDefects { get; set; }
         public int? PointId { get; set; }
         public bool HasChildren { get; set; }
+        public string Sort { get; set; }
 
         public void Clear()
         {
@@ -270,13 +288,14 @@
                 ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
                 PointId = node.PointId,
                 DefectId = node.DefectId,
-                HasChildren = node.Children?.Any() ?? false
+                HasChildren = node.Children?.Any() ?? false,
+                Sort = node.Sort
             };
         }
 
     }
 
-    public void ValidateDefectDescription( ValidatorEventArgs e )
+    public void ValidateDefectDescription(ValidatorEventArgs e)
     {
         e.Status = (Node.DefectId != null && Node.DefectId != 0 && !string.IsNullOrEmpty(Node.DefectDescription)) ? ValidationStatus.Error : ValidationStatus.None;
     }
