@@ -32,114 +32,126 @@
     <div class="col-sm-12">
         <div class="card">
             <div class="card-header">
+                <h3 class="card-title">Filtre</h3>
+                <button class="btn btn-default btn-sm float-right" data-toggle="collapse" href="#collapseFilter" role="button" aria-expanded="@isCollapsedFilter" aria-controls="collapseExample" @onclick="CollapseFilter">
+                    <i class="fa @(isCollapsedFilter ? "fa-minus": "fas fa-plus")"></i>
+                </button>
+            </div>
+            <div class="collapse" id="collapseFilter">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Ktidb</Blazorise.FieldLabel>
+                                <Blazorise.TextEdit @bind-Text="@filter.Ktidb"></Blazorise.TextEdit>
+                            </Blazorise.Field>
+                        </div>
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
+                                <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
+                            </Blazorise.Field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Domaine</Blazorise.FieldLabel>
+                                <Select2 TItem="SortListItem"
+                                         TSource="List<SortListItem>"
+                                         IdSelector="p => p.Id"
+                                         TextSelector="SortListItem.GetSortListItemDisplayName"
+                                         Datasource="filter.DomainsDS"
+                                         Value="filter.Domains"
+                                         Multiselect="true"
+                                         GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                         FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"></Select2>
+                            </Blazorise.Field>
+                        </div>
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Motif</Blazorise.FieldLabel>
+                                <Select2 TItem="SortListItem"
+                                         TSource="List<SortListItem>"
+                                         IdSelector="p => p.Id"
+                                         TextSelector="SortListItem.GetSortListItemDisplayName"
+                                         Datasource="filter.ReasonsDS"
+                                         Value="filter.Reasons"
+                                         Multiselect="true"
+                                         GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                         FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"></Select2>
+                            </Blazorise.Field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Contrôleurs</Blazorise.FieldLabel>
+                                <Select2 TItem="SortListItem"
+                                         TSource="List<SortListItem>"
+                                         IdSelector="p => p.Id"
+                                         TextSelector="SortListItem.GetSortListItemDisplayName"
+                                         Datasource="filter.InspectorsDS"
+                                         Value="filter.Inspectors"
+                                         Multiselect="true"
+                                         GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                         FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"></Select2>
+                            </Blazorise.Field>
+                        </div>
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Campagne</Blazorise.FieldLabel>
+                                <Select2 TItem="SortListItem"
+                                         TSource="List<SortListItem>"
+                                         IdSelector="p => p.Id"
+                                         TextSelector="SortListItem.GetSortListItemDisplayName"
+                                         Datasource="filter.CampaignsDS"
+                                         Value="filter.Campaigns"
+                                         Multiselect="true"
+                                         GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                         FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"></Select2>
+                            </Blazorise.Field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Status</Blazorise.FieldLabel>
+                                <Select2 TItem="SortListItem"
+                                         TSource="List<SortListItem>"
+                                         IdSelector="p => p.Id"
+                                         TextSelector="SortListItem.GetSortListItemDisplayName"
+                                         Datasource="filter.StatusDS"
+                                         Value="filter.Status"
+                                         Multiselect="true"
+                                         GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                                         FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"></Select2>
+                            </Blazorise.Field>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-header">
+                    <button @onclick="@ApplyFilter" class="btn btn-primary btn-sm float-left" disabled="@loadingFilter">
+                        <i class="@(loadingFilter ? "fas fa-spinner fa-spin" : "fa fa-check-circle")"></i> Appliquer le filtre
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
                 <button @onclick="@Refresh" class="btn btn-default btn-sm float-right" disabled="@loading">
                     <i class="@(loading ? "fas fa-spinner fa-spin": "fas fa-cloud-download-alt")"></i> Rafraîchir la liste
                 </button>
                 <h3 class="card-title">@numMandates exploitation@(plural) à contrôler</h3>
             </div>
-            <div class="card-body p-0">
-                <div class="row ml-3 mr-3">
-                    <div class="col-6">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Ktidb</Blazorise.FieldLabel>
-                            <Blazorise.TextEdit @bind-Text="@filter.Ktidb"></Blazorise.TextEdit>
-                        </Blazorise.Field>
-                    </div>
-                    <div class="col-6">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Exploitation</Blazorise.FieldLabel>
-                            <Blazorise.TextEdit @bind-Text="@filter.FarmName"></Blazorise.TextEdit>
-                        </Blazorise.Field>
-                    </div>
-                </div>
-                <div class="row ml-3 mr-3">
-                    <div class="col-6">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Domaine</Blazorise.FieldLabel>
-                            <Select2 TItem="SortListItem"
-                                     TSource="List<SortListItem>"
-                                     IdSelector="p => p.Id"
-                                     TextSelector="SortListItem.GetSortListItemDisplayName"
-                                     Datasource="filter.DomainsDS"
-                                     Value="filter.Domains"
-                                     Multiselect="true"
-                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
-                                     class="mt-2 mr-2 mb-2"></Select2>
-                        </Blazorise.Field>
-                    </div>
-                    <div class="col-6">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Motif</Blazorise.FieldLabel>
-                            <Select2 TItem="SortListItem"
-                                     TSource="List<SortListItem>"
-                                     IdSelector="p => p.Id"
-                                     TextSelector="SortListItem.GetSortListItemDisplayName"
-                                     Datasource="filter.ReasonsDS"
-                                     Value="filter.Reasons"
-                                     Multiselect="true"
-                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
-                                     class="mt-2 mr-2 mb-2"></Select2>
-                        </Blazorise.Field>
-                    </div>
-                </div>
-                <div class="row ml-3 mr-3">
-                    <div class="col-6">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Contrôleurs</Blazorise.FieldLabel>
-                            <Select2 TItem="SortListItem"
-                                     TSource="List<SortListItem>"
-                                     IdSelector="p => p.Id"
-                                     TextSelector="SortListItem.GetSortListItemDisplayName"
-                                     Datasource="filter.InspectorsDS"
-                                     Value="filter.Inspectors"
-                                     Multiselect="true"
-                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
-                                     class="mt-2 mr-2 mb-2"></Select2>
-                        </Blazorise.Field>
-                    </div>
-                    <div class="col-6">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Campagne</Blazorise.FieldLabel>
-                            <Select2 TItem="SortListItem"
-                                     TSource="List<SortListItem>"
-                                     IdSelector="p => p.Id"
-                                     TextSelector="SortListItem.GetSortListItemDisplayName"
-                                     Datasource="filter.CampaignsDS"
-                                     Value="filter.Campaigns"
-                                     Multiselect="true"
-                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
-                                     class="mt-2 mr-2 mb-2"></Select2>
-                        </Blazorise.Field>
-                    </div>
-                </div>
-                <div class="row ml-3 mr-3">
-                        <div class="col-6">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Status</Blazorise.FieldLabel>
-                            <Select2 TItem="SortListItem"
-                                     TSource="List<SortListItem>"
-                                     IdSelector="p => p.Id"
-                                     TextSelector="SortListItem.GetSortListItemDisplayName"
-                                     Datasource="filter.StatusDS"
-                                     Value="filter.Status"
-                                     Multiselect="true"
-                                     GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
-                                     FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
-                                     class="mt-2 mr-2 mb-2"></Select2>
-                        </Blazorise.Field>
-                    </div>
-                </div>
-                <div class="row ml-3 mr-3">
-                    <div class="col">
-                        <button @onclick="@ApplyFilter" class="btn btn-default btn-sm float-left" disabled="@loadingFilter">
-                            <i class="@(loadingFilter ? "fas fa-spinner fa-spin" : "")"></i> Appliquer le filtre
-                        </button>
-                    </div>
-                    <div class="col">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-12">
                         <Select2 TItem="SortListItem"
                                  TSource="List<SortListItem>"
                                  IdSelector="p => p.Id"
@@ -149,11 +161,15 @@
                                  Multiselect="true"
                                  GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
                                  FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
-                                 OnValueChanged="OrderMandates"
-                                 class="mt-2 mr-2 mb-2"></Select2>
+                                 class="float-left" style="width: calc(100% - 44.58px);"></Select2>
+
+                        <button @onclick="@OrderMandates" class="btn btn-default btn-sm float-right" style="height:39px" disabled="@loadingFilter">
+                            Trier
+                        </button>
                     </div>
                 </div>
-
+            </div>
+            <div class="card-body p-0">
                 <div class="list-group">
                     @if (loading || mandates == null)
                     {
@@ -165,8 +181,8 @@
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                                 mandate.SyncStatus == SyncStatus.Deleting ||
-                                 mandate.SyncStatus == SyncStatus.Merging)
+                             mandate.SyncStatus == SyncStatus.Deleting ||
+                             mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -229,7 +245,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -324,6 +339,8 @@
     private List<SortListItem> sortListItems = new List<SortListItem> { };
 
     private Filter filter = new Filter();
+
+    private bool isCollapsedFilter = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -752,7 +769,7 @@
         if (filter.Domains.Count > 0)
         {
             var domains = filter.Domains.Select(x => x.Id).ToList();
-            mandates = mandates.Where(r=> r.Inspections.Any(d => domains.Contains(d.Domain))).ToArray();
+            mandates = mandates.Where(r => r.Inspections.Any(d => domains.Contains(d.Domain))).ToArray();
         }
 
         if (filter.Inspectors.Count > 0)
@@ -826,7 +843,7 @@
                     sortMandates = sortMandates.OrderByDescending(x => x.Farm.TownName);
                     break;
                 case "DateLastVisitASC":
-                    sortMandates = sortMandates.OrderBy(x => x.Inspections.OrderBy(x=> x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
+                    sortMandates = sortMandates.OrderBy(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
                     break;
                 case "DateLastVisitDESC":
                     sortMandates = sortMandates.OrderByDescending(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
@@ -867,7 +884,7 @@
                         sortMandates = sortMandates.ThenByDescending(x => x.Farm.TownName);
                         break;
                     case "DateLastVisitASC":
-                        sortMandates = sortMandates.ThenBy(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x=> x.DateLastVisit).LastOrDefault());
+                        sortMandates = sortMandates.ThenBy(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
                         break;
                     case "DateLastVisitDESC":
                         sortMandates = sortMandates.ThenByDescending(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
@@ -878,10 +895,10 @@
             mandates = sortMandates.ToArray();
             StateHasChanged();
         }
-
-
-
     }
 
-
+    private async Task CollapseFilter()
+    {
+        isCollapsedFilter = !isCollapsedFilter;
+    }
 }
