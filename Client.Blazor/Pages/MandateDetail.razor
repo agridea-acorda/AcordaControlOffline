@@ -91,10 +91,10 @@ else
                         </p>
                         <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowAppointmentModal(index)">
                             <i class="far fa-calendar-alt"></i>
-                            <span class="d-block">@inspection.VisitDate</span>
+                            <span class="d-block"><strong>@inspection.VisitDate</strong></span>
                             @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
                             {
-                                <span class="d-block">@inspection.AppointmentDate</span>
+                                <span class="d-block"><strong>@inspection.AppointmentDate</strong></span>
                             }
                             @if (inspection.IsUnexpected)
                             {

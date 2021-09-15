@@ -47,7 +47,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 IsClosed = inspection.CloseStatus.IsClosed,
                 CloseDate = inspection.CloseStatus.CloseDate?.ToShortDateString() ?? "",
                 VisitDate = inspection.Appointment.Date.HasValue 
-                                ? string.Concat("Rendez-vous le ", inspection.Appointment.Date.Value.ToString("dd.MM.yyyy"), " à ", inspection.Appointment.Date.Value.ToString("t"))
+                                ? string.Concat("Agendé le ", inspection.Appointment.Date.Value.ToString("dd.MM.yyyy"), " à ", inspection.Appointment.Date.Value.ToString("t"))
                                 : DomainStrings.ApppointmentNotSet,
                 AppointmentDate = inspection.Appointment.FirstContactDate.HasValue
                                       ? string.Concat("Contacté le ", inspection.Appointment.FirstContactDate.Value.ToString("dd.MM.yyyy"))

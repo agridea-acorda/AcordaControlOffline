@@ -91,6 +91,16 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             var targetInstance = (Appointment)FormatterServices.GetUninitializedObject(typeof(Appointment));
             SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.Date), targetInstance, dto.Date);
             SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.FirstContactDate), targetInstance, dto.FirstContactDate);
+            SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.Mode), targetInstance, Parse(dto.Mode));
+            return targetInstance;
+        }
+
+        private Mode Parse(InspectionDeserializationDto.Mode dto)
+        {
+            if (dto == null) return Mode.None;
+            var targetInstance = (Mode)FormatterServices.GetUninitializedObject(typeof(Mode));
+            SetPropertyValueViaBackingField(typeof(Mode), nameof(Mode.Text), targetInstance, dto.Text);
+            SetPropertyValueViaBackingField(typeof(Mode), nameof(Mode.Value), targetInstance, dto.Value);
             return targetInstance;
         }
 
