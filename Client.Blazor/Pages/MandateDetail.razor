@@ -26,13 +26,13 @@
         <div class="card-header">
             <h3 class="card-title">@mandateViewModel.Farm.Ktidb @mandateViewModel.Farm.FarmName</h3>
             @*<div class="card-tools">
-                <button type="button" class="btn btn-default" @onclick="() => NavigateToFarmDetail(mandateViewModel.Farm.Id)">
-                    <span class="fa-stack stacked-icon-button">
-                        <i class="far fa-circle fa-stack-2x"></i>
-                        <i class="fas fa-info fa-stack-1x"></i>
-                    </span> Consulter
-                </button>
-            </div>*@
+                    <button type="button" class="btn btn-default" @onclick="() => NavigateToFarmDetail(mandateViewModel.Farm.Id)">
+                        <span class="fa-stack stacked-icon-button">
+                            <i class="far fa-circle fa-stack-2x"></i>
+                            <i class="fas fa-info fa-stack-1x"></i>
+                        </span> Consulter
+                    </button>
+                </div>*@
             <p class="clearboth mb-0">
                 <FarmBase Farm="@mandateViewModel.Farm" />
             </p>
@@ -80,10 +80,33 @@ else
             {
                 @foreach (var (inspection, index) in mandateViewModel.Inspections.WithIndex())
                 {
+                    canAccessChecklist = false;
                     <div class="list-group-item">
-                        <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
-                            <i class="fas fa-arrow-right"></i> Check-Liste
-                        </button>
+                        @if (inspection.ModeId == 1)
+                        {
+                            @if (inspection.VisitDate != "(Non agendé)")
+                            {
+                                canAccessChecklist = true;
+                            }
+                        }
+                        else
+                        {
+                            canAccessChecklist = true;
+                        }
+
+                        @if (canAccessChecklist)
+                        {
+                            <button type="button" class="btn btn-success btn-sm float-right" @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
+                                <i class="fas fa-arrow-right"></i> Check-Liste
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-success btn-sm float-right" disabled @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
+                                <i class="fas fa-arrow-right"></i> Check-Liste
+                            </button>
+                        }
+
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
                         <p class="list-group-item-text">
                             <span class="badge bg-purple mr-1"><i class="far fa-folder-open"></i> @inspection.Campaign</span>
@@ -91,6 +114,16 @@ else
                         </p>
                         <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowAppointmentModal(index)">
                             <i class="far fa-calendar-alt"></i>
+                            @if (inspection.ModeId == 1)
+                            {
+                                <span class="@(inspection.VisitDate == "(Non agendé)" ? "text-red" : "") d-block"><strong>@inspection.VisitDate</strong></span>
+                            }
+                            else
+                            {
+                                <span class="d-block"><strong>@inspection.VisitDate</strong></span>
+                                <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
+                            }
+                            @*<span class="d-block"><strong>---------</strong></span>
                             <span class="d-block"><strong>@inspection.VisitDate</strong></span>
                             @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
                             {
@@ -99,7 +132,7 @@ else
                             @if (inspection.IsUnexpected)
                             {
                                 <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
-                            }
+                            }*@
                         </Blazorise.Button>
                         <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowCommentForOfficeModal(index)">
                             <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
@@ -113,7 +146,7 @@ else
                         {
                             <p class="list-group-item-text"><i>Remarque: @inspection.Comment</i></p>
                         }
-                        <ProgressBar Progress="@inspection"/>
+                        <ProgressBar Progress="@inspection" />
                         @if (inspection.HasComplianceRequirements)
                         {
                             <p class="mb-1">
@@ -318,6 +351,7 @@ else
     bool savingPdf;
     bool displayingPdf;
     private DateTime? appointmentDate;
+    private bool canAccessChecklist;
 
     protected override async Task OnInitializedAsync()
     {
@@ -366,7 +400,7 @@ else
         try
         {
             appointment.Date = appointmentDate;
-            mandate.Inspections[appointment.InspectionIndex].SetAppointment(new Appointment(appointment.Date, appointment.FirstContactDate));
+            mandate.Inspections[appointment.InspectionIndex].SetAppointment(new Appointment(appointment.Date, appointment.FirstContactDate, appointmentDate != null ? InspectionMode.Scheduled : InspectionMode.Unscheduled));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
             appointmentModal.Hide();

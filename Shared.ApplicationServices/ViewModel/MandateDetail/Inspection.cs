@@ -19,6 +19,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public bool CanReopen { get; set; }
         public string VisitDate { get; set; }
         public string AppointmentDate { get; set; }
+        public int ModeId { get; set; }
         public bool IsUnexpected { get; set; }
         public bool IsPastDeadline { get; set; }
         public bool DueDateRespected { get; set; }
@@ -52,10 +53,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
                 AppointmentDate = inspection.Appointment.FirstContactDate.HasValue
                                       ? string.Concat("Contacté le ", inspection.Appointment.FirstContactDate.Value.ToString("dd.MM.yyyy"))
                                       : "",
+                ModeId = inspection.Appointment.Mode.Value,
                 IsUnexpected = inspection.Appointment.Mode == InspectionMode.Unscheduled,
                 IsPastDeadline = inspection.Compliance.IsPastDeadline,
                 DueDateRespected = inspection.Compliance.DueDateRespected,
-                IsLateOrNotCompliant = inspection.Compliance.IsLateOrNotCompliant
+                IsLateOrNotCompliant = inspection.Compliance.IsLateOrNotCompliant                
             };
             return model;
         }
