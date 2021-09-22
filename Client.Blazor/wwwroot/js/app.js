@@ -172,3 +172,11 @@ window.getSortListItems = () => {
 window.setSortListItems = (sortListItems) => {
     localStorage.setItem("sortListItems", sortListItems);
 };
+
+// Store filter of mandates list
+window.getFilterMandates = () => {
+    return localStorage.getItem("filterMandates");
+};
+window.setFilterMandates = (filterMandates) => {
+    localStorage.setItem("filterMandates", filterMandates);
+};

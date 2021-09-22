@@ -94,6 +94,20 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Mandate
                     Name = "Forme d'exploitation",
                     Icon = "<i class=\"fas fa-sort-alpha-down-alt\"></i>",
                     IsAscending = false
+                },
+                new SortListItem()
+                {
+                    Id = "DateLastVisitASC",
+                    Name = "Date de visite",
+                    Icon = "<i class=\"fas fa-sort-alpha-down\"></i>",
+                    IsAscending = true
+                },
+                new SortListItem()
+                {
+                    Id = "DateLastVisitDESC",
+                    Name = "Date de visite",
+                    Icon = "<i class=\"fas fa-sort-alpha-down-alt\"></i>",
+                    IsAscending = false
                 }
             };
             return sortListItemsDatasource;

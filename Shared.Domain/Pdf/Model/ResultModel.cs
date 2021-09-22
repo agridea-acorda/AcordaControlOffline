@@ -21,6 +21,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public double? ResultSize { get; set; }
         public string ResultUnit { get; set; }
         public string Unit { get; set; }
+        public string Sort { get; set; }
         public DefectSeriousness Seriousness { get; set; }
         public string ShortName { get; set; }
         
@@ -48,6 +49,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
             model.ResultInspectorComment = node.InspectorComment;
             model.ResultFarmerComment = node.FarmerComment;
             model.Unit = node.Unit;
+            model.Sort = node.Sort;
             model.Seriousness = node.Seriousness;
             model.IsAutoSet = node.IsAutoSet;
             model.ResultType = node is PointResult ? ResultTypes.Point :
