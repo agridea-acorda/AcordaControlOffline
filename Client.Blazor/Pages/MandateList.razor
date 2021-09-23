@@ -161,7 +161,7 @@
                                  Multiselect="true"
                                  GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
                                  FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"
-                                 class="float-left" style="width: calc(100% - 44.58px);"></Select2>
+                                 class="float-left" style="width: calc(100% - 48px);"></Select2>
 
                         <button @onclick="@OrderMandates" class="btn btn-default btn-sm float-right" style="height:39px" disabled="@loadingFilter">
                             Trier
