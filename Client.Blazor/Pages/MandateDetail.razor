@@ -101,11 +101,11 @@ else
                             </button>
                         }
                         @*else
-                        {
-                            <button type="button" class="btn btn-success btn-sm float-right" disabled @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
-                                <i class="fas fa-arrow-right"></i> Check-Liste
-                            </button>
-                        }*@
+                            {
+                                <button type="button" class="btn btn-success btn-sm float-right" disabled @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
+                                    <i class="fas fa-arrow-right"></i> Check-Liste
+                                </button>
+                            }*@
 
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
                         <p class="list-group-item-text">
@@ -124,15 +124,15 @@ else
                                 <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
                             }
                             @*<span class="d-block"><strong>---------</strong></span>
-                            <span class="d-block"><strong>@inspection.VisitDate</strong></span>
-                            @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
-                            {
-                                <span class="d-block"><strong>@inspection.AppointmentDate</strong></span>
-                            }
-                            @if (inspection.IsUnexpected)
-                            {
-                                <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
-                            }*@
+                                <span class="d-block"><strong>@inspection.VisitDate</strong></span>
+                                @if (!string.IsNullOrWhiteSpace(inspection.AppointmentDate))
+                                {
+                                    <span class="d-block"><strong>@inspection.AppointmentDate</strong></span>
+                                }
+                                @if (inspection.IsUnexpected)
+                                {
+                                    <span class="text-red d-block"><i class="fas fa-exclamation"></i> @InspectionMode.Unscheduled.Text</span>
+                                }*@
                         </Blazorise.Button>
                         <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowCommentForOfficeModal(index)">
                             <i class="far fa-comment-dots @(!string.IsNullOrWhiteSpace(inspection.CommentForOffice) ? "text-warning" : "")"></i>
@@ -229,10 +229,9 @@ else
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
-                        <Blazorise.FieldLabel>Téléphone A corriger</Blazorise.FieldLabel>
+                        <Blazorise.FieldLabel>Téléphone(s)</Blazorise.FieldLabel>
                         <Blazorise.TextEdit ReadOnly @bind-Text="@mandateViewModel.Farm.PhoneNumber" />
                     </Blazorise.Field>
-                    @mandateViewModel.Farm.PhoneNumber
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Courriel</Blazorise.FieldLabel>
                         <Blazorise.TextEdit ReadOnly @bind-Text="@appointment.Email" />
@@ -246,8 +245,12 @@ else
                         <input class="form-control form-control" type="datetime-local" @bind="appointmentDate" @bind:format="yyyy-MM-ddTHH:mm">
                     </Blazorise.Field>
                     <Blazorise.Field>
-                        <Blazorise.FieldLabel>Annoncé / inopiné A corriger</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit />
+                        <Blazorise.FieldLabel>Annoncé / inopiné</Blazorise.FieldLabel>
+                        <Blazorise.Select TValue="int" @bind-SelectedValue="@appointment.Mode">
+                            <Blazorise.SelectItem Value="1">Annoncé</Blazorise.SelectItem>
+                            <Blazorise.SelectItem Value="2">Inopiné</Blazorise.SelectItem>
+                        </Blazorise.Select>
+
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
@@ -410,14 +413,18 @@ else
             {
                 mode = InspectionMode.Scheduled;
             }
-            else {
-                mode = InspectionMode.Unscheduled;
-                if (appointmentDate != null)
+            else
+            {
+                if (appointment.Date.HasValue)
                 {
                     mode = InspectionMode.Scheduled;
                 }
+                else
+                {
+                    mode = InspectionMode.Unscheduled;
+                }
             }
-            mandate.Inspections[appointment.InspectionIndex].SetAppointment(new Appointment(appointment.Date, appointment.FirstContactDate, appointmentDate != null ? InspectionMode.Scheduled : InspectionMode.Unscheduled));
+            mandate.Inspections[appointment.InspectionIndex].SetAppointment(new Appointment(appointment.Date, appointment.FirstContactDate, mode));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
             appointmentModal.Hide();
