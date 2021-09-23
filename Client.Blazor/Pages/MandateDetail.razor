@@ -100,12 +100,12 @@ else
                                 <i class="fas fa-arrow-right"></i> Check-Liste
                             </button>
                         }
-                        else
+                        @*else
                         {
                             <button type="button" class="btn btn-success btn-sm float-right" disabled @onclick="() => NavigateToChecklist(inspection.FarmInspectionId, FarmId)">
                                 <i class="fas fa-arrow-right"></i> Check-Liste
                             </button>
-                        }
+                        }*@
 
                         <h4 class="list-group-item-heading">@inspection.Domain</h4>
                         <p class="list-group-item-text">
@@ -229,9 +229,10 @@ else
                 </Blazorise.ModalHeader>
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
-                        <Blazorise.FieldLabel>Téléphone</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit ReadOnly @bind-Text="@appointment.Phone" />
+                        <Blazorise.FieldLabel>Téléphone A corriger</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit ReadOnly @bind-Text="@mandateViewModel.Farm.PhoneNumber" />
                     </Blazorise.Field>
+                    @mandateViewModel.Farm.PhoneNumber
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Courriel</Blazorise.FieldLabel>
                         <Blazorise.TextEdit ReadOnly @bind-Text="@appointment.Email" />
@@ -243,6 +244,10 @@ else
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Date de rendez-vous</Blazorise.FieldLabel>
                         <input class="form-control form-control" type="datetime-local" @bind="appointmentDate" @bind:format="yyyy-MM-ddTHH:mm">
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Annoncé / inopiné A corriger</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit />
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
@@ -400,6 +405,18 @@ else
         try
         {
             appointment.Date = appointmentDate;
+            InspectionMode mode = null;
+            if (appointment.Mode == 1)
+            {
+                mode = InspectionMode.Scheduled;
+            }
+            else {
+                mode = InspectionMode.Unscheduled;
+                if (appointmentDate != null)
+                {
+                    mode = InspectionMode.Scheduled;
+                }
+            }
             mandate.Inspections[appointment.InspectionIndex].SetAppointment(new Appointment(appointment.Date, appointment.FirstContactDate, appointmentDate != null ? InspectionMode.Scheduled : InspectionMode.Unscheduled));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
