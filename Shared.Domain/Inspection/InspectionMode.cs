@@ -13,11 +13,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             Text = text;
             Value = value;
         }
-        public string Text { get; }
-        public int Value { get; }
+        public string Text { get; set; }
+        public int Value { get; set; }
         
         protected override IEnumerable<object> GetEqualityComponents()
         {
+            yield return Text;
             yield return Value;
         }
     }
