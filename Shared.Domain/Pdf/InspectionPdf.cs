@@ -235,7 +235,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
         private AcPdfPTable CheckList()
         {
-            var data = model_.InspectionResults.OrderBy(x => x.ConjunctElementCode);
+            var data = model_.InspectionResults.OrderBy(x => x.ConjunctElementCode).ThenBy(x=> x.TreeLevel);
             var table = CustomTable(new[] {4f, 4f, 4f, 4f, 40f, 5f, 40f});
             table.AddCustomCell("Résultat détaillé du contrôle des exigences", Fonts.Helvetica12BlackBold,
                 borderWidth: 0, colspan: 7);
