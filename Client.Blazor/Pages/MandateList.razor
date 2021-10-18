@@ -128,6 +128,12 @@
                                          FilterFunction="(items, filter, token) => Task.FromResult(items.Where(i => i.Id.ToString().Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToList())"></Select2>
                             </Blazorise.Field>
                         </div>
+                        <div class="col-6">
+                            <Blazorise.Field>
+                                <Blazorise.FieldLabel>Filtrer les mandats sans date de visite</Blazorise.FieldLabel>
+                                <Blazorise.Switch TValue="bool" @bind-Checked="@filter.WithoutDateVisiteNull"></Blazorise.Switch>
+                            </Blazorise.Field>
+                        </div>
                     </div>
                 </div>
                 <div class="card-header">
@@ -319,7 +325,7 @@
 
 @code {
 
-    //bool showClosed = false;
+        //bool showClosed = false;
     private Mandate[] mandates;
     private Mandate[] mandatesBKFilter;
     bool loading = false;
@@ -794,6 +800,11 @@
         {
             var campaigns = filter.Campaigns.Select(x => x.Id).ToList();
             mandates = mandates.Where(r => r.Inspections.Any(d => campaigns.Contains(d.Campaign))).ToArray();
+        }
+
+        if (filter.WithoutDateVisiteNull)
+        {
+            mandates = mandates.Where(x => x.Inspections.Any(x=> x.DateLastVisit.HasValue)).ToArray();
         }
 
         loadingFilter = false;
