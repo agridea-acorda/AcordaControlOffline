@@ -897,10 +897,10 @@
                         sortMandates = sortMandates.ThenByDescending(x => x.Farm.TownName);
                         break;
                     case "DateLastVisitASC":
-                        sortMandates = sortMandates.OrderBy(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
+                        sortMandates = sortMandates.ThenBy(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
                         break;
                     case "DateLastVisitDESC":
-                        sortMandates = sortMandates.OrderByDescending(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
+                        sortMandates = sortMandates.ThenByDescending(x => x.Inspections.OrderBy(x => x.DateLastVisit).Select(x => x.DateLastVisit).LastOrDefault());
                         break;
                 }
             }
