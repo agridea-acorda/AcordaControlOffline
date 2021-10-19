@@ -38,6 +38,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Comment), targetInstance, dto.Comment);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.CommentForFarmer), targetInstance, dto.CommentForFarmer);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.CommentForOffice), targetInstance, dto.CommentForOffice);
+            SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Urgent), targetInstance, dto.Urgent);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.PercentComputed), targetInstance, dto.PercentComputed);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.DateComputed), targetInstance, dto.DateComputed);
             SetPropertyValueViaBackingField(typeof(Domain.Inspection.Inspection), nameof(Domain.Inspection.Inspection.Domain), targetInstance, Parse(dto.Domain));

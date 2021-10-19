@@ -278,6 +278,10 @@ else
                     <Blazorise.Field>
                         <Blazorise.MemoEdit Rows="5" @bind-Text="@commentForOffice.CommentForOffice" />
                     </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Urgent</Blazorise.FieldLabel>
+                        <Blazorise.Switch TValue="bool" @bind-Checked="@commentForOffice.Urgent"></Blazorise.Switch>
+                    </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
                     <Blazorise.Button Type="Blazorise.ButtonType.Submit" class="btn btn-primary float-left mr-2" disabled=@savingCommentForOffice>
@@ -352,6 +356,7 @@ else
     bool savingAppointment;
     private Blazorise.Modal commentForOfficeModal;
     private CommentForOfficeModel commentForOffice;
+    private bool urgent;
     bool savingCommentForOffice;
     private Blazorise.Modal complianceModal;
     private ComplianceModel compliance;
@@ -451,6 +456,7 @@ else
         try
         {
             mandate.Inspections[commentForOffice.InspectionIndex].SetCommentForOffice(commentForOffice.CommentForOffice);
+            mandate.Inspections[commentForOffice.InspectionIndex].SetUrgentForOffice(commentForOffice.Urgent);
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
             commentForOfficeModal.Hide();
@@ -591,13 +597,15 @@ else
     {
         public int InspectionIndex { get; set; }
         public string CommentForOffice { get; set; }
+        public bool Urgent { get; set; }
 
         public static CommentForOfficeModel FromDomain(Inspection inspection, int index = 0)
         {
             return new CommentForOfficeModel
             {
                 InspectionIndex = index,
-                CommentForOffice = inspection.CommentForOffice
+                CommentForOffice = inspection.CommentForOffice,
+                Urgent = inspection.Urgent
             };
         }
     }
