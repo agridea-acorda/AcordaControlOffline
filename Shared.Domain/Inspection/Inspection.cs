@@ -44,6 +44,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 
             Appointment = Appointment.None;
             CommentForFarmer = CommentForOffice = "";
+            Urgent = initValues.Urgent;
             Status = InspectionStatus.Planned;
             InspectorSignature = Inspector2Signature = FarmerSignature = Signature.None;
             Compliance = Compliance.Empty;
@@ -67,6 +68,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
         public Appointment Appointment { get; private set; }
         public string CommentForFarmer { get; private set; }
         public string CommentForOffice { get; private set; }
+        public bool Urgent { get; private set; }
         public InspectionStatus Status { get; private set; }
         public double PercentComputed { get; private set; }
         public DateTime DateComputed { get; private set; }
@@ -95,6 +97,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
         public Inspection SetCommentForOffice(string comment)
         {
             CommentForOffice = comment;
+            return this;
+        }
+
+        public Inspection SetUrgentForOffice(bool urgent)
+        {
+            Urgent = urgent;
             return this;
         }
 
@@ -206,6 +214,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
             public Campaign Campaign { get; set; }
             public InspectionReason Reason { get; set; }
             public string Comment { get; set; }
+            public bool Urgent { get; set; }
         }
     }
 }
