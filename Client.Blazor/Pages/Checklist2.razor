@@ -1,18 +1,10 @@
 ﻿@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.UiServices
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
-@using Ardalis.GuardClauses
 @using Microsoft.AspNetCore.Authorization
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
-@using System.Text.Json
-@using System.Text.Json.Serialization
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.Serialization.Checklist
-@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Combo
-@using CSharpFunctionalExtensions
-@using Newtonsoft.Json
-@using JsonSerializer = System.Text.Json.JsonSerializer
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -65,7 +57,8 @@
             <button class="btn btn-primary float-right" @onclick="@Save" disabled=@saving>
                 <i class="@(saving ? "fas fa-spinner fa-spin" : "far fa-save")"></i>
                 Enregistrer
-            </button>}
+            </button>
+        }
         <h3 class="card-title">Exigences</h3>
     </div>
     <div class="card-body">
@@ -90,49 +83,58 @@
                                 {
                                     @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
                                     {
-                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
+                                    }
+                                }
                                 else
                                 {
-                                    <ChecklistPlaceholderLoading />}
+                                    <ChecklistPlaceholderLoading />
+                                }
                             </div>
                         </div>
-                    </div> }
+                    </div>
+                }
                 else
                 {
                     @if (children.Any())
                     {
                         @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
                         {
-                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>} }
+                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
+                        }
+                    }
                     else
                     {
-                        <ChecklistPlaceholderLoading />}}
+                        <ChecklistPlaceholderLoading />
+                    }
+                }
             </div>
         </div>
     </div>
 </div>
 
-@code { const string FarmIdUriKey = "FarmId";
-
+@code 
+{ 
     [Parameter]
     public int FarmInspectionId { get; set; }
 
+    const string FarmIdUriKey = "FarmId";
     int farmId;
     Checklist checklist;
     ChecklistItem.ResultModel parent;
-    List<ChecklistItem.ResultModel> children = new List<ChecklistItem.ResultModel>();
-    Dictionary<string, (ChecklistItem.ResultModel, List<ChecklistItem.ResultModel>)> viewCache = new Dictionary<string, (ChecklistItem.ResultModel, List<ChecklistItem.ResultModel>)>();
+    List<ChecklistItem.ResultModel> children = new();
+    readonly Dictionary<string, (ChecklistItem.ResultModel, List<ChecklistItem.ResultModel>)> viewCache = new();
     AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo progressBarModel;
     bool saving;
     bool needsSaving;
-    bool showAutoSet = false;
+    bool showAutoSet;
 
     protected override async Task OnInitializedAsync()
     {
         farmId = int.Parse(Navigation.QueryString(FarmIdUriKey));
         DateTime started = DateTime.Now;
         Console.WriteLine($"Reading checklist data (started {started.ToDetailedTime()})...");
-        await Task.Delay(1); // workaround (otherwise ui is not rendered until repository has finished loading)
+        await Task.Delay(1);
         checklist = await Repository.ReadChecklistAsync(FarmInspectionId);
         TimeSpan elapsed = DateTime.Now - started;
         Console.WriteLine($"Checklist data read succesfully (elapsed {elapsed}).");
@@ -145,7 +147,6 @@
             progressBarModel = AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList.InspectionInfo.FromChecklist(checklist);
             viewCache.Add("", (parent, children));
         }
-
     }
 
     async Task NodeViewChanged(string conjunctElementCode)
@@ -157,7 +158,7 @@
             //                    .Where(x => x != null)
             //                    .ToList();
             await Task.Delay(1);
-            var parentOutcomeResult = await GetParentOutcomeBasedOnChildren(children);
+            var parentOutcomeResult = GetParentOutcomeBasedOnChildren(children);
             //Console.WriteLine($"parentOutcomeResult :" + JsonSerializer.Serialize(parentOutcomeResult, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
 
             parent = viewCache[""].Item1;
@@ -190,12 +191,12 @@
         if (viewCache.TryGetValue(node.ConjunctElementCode, out var entry))
         {
             await Task.Delay(1);
-            var parentOutcomeResult = await GetParentOutcomeBasedOnChildren(children);
+            var parentOutcomeResult = GetParentOutcomeBasedOnChildren(children);
 
             parent = entry.Item1;
             children = entry.Item2;
 
-            var temp = children.Where(x => x.ConjunctElementCode == parentOutcomeResult.ParentConjunctElementCode).SingleOrDefault();
+            var temp = children.SingleOrDefault(x => x.ConjunctElementCode == parentOutcomeResult.ParentConjunctElementCode);
             if (temp != null)
             {
                 temp.Outcome = parentOutcomeResult.ParentOutcome;
@@ -219,7 +220,7 @@
         node.SetOutcome(model.Outcome);
         if (previousOutcome != model.Outcome) node.SetAuto(false);
         await Task.Delay(1);
-        await GetParentOutcomeBasedOnChildren(children);
+        GetParentOutcomeBasedOnChildren(children);
         await CheckRulesFromParentToChildren(model.ConjunctElementCode, model.Outcome);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         progressBarModel.Progress(checklist.Percent);
@@ -243,7 +244,7 @@
 
     async Task NodeDeleted(ChecklistItem.ResultModel model)
     {
-        Console.WriteLine($"Node {model.ConjunctElementCode}'s info was deleted.");
+        Console.WriteLine($"Deleting result for node {model.ConjunctElementCode}...");
         checklist.Find(model.ConjunctElementCode)
                  .SetOutcome(InspectionOutcome.Unset)
                  .SetInspectorComment("")
@@ -253,11 +254,12 @@
                  .SetAuto(false);
 
         await Task.Delay(1);
-        await GetParentOutcomeBasedOnChildren(children);
+        GetParentOutcomeBasedOnChildren(children);
 
         progressBarModel.Progress(checklist.Percent);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         needsSaving = true;
+        Console.WriteLine($"Result deleted for node {model.ConjunctElementCode}.");
     }
 
     async Task Save()
@@ -266,7 +268,7 @@
         saving = true;
         await Task.Delay(1);
         StateHasChanged();
-        await GetParentOutcomeBasedOnChildren(children);
+        GetParentOutcomeBasedOnChildren(children);
         try
         {
             Console.WriteLine("Saving checklist...");
@@ -338,12 +340,6 @@
         inspectionInfo.SetOutcome(e.Outcome);
         inspectionInfo.Progress(e.Percent);
         await repository.SaveMandatesAsync(mandates);
-    }
-
-    private class ParentOutcomeResult
-    {
-        public string ParentConjunctElementCode { get; set; }
-        public InspectionOutcome ParentOutcome { get; set; }
     }
 
     /// <summary>Checks if InspectionOutcome of parent is correct (Could be incorrect if children's InspectionOutcome have a value)</summary>
@@ -434,16 +430,16 @@
     }
 
     /// <summary>Calculates and sets the InspectionOutcome's value of the parents nodes based on children</summary>
-    /// <param name="children">The children, needed to calculate the outcome</param>
-    async Task<ParentOutcomeResult> GetParentOutcomeBasedOnChildren(List<ChecklistItem.ResultModel> children)
+    /// <param name="childNodes">The children, needed to calculate the outcome</param>
+    ParentOutcomeResult GetParentOutcomeBasedOnChildren(List<ChecklistItem.ResultModel> childNodes)
     {
         //Console.WriteLine($"children :" + JsonSerializer.Serialize(children, new JsonSerializerOptions(){ReferenceHandler = ReferenceHandler.Preserve }));
         ParentOutcomeResult parentOutcomeResult = new ParentOutcomeResult();
 
-        if (children != null)
+        if (childNodes != null)
         {
 
-            parentOutcomeResult.ParentConjunctElementCode = children.FirstOrDefault()?.ParentConjunctElementCode;
+            parentOutcomeResult.ParentConjunctElementCode = childNodes.FirstOrDefault()?.ParentConjunctElementCode;
 
             int cptNOk = 0;
             int cptPOk = 0;
@@ -451,7 +447,7 @@
             int cptNa = 0;
             int cptNc = 0;
             //Console.WriteLine($"children :" + children.Count);
-            foreach (var child in children)
+            foreach (var child in childNodes)
             {
                 //Console.WriteLine($"child :" + child.Outcome.Code);
 
@@ -524,4 +520,11 @@
         progressBarModel.Progress(checklist.Percent);
 
         return parentOutcomeResult;
-    } }
+    }
+
+    private class ParentOutcomeResult
+    {
+        public string ParentConjunctElementCode { get; set; }
+        public InspectionOutcome ParentOutcome { get; set; }
+    }
+}
