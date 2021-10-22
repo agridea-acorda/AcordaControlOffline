@@ -5,6 +5,7 @@
 @using InspectionOutcome = Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection.InspectionOutcome
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
+@using EnsureThat
 @inherits PageBase
 @page "/Checklist2/{FarmInspectionId:int}"
 @attribute [Authorize]
@@ -84,7 +85,7 @@
                             {
                                 @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
                                 {
-                                    <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
+                                    <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleting="@OnNodeDeleting"></ChecklistItem>
                                 }
                             }
                             else
@@ -99,11 +100,28 @@
     </div>
 </div>
 
+<Blazorise.Modal @ref="@confirmDelete">
+    <Blazorise.ModalBackdrop/>
+    <Blazorise.ModalContent>
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="() => confirmDelete.Hide()"/>
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>Êtes-vous sûr de vouloir supprimer les information saisies (résultat, remarques, pièces jointes, ...) ?</Blazorise.FieldLabel>
+            </Blazorise.Field>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button class="btn btn-info" @onclick="@DeleteNode">Ok</button>
+            <button class="btn btn-default" @onclick="() => confirmDelete.Hide()">Annuler</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 @code 
 { 
-    [Parameter]
-    public int FarmInspectionId { get; set; }
-
+    [Parameter] public int FarmInspectionId { get; set; }
     const string FarmIdUriKey = "FarmId";
     int farmId;
     Checklist checklist;
@@ -114,6 +132,9 @@
     bool saving;
     bool needsSaving;
     bool showAutoSet;
+    Blazorise.Modal confirmDelete;
+    string conjunctElementCodeUnderWork;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -228,16 +249,30 @@
         needsSaving = true;
     }
 
-    async Task NodeDeleted(ChecklistItem.ResultModel model)
+    void OnNodeDeleting(string conjunctElementCode)
     {
-        Console.WriteLine($"Deleting result for node {model.ConjunctElementCode}...");
+        confirmDelete.Show();
+        conjunctElementCodeUnderWork = conjunctElementCode;
+    }
+
+    async Task DeleteNode()
+    {
+        Console.WriteLine($"Deleting result for node {conjunctElementCodeUnderWork}...");
+        confirmDelete.Hide();
+
+        var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCodeUnderWork);
+        Ensure.That(model, nameof(model)).IsNotNull();
+
+        model.Clear();
+        await Task.Delay(1);
+
         checklist.Find(model.ConjunctElementCode)
-                 .SetOutcome(InspectionOutcome.Unset)
-                 .SetInspectorComment("")
-                 .SetFarmerComment("")
-                 .SetDefect(Defect.None, DefectSeriousness.Empty)
-                 .SetDefectId(null)
-                 .SetAuto(false);
+            .SetOutcome(InspectionOutcome.Unset)
+            .SetInspectorComment("")
+            .SetFarmerComment("")
+            .SetDefect(Defect.None, DefectSeriousness.Empty)
+            .SetDefectId(null)
+            .SetAuto(false);
 
         await Task.Delay(1);
         GetParentOutcomeBasedOnChildren(children);
@@ -245,6 +280,7 @@
         progressBarModel.Progress(checklist.Percent);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         needsSaving = true;
+        conjunctElementCodeUnderWork = "";
         Console.WriteLine($"Result deleted for node {model.ConjunctElementCode}.");
     }
 

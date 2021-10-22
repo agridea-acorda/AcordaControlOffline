@@ -32,35 +32,13 @@
     @if (Node.Outcome != InspectionOutcome.Unset)
     {
         <button @*@onclick="() => edit.Show()"*@ class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
-        <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+        <button @onclick="async () => await OnDeleting.InvokeAsync(Node.ConjunctElementCode)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
     }
     @if (!string.IsNullOrWhiteSpace(Node.Name))
     {
         <button @*@onclick="@DisplayInfo"*@ class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
     }
 </div>
-
-@if (showConfirmDelete)
-{
-    <Blazorise.Modal @ref="@confirmDelete">
-        <Blazorise.ModalBackdrop/>
-        <Blazorise.ModalContent>
-            <Blazorise.ModalHeader>
-                <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
-                <Blazorise.CloseButton Clicked="() => confirmDelete.Hide()"/>
-            </Blazorise.ModalHeader>
-            <Blazorise.ModalBody>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Êtes-vous sûr de vouloir supprimer les information saisies (résultat, remarques, pièces jointes, ...) ?</Blazorise.FieldLabel>
-                </Blazorise.Field>
-            </Blazorise.ModalBody>
-            <Blazorise.ModalFooter>
-                <button class="btn btn-info" @onclick="@OnDeleteConfirmed">Ok</button>
-                <button class="btn btn-default" @onclick="() => confirmDelete.Hide()">Annuler</button>
-            </Blazorise.ModalFooter>
-        </Blazorise.ModalContent>
-    </Blazorise.Modal>
-}
 
 @if (showEdit)
 {
@@ -179,9 +157,7 @@
     [Parameter] public EventCallback<string> OnNodeViewChanged { get; set; }
     [Parameter] public EventCallback<ResultModel> OnNodeEdited { get; set; }
     [Parameter] public EventCallback<ResultModel> OnOutcomeChanged { get; set; }
-    [Parameter] public EventCallback<ResultModel> OnDeleted { get; set; }
-    Blazorise.Modal confirmDelete;
-    bool showConfirmDelete;
+    [Parameter] public EventCallback<string> OnDeleting { get; set; }
     Blazorise.Modal edit;
     bool showEdit;
     Blazorise.Modal info;
@@ -206,14 +182,7 @@
         Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
         await OnNodeEdited.InvokeAsync(Node);
     }
-
-    async Task OnDeleteConfirmed()
-    {
-        confirmDelete.Hide();
-        Node.Clear();
-        await OnDeleted.InvokeAsync(Node);
-    }
-
+    
     void OnEditOk()
     {
         Validate();
