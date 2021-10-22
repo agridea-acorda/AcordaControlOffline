@@ -74,7 +74,7 @@
     protected override async Task OnInitializedAsync()
     {
         //Console.WriteLine("Loading signature with data: " + Model.Data);
-        LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
+        await LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
         await Task.Delay(1);
         var inspectorName = JsonConvert.DeserializeObject<string>(await Repository.ReadInspectorNameAsync());
         Console.WriteLine("Inspector name loaded: "+inspectorName);
