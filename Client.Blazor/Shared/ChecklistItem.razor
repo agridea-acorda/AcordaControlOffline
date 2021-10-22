@@ -21,32 +21,26 @@
     {
         <span class="badge badge-outline text-black @Node.Outcome.OutcomeCssClass(Node.Outcome) disabled float-right mr-1"><i class="far fa-comment-dots"></i></span>
     }
-
-    @*@if (Node.PointId != null)
-        {
-            <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
-        }*@
-
+    
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)" @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
     @if (Node.Outcome != InspectionOutcome.Unset)
     {
-        <button @onclick="() => edit.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
-        <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+        <button @*@onclick="() => edit.Show()"*@ class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+        <button @*@onclick="() => confirmDelete.Show()"*@ class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
     }
     @if (!string.IsNullOrWhiteSpace(Node.Name))
     {
-        <button @onclick="@DisplayInfo" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
+        <button @*@onclick="@DisplayInfo"*@ class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
     }
 </div>
 
-<Blazorise.Modal @ref="@confirmDelete">
+@*<Blazorise.Modal @ref="@confirmDelete">
     <Blazorise.ModalBackdrop />
     <Blazorise.ModalContent>
         <Blazorise.ModalHeader>
@@ -167,7 +161,7 @@
             <button class="btn btn-default" @onclick="() => info.Hide()">Fermer</button>
         </Blazorise.ModalFooter>
     </Blazorise.ModalContent>
-</Blazorise.Modal>
+</Blazorise.Modal>*@
 
 @code {
     [Parameter] public ResultModel Node { get; set; }
