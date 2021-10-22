@@ -31,7 +31,7 @@
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
     @if (Node.Outcome != InspectionOutcome.Unset)
     {
-        <button @*@onclick="() => edit.Show()"*@ class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+        <button @onclick="async () => await OnEditing.InvokeAsync(Node.ConjunctElementCode)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
         <button @onclick="async () => await OnDeleting.InvokeAsync(Node.ConjunctElementCode)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
     }
     @if (!string.IsNullOrWhiteSpace(Node.Name))
@@ -40,110 +40,19 @@
     }
 </div>
 
-@if (showEdit)
-{
-    <Blazorise.Modal @ref="@edit">
-        <Blazorise.ModalBackdrop/>
-        <EditForm Model="@Node" OnSubmit="@OnEdited">
-            <Blazorise.ModalContent>
-                <Blazorise.ModalHeader>
-                    <Blazorise.ModalTitle>Résultat détaillé</Blazorise.ModalTitle>
-                    <Blazorise.CloseButton Clicked="() => edit.Hide()"/>
-                </Blazorise.ModalHeader>
-                <Blazorise.ModalBody>
-                    <Blazorise.Field>
-                        <Blazorise.FieldLabel>Remarque contrôleur</Blazorise.FieldLabel>
-                        <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.InspectorComment"></Blazorise.MemoEdit>
-                    </Blazorise.Field>
-                    <Blazorise.Field>
-                        <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
-                        <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
-                    </Blazorise.Field>
-                    <div hidden="@(Node.HasChildren || Node.Outcome == InspectionOutcome.Ok)">
-                        <Validations @ref="validations" Mode="ValidationMode.Auto">
-                            <Blazorise.Validation Validator="@ValidateDefectDescription">
-                                @if (Node.ComboDefects.Any())
-                                {
-                                    <Blazorise.Field>
-                                        <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
-                                        <Blazorise.Select TValue="int?" @bind-SelectedValue="@Node.DefectId">
-                                            @foreach (var option in Node.ComboDefects)
-                                            {
-                                                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                                            }
-                                        </Blazorise.Select>
-                                    </Blazorise.Field>
-                                }
-                                @if (Node.ComboDefects.Any())
-                                {
-                                    <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
-                                }
-                                else
-                                {
-                                    <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
-                                }
-                                <Blazorise.TextEdit @bind-Text="@Node.DefectDescription">
-                                    <Feedback>
-                                        <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
-                                    </Feedback>
-                                </Blazorise.TextEdit>
-                            </Blazorise.Validation>
-                        </Validations>
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
-                            <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
-                        </Blazorise.Field>
-                        <div hidden>
-                            <Blazorise.Field>
-                                <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                                <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
-                            </Blazorise.Field>
-                        </div>
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                            <Blazorise.TextEdit @bind-Text="@Node.Unit" list="units" autocomplete="off" FocusIn='() => { Node.Unit = ""; }'></Blazorise.TextEdit>
-                            <datalist id="units">
-                                @foreach (var option in sortListItemsDatasource)
-                                {
-                                    <option>@option.Id</option>
-                                }
-                            </datalist>
-                        </Blazorise.Field>
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Gravité (uniquement pour l'OPAn et PPr animale)</Blazorise.FieldLabel>
-                            <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
-                                @foreach (var option in Node.ComboSeriousnesses)
-                                {
-                                    <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                                }
-                            </Blazorise.Select>
-                        </Blazorise.Field>
-                    </div>
-                </Blazorise.ModalBody>
-                <Blazorise.ModalFooter>
-                    <button class="btn btn-primary float-left mr-2" @onclick="@OnEditOk">Ok</button>
-                    <button class="btn btn-default float-left mr-2" @onclick="@OnEditCancelled">Annuler</button>
-                </Blazorise.ModalFooter>
-            </Blazorise.ModalContent>
-        </EditForm>
-    </Blazorise.Modal>
-}
-
 @code 
 {
     [Parameter] public ResultModel Node { get; set; }
     [Parameter] public bool ShowIfAutoSet { get; set; }
     [Parameter] public EventCallback<string> OnNodeViewChanged { get; set; }
-    [Parameter] public EventCallback<ResultModel> OnNodeEdited { get; set; }
+    [Parameter] public EventCallback<string> OnEditing { get; set; }
     [Parameter] public EventCallback<ResultModel> OnOutcomeChanged { get; set; }
     [Parameter] public EventCallback<string> OnDeleting { get; set; }
     [Parameter] public EventCallback<string> OnDisplayingInfo { get; set; }
-    Blazorise.Modal edit;
-    bool showEdit;
-    Validations validations;
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
-    private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
+    //Validations validations;
+    //private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
 
     async Task SetOutcome(InspectionOutcome outcome)
     {
@@ -154,44 +63,44 @@
         await OnOutcomeChanged.InvokeAsync(Node);
     }
 
-    async Task OnEdited()
-    {
-        edit.Hide();
-        Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
-        await OnNodeEdited.InvokeAsync(Node);
-    }
+    //async Task OnEdited()
+    //{
+    //    edit.Hide();
+    //    Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
+    //    await OnEditing.InvokeAsync(Node);
+    //}
 
-    void OnEditOk()
-    {
-        Validate();
-    }
+    //void OnEditOk()
+    //{
+    //    Validate();
+    //}
 
-    void OnEditCancelled()
-    {
-        Validate();
-    }
+    //void OnEditCancelled()
+    //{
+    //    Validate();
+    //}
 
-    private void Validate()
-    {
-        if (validations.ValidateAll())
-        {
-            edit.Hide();
-        }
-        else
-        {
-            Node.DefectDescription = null;
-        }
-    }
+    //private void Validate()
+    //{
+    //    if (validations.ValidateAll())
+    //    {
+    //        edit.Hide();
+    //    }
+    //    else
+    //    {
+    //        Node.DefectDescription = null;
+    //    }
+    //}
 
-    public void ValidateDefectDescription(ValidatorEventArgs e)
-    {
-        e.Status = Node.DefectId != null &&
-                   Node.DefectId != 0 &&
-                   !string.IsNullOrEmpty(Node.DefectDescription)
-            ? ValidationStatus.Error
-            : ValidationStatus.None;
-    }
-    
+    //public void ValidateDefectDescription(ValidatorEventArgs e)
+    //{
+    //    e.Status = Node.DefectId != null &&
+    //               Node.DefectId != 0 &&
+    //               !string.IsNullOrEmpty(Node.DefectDescription)
+    //        ? ValidationStatus.Error
+    //        : ValidationStatus.None;
+    //}
+
     public class ResultModel
     {
         public int NumGroups { get; set; }

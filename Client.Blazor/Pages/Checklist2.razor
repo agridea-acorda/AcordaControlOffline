@@ -89,9 +89,9 @@
                                                    ShowIfAutoSet="@showAutoSet"
                                                    OnNodeViewChanged="@NodeViewChanged"
                                                    OnOutcomeChanged="@NodeOutcomeChanged"
-                                                   OnNodeEdited="@NodeEdited"
-                                                   OnDeleting="@OnNodeDeleting"
-                                                   OnDisplayingInfo="@OnDisplayingInfo">
+                                                   OnEditing="@NodeEditing"
+                                                   OnDeleting="@NodeDeleting"
+                                                   OnDisplayingInfo="@NodeDisplayingInfo">
                                     </ChecklistItem>
                                 }
                             }
@@ -108,11 +108,11 @@
 </div>
 
 <Blazorise.Modal @ref="@info">
-    <Blazorise.ModalBackdrop/>
+    <Blazorise.ModalBackdrop />
     <Blazorise.ModalContent>
         <Blazorise.ModalHeader>
             <Blazorise.ModalTitle>Aide au contrôle, point @conjunctElementCodeForInfo</Blazorise.ModalTitle>
-            <Blazorise.CloseButton Clicked="@HideInfo"/>
+            <Blazorise.CloseButton Clicked="@HideInfo" />
         </Blazorise.ModalHeader>
         <Blazorise.ModalBody>
             <Blazorise.Field>
@@ -126,11 +126,11 @@
 </Blazorise.Modal>
 
 <Blazorise.Modal @ref="@confirmDelete">
-    <Blazorise.ModalBackdrop/>
+    <Blazorise.ModalBackdrop />
     <Blazorise.ModalContent>
         <Blazorise.ModalHeader>
             <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
-            <Blazorise.CloseButton Clicked="@CancelDeleteNode"/>
+            <Blazorise.CloseButton Clicked="@CancelDeleteNode" />
         </Blazorise.ModalHeader>
         <Blazorise.ModalBody>
             <Blazorise.Field>
@@ -144,8 +144,94 @@
     </Blazorise.ModalContent>
 </Blazorise.Modal>
 
-@code 
-{ 
+<Blazorise.Modal @ref="@edit">
+    <Blazorise.ModalBackdrop />
+    <EditForm Model="@editModel" OnSubmit="@NodeEdited">
+        <Blazorise.ModalContent>
+            <Blazorise.ModalHeader>
+                <Blazorise.ModalTitle>Résultat détaillé</Blazorise.ModalTitle>
+                <Blazorise.CloseButton Clicked="() => edit.Hide()" />
+            </Blazorise.ModalHeader>
+            <Blazorise.ModalBody>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Remarque contrôleur</Blazorise.FieldLabel>
+                    <Blazorise.MemoEdit Rows="2" @bind-Text="@editModel.InspectorComment"></Blazorise.MemoEdit>
+                </Blazorise.Field>
+                <Blazorise.Field>
+                    <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
+                    <Blazorise.MemoEdit Rows="2" @bind-Text="@editModel.FarmerComment"></Blazorise.MemoEdit>
+                </Blazorise.Field>
+                <div hidden="@(editModel.HasChildren || editModel.Outcome == InspectionOutcome.Ok)">
+                    <Validations @ref="validations" Mode="ValidationMode.Auto">
+                        <Blazorise.Validation Validator="@ValidateDefectDescription">
+                            @if (editModel.ComboDefects.Any())
+                            {
+                                <Blazorise.Field>
+                                    <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
+                                    <Blazorise.Select TValue="int?" @bind-SelectedValue="@editModel.DefectId">
+                                        @foreach (var option in editModel.ComboDefects)
+                                        {
+                                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                                        }
+                                    </Blazorise.Select>
+                                </Blazorise.Field>
+                            }
+                            @if (editModel.ComboDefects.Any())
+                            {
+                                <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            else
+                            {
+                                <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            <Blazorise.TextEdit @bind-Text="@editModel.DefectDescription">
+                                <Feedback>
+                                    <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
+                                </Feedback>
+                            </Blazorise.TextEdit>
+                        </Blazorise.Validation>
+                    </Validations>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
+                        <Blazorise.NumericEdit TValue="double" @bind-Value="@editModel.DefectSize"></Blazorise.NumericEdit>
+                    </Blazorise.Field>
+                    <div hidden>
+                        <Blazorise.Field>
+                            <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                            <Blazorise.TextEdit @bind-Text="@editModel.DefectUnit"></Blazorise.TextEdit>
+                        </Blazorise.Field>
+                    </div>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
+                        <Blazorise.TextEdit @bind-Text="@editModel.Unit" list="units" autocomplete="off" FocusIn='() => { editModel.Unit = ""; }'></Blazorise.TextEdit>
+                        <datalist id="units">
+                            @foreach (var option in sortListItemsDatasource)
+                            {
+                                <option>@option.Id</option>
+                            }
+                        </datalist>
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Gravité (uniquement pour l'OPAn et PPr animale)</Blazorise.FieldLabel>
+                        <Blazorise.Select TValue="int" @bind-SelectedValue="@editModel.SeriousnessCode">
+                            @foreach (var option in editModel.ComboSeriousnesses)
+                            {
+                                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                            }
+                        </Blazorise.Select>
+                    </Blazorise.Field>
+                </div>
+            </Blazorise.ModalBody>
+            <Blazorise.ModalFooter>
+                <button class="btn btn-primary float-left mr-2" @onclick="@EditOk">Ok</button>
+                <button class="btn btn-default float-left mr-2" @onclick="@EditCancelled">Annuler</button>
+            </Blazorise.ModalFooter>
+        </Blazorise.ModalContent>
+    </EditForm>
+</Blazorise.Modal>
+
+@code
+{
     [Parameter] public int FarmInspectionId { get; set; }
     const string FarmIdUriKey = "FarmId";
     int farmId;
@@ -159,9 +245,12 @@
     bool showAutoSet;
     Blazorise.Modal confirmDelete;
     Blazorise.Modal info;
+    Blazorise.Modal edit;
     string conjunctElementCodeToDelete;
     string conjunctElementCodeForInfo;
+    string conjunectElementCodeToEdit;
     MarkupString infoText;
+    ChecklistItem.ResultModel editModel;
 
     protected override async Task OnInitializedAsync()
     {
@@ -261,25 +350,39 @@
         needsSaving = true;
     }
 
-    void NodeEdited(ChecklistItem.ResultModel model)
+    void NodeEditing(string conjunctElementCode)
     {
-        Console.WriteLine($"Node {model.ConjunctElementCode} was edited.");
+        conjunectElementCodeToEdit = conjunctElementCode;
+        var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCodeToDelete);
+        Ensure.That(model, nameof(model)).IsNotNull();
+        editModel = model;
+    }
 
-        checklist.Find(model.ConjunctElementCode)
-                 .SetInspectorComment(model.InspectorComment)
-                 .SetFarmerComment(model.FarmerComment)
-                 .SetDefect(new Defect(model.DefectDescription, new Defect.Measurement(model.DefectSize, model.DefectUnit)),
-                            DefectSeriousness.FromCode(model.SeriousnessCode))
-                 .SetDefectId(model.DefectId)
-                 .SetUnit(model.Unit)
-                 .SetAuto(false);
+    void NodeEdited()
+    {
+        Console.WriteLine($"Node {editModel.ConjunctElementCode} was edited.");
+
+        checklist.Find(editModel.ConjunctElementCode)
+            .SetInspectorComment(editModel.InspectorComment)
+            .SetFarmerComment(editModel.FarmerComment)
+            .SetDefect(new Defect(editModel.DefectDescription, new Defect.Measurement(editModel.DefectSize, editModel.DefectUnit)), DefectSeriousness.FromCode(editModel.SeriousnessCode))
+            .SetDefectId(editModel.DefectId)
+            .SetUnit(editModel.Unit)
+            .SetAuto(false);
+        
         needsSaving = true;
     }
 
-    void OnNodeDeleting(string conjunctElementCode)
+    void EditOk(){}
+
+    void EditCancelled()
     {
-        confirmDelete.Show();
+    }
+
+    void NodeDeleting(string conjunctElementCode)
+    {
         conjunctElementCodeToDelete = conjunctElementCode;
+        confirmDelete.Show();
     }
 
     async Task DeleteNode()
@@ -317,11 +420,11 @@
         confirmDelete.Hide();
     }
 
-    void OnDisplayingInfo(string conjunctElementCode)
+    void NodeDisplayingInfo(string conjunctElementCode)
     {
         var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCode);
         Ensure.That(model, nameof(model)).IsNotNull();
-        infoText = (MarkupString) model.Name?.CurateAsReadableText();
+        infoText = (MarkupString)model.Name?.CurateAsReadableText();
         conjunctElementCodeForInfo = conjunctElementCode;
         info.Show();
     }
