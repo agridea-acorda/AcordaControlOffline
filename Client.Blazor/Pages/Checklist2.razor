@@ -67,9 +67,9 @@
         </p>
         <div id="checklist">
             <div class="list-group">
-                @if (parent != null)
-                {
-                    <div id="@parent.Id" class="list-group-item">
+                <div id="@(parent?.Id)" class="@(parent != null ? "list-group-item" : null)">
+                    @if (parent != null)
+                    {
                         <a @onclick="@(() => NodeViewChanged(parent?.ParentConjunctElementCode ?? ""))">
                             <i class="fas fa-chevron-right fa-3x float-left rotate right mr-2"></i>
                         </a>
@@ -77,37 +77,23 @@
                         <span class="badge badge-outline text-indigo disabled float-right mr-1">@parent.NumGroups</span>
                         <h4 class="list-group-item-heading">@parent.ShortName</h4>
                         <p class="list-group-item-text mb-2">@parent.ConjunctElementCode</p>
-                        <div class="mt-2">
-                            <div class="list-group">
-                                @if (children.Any())
+                    }
+                    <div class="@(parent != null ? "mt-2" : null)">
+                        <div class="list-group">
+                            @if (children.Any())
+                            {
+                                @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
                                 {
-                                    @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
-                                    {
-                                        <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
-                                    }
+                                    <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
                                 }
-                                else
-                                {
-                                    <ChecklistPlaceholderLoading />
-                                }
-                            </div>
+                            }
+                            else
+                            {
+                                <ChecklistPlaceholderLoading />
+                            }
                         </div>
                     </div>
-                }
-                else
-                {
-                    @if (children.Any())
-                    {
-                        @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
-                        {
-                            <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleted="@NodeDeleted"></ChecklistItem>
-                        }
-                    }
-                    else
-                    {
-                        <ChecklistPlaceholderLoading />
-                    }
-                }
+                </div>
             </div>
         </div>
     </div>
