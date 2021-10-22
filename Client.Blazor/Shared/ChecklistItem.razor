@@ -36,7 +36,7 @@
     }
     @if (!string.IsNullOrWhiteSpace(Node.Name))
     {
-        <button @*@onclick="@DisplayInfo"*@ class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
+        <button @onclick="async () => await OnDisplayingInfo.InvokeAsync(Node.ConjunctElementCode)" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
     }
 </div>
 
@@ -129,27 +129,6 @@
     </Blazorise.Modal>
 }
 
-@if (showInfo)
-{
-    <Blazorise.Modal @ref="@info">
-        <Blazorise.ModalBackdrop/>
-        <Blazorise.ModalContent>
-            <Blazorise.ModalHeader>
-                <Blazorise.ModalTitle>Aide au contrôle, point @Node.ConjunctElementCode</Blazorise.ModalTitle>
-                <Blazorise.CloseButton Clicked="() => info.Hide()"/>
-            </Blazorise.ModalHeader>
-            <Blazorise.ModalBody>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>@((MarkupString) Node.Name?.CurateAsReadableText())</Blazorise.FieldLabel>
-                </Blazorise.Field>
-            </Blazorise.ModalBody>
-            <Blazorise.ModalFooter>
-                <button class="btn btn-default" @onclick="() => info.Hide()">Fermer</button>
-            </Blazorise.ModalFooter>
-        </Blazorise.ModalContent>
-    </Blazorise.Modal>
-}
-
 @code 
 {
     [Parameter] public ResultModel Node { get; set; }
@@ -158,10 +137,9 @@
     [Parameter] public EventCallback<ResultModel> OnNodeEdited { get; set; }
     [Parameter] public EventCallback<ResultModel> OnOutcomeChanged { get; set; }
     [Parameter] public EventCallback<string> OnDeleting { get; set; }
+    [Parameter] public EventCallback<string> OnDisplayingInfo { get; set; }
     Blazorise.Modal edit;
     bool showEdit;
-    Blazorise.Modal info;
-    bool showInfo;
     Validations validations;
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
@@ -182,7 +160,7 @@
         Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
         await OnNodeEdited.InvokeAsync(Node);
     }
-    
+
     void OnEditOk()
     {
         Validate();
@@ -213,12 +191,7 @@
             ? ValidationStatus.Error
             : ValidationStatus.None;
     }
-
-    void DisplayInfo()
-    {
-        info.Show();
-    }
-
+    
     public class ResultModel
     {
         public int NumGroups { get; set; }

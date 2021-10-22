@@ -85,7 +85,14 @@
                             {
                                 @foreach (var child in children.OrderBy(x => x.Sort).ThenBy(x => x.ConjunctElementCode))
                                 {
-                                    <ChecklistItem Node="@child" ShowIfAutoSet="@showAutoSet" OnNodeViewChanged="@NodeViewChanged" OnOutcomeChanged="@NodeOutcomeChanged" OnNodeEdited="@NodeEdited" OnDeleting="@OnNodeDeleting"></ChecklistItem>
+                                    <ChecklistItem Node="@child"
+                                                   ShowIfAutoSet="@showAutoSet"
+                                                   OnNodeViewChanged="@NodeViewChanged"
+                                                   OnOutcomeChanged="@NodeOutcomeChanged"
+                                                   OnNodeEdited="@NodeEdited"
+                                                   OnDeleting="@OnNodeDeleting"
+                                                   OnDisplayingInfo="@OnDisplayingInfo">
+                                    </ChecklistItem>
                                 }
                             }
                             else
@@ -100,12 +107,30 @@
     </div>
 </div>
 
+<Blazorise.Modal @ref="@info">
+    <Blazorise.ModalBackdrop/>
+    <Blazorise.ModalContent>
+        <Blazorise.ModalHeader>
+            <Blazorise.ModalTitle>Aide au contrôle, point @conjunctElementCodeForInfo</Blazorise.ModalTitle>
+            <Blazorise.CloseButton Clicked="@HideInfo"/>
+        </Blazorise.ModalHeader>
+        <Blazorise.ModalBody>
+            <Blazorise.Field>
+                <Blazorise.FieldLabel>@infoText</Blazorise.FieldLabel>
+            </Blazorise.Field>
+        </Blazorise.ModalBody>
+        <Blazorise.ModalFooter>
+            <button class="btn btn-default" @onclick="HideInfo">Fermer</button>
+        </Blazorise.ModalFooter>
+    </Blazorise.ModalContent>
+</Blazorise.Modal>
+
 <Blazorise.Modal @ref="@confirmDelete">
     <Blazorise.ModalBackdrop/>
     <Blazorise.ModalContent>
         <Blazorise.ModalHeader>
             <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
-            <Blazorise.CloseButton Clicked="() => confirmDelete.Hide()"/>
+            <Blazorise.CloseButton Clicked="@CancelDeleteNode"/>
         </Blazorise.ModalHeader>
         <Blazorise.ModalBody>
             <Blazorise.Field>
@@ -114,7 +139,7 @@
         </Blazorise.ModalBody>
         <Blazorise.ModalFooter>
             <button class="btn btn-info" @onclick="@DeleteNode">Ok</button>
-            <button class="btn btn-default" @onclick="() => confirmDelete.Hide()">Annuler</button>
+            <button class="btn btn-default" @onclick="@CancelDeleteNode">Annuler</button>
         </Blazorise.ModalFooter>
     </Blazorise.ModalContent>
 </Blazorise.Modal>
@@ -133,8 +158,10 @@
     bool needsSaving;
     bool showAutoSet;
     Blazorise.Modal confirmDelete;
-    string conjunctElementCodeUnderWork;
-
+    Blazorise.Modal info;
+    string conjunctElementCodeToDelete;
+    string conjunctElementCodeForInfo;
+    MarkupString infoText;
 
     protected override async Task OnInitializedAsync()
     {
@@ -252,15 +279,15 @@
     void OnNodeDeleting(string conjunctElementCode)
     {
         confirmDelete.Show();
-        conjunctElementCodeUnderWork = conjunctElementCode;
+        conjunctElementCodeToDelete = conjunctElementCode;
     }
 
     async Task DeleteNode()
     {
-        Console.WriteLine($"Deleting result for node {conjunctElementCodeUnderWork}...");
+        Console.WriteLine($"Deleting result for node {conjunctElementCodeToDelete}...");
         confirmDelete.Hide();
 
-        var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCodeUnderWork);
+        var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCodeToDelete);
         Ensure.That(model, nameof(model)).IsNotNull();
 
         model.Clear();
@@ -280,8 +307,30 @@
         progressBarModel.Progress(checklist.Percent);
         progressBarModel.SetOutcome(checklist.OutcomeComputed);
         needsSaving = true;
-        conjunctElementCodeUnderWork = "";
+        conjunctElementCodeToDelete = "";
         Console.WriteLine($"Result deleted for node {model.ConjunctElementCode}.");
+    }
+
+    void CancelDeleteNode()
+    {
+        conjunctElementCodeToDelete = "";
+        confirmDelete.Hide();
+    }
+
+    void OnDisplayingInfo(string conjunctElementCode)
+    {
+        var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCode);
+        Ensure.That(model, nameof(model)).IsNotNull();
+        infoText = (MarkupString) model.Name?.CurateAsReadableText();
+        conjunctElementCodeForInfo = conjunctElementCode;
+        info.Show();
+    }
+
+    void HideInfo()
+    {
+        infoText = default;
+        conjunctElementCodeForInfo = default;
+        info.Hide();
     }
 
     async Task Save()
@@ -548,5 +597,11 @@
     {
         public string ParentConjunctElementCode { get; set; }
         public InspectionOutcome ParentOutcome { get; set; }
+    }
+
+    public class InfoModel
+    {
+        public string ConjunctElementCode { get; set; }
+        public string InfoText { get; set; }
     }
 }
