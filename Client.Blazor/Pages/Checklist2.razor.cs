@@ -44,7 +44,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         string conjunctElementCodeToDelete;
         string conjunctElementCodeForInfo;
         MarkupString infoText;
-        ResultModel editModel = null;
+        ResultModel editModel;
         //Blazorise.Validations validations;
         private readonly List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
 
@@ -175,9 +175,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
             progressBarModel.Progress(checklist.Percent);
             progressBarModel.SetOutcome(checklist.OutcomeComputed);
             needsSaving = true;
-            editModel = default;
-
+            
             Console.WriteLine($"Modified result for node {editModel.ConjunctElementCode}.");
+            editModel = default;
         }
 
         void EditOk()
