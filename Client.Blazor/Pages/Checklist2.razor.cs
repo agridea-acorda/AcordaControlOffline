@@ -45,8 +45,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         string conjunctElementCodeForInfo;
         MarkupString infoText;
         ResultModel editModel;
-        //ElementReference validationsRef;
-        //Validations validations;
         private bool editIsInvalid = false;
         readonly List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
 
@@ -74,22 +72,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         {
             if (string.IsNullOrWhiteSpace(conjunctElementCode))
             {
-                //parent = null;
-                //children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
-                //                    .Where(x => x != null)
-                //                    .ToList();
                 await Task.Delay(1);
                 var parentOutcomeResult = GetParentOutcomeBasedOnChildren(children);
-                //Console.WriteLine($"parentOutcomeResult :" + JsonSerializer.Serialize(parentOutcomeResult, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
-
+                
                 parent = viewCache[""].Item1;
                 children = viewCache[""].Item2;
-
                 children.Where(x => x.ConjunctElementCode == parentOutcomeResult.ParentConjunctElementCode).Single().Outcome = parentOutcomeResult.ParentOutcome;
-
-                //Console.WriteLine($"parent :" + JsonSerializer.Serialize(parent, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
-                //Console.WriteLine($"children :" + JsonSerializer.Serialize(children, new JsonSerializerOptions() { ReferenceHandler = ReferenceHandler.Preserve }));
-
+                
                 Console.WriteLine($"conjunctElementCode is null or space");
                 return;
             }
@@ -98,11 +87,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
             var node = checklist.Find(conjunctElementCode);
             if (node == null)
             {
-                //parent = null;
-                //children = checklist.Rubrics.Select(r => ChecklistItem.ResultModel.MapFrom(r.Value))
-                //                    .Where(x => x != null)
-                //                    .ToList();
-
                 parent = viewCache[""].Item1;
                 children = viewCache[""].Item2;
                 Console.WriteLine($"node is null");
