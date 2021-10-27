@@ -45,8 +45,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         string conjunctElementCodeForInfo;
         MarkupString infoText;
         ResultModel editModel;
-        //Blazorise.Validations validations;
-        private readonly List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
+        //ElementReference validationsRef;
+        //Validations validations;
+        private bool editIsInvalid = false;
+        readonly List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
 
         protected override async Task OnInitializedAsync()
         {
@@ -150,7 +152,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         {
             var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCode);
             Ensure.That(model, nameof(model)).IsNotNull();
-            editModel = model;
+            editModel = ResultModel.Empty();
+            editModel.UpdateFrom(model);
             edit.Show();
         }
 
@@ -177,33 +180,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
             needsSaving = true;
             
             Console.WriteLine($"Modified result for node {editModel.ConjunctElementCode}.");
-            editModel = default;
+            ResetEditForm();
+        }
+        
+        void CancelEditNode()
+        {
+            ResetEditForm();
         }
 
-        void EditOk()
+        void ResetEditForm()
         {
-            Validate();
             edit.Hide();
+            editIsInvalid = false;
+            editModel = null;
         }
-
-        void EditCancelled()
-        {
-            Validate();
-            edit.Hide();
-        }
-
-        private void Validate()
-        {
-            //if (validations.ValidateAll())
-            //{
-            //    edit.Hide();
-            //}
-            //else
-            //{
-            //    editModel.DefectDescription = null;
-            //}
-        }
-
+        
         public void ValidateDefectDescription(ValidatorEventArgs e)
         {
             e.Status = editModel.DefectId != null &&
@@ -211,6 +202,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
                        !string.IsNullOrEmpty(editModel.DefectDescription)
                 ? ValidationStatus.Error
                 : ValidationStatus.None;
+        }
+
+        public void OnValidationStatusChanged(ValidationsStatusChangedEventArgs e)
+        {
+            editIsInvalid = e.Status == ValidationStatus.Error;
         }
 
         void NodeDeleting(string conjunctElementCode)
@@ -566,6 +562,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
                 Outcome = InspectionOutcome.Unset;
                 InspectorComment = "";
                 FarmerComment = "";
+                DefectId = 0;
                 DefectDescription = Defect.None.Description;
                 DefectSize = Defect.None.Size.Size;
                 DefectUnit = Defect.None.Size.Unit;
@@ -576,15 +573,27 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
 
             public void UpdateFrom(ResultModel other)
             {
+                ConjunctElementCode = other.ConjunctElementCode;
+                Id = other.Id;
                 Outcome = other.Outcome;
                 InspectorComment = other.InspectorComment;
                 FarmerComment = other.FarmerComment;
+                DefectId = other.DefectId;
                 DefectDescription = other.DefectDescription;
                 DefectSize = other.DefectSize;
                 DefectUnit = other.DefectUnit;
                 Unit = other.Unit;
                 SeriousnessCode = other.SeriousnessCode;
                 IsAutoSet = false;
+                ComboDefects = other.ComboDefects;
+            }
+
+            public static ResultModel Empty()
+            {
+                return new ResultModel
+                {
+                    ComboSeriousnesses = Combo.Seriousnesses()
+                };
             }
 
             public static ResultModel MapFrom(ITreeNode<Result> node)

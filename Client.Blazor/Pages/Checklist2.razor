@@ -139,45 +139,39 @@
                     <Blazorise.MemoEdit Rows="2" @bind-Text="@editModel.FarmerComment"></Blazorise.MemoEdit>
                 </Blazorise.Field>
                 <div hidden="@(editModel.HasChildren || editModel.Outcome == InspectionOutcome.Ok)">
-                    @*<Validations @ref="validations" Mode="@Blazorise.ValidationMode.Auto">*@
-                    <Blazorise.Validation Validator="@ValidateDefectDescription">
-                        @if (editModel.ComboDefects.Any())
-                        {
-                            <Blazorise.Field>
-                                <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
-                                <Blazorise.Select TValue="int?" @bind-SelectedValue="@editModel.DefectId">
-                                    @foreach (var option in editModel.ComboDefects)
-                                    {
-                                        <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                                    }
-                                </Blazorise.Select>
-                            </Blazorise.Field>
-                        }
-                        @if (editModel.ComboDefects.Any())
-                        {
-                            <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
-                        }
-                        else
-                        {
-                            <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
-                        }
-                        <Blazorise.TextEdit @bind-Text="@editModel.DefectDescription">
-                            <Feedback>
-                                <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
-                            </Feedback>
-                        </Blazorise.TextEdit>
-                    </Blazorise.Validation>
-                    @*</Validations>*@
+                    <Blazorise.Validations StatusChanged="@OnValidationStatusChanged">
+                        <Blazorise.Validation Validator="@ValidateDefectDescription">
+                            @if (editModel.ComboDefects.Any())
+                            {
+                                <Blazorise.Field>
+                                    <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
+                                    <Blazorise.Select TValue="int?" @bind-SelectedValue="@editModel.DefectId">
+                                        @foreach (var option in editModel.ComboDefects)
+                                        {
+                                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
+                                        }
+                                    </Blazorise.Select>
+                                </Blazorise.Field>
+                            }
+                            @if (editModel.ComboDefects.Any())
+                            {
+                                <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            else
+                            {
+                                <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
+                            }
+                            <Blazorise.TextEdit @bind-Text="@editModel.DefectDescription">
+                                <Feedback>
+                                    <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
+                                </Feedback>
+                            </Blazorise.TextEdit>
+                        </Blazorise.Validation>
+                    </Blazorise.Validations>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
                         <Blazorise.NumericEdit TValue="double" @bind-Value="@editModel.DefectSize"></Blazorise.NumericEdit>
                     </Blazorise.Field>
-                    <div hidden>
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                            <Blazorise.TextEdit @bind-Text="@editModel.DefectUnit"></Blazorise.TextEdit>
-                        </Blazorise.Field>
-                    </div>
                     <Blazorise.Field>
                         <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
                         <Blazorise.TextEdit @bind-Text="@editModel.Unit" list="units" autocomplete="off" FocusIn='() => { editModel.Unit = ""; }'></Blazorise.TextEdit>
@@ -200,8 +194,8 @@
                 </div>
             </Blazorise.ModalBody>
             <Blazorise.ModalFooter>
-                <Blazorise.Button Type="Blazorise.ButtonType.Submit" class="btn btn-primary float-left mr-2" @onclick="@EditOk">Ok</Blazorise.Button>
-                <Blazorise.Button class="btn btn-default float-left mr-2" @onclick="@EditCancelled">Annuler</Blazorise.Button>
+                <Blazorise.Button Type="Blazorise.ButtonType.Submit" class="btn btn-primary float-left mr-2" disabled="@editIsInvalid">Ok</Blazorise.Button>
+                <Blazorise.Button class="btn btn-default float-left mr-2" @onclick="@CancelEditNode">Annuler</Blazorise.Button>
             </Blazorise.ModalFooter>
         </Blazorise.ModalContent>
     </EditForm>
