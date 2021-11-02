@@ -9,6 +9,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist
     {
         public string Ktidb { get; set; }
         public string FarmName { get; set; }
+        public bool WithoutDateVisiteNull { get; set; }
 
         public List<SortListItem> Domains = new List<SortListItem>();
         // Datasource to populate
