@@ -516,6 +516,18 @@ else
                 Toast.Error("Aucun utilisateur connecté, opération impossible");
                 return;
             }
+
+            if (string.IsNullOrEmpty(inspection.FarmerSignature.Data))
+            {
+                Toast.Error("Il manque la signature de l'exploitant");
+                return;
+            }
+            if (string.IsNullOrEmpty(inspection.InspectorSignature.Data))
+            {
+                Toast.Error("Il manque la signature du contrôleur principal");
+                return;
+            }
+
             var checklist = await Repository.ReadChecklistAsync(farmInspectionId);
             var auth = await AuthService.ReadAuthInfo();
             if (auth == Auth.UnknownUser)
