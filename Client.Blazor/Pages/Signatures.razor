@@ -343,7 +343,7 @@
                                                                       farm,
                                                                       checklist,
                                                                       organizationName,
-                                                                      logoPath), userName, true);
+                                                                      logoPath), userName, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName, true);
             string filename = InspectionPdf.Filename(2021, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
             byte[] bytes = pdf.CreatePdf();
             await Js.InvokeVoidAsync("console.timeEnd", "CreatePdf");
