@@ -544,7 +544,7 @@ else
                                                                       farm,
                                                                       checklist,
                                                                       organizationName,
-                                                                      logoPath), userName);
+                                                                      logoPath), userName, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
             inspection.SetPdfReport(new PdfReport(pdf.CreatePdf()));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);

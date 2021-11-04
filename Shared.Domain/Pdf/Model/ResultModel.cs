@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
+using Newtonsoft.Json;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
 {
@@ -74,13 +76,29 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
             return model;
         }
 
-        public static List<ResultModel> FromDomain(Checklist.Checklist checklist)
+        public static List<ResultModel> FromDomain(Checklist.Checklist checklist, bool removeAutoSet = false)
         {
             var list = new List<ResultModel>();
-            foreach (var r0 in checklist.Rubrics)
+
+            if (removeAutoSet)
             {
-                var rubric = r0.Value;
-                MapToListRecursive(rubric, list, rubric.IsAutoSet);
+                foreach (var r0 in checklist.Rubrics)
+                {
+                    var rubric = r0.Value;
+                    if (!rubric.IsAutoSet)
+                    {
+                        System.Console.WriteLine(rubric.IsAutoSet);
+                        MapToListRecursiveAllExceptAutoSet(rubric, list);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var r0 in checklist.Rubrics)
+                {
+                    var rubric = r0.Value;
+                    MapToListRecursive(rubric, list, rubric.IsAutoSet);
+                }
             }
 
             return list;
@@ -93,8 +111,23 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
             if (node.IsAutoSet || hasAutoSetAncestor) model.HasAutoSetAncestor = true;
             foreach (var kvp in node.Children)
             {
-                
+
                 MapToListRecursive(kvp.Value, list, model.HasAutoSetAncestor, treeLevel + 1);
+            }
+            list.Add(model);
+        }
+
+        private static void MapToListRecursiveAllExceptAutoSet(ITreeNode<Result> node, List<ResultModel> list, int treeLevel = 0)
+        {
+            var model = FromDomain(node);
+            model.TreeLevel = treeLevel;
+            foreach (var kvp in node.Children)
+            {
+                var child = kvp.Value;
+                if (!child.IsAutoSet)
+                {
+                    MapToListRecursiveAllExceptAutoSet(kvp.Value, list, treeLevel + 1);
+                }           
             }
             list.Add(model);
         }
