@@ -7,8 +7,11 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Unit
 @using Blazorise
+@using IndexedDB.Blazor
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ViewModel
 
 @inject IJSRuntime Js
+@inject IIndexedDbFactory DbFactory
 
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
@@ -22,7 +25,7 @@
     {
         <span class="badge badge-outline text-black @Node.Outcome.OutcomeCssClass(Node.Outcome) disabled float-right mr-1"><i class="far fa-comment-dots"></i></span>
     }
-    
+
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
@@ -30,6 +33,7 @@
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)" @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
+    <button @onclick="@AddFile_Clicked" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-file"></i></button>
     @if (Node.Outcome != InspectionOutcome.Unset)
     {
         <button @onclick="@Edit_Clicked" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
@@ -39,20 +43,69 @@
     {
         <button @onclick="@Info_Clicked" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
     }
+    <br />
+    <br />
+    @foreach (var file in filesVms)
+    {
+        <a @onclick="() => DownloadFile(file.Id)"><i class="far fa-file"></i> @file.FileName</a>
+        <br />
+    }
 </div>
 
-@code 
+@code
 {
-    [Parameter] public Checklist2.ResultModel Node { get; set; }
-    [Parameter] public bool ShowIfAutoSet { get; set; }
-    [Parameter] public EventCallback<string> OnNodeViewChanged { get; set; }
-    [Parameter] public EventCallback<string> OnEditing { get; set; }
-    [Parameter] public EventCallback<Checklist2.ResultModel> OnOutcomeChanged { get; set; }
-    [Parameter] public EventCallback<string> OnDeleting { get; set; }
-    [Parameter] public EventCallback<string> OnDisplayingInfo { get; set; }
-    string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
-    string autosetCssClass => Node.IsAutoSet ? "striped" : "";
-    
+        [Parameter] public Checklist2.ResultModel Node { get; set; }
+        [Parameter] public bool ShowIfAutoSet { get; set; }
+        [Parameter] public EventCallback<string> OnNodeViewChanged { get; set; }
+        [Parameter] public EventCallback<string> OnEditing { get; set; }
+        [Parameter] public EventCallback<Checklist2.ResultModel> OnOutcomeChanged { get; set; }
+        [Parameter] public EventCallback<string> OnDeleting { get; set; }
+        [Parameter] public EventCallback<string> OnAddFile { get; set; }
+        [Parameter] public EventCallback<string> OnDisplayingInfo { get; set; }
+        [Parameter] public int FarmInspectionId { get; set; }
+        string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
+        string autosetCssClass => Node.IsAutoSet ? "striped" : "";
+
+        List<FileChecklistVm> filesVms = new List<FileChecklistVm>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateFiles();
+    }
+
+    async Task UpdateFiles()
+    {
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        {
+            filesVms = db.FileChecklists
+                            .Where(x => x.ConjunctElementCode == Node.ConjunctElementCode && x.FarmInspectionId == FarmInspectionId)
+                            .Select(x => new FileChecklistVm()
+                            {
+                                Id = x.Id,
+                                FileName = x.FileName
+                            })
+                            .ToList();
+
+        }
+        StateHasChanged();
+    }
+
+    async Task DownloadFile(int id)
+    {
+        Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FileChecklist fileChecklist;
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        {
+            fileChecklist = db.FileChecklists
+                        .Where(x => x.Id == id)
+                        .SingleOrDefault();
+
+        }
+        if (fileChecklist != null)
+        {
+            await Js.InvokeVoidAsync(
+              "downloadFromByteArray", new object?[] { fileChecklist.File, fileChecklist.FileName, fileChecklist.FileType });
+        } 
+    }
 
     async Task SetOutcome(InspectionOutcome outcome)
     {
@@ -66,6 +119,13 @@
     async Task Edit_Clicked()
     {
         await OnEditing.InvokeAsync(Node.ConjunctElementCode);
+    }
+
+    async Task AddFile_Clicked()
+    {
+        await OnAddFile.InvokeAsync(Node.ConjunctElementCode);
+        await Task.Delay(1);
+        await UpdateFiles();
     }
 
     async Task Delete_Clicked()

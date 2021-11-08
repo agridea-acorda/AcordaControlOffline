@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Config;
@@ -26,6 +27,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         [Inject] AppConfiguration Config { get; set; }
         [Inject] IJSRuntime Js { get; set; }
         [Inject] IApiClient Api { get; set; }
+        [Inject] IndexedDB.Blazor.IIndexedDbFactory DbFactory { get; set; }
 
         [Parameter] public int FarmInspectionId { get; set; }
         const string FarmIdUriKey = "FarmId";
@@ -38,9 +40,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         bool saving;
         bool needsSaving;
         bool showAutoSet;
+        Blazorise.Modal confirmAddFile;
         Blazorise.Modal confirmDelete;
         Blazorise.Modal info;
         Blazorise.Modal edit;
+        string conjunctElementCodeToAddFile;
         string conjunctElementCodeToDelete;
         string conjunctElementCodeForInfo;
         MarkupString infoText;
@@ -191,6 +195,57 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         public void OnValidationStatusChanged(ValidationsStatusChangedEventArgs e)
         {
             editIsInvalid = e.Status == ValidationStatus.Error;
+        }
+
+        void NodeAddFile(string conjunctElementCode)
+        {
+            conjunctElementCodeToAddFile = conjunctElementCode;
+            confirmAddFile.Show();
+        }
+
+        async Task AddFileNode()
+        {
+            Console.WriteLine($"Adding file(s) for node {conjunctElementCodeToAddFile}...");
+
+            using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+            {
+                var filesDelete = db.FileChecklists
+                                    .Where(x => x.ConjunctElementCode == conjunctElementCodeToAddFile && x.FarmInspectionId == FarmInspectionId)
+                                    .ToList();
+                foreach (var item in filesDelete)
+                {
+                    db.FileChecklists.Remove(item);          
+                    Console.WriteLine($"File {item.Id} deleted in IndexedDB");
+                }
+                await db.SaveChanges();
+            }
+
+            using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+            {             
+                Console.WriteLine($"Files saved in IndexedDB : {files.Count}");
+                foreach (var file in files)
+                {
+                    file.ConjunctElementCode = conjunctElementCodeToAddFile;
+                    file.FarmInspectionId = FarmInspectionId;
+                    file.CreatedAt = DateTime.Now;
+
+                    db.FileChecklists.Add(file);
+                 
+                    Console.WriteLine($"New file saved in IndexedDB");
+                }
+                await db.SaveChanges();
+                files = new List<AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FileChecklist>();
+            }    
+            
+            confirmAddFile.Hide();
+            await Js.InvokeAsync<string>("setFileInputLabel", new object?[] { fileEdit.ElementId, "" });
+            StateHasChanged();
+        }
+
+        void CancelAddFileNode()
+        {
+            conjunctElementCodeToAddFile = "";
+            confirmAddFile.Hide();
         }
 
         void NodeDeleting(string conjunctElementCode)
