@@ -10,5 +10,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Indexed
     {
         public int Id { get; set; }
         public string FileName { get; set; }
+        public bool IsPicture { get; set; }
     }
 }

@@ -14,12 +14,13 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Indexed
     {
         [System.ComponentModel.DataAnnotations.Key]
         public int Id { get; set; }
-        public string ConjunctElementCode { get; set; }
+        public byte[] FileData { get; set; }
         public string FileName { get; set; }
         public string FileType { get; set; }
         public long FileSize { get; set; }
-        public byte[] File { get; set; }
+        public string ConjunctElementCode { get; set; }
         public int FarmInspectionId { get; set; }
+        public bool IsPicture { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

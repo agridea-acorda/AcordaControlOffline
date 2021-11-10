@@ -4,6 +4,7 @@
 @attribute [Authorize]
 @using System.IO 
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ViewModel
 
 <div class="card">
     <div class="card-header">
@@ -64,11 +65,11 @@
                                     <ChecklistItem Node="@child"
                                                    FarmInspectionId="@FarmInspectionId"
                                                    ShowIfAutoSet="@showAutoSet"
+                                                   Files="@files"
                                                    OnNodeViewChanged="@NodeViewChanged"
                                                    OnOutcomeChanged="@NodeOutcomeChanged"
-                                                   OnEditing="@NodeEditing"
+                                                   OnEditing="@NodeEditingAsync"
                                                    OnDeleting="@NodeDeleting"
-                                                   OnAddFile="@NodeAddFile"
                                                    OnDisplayingInfo="@NodeDisplayingInfo">
                                     </ChecklistItem>
                                 }
@@ -99,26 +100,6 @@
         </Blazorise.ModalBody>
         <Blazorise.ModalFooter>
             <button class="btn btn-default" @onclick="HideInfo">Fermer</button>
-        </Blazorise.ModalFooter>
-    </Blazorise.ModalContent>
-</Blazorise.Modal>
-
-<Blazorise.Modal @ref="@confirmAddFile">
-    <Blazorise.ModalBackdrop />
-    <Blazorise.ModalContent>
-        <Blazorise.ModalHeader>
-            <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
-            <Blazorise.CloseButton Clicked="@CancelAddFileNode" />
-        </Blazorise.ModalHeader>
-        <Blazorise.ModalBody>
-            <Blazorise.Field>
-                <Blazorise.FieldLabel>Ajouter des pièces jointes ou photos</Blazorise.FieldLabel>
-            </Blazorise.Field>
-            <Blazorise.FileEdit @ref="@fileEdit" AutoReset="false" Multiple="true" Changed="@OnChanged"/>
-        </Blazorise.ModalBody>
-        <Blazorise.ModalFooter>
-            <button class="btn btn-info" @onclick="@AddFileNode">Ok</button>
-            <button class="btn btn-default" @onclick="@CancelAddFileNode">Annuler</button>
         </Blazorise.ModalFooter>
     </Blazorise.ModalContent>
 </Blazorise.Modal>
@@ -223,15 +204,62 @@
                 </Blazorise.ModalFooter>
             </Blazorise.ModalContent>
         </EditForm>
+
+        <Blazorise.ModalContent>
+            <Blazorise.ModalHeader>
+                <Blazorise.ModalTitle>Pièces jointes / photos</Blazorise.ModalTitle>
+                <Blazorise.CloseButton Clicked="() => edit.Hide()" />
+            </Blazorise.ModalHeader>
+            <Blazorise.ModalBody>
+                <Blazorise.FieldLabel>Pièces jointes</Blazorise.FieldLabel>
+                <Blazorise.FileEdit @ref="@fileEdit" AutoReset="false" Multiple="true" Changed="@OnChangedFile" LocalizationText="My custom browse button"/>
+                <br />
+                @if (loadingFiles)
+                {
+                    <i class="far fa-file"></i>
+                    <i class="fas fa-spinner fa-spin"></i>
+                }
+                @foreach (var file in filesVms.Where(x => !x.IsPicture))
+                {
+                    <a @onclick="() => DownloadFile(file.Id)"><i class="far fa-file"></i> @file.FileName</a>
+                    <br />
+                }
+                <br />
+                <Blazorise.FieldLabel>Photos</Blazorise.FieldLabel>
+                <Blazorise.FileEdit @ref="@pictureEdit" AutoReset="false" Multiple="true" Changed="@OnChangedPicture" />
+                <br />
+                @if (loadingFiles)
+                {
+                    <i class="far fa-file"></i>
+                    <i class="fas fa-spinner fa-spin"></i>
+                }
+                @foreach (var file in filesVms.Where(x => x.IsPicture))
+                {
+                    <a @onclick="() => DownloadFile(file.Id)"><i class="far fa-file"></i> @file.FileName</a>
+                    <br />
+                }
+            </Blazorise.ModalBody>
+            <Blazorise.ModalFooter>
+                <Blazorise.Button class="btn btn-primary float-left mr-2" @onclick="() => edit.Hide()">Ok</Blazorise.Button>
+                <Blazorise.Button class="btn btn-default float-left mr-2" @onclick="() => edit.Hide()">Annuler</Blazorise.Button>
+            </Blazorise.ModalFooter>
+        </Blazorise.ModalContent>
+ 
     }
 </Blazorise.Modal>
 
 @code{
     Blazorise.FileEdit fileEdit;
+    Blazorise.FileEdit pictureEdit;
     List<FileChecklist> files = new List<FileChecklist>();
+    IEnumerable<FileChecklistVm> filesVms = new List<FileChecklistVm>();
+    bool loadingFiles = true;
 
-    async Task OnChanged(Blazorise.FileChangedEventArgs e)
+    async Task OnChangedFile(Blazorise.FileChangedEventArgs e)
     {
+        loadingFiles = true;
+        filesVms = new List<FileChecklistVm>();
+        StateHasChanged();
         try
         {
             foreach (var file in e.Files)
@@ -252,7 +280,8 @@
                         FileName = file.Name,
                         FileType = file.Type,
                         FileSize = file.Size,
-                        File = stream.ToArray()
+                        FileData = stream.ToArray(),
+                        IsPicture = false
                     });
                     Console.WriteLine("Adding file");
                 }
@@ -265,9 +294,150 @@
         }
         finally
         {
-            this.StateHasChanged();
+            StateHasChanged();
         }
-        var text = string.Join(",", e.Files.Select(f => f.Name));
-        await Js.InvokeAsync<string>("setFileInputLabel", new object?[] { fileEdit.ElementId, text });
+        //var text = string.Join(",", e.Files.Select(f => f.Name));
+        await Js.InvokeAsync<string>("setFileInputLabel", new object?[] { fileEdit.ElementId, "" });
+
+        await AddFileNode(false);
+        await UpdateFiles();
+    }
+
+    async Task OnChangedPicture(Blazorise.FileChangedEventArgs e)
+    {
+        loadingFiles = true;
+        filesVms = new List<FileChecklistVm>();
+        StateHasChanged();
+        try
+        {
+            foreach (var file in e.Files)
+            {
+                // A stream is going to be the destination stream we're writing to.                
+                using (var stream = new MemoryStream())
+                {
+                    // Here we're telling the FileEdit where to write the upload result
+                    await file.WriteToStreamAsync(stream);
+
+                    // Once we reach this line it means the file is fully uploaded.
+                    // In this case we're going to offset to the beginning of file
+                    // so we can read it.
+                    stream.Seek(0, SeekOrigin.Begin);
+
+                    files.Add(new FileChecklist()
+                    {
+                        FileName = file.Name,
+                        FileType = file.Type,
+                        FileSize = file.Size,
+                        FileData = stream.ToArray(),
+                        IsPicture = false
+                    });
+                    Console.WriteLine("Adding file");
+                }
+            }
+            Console.WriteLine("Files : " + files.Count);
+        }
+        catch (Exception exc)
+        {
+            Console.WriteLine(exc.Message);
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+        //var text = string.Join(",", e.Files.Select(f => f.Name));
+        await Js.InvokeAsync<string>("setFileInputLabel", new object?[] { pictureEdit.ElementId, "" });
+
+        await AddFileNode(true);
+        await UpdateFiles();
+    }
+
+    private async Task UpdateFiles()
+    {
+        loadingFiles = true;
+        StateHasChanged();
+        if (files == null || files.Count == 0)
+        {
+            using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+            {
+                filesVms = db.FileChecklists
+                                .Where(x => x.ConjunctElementCode == conjunctElementCodeToEdit && x.FarmInspectionId == FarmInspectionId)
+                                .Select(x => new FileChecklistVm()
+                                {
+                                    Id = x.Id,
+                                    FileName = x.FileName,
+                                    IsPicture = x.IsPicture
+                                });
+            }
+        }
+        else
+        {
+            filesVms = files
+                .Where(x => x.ConjunctElementCode == conjunctElementCodeToEdit && x.FarmInspectionId == FarmInspectionId)
+                .Select(x => new FileChecklistVm()
+                {
+                    Id = x.Id,
+                    FileName = x.FileName,
+                    IsPicture = x.IsPicture
+                });
+        }
+
+        loadingFiles = false;
+        StateHasChanged();
+    }
+
+    async Task DownloadFile(int id)
+    {
+        Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FileChecklist fileChecklist;
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        {
+            fileChecklist = db.FileChecklists
+                        .Where(x => x.Id == id)
+                        .SingleOrDefault();
+
+        }
+        if (fileChecklist != null)
+        {
+            await Js.InvokeVoidAsync(
+              "downloadFromByteArray", new object?[] { fileChecklist.FileData, fileChecklist.FileName, fileChecklist.FileType });
+        }
+    }
+
+    async Task AddFileNode(bool isPicture)
+    {
+        Console.WriteLine($"Adding file(s) for node {conjunctElementCodeToEdit}...");
+
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        {
+            var filesDelete = db.FileChecklists
+                                .Where(x => x.ConjunctElementCode == conjunctElementCodeToEdit && x.FarmInspectionId == FarmInspectionId && x.IsPicture == isPicture)
+                                .ToList();
+            foreach (var item in filesDelete)
+            {
+                db.FileChecklists.Remove(item);
+                Console.WriteLine($"File {item.Id} deleted in IndexedDB");
+            }
+            await db.SaveChanges();
+        }
+
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        {
+            Console.WriteLine($"Files saved in IndexedDB : {files.Count}");
+            foreach (var file in files)
+            {
+                file.ConjunctElementCode = conjunctElementCodeToEdit;
+                file.FarmInspectionId = FarmInspectionId;
+                file.IsPicture = isPicture;
+                file.CreatedAt = DateTime.Now;
+
+                db.FileChecklists.Add(file);
+
+                Console.WriteLine($"New file saved in IndexedDB");
+            }
+            await db.SaveChanges();
+            files = new List<AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FileChecklist>();
+        }
+
+        await Js.InvokeAsync<string>("setFileInputLabel", new object?[] { fileEdit.ElementId, "" });
+        StateHasChanged();
     }
 }

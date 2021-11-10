@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
@@ -58,6 +59,21 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             {
                 {nameof(MergePackage.Mandate), mergePackage.Mandate},
                 {nameof(MergePackage.Checklists), mergePackage.Checklists}
+            };
+            return await PostWithTypedResponseAsync<MergeResult>(uri, payload);
+        }
+
+        public async Task<Result<MergeResult>> SendMergeFile(string uri, FileChecklist fileChecklist)
+        {
+            var file = JsonConvert.SerializeObject(fileChecklist,
+                                               Formatting.None,
+                                               new JsonSerializerSettings
+                                               {
+                                                   ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                                               });
+            var payload = new Dictionary<string, string>
+            {
+                {nameof(FileChecklist), file}
             };
             return await PostWithTypedResponseAsync<MergeResult>(uri, payload);
         }
