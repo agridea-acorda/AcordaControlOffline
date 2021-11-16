@@ -572,6 +572,10 @@
                     Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
                     return;
                 }
+                else
+                {
+                    db.FileChecklists.Remove(file);
+                }
             }
 
             // TODO: Delete files
