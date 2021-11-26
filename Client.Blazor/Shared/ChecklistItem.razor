@@ -4,6 +4,7 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Unit
 @using Blazorise
 
@@ -21,181 +22,37 @@
     {
         <span class="badge badge-outline text-black @Node.Outcome.OutcomeCssClass(Node.Outcome) disabled float-right mr-1"><i class="far fa-comment-dots"></i></span>
     }
-
-    @*@if (Node.PointId != null)
-        {
-            <span class="badge badge-outline text-black bg-fuchsia disabled float-right mr-1">@Node.PointId</span>
-        }*@
-
+    
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.PartiallyOk)" @onclick="() => SetOutcome(InspectionOutcome.PartiallyOk)">P</button>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotOk)" @onclick="() => SetOutcome(InspectionOutcome.NotOk)"><i class="far fa-thumbs-down"></i></button>
-
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotInspected)" @onclick="() => SetOutcome(InspectionOutcome.NotInspected)">NC</button>
     <button class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.NotApplicable)" @onclick="() => SetOutcome(InspectionOutcome.NotApplicable)">NA</button>
     @if (Node.Outcome != InspectionOutcome.Unset)
     {
-        <button @onclick="() => edit.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
-        <button @onclick="() => confirmDelete.Show()" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
+        <button @onclick="@Edit_Clicked" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default">...</button>
+        <button @onclick="@Delete_Clicked" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default"><i class="far fa-trash-alt"></i></button>
     }
     @if (!string.IsNullOrWhiteSpace(Node.Name))
     {
-        <button @onclick="@DisplayInfo" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
+        <button @onclick="@Info_Clicked" class="btn btn-circle btn-circle-sm mr-1 ml-1 btn-default float-right"><i class="fas fa-info"></i></button>
     }
 </div>
 
-<Blazorise.Modal @ref="@confirmDelete">
-    <Blazorise.ModalBackdrop />
-    <Blazorise.ModalContent>
-        <Blazorise.ModalHeader>
-            <Blazorise.ModalTitle>Confirmation</Blazorise.ModalTitle>
-            <Blazorise.CloseButton Clicked="() => confirmDelete.Hide()" />
-        </Blazorise.ModalHeader>
-        <Blazorise.ModalBody>
-            <Blazorise.Field>
-                <Blazorise.FieldLabel>Êtes-vous sûr de vouloir supprimer les information saisies (résultat, remarques, pièces jointes, ...) ?</Blazorise.FieldLabel>
-            </Blazorise.Field>
-        </Blazorise.ModalBody>
-        <Blazorise.ModalFooter>
-            <button class="btn btn-info" @onclick="@Delete">Ok</button>
-            <button class="btn btn-default" @onclick="() => confirmDelete.Hide()">Annuler</button>
-        </Blazorise.ModalFooter>
-    </Blazorise.ModalContent>
-</Blazorise.Modal>
-
-<Blazorise.Modal @ref="@edit">
-    <Blazorise.ModalBackdrop />
-    <EditForm Model="@Node" OnSubmit="@OnSubmit">
-        <Blazorise.ModalContent>
-            <Blazorise.ModalHeader>
-                <Blazorise.ModalTitle>Résultat détaillé</Blazorise.ModalTitle>
-                <Blazorise.CloseButton Clicked="() => edit.Hide()" />
-            </Blazorise.ModalHeader>
-            <Blazorise.ModalBody>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Remarque contrôleur</Blazorise.FieldLabel>
-                    <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.InspectorComment"></Blazorise.MemoEdit>
-                </Blazorise.Field>
-                <Blazorise.Field>
-                    <Blazorise.FieldLabel>Remarque exploitant</Blazorise.FieldLabel>
-                    <Blazorise.MemoEdit Rows="2" @bind-Text="@Node.FarmerComment"></Blazorise.MemoEdit>
-                </Blazorise.Field>
-                <div hidden="@(Node.HasChildren || Node.Outcome == InspectionOutcome.Ok)">
-                    <Validations @ref="validations" Mode="ValidationMode.Auto">
-                        <Blazorise.Validation Validator="@ValidateDefectDescription">
-                            @if (Node.ComboDefects.Count() > 0)
-                            {
-                                <Blazorise.Field>
-                                    <Blazorise.FieldLabel>Manquement dans la liste</Blazorise.FieldLabel>
-                                    @*<Blazorise.FieldLabel>DefectId: @Node.DefectId</Blazorise.FieldLabel>*@
-                                    <Blazorise.Select TValue="int?" @bind-SelectedValue="@Node.DefectId">
-                                        @foreach (var option in Node.ComboDefects)
-                                        {
-                                            <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                                        }
-                                    </Blazorise.Select>
-                                </Blazorise.Field>
-                            }
-                            @if (Node.ComboDefects.Count() > 0)
-                            {
-                                <Blazorise.FieldLabel>OU Manquement constaté</Blazorise.FieldLabel>
-                            }
-                            else
-                            {
-                                <Blazorise.FieldLabel>Manquement constaté</Blazorise.FieldLabel>
-                            }
-                            <Blazorise.TextEdit @bind-Text="@Node.DefectDescription">
-                                <Feedback>
-                                    <Blazorise.ValidationError>Le manquement constaté doit soit être choisi dans la liste soit décrit dans le champ textuel (choix exclusif).</Blazorise.ValidationError>
-                                </Feedback>
-                            </Blazorise.TextEdit>
-                        </Blazorise.Validation>
-                    </Validations>
-                    <Blazorise.Field>
-                        <Blazorise.FieldLabel>Ampleur du manquement (par ex: surface, longueur, nombre d'animaux, ...)</Blazorise.FieldLabel>
-                        <Blazorise.NumericEdit TValue="double" @bind-Value="@Node.DefectSize"></Blazorise.NumericEdit>
-                    </Blazorise.Field>
-                    <div hidden="true">
-                        <Blazorise.Field>
-                            <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                            <Blazorise.TextEdit @bind-Text="@Node.DefectUnit"></Blazorise.TextEdit>
-                        </Blazorise.Field>
-                    </div>
-                    <Blazorise.Field>
-                        <Blazorise.FieldLabel>Unité</Blazorise.FieldLabel>
-                        <Blazorise.TextEdit @bind-Text="@Node.Unit" list="units" autocomplete="off" class="clear-datalist"  FocusIn="EraseUnit"></Blazorise.TextEdit>
-                        <datalist id="units">
-                            @foreach (var option in sortListItemsDatasource)
-                            {
-                                <option>@option.Id</option>
-                            }
-                        </datalist>
-                    </Blazorise.Field>
-                    <Blazorise.Field>
-                        <Blazorise.FieldLabel>Gravité (uniquement pour l'OPAn et PPr animale)</Blazorise.FieldLabel>
-                        <Blazorise.Select TValue="int" @bind-SelectedValue="@Node.SeriousnessCode">
-                            @foreach (var option in Node.ComboSeriousnesses)
-                            {
-                                <Blazorise.SelectItem Value="@option.Value">@option.Text</Blazorise.SelectItem>
-                            }
-                        </Blazorise.Select>
-                    </Blazorise.Field>
-                </div>
-            </Blazorise.ModalBody>
-            <Blazorise.ModalFooter>
-                <button class="btn btn-primary float-left mr-2" @onclick="@Submit">Ok</button>
-                <button class="btn btn-default float-left mr-2" @onclick="@Submit">Annuler</button>
-            </Blazorise.ModalFooter>
-        </Blazorise.ModalContent>
-    </EditForm>
-</Blazorise.Modal>
-
-<Blazorise.Modal @ref="@info">
-    <Blazorise.ModalBackdrop />
-    <Blazorise.ModalContent>
-        <Blazorise.ModalHeader>
-            <Blazorise.ModalTitle>Aide au contrôle, point @Node.ConjunctElementCode</Blazorise.ModalTitle>
-            <Blazorise.CloseButton Clicked="() => info.Hide()" />
-        </Blazorise.ModalHeader>
-        <Blazorise.ModalBody>
-            <Blazorise.Field>
-                <Blazorise.FieldLabel>@((MarkupString)(Node.Name?.CurateAsReadableText()))</Blazorise.FieldLabel>
-            </Blazorise.Field>
-        </Blazorise.ModalBody>
-        <Blazorise.ModalFooter>
-            <button class="btn btn-default" @onclick="() => info.Hide()">Fermer</button>
-        </Blazorise.ModalFooter>
-    </Blazorise.ModalContent>
-</Blazorise.Modal>
-
-@code {
-    [Parameter]
-    public ResultModel Node { get; set; }
-    [Parameter]
-    public bool ShowIfAutoSet { get; set; }
-    [Parameter]
-    public EventCallback<string> OnNodeViewChanged { get; set; }
-    [Parameter]
-    public EventCallback<ResultModel> OnNodeEdited { get; set; }
-    [Parameter]
-    public EventCallback<ResultModel> OnOutcomeChanged { get; set; }
-    [Parameter]
-    public EventCallback<ResultModel> OnDeleted { get; set; }
-    Blazorise.Modal confirmDelete;
-    Blazorise.Modal edit;
-    Blazorise.Modal info;
+@code 
+{
+    [Parameter] public Checklist2.ResultModel Node { get; set; }
+    [Parameter] public bool ShowIfAutoSet { get; set; }
+    [Parameter] public EventCallback<string> OnNodeViewChanged { get; set; }
+    [Parameter] public EventCallback<string> OnEditing { get; set; }
+    [Parameter] public EventCallback<Checklist2.ResultModel> OnOutcomeChanged { get; set; }
+    [Parameter] public EventCallback<string> OnDeleting { get; set; }
+    [Parameter] public EventCallback<string> OnDisplayingInfo { get; set; }
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
-
-    private List<SortListItem> sortListItemsDatasource = SortListItem.GetSortListItems();
-    //private List<SortListItem> sortListItems = new List<SortListItem> { };
-
-    void EraseUnit()
-    {
-        Node.Unit = "";
-    }
+    
 
     async Task SetOutcome(InspectionOutcome outcome)
     {
@@ -206,110 +63,56 @@
         await OnOutcomeChanged.InvokeAsync(Node);
     }
 
-    async Task OnSubmit()
+    async Task Edit_Clicked()
     {
-        edit.Hide();
-        Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
-        await OnNodeEdited.InvokeAsync(Node);
+        await OnEditing.InvokeAsync(Node.ConjunctElementCode);
     }
 
-    async Task Delete()
+    async Task Delete_Clicked()
     {
-        confirmDelete.Hide();
-        Node.Clear();
-        await OnDeleted.InvokeAsync(Node);
+        await OnDeleting.InvokeAsync(Node.ConjunctElementCode);
     }
 
-    void DisplayInfo()
+    async Task Info_Clicked()
     {
-        info.Show();
+        await OnDisplayingInfo.InvokeAsync(Node.ConjunctElementCode);
     }
 
-    public class ResultModel
-    {
-        public int NumGroups { get; set; }
-        public int NumPoints { get; set; }
-        public string ConjunctElementCode { get; set; }
-        public string ParentConjunctElementCode { get; set; }
-        public string ShortName { get; set; }
-        public string Name { get; set; }
-        public InspectionOutcome Outcome { get; set; }
-        public bool IsAutoSet { get; set; }
-        public string InspectorComment { get; set; }
-        public string FarmerComment { get; set; }
-        public string DefectDescription { get; set; }
-        public double DefectSize { get; set; }
-        public string DefectUnit { get; set; }
-        public string Unit { get; set; }
-        public int SeriousnessCode { get; set; }
-        public string Id { get; set; }
-        public IEnumerable<SelectListItem<int>> ComboSeriousnesses { get; set; }
-        public int? DefectId { get; set; }
-        public IEnumerable<SelectListItem<string>> ComboDefects { get; set; }
-        public int? PointId { get; set; }
-        public bool HasChildren { get; set; }
-        public string Sort { get; set; }
+    //async Task OnEdited()
+    //{
+    //    edit.Hide();
+    //    Node.IsAutoSet = false; // simplistic approach: always clear IsAutoSet when Node is edited (we don't check if anything changed)
+    //    await OnEditing.InvokeAsync(Node);
+    //}
 
-        public void Clear()
-        {
-            Outcome = InspectionOutcome.Unset;
-            InspectorComment = "";
-            FarmerComment = "";
-            DefectDescription = Defect.None.Description;
-            DefectSize = Defect.None.Size.Size;
-            DefectUnit = Defect.None.Size.Unit;
-            Unit = "";
-            SeriousnessCode = DefectSeriousness.Empty.Code;
-            IsAutoSet = false;
-        }
+    //void OnEditOk()
+    //{
+    //    Validate();
+    //}
 
-        public static ResultModel MapFrom(ITreeNode<Result> node)
-        {
-            if (node == null) return null;
-            return new ResultModel
-            {
-                NumGroups = node.NumGroups,
-                NumPoints = node.NumPoints,
-                ConjunctElementCode = node.ConjunctElementCode,
-                ParentConjunctElementCode = node.Parent?.ConjunctElementCode ?? "",
-                ShortName = node.ShortName,
-                Name = node.Name,
-                Outcome = node.Outcome,
-                IsAutoSet = node.IsAutoSet,
-                Id = node.ConjunctElementCode.CurateAsElementId(),
-                InspectorComment = node.InspectorComment,
-                FarmerComment = node.FarmerComment,
-                DefectDescription = node.Defect.Description,
-                DefectSize = node.Defect.Size.Size,
-                DefectUnit = node.Defect.Size.Unit,
-                Unit = node.Unit,
-                SeriousnessCode = node.Seriousness.Code,
-                ComboSeriousnesses = Combo.Seriousnesses(),
-                ComboDefects = node.ComboDefects != null ? node.ComboDefects : new List<SelectListItem<string>>(),
-                PointId = node.PointId,
-                DefectId = node.DefectId,
-                HasChildren = node.Children?.Any() ?? false,
-                Sort = node.Sort
-            };
-        }
+    //void OnEditCancelled()
+    //{
+    //    Validate();
+    //}
 
-    }
+    //private void Validate()
+    //{
+    //    if (validations.ValidateAll())
+    //    {
+    //        edit.Hide();
+    //    }
+    //    else
+    //    {
+    //        Node.DefectDescription = null;
+    //    }
+    //}
 
-    public void ValidateDefectDescription(ValidatorEventArgs e)
-    {
-        e.Status = (Node.DefectId != null && Node.DefectId != 0 && !string.IsNullOrEmpty(Node.DefectDescription)) ? ValidationStatus.Error : ValidationStatus.None;
-    }
-
-    Validations validations;
-    void Submit()
-    {
-        if (validations.ValidateAll())
-        {
-            edit.Hide();
-        }
-        else
-        {
-            Node.DefectDescription = null;
-        }
-    }
+    //public void ValidateDefectDescription(ValidatorEventArgs e)
+    //{
+    //    e.Status = Node.DefectId != null &&
+    //               Node.DefectId != 0 &&
+    //               !string.IsNullOrEmpty(Node.DefectDescription)
+    //        ? ValidationStatus.Error
+    //        : ValidationStatus.None;
+    //}
 }

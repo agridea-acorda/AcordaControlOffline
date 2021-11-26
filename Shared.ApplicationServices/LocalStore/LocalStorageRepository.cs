@@ -194,9 +194,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             string key = ChecklistKey(checklist);
 
-            await jsRuntime_.InvokeVoidAsync("console.time", "ChecklistFactory.Serialize");
+            //await jsRuntime_.InvokeVoidAsync("console.time", "ChecklistFactory.Serialize");
             string json = new ChecklistFactory().Serialize(checklist);
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ChecklistFactory.Serialize");
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ChecklistFactory.Serialize");
 
             await SetStringItemAsync(key, json);
         }
@@ -292,7 +292,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key));
 
-            await jsRuntime_.InvokeVoidAsync("console.time", "SetStringItemAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.time", "SetStringItemAsync");
             switch (jsRuntime_)
             {
                 case IJSUnmarshalledRuntime jsUnmarshalledRuntime:
@@ -306,7 +306,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                     await jsRuntime_.InvokeVoidAsync("localStorage.setItem", key, json);
                     break;
             }
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "SetStringItemAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "SetStringItemAsync");
         }
 
         private async ValueTask<string> GetItemAsStringAsync(string key)
@@ -314,14 +314,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key));
 
-            await jsRuntime_.InvokeVoidAsync("console.time", "GetItemAsStringAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.time", "GetItemAsStringAsync");
             string returnedValue = jsRuntime_ switch
             {
                 IJSUnmarshalledRuntime jsUnmarshalledRuntime => jsUnmarshalledRuntime.InvokeUnmarshalled<string, string>("getItemUnmarshalled", key),
                 IJSInProcessRuntime jsInProcessRuntime => jsInProcessRuntime.Invoke<string>("localStorage.getItem", key),
                 _ => await jsRuntime_.InvokeAsync<string>("localStorage.getItem", key)
             };
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "GetItemAsStringAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "GetItemAsStringAsync");
             return returnedValue;
         }
 
@@ -330,7 +330,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key));
 
-            await jsRuntime_.InvokeVoidAsync("console.time", "RemoveItemAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.time", "RemoveItemAsync");
             switch (jsRuntime_)
             {
                 case IJSUnmarshalledRuntime jsUnmarshalledRuntime:
@@ -344,19 +344,19 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
                     await jsRuntime_.InvokeVoidAsync("localStorage.removeItem", key);
                     break;
             }
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "RemoveItemAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "RemoveItemAsync");
         }
 
         public async ValueTask<bool> ContainsKeyAsync(string key)
         {
-            await jsRuntime_.InvokeVoidAsync("console.time", "ContainsKeyAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.time", "ContainsKeyAsync");
             bool returnedValue = jsRuntime_ switch
             {
                 //IJSUnmarshalledRuntime jsUnmarshalledRuntime => jsUnmarshalledRuntime.InvokeUnmarshalled<string, bool>("containsKeyUnmarshalled", key),
                 IJSInProcessRuntime jsInProcessRuntime => jsInProcessRuntime.Invoke<bool>("localStorage.hasOwnProperty", key),
                 _ => await jsRuntime_.InvokeAsync<bool>("localStorage.hasOwnProperty", key)
             };
-            await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ContainsKeyAsync");
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "ContainsKeyAsync");
             return returnedValue;
         }
     }

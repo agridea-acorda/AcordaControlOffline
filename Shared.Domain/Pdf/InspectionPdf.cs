@@ -60,7 +60,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
         #region Initialization
 
-        public InspectionPdf(InspectionPdfModel model, string username, bool showWatermark = false) : base(username)
+        public InspectionPdf(InspectionPdfModel model, string username, string ktidb, string farmName, string domain, bool showWatermark = false) 
+            : base(username, ktidb, farmName, domain)
         {
             model_ = model;
             Size = PageSize.A4;
@@ -235,7 +236,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
         private AcPdfPTable CheckList()
         {
-            var data = model_.InspectionResults.OrderBy(x => x.ConjunctElementCode);
+            var data = model_.InspectionResults.OrderBy(x => x.ConjunctElementCode).ThenBy(x=> x.TreeLevel);
             var table = CustomTable(new[] {4f, 4f, 4f, 4f, 40f, 5f, 40f});
             table.AddCustomCell("Résultat détaillé du contrôle des exigences", Fonts.Helvetica12BlackBold,
                 borderWidth: 0, colspan: 7);

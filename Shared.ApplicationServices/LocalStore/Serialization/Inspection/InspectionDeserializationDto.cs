@@ -110,6 +110,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public Appointment Appointment { get; set; }
             public string CommentForFarmer { get; set; }
             public string CommentForOffice { get; set; }
+            public bool Urgent { get; set; }
             public Status Status { get; set; }
             public double PercentComputed { get; set; }
             public DateTime DateComputed { get; set; }

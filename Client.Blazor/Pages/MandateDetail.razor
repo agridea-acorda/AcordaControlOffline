@@ -82,7 +82,7 @@ else
                 {
                     canAccessChecklist = false;
                     <div class="list-group-item">
-                        @if (inspection.ModeId == 1)
+                        @if (inspection.ModeId == InspectionMode.Scheduled.Value)
                         {
                             @if (inspection.VisitDate != "(Non agendé)")
                             {
@@ -114,7 +114,7 @@ else
                         </p>
                         <Blazorise.Button class="btn-app h-auto ml-0 mr-2" Clicked="() => ShowAppointmentModal(index)">
                             <i class="far fa-calendar-alt"></i>
-                            @if (inspection.ModeId == 1)
+                            @if (inspection.ModeId == InspectionMode.Scheduled.Value)
                             {
                                 <span class="@(inspection.VisitDate == "(Non agendé)" ? "text-red" : "") d-block"><strong>@inspection.VisitDate</strong></span>
                             }
@@ -277,6 +277,10 @@ else
                 <Blazorise.ModalBody>
                     <Blazorise.Field>
                         <Blazorise.MemoEdit Rows="5" @bind-Text="@commentForOffice.CommentForOffice" />
+                    </Blazorise.Field>
+                    <Blazorise.Field>
+                        <Blazorise.FieldLabel>Urgent</Blazorise.FieldLabel>
+                        <Blazorise.Switch TValue="bool" @bind-Checked="@commentForOffice.Urgent"></Blazorise.Switch>
                     </Blazorise.Field>
                 </Blazorise.ModalBody>
                 <Blazorise.ModalFooter>
@@ -451,6 +455,7 @@ else
         try
         {
             mandate.Inspections[commentForOffice.InspectionIndex].SetCommentForOffice(commentForOffice.CommentForOffice);
+            mandate.Inspections[commentForOffice.InspectionIndex].SetUrgentForOffice(commentForOffice.Urgent);
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
             commentForOfficeModal.Hide();
@@ -511,6 +516,18 @@ else
                 Toast.Error("Aucun utilisateur connecté, opération impossible");
                 return;
             }
+
+            if (string.IsNullOrEmpty(inspection.FarmerSignature.Data))
+            {
+                Toast.Error("Il manque la signature de l'exploitant");
+                return;
+            }
+            if (string.IsNullOrEmpty(inspection.InspectorSignature.Data))
+            {
+                Toast.Error("Il manque la signature du contrôleur principal");
+                return;
+            }
+
             var checklist = await Repository.ReadChecklistAsync(farmInspectionId);
             var auth = await AuthService.ReadAuthInfo();
             if (auth == Auth.UnknownUser)
@@ -527,7 +544,7 @@ else
                                                                       farm,
                                                                       checklist,
                                                                       organizationName,
-                                                                      logoPath), userName);
+                                                                      logoPath), userName, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
             inspection.SetPdfReport(new PdfReport(pdf.CreatePdf()));
             mandateViewModel = Mandate.FromDomain(farm, mandate);
             await Repository.SaveMandateAsync(mandate, FarmId);
@@ -591,13 +608,15 @@ else
     {
         public int InspectionIndex { get; set; }
         public string CommentForOffice { get; set; }
+        public bool Urgent { get; set; }
 
         public static CommentForOfficeModel FromDomain(Inspection inspection, int index = 0)
         {
             return new CommentForOfficeModel
             {
                 InspectionIndex = index,
-                CommentForOffice = inspection.CommentForOffice
+                CommentForOffice = inspection.CommentForOffice,
+                Urgent = inspection.Urgent
             };
         }
     }

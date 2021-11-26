@@ -96,7 +96,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Tests
         {
             TestDataHelper.InspectionShouldBeSuchAsConstructed(inspection_);
             inspection_.SetPdfReport(new PdfReport(new InspectionPdf(InspectionPdfModel.FromDomain(inspection_, farm_, checklist_, Organization.Ajapi.Name, "")
-                                                                          , "the_user").CreatePdf()));
+                                                                          , "the_user", "the_ktidb", "the_farmName", "the_domain").CreatePdf()));
             var factory = new InspectionFactory();
             string json = factory.Serialize(inspection_);
             var inspection = factory.Parse(json);

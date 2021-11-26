@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
@@ -40,7 +41,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
                 DomainShortName = inspection.Domain.ShortName,
                 DomainName = inspection.Domain.ShortName,
                 FocaaLogoPath = logoPath,
-                InspectionResults = ResultModel.FromDomain(checklist),
+                InspectionResults = ResultModel.FromDomain(checklist, true),
                 ActionsOrDocuments = inspection.Compliance.ActionsOrDocuments,
                 DueDate = inspection.Compliance.DueDate,
                 DoneOn = inspection.FinishStatus.DoneOn,
@@ -56,7 +57,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
                 OrganizationName = organizationName,
                 Farm = FarmModel.FromDomain(farm),
                 CommentForFarmer = inspection.CommentForFarmer
-            };
+            };       
             return model;
         }
 
