@@ -51,7 +51,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Tests
                                                       checklist,
                                                       organizationName,
                                                       logoPath);
-            var pdf = new InspectionPdf(model, userName);
+            var pdf = new InspectionPdf(model, userName, farm.Ktidb, farm.FarmName, inspection.Domain.ShortName);
             File.WriteAllBytes(Path.GetTempFileName() + ".pdf", pdf.CreatePdf());
         }
     }

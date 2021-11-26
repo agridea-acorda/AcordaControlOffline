@@ -60,7 +60,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
 
         #region Initialization
 
-        public InspectionPdf(InspectionPdfModel model, string username, bool showWatermark = false) : base(username)
+        public InspectionPdf(InspectionPdfModel model, string username, string ktidb, string farmName, string domain, bool showWatermark = false) 
+            : base(username, ktidb, farmName, domain)
         {
             model_ = model;
             Size = PageSize.A4;

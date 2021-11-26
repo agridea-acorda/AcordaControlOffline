@@ -48,6 +48,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Shared
         #region Members
 
         private readonly string currentUser_;
+        private readonly string ktidb_;
+        private readonly string farmName_;
+        private readonly string domain_;
 
         protected readonly Font Font8BoldWhite = new Font(Font.FontFamily.HELVETICA,
             7,
@@ -79,11 +82,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Shared
 
         #region Initialization
 
-        public PdfDocumentBase(string currentUser, bool showGeneratedByAndDateInFooter = true)
+        public PdfDocumentBase(string currentUser, string ktidb, string farmName, string domain, bool showGeneratedByAndDateInFooter = true)
         {
             SetPropertiesDefault();
             SetFixedValues();
             currentUser_ = currentUser;
+            ktidb_ = ktidb;
+            farmName_ = farmName;
+            domain_ = domain;
             showGeneratedByAndDateInFooter_ = showGeneratedByAndDateInFooter;
         }
 
@@ -163,7 +169,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Shared
             if (showGeneratedByAndDateInFooter_)
             {
                 userTable.AddCell(
-                    new PdfPCell(new Phrase($"Généré le {DateTime.Now:dd.MM.yyyy HH:mm:ss} par {currentUser_} ",
+                    new PdfPCell(new Phrase($"Généré le {DateTime.Now:dd.MM.yyyy HH:mm:ss} par {currentUser_} | {ktidb_} {farmName_} {domain_}",
                         FooterFont))
                     {
                         HorizontalAlignment = Element.ALIGN_LEFT,
