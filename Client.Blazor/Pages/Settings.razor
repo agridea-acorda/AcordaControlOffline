@@ -8,6 +8,7 @@
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
 @inject AppConfiguration Config
+@inject IndexedDB.Blazor.IIndexedDbFactory DbFactory
 
 <div class="card">
     <div class="card-header">
@@ -77,6 +78,19 @@
     async void Reset()
     {
         await LocalStorage.ClearAsync();
+
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        {
+            var filesDelete = db.FileChecklists
+                                .ToList();
+            foreach (var item in filesDelete)
+            {
+                db.FileChecklists.Remove(item);
+                Console.WriteLine($"File {item.Id} deleted in IndexedDB");
+            }
+            await db.SaveChanges();
+        }
+
         Navigation.NavigateTo(Config.BaseUrl + "/", true);
     }
 }

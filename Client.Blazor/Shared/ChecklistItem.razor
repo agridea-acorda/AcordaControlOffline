@@ -7,8 +7,12 @@
 @using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
 @using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Unit
 @using Blazorise
+@using IndexedDB.Blazor
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ViewModel
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb
 
 @inject IJSRuntime Js
+@inject IIndexedDbFactory DbFactory
 
 <div id="@Node.Id" class="list-group-item @displayCssClass @autosetCssClass">
     @if (Node.NumPoints > 0 || Node.NumGroups > 0)
@@ -22,7 +26,7 @@
     {
         <span class="badge badge-outline text-black @Node.Outcome.OutcomeCssClass(Node.Outcome) disabled float-right mr-1"><i class="far fa-comment-dots"></i></span>
     }
-    
+
     <h4 class="list-group-item-heading">@Node.ShortName</h4>
     <p class="list-group-item-text mb-2">@Node.ConjunctElementCode</p>
     <button disabled="@Node.HasChildren" class="btn btn-circle btn-circle-sm mr-1 @Node.Outcome.OutcomeCssClass(InspectionOutcome.Ok)" @onclick="() => SetOutcome(InspectionOutcome.Ok)"><i class="far fa-thumbs-up"></i></button>
@@ -41,19 +45,20 @@
     }
 </div>
 
-@code 
+@code
 {
     [Parameter] public Checklist2.ResultModel Node { get; set; }
     [Parameter] public bool ShowIfAutoSet { get; set; }
+    [Parameter] public List<FileChecklist> Files { get; set; }
     [Parameter] public EventCallback<string> OnNodeViewChanged { get; set; }
     [Parameter] public EventCallback<string> OnEditing { get; set; }
     [Parameter] public EventCallback<Checklist2.ResultModel> OnOutcomeChanged { get; set; }
     [Parameter] public EventCallback<string> OnDeleting { get; set; }
     [Parameter] public EventCallback<string> OnDisplayingInfo { get; set; }
+    [Parameter] public int FarmInspectionId { get; set; }
     string displayCssClass => Node.IsAutoSet && !ShowIfAutoSet ? "d-none" : "";
     string autosetCssClass => Node.IsAutoSet ? "striped" : "";
-    
-
+   
     async Task SetOutcome(InspectionOutcome outcome)
     {
         var previousOutcome = Node.Outcome;
