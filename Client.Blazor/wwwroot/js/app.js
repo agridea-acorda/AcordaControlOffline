@@ -180,3 +180,41 @@ window.getFilterMandates = () => {
 window.setFilterMandates = (filterMandates) => {
     localStorage.setItem("filterMandates", filterMandates);
 };
+
+// Reset label for file inputs
+window.setFileInputLabel = (id, text) => {
+    var elem = document.getElementById(id);
+    if (elem) {
+        const parent = elem.parentElement;
+        const label = parent.querySelector('label');
+        if (label) {
+            label.textContent = text;
+        }
+    }
+}
+
+// Dowload File from byte Array
+window.downloadFromByteArray = (byteArray, fileName, contentType) => {
+    // Convert base64 string to numbers array.
+    const numArray = atob(byteArray).split('').map(c => c.charCodeAt(0));
+
+    // Convert numbers array to Uint8Array object.
+    const uint8Array = new Uint8Array(numArray);
+
+    // Wrap it by Blob object.
+    const blob = new Blob([uint8Array], { type: contentType });
+
+    // Create "object URL" that is linked to the Blob object.
+    const url = URL.createObjectURL(blob);
+
+    // Invoke download helper function that implemented in 
+    // the earlier section of this article.
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = fileName ?? '';
+    anchorElement.click();
+    anchorElement.remove();
+
+    // At last, release unused resources.
+    URL.revokeObjectURL(url);
+}

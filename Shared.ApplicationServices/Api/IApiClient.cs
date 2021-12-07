@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
@@ -16,6 +17,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api {
         Task<Result<ViewModel.Farm.Farm>> FetchFarmDetailAsync(string uri);
         Task<Result<ChecklistSample>> FetchChecklistSampleAsync(string uri);
         Task<Result<MergeResult>> SendMergePackage(string uri, MergePackage mergePackage);
+        Task<Result<MergeResult>> SendMergeFile(string uri, FileChecklist mergePackage);
         Task<Result<string>> CancelMergePackage(string uri, int id, string state);
         Task<Result<string>> AcknowledgeMerge(string uri, int id);
     }

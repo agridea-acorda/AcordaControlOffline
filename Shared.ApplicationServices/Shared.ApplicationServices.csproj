@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
     <PackageReference Include="CSharpFunctionalExtensions" Version="2.14.0" />
+    <PackageReference Include="IndexedDB.Blazor" Version="1.1.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.JSInterop" Version="5.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
