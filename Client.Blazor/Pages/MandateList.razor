@@ -326,7 +326,7 @@
 
 @code {
 
-    //bool showClosed = false;
+        //bool showClosed = false;
     private Mandate[] mandates;
     private Mandate[] mandatesBKFilter;
     bool loading = false;
@@ -837,6 +837,7 @@
         if (filter.WithoutDateVisiteNull)
         {
             mandates = mandates.Where(x => x.Inspections.Any(x => x.DateLastVisit.HasValue)).ToArray();
+
         }
 
         loadingFilter = false;

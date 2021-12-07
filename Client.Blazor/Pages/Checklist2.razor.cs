@@ -27,7 +27,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         [Inject] AppConfiguration Config { get; set; }
         [Inject] IJSRuntime Js { get; set; }
         [Inject] IApiClient Api { get; set; }
+
         [Inject] IndexedDB.Blazor.IIndexedDbFactory DbFactory { get; set; }
+
 
         [Parameter] public int FarmInspectionId { get; set; }
         const string FarmIdUriKey = "FarmId";
@@ -43,8 +45,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
         Blazorise.Modal confirmDelete;
         Blazorise.Modal info;
         Blazorise.Modal edit;
+
         string conjunctElementCodeToEdit;
         int? pointIdToEdit;
+
         string conjunctElementCodeToDelete;
         string conjunctElementCodeForInfo;
         MarkupString infoText;
@@ -136,12 +140,14 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor.Pages
             needsSaving = true;
         }
 
+
         async Task NodeEditingAsync(string conjunctElementCode)
         {
             conjunctElementCodeToEdit = conjunctElementCode;
             await UpdateFiles();
             var model = children.SingleOrDefault(x => x.ConjunctElementCode == conjunctElementCode);
             pointIdToEdit = model.PointId;
+
             Ensure.That(model, nameof(model)).IsNotNull();
             editModel = ResultModel.Empty();
             editModel.UpdateFrom(model);
