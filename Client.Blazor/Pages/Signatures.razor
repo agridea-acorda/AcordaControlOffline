@@ -96,31 +96,6 @@
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
-                @if (signatures.InspectorSignature.HasSigned)
-                {
-                    <div class="form-group">
-                        <label>Le contrôleur @signatures.InspectorDisplay</label>
-                        <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
-                        <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%" />
-                    </div>
-                }
-                else
-                {
-                    <div class="form-group">
-                        <label>Le contrôleur n'a pas signé</label>
-                        <div class="d-block">
-                            <div class="btn-group w-100" role="group">
-                                <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
-                                @if (signatures.ExistingInspectorSignature.HasSigned)
-                                {
-                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-            </li>
-            <li class="list-group-item">
                 @if (signatures.FarmerSignature.HasSigned)
                 {
                     <div class="form-group">
@@ -139,6 +114,31 @@
                                 @if (signatures.ExistingFarmerSignature.HasSigned)
                                 {
                                     <button @onclick="@(() => ReuseSignature(signatures.ExistingFarmerSignature, "farmer"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </li>
+            <li class="list-group-item">
+                @if (signatures.InspectorSignature.HasSigned)
+                {
+                    <div class="form-group">
+                        <label>Le contrôleur @signatures.InspectorDisplay</label>
+                        <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-sm btn-default"><i class="fas fa-undo"></i> Corriger la signature</button>
+                        <img src="@signatures.InspectorSignature.DataUrl" style="width: 100%" />
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label>Le contrôleur n'a pas signé</label>
+                        <div class="d-block">
+                            <div class="btn-group w-100" role="group">
+                                <button @onclick="() => Navigation.NavigateTo(inspectorSignatureUrl)" class="btn btn-primary"><i class="far fa-hand-point-right"></i> Signer</button>
+                                @if (signatures.ExistingInspectorSignature.HasSigned)
+                                {
+                                    <button @onclick="@(() => ReuseSignature(signatures.ExistingInspectorSignature, "inspector"))" class="btn btn-default"><i class="far fa-clone"></i> Apposer la signature</button>
                                 }
                             </div>
                         </div>
@@ -225,7 +225,7 @@
 
     async Task ReuseSignature(SignatureModel model, string type)
     {
-        var signature = new Signature(model.Signatory, model.Proxy, model.Data, model.DataUrl);
+        var signature = new Signature(model.Signatory, model.Proxy, model.HasProxy, model.Data, model.DataUrl);
         switch (type)
         {
             case "inspector":

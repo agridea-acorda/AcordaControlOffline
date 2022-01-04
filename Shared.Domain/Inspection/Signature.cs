@@ -9,12 +9,12 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
         public string Proxy { get; }
         public string Data { get; }
         public string DataUrl { get; }
-        public bool HasProxy => !string.IsNullOrWhiteSpace(Proxy);
+        public bool HasProxy { get; }
         public bool HasSigned => !string.IsNullOrWhiteSpace(Data);
         
-        public static Signature None => new Signature("", "", "", ""); 
+        public static Signature None => new Signature("", "", false, "", ""); 
         
-        public Signature(string signatory, string proxy, string data, string dataUrl)
+        public Signature(string signatory, string proxy, bool hasProxy, string data, string dataUrl)
         {
             bool IsEmpty() =>
                 string.IsNullOrWhiteSpace(signatory) &&
@@ -33,6 +33,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
 
             Signatory = signatory;
             Proxy = proxy;
+            HasProxy = hasProxy;
             Data = data;
             DataUrl = dataUrl;
         }
@@ -41,6 +42,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
         {
             yield return Signatory;
             yield return Proxy;
+            yield return HasProxy;
             yield return Data;
         }
     }

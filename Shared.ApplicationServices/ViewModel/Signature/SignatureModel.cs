@@ -11,7 +11,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
         public string Data { get; set; }
         public string DataUrl { get; set; }
         public bool HasSigned => !string.IsNullOrWhiteSpace(Data);
-        public bool HasProxy => !string.IsNullOrWhiteSpace(Proxy);
+        public bool HasProxy { get; set; }
         public DateTime? DoneOn { get; set; }
         public bool ShowDoneOn { get; set; }
 
@@ -21,6 +21,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewMod
             {
                 Signatory = signature.Signatory,
                 Proxy = signature.Proxy,
+                HasProxy = signature.HasProxy,
                 Data = signature.Data,
                 DataUrl = signature.DataUrl
             };

@@ -21,20 +21,20 @@
         <div class="card-body">
             @if (Model.ShowDoneOn)
             {
-            <div class="form-group">
-                <label for="@nameof(Model.DoneOn)">Fait le:</label>
-                <InputDate class="form-control" @bind-Value="@Model.DoneOn" />
-                @if (dateMandatory)
-                {
-                    <p class="text-red">Date obligatoire</p>
-                }
-            </div>
                 <div class="form-group">
                     <label for="@nameof(Model.Signatory)">Nom</label>
                     <InputText type="text" class="form-control" @bind-Value="@Model.Signatory" readonly />
                 </div>
+                <div class="form-group">
+                    <label for="@nameof(Model.DoneOn)">Fait le:</label>
+                    <InputDate class="form-control" @bind-Value="@Model.DoneOn" />
+                    @if (dateMandatory)
+                    {
+                        <p class="text-red">Date obligatoire</p>
+                    }
+                </div>
             }
-            else
+            else if(!Model.ShowProxy)
             {
                 <div class="form-group">
                     <label for="@nameof(Model.Signatory)">Nom</label>
@@ -44,7 +44,11 @@
             @if (Model.ShowProxy)
             {
                 <div class="form-group">
-                    <label for="@nameof(Model.Proxy)">Donne procuration à:</label>
+                    <label for="@nameof(Model.HasProxy)">L'exploitant donne procuration</label>
+                    <Blazorise.Switch TValue="bool" @bind-Checked="@Model.HasProxy"></Blazorise.Switch>
+                </div>
+                <div class="form-group">
+                    <label for="@nameof(Model.Proxy)">à la personne ci-dessous</label>
                     <InputText type="text" class="form-control" @bind-Value="@Model.Proxy" />
                 </div>
             }
