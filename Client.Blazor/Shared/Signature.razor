@@ -97,7 +97,7 @@
         var inspectorName = JsonConvert.DeserializeObject<string>(await Repository.ReadInspectorNameAsync());
         Console.WriteLine("Inspector name loaded: "+inspectorName);
 
-        if (!Title.Contains("exploitant"))
+        if (!Title.Contains("exploitant") && !Title.Contains("additionnel"))
         {
             Model.Signatory = inspectorName;
         }
