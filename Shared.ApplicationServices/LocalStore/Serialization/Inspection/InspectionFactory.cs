@@ -138,6 +138,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Signatory), targetInstance, dto.Signatory);
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Proxy), targetInstance, dto.Proxy);
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.HasProxy), targetInstance, dto.HasProxy);
+            SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.DoneInTown_Id), targetInstance, dto.DoneInTown_Id);
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Data), targetInstance, dto.Data);
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.DataUrl), targetInstance, dto.DataUrl);
             return targetInstance;

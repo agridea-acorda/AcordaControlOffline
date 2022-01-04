@@ -326,7 +326,7 @@
 
 @code {
 
-        //bool showClosed = false;
+    //bool showClosed = false;
     private Mandate[] mandates;
     private Mandate[] mandatesBKFilter;
     bool loading = false;
@@ -382,6 +382,13 @@
         }
         PopulateFilters();
         await ApplyFilter();
+
+        var towns = await Repository.ReadAllTownsAsync();
+        if (towns == null)
+        {
+            await TryFetchTownsAndSave();
+        }
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -403,6 +410,7 @@
         mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
         mandatesBKFilter = mandates;
         PopulateFilters();
+        await TryFetchTownsAndSave();
         await SetSyncStatus();
     }
 
@@ -673,6 +681,41 @@
         {
             loading = false;
         }
+    }
+
+    async Task TryFetchTownsAndSave()
+    {
+        Console.WriteLine("Saving towns in localstorage");
+        loading = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        try
+        {
+            var auth = await AuthService.ReadAuthInfo();
+            var townsResult = await Api.FetchAllTownsAsync("towns");
+            if (townsResult.IsSuccess)
+            {
+                await Repository.SaveTownsAsync(townsResult.Value);
+            }
+            else
+            {
+                Console.WriteLine(townsResult.ToLogErrorMessage());
+                Toast.Error(townsResult.ToUserErrorMessage());
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToLogErrorMessage());
+            Toast.Error(e.ToUserErrorMessage());
+        }
+        finally
+        {
+            loading = false;
+        }
+
+
     }
 
     async Task SetSyncStatus()

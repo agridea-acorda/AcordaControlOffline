@@ -225,7 +225,7 @@
 
     async Task ReuseSignature(SignatureModel model, string type)
     {
-        var signature = new Signature(model.Signatory, model.Proxy, model.HasProxy, model.Data, model.DataUrl);
+        var signature = new Signature(model.Signatory, model.Proxy, model.HasProxy, model.DoneInTown_Id, model.Data, model.DataUrl);
         switch (type)
         {
             case "inspector":

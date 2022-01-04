@@ -3,9 +3,12 @@
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore
 @using Newtonsoft.Json
 @using Blazorise
+@using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Town
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
 @inject IRepository Repository
+@inject IJSRuntime JS
+@inject IToastService Toast
 
 <EditForm Model="@Model" OnSubmit="@Save">
     <div class="card">
@@ -22,7 +25,7 @@
             @if (Model.ShowDoneOn)
             {
                 <div class="form-group">
-                    <label for="@nameof(Model.Signatory)">Nom</label>
+                    <label for="@nameof(Model.Signatory)">Contrôleur (ou gérant)</label>
                     <InputText type="text" class="form-control" @bind-Value="@Model.Signatory" readonly />
                 </div>
                 <div class="form-group">
@@ -33,8 +36,20 @@
                         <p class="text-red">Date obligatoire</p>
                     }
                 </div>
+                <div class="form-group">
+                    <label for="@nameof(Model.DoneOn)">à (lieu)</label>
+                    <Select2 TItem="Town"
+                             TSource="List<Town>"
+                             IdSelector="c => c.Id.ToString()"
+                             TextSelector="c => c.ZipAndName"
+                             FilterFunction="FilterFunction"
+                             GetElementById="(items, filter, token) => Task.FromResult(items.SingleOrDefault(i => i.Id.ToString().Equals(filter)))"
+                             Datasource="towns"
+                             Value="Model.Town"
+                             Multiselect="false" />
+                </div>
             }
-            else if(!Model.ShowProxy)
+            else if (!Model.ShowProxy)
             {
                 <div class="form-group">
                     <label for="@nameof(Model.Signatory)">Nom</label>
@@ -89,19 +104,36 @@
 
     bool dateMandatory = false;
 
+    List<Town> towns = new List<Town>();
+
     protected override async Task OnInitializedAsync()
     {
+        @if (Model.ShowDoneOn)
+        {
+            var data = await Repository.ReadAllTownsAsync() ?? Enumerable.Empty<Town>().ToArray();
+            towns = data.ToList();
+            if (Model.DoneInTown_Id != null)
+            {
+                Model.Town = towns.Where(x => x.Id == Model.DoneInTown_Id).ToList();
+            }
+        }
+
         //Console.WriteLine("Loading signature with data: " + Model.Data);
         await LocalStorage.SetItemAsync("Mobsites.Blazor.SignaturePad.DataURL", Model.Data); // trick to load signature, works with KeepState attribute
         await Task.Delay(1);
         var inspectorName = JsonConvert.DeserializeObject<string>(await Repository.ReadInspectorNameAsync());
-        Console.WriteLine("Inspector name loaded: "+inspectorName);
+        Console.WriteLine("Inspector name loaded: " + inspectorName);
 
         if (!Title.Contains("exploitant") && !Title.Contains("additionnel"))
         {
             Model.Signatory = inspectorName;
         }
 
+    }
+
+    private async Task<List<Town>> FilterFunction(List<Town> allItems, string filter, System.Threading.CancellationToken token)
+    {
+        return allItems.Where(i => i.ZipAndName.Contains(filter)).ToList();
     }
 
     private async Task SignatureChanged(ChangeEventArgs eventArgs)
@@ -123,6 +155,14 @@
             saving = false;
             return;
         }
+
+        if (Model.Town.FirstOrDefault()?.Id == null && Model.ShowDoneOn)
+        {
+            Toast.ShowError("Le lieu doit être renseigné.");
+            saving = false;
+            return;
+        }
+
         try
         {
             await OnSave.InvokeAsync(Model);

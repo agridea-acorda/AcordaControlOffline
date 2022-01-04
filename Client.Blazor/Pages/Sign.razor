@@ -65,7 +65,7 @@
 
     async Task Save(SignatureModel model)
     {
-        var signature = new AcordaControlOffline.Shared.Domain.Inspection.Signature(model.Signatory, model.Proxy, model.HasProxy, model.Data, model.DataUrl);
+        var signature = new AcordaControlOffline.Shared.Domain.Inspection.Signature(model.Signatory, model.Proxy, model.HasProxy, model.Town.FirstOrDefault()?.Id, model.Data, model.DataUrl);
         if (model.DoneOn.HasValue)
         {
             var mandate = await Repository.ReadMandateAsync(farmId);

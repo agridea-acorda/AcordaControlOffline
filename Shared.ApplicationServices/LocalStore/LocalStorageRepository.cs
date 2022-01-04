@@ -8,6 +8,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalStore.
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Town;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
@@ -28,6 +29,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     public class LocalStorageRepository : IRepository
     {
         public const string Mandates = "mandates";
+        public const string Towns = "towns";
         public const string InspectorName = "inspectorName";
         public const string Checklist = "checklist";
         public const string ActionsOrDocuments = "actionsOrDocuments";
@@ -73,6 +75,22 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
         {
             string json = await GetItemAsStringAsync(Mandates);
             return json == null ? null : JsonSerializer.Deserialize<Mandate[]>(json, JsonSerializerOptions);
+        }
+
+        public async ValueTask SaveTownsAsync(Town[] towns)
+        {
+            //await jsRuntime_.InvokeVoidAsync("console.time", "Mandate[] Serialize");
+            // force use of System.Text.Json when Json.NET is not used explicitly (temporary fix that mimics Blazored.LocalStorage, it 'just works').
+            string json = JsonSerializer.Serialize(towns, JsonSerializerOptions);
+            //await jsRuntime_.InvokeVoidAsync("console.timeEnd", "Mandate[] Serialize");
+
+            await SetStringItemAsync(Towns, json);
+        }
+
+        public async ValueTask<Town[]> ReadAllTownsAsync()
+        {
+            string json = await GetItemAsStringAsync(Towns);
+            return json == null ? null : JsonSerializer.Deserialize<Town[]>(json, JsonSerializerOptions);
         }
 
         public async ValueTask ClearMandatesListAsync()
