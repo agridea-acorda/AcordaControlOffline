@@ -56,6 +56,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public string Signatory { get; set; }
             public string Proxy { get; set; }
             public string Data { get; set; }
+            public int? DoneInTown_Id { get; set; }
             public string DataUrl { get; set; }
             public bool HasProxy { get; set; }
             public bool HasSigned { get; set; }

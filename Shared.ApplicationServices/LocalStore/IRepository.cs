@@ -2,6 +2,7 @@
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Signature;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Town;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Farm;
 using Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection;
@@ -10,8 +11,10 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
     public interface IRepository
     {
         ValueTask SaveMandatesAsync(Mandate[] mandates);
+        ValueTask SaveTownsAsync(Town[] mandates);
         ValueTask SaveInspectorNameAsync(string inspectorName);
         ValueTask<Mandate[]> ReadAllMandatesAsync();
+        ValueTask<Town[]> ReadAllTownsAsync();
         ValueTask ClearMandatesListAsync();
         ValueTask<bool> HasMandateAsync(int farmId);
         ValueTask<string> ReadMandateJsonAsync(int farmId);

@@ -8,6 +8,7 @@ using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Checklist;
 using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateList;
+using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Town;
 using CSharpFunctionalExtensions;
 using Newtonsoft.Json;
 using Mandate = Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.MandateDetail.Mandate;
@@ -31,6 +32,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
         public async Task<Result<ViewModel.MandateList.Mandate[]>> FetchAllMandatesAsync(string uri)
         {
             return await FetchTypedAsync<ViewModel.MandateList.Mandate[]>(uri);
+        }
+
+        public async Task<Result<Town[]>> FetchAllTownsAsync(string uri)
+        {
+            return await FetchTypedAsync<Town[]>(uri);
         }
 
         public async Task<Result<Mandate>> FetchMandateDetailAsync(string uri)
