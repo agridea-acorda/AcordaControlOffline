@@ -27,6 +27,7 @@
 @inject AppConfiguration Config
 @inject IJSRuntime Js
 @inject IAuthService AuthService
+@inject IndexedDB.Blazor.IIndexedDbFactory DbFactory
 
 <div class="row">
     <div class="col-sm-12">
@@ -130,7 +131,7 @@
                         </div>
                         <div class="col-6">
                             <Blazorise.Field>
-                                <Blazorise.FieldLabel>Filtrer les mandats sans date de visite</Blazorise.FieldLabel>
+                                <Blazorise.FieldLabel>Masquer les mandats sans date de visite</Blazorise.FieldLabel>
                                 <Blazorise.Switch TValue="bool" @bind-Checked="@filter.WithoutDateVisiteNull"></Blazorise.Switch>
                             </Blazorise.Field>
                         </div>
@@ -187,8 +188,8 @@
                         {
                             <div class="list-group-item @mandate.Farm.FarmTypeCode.BackgroundCssClass()">
                                 @if (mandate.SyncStatus == SyncStatus.Loaded ||
-                             mandate.SyncStatus == SyncStatus.Deleting ||
-                             mandate.SyncStatus == SyncStatus.Merging)
+                            mandate.SyncStatus == SyncStatus.Deleting ||
+                            mandate.SyncStatus == SyncStatus.Merging)
                                 {
                                     <button @onclick="() => SelectMandate(mandate)" class="btn btn-outline-danger btn-sm float-right ml-1" data-toggle="modal" data-target="#deleteModal">
                                         @if (mandate.SyncStatus != SyncStatus.Deleting)
@@ -543,12 +544,43 @@
             Console.WriteLine("... merge action succesful");
             await DeleteMandate(mandateModel);
             Toast.Success();
+            await MergeFiles();
         }
         catch (Exception e)
         {
             Console.WriteLine(e.ToLogErrorMessage());
             Toast.Error(e.ToUserErrorMessage());
             mandateModel.SyncStatus = originalSyncStatus;
+        }
+    }
+
+    private async Task MergeFiles()
+    {
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        {
+            var files = db.FileChecklists.ToList();
+            Console.WriteLine($"Files saved in IndexedDB : {db.FileChecklists.Count()}");
+            foreach (var file in files)
+            {
+                Console.WriteLine($"Sending file : {file.FileName} ConjunctElementCode : {file.ConjunctElementCode} InspectionId : {file.FarmInspectionId}");
+
+                var apiCallResult = await Api.SendMergeFile("mergeFile", file);
+                if (apiCallResult.IsFailure)
+                {
+                    string errorMessage = $"Erreur de envoi du fichier {file.FileName}. Motif: {apiCallResult.Error}";
+                    Console.WriteLine(errorMessage);
+                    Toast.ShowError(errorMessage, ToastMessages.ErrorHeader);
+                    return;
+                }
+                else
+                {
+                    db.FileChecklists.Remove(file);
+                }
+            }
+
+            // TODO: Delete files
+            await db.SaveChanges();
+
         }
     }
 
@@ -804,7 +836,8 @@
 
         if (filter.WithoutDateVisiteNull)
         {
-            mandates = mandates.Where(x => x.Inspections.Any(x=> x.DateLastVisit.HasValue)).ToArray();
+            mandates = mandates.Where(x => x.Inspections.Any(x => x.DateLastVisit.HasValue)).ToArray();
+
         }
 
         loadingFilter = false;

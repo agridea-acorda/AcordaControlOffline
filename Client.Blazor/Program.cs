@@ -12,6 +12,7 @@ using Blazored.Toast;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using IndexedDB.Blazor;
 using MediatR;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -70,7 +71,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Client.Blazor
                        options.DelayTextOnKeyPressInterval = 300;
                    })
                    .AddBootstrapProviders()
-                   .AddFontAwesomeIcons();
+                   .AddFontAwesomeIcons()
+                   .AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
 
             var host = builder.Build();
 
