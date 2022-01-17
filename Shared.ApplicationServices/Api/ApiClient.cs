@@ -148,6 +148,39 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             }
         }
 
+        private async Task<Result<FormInscription>> FetchFileByteArrayAsync(string uri, int delayInMs = DefaultDelayInMs)
+        {
+            string fileType = "application/pdf";
+
+            var httpResponse = await SendGetRequest(uri, delayInMs);
+            if (httpResponse.Content == null || httpResponse.Content.Headers.ContentType.MediaType != fileType)
+                return Result.Failure<FormInscription>("HTTP Response has no content or content is not pdf.");
+
+            var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+            try
+            {
+                return Result.Success(new FormInscription() { 
+                    FileType = fileType, 
+                    FileName = "", 
+                    FileData = StreamToByteArray(contentStream),
+                    CreatedAt = DateTime.Now
+                });
+            }
+            catch
+            {
+                return Result.Failure<FormInscription>($"Unknown error occured while fetching raw json at {uri}.");
+            }
+        }
+
+        private static byte[] StreamToByteArray(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
+
         private async Task<HttpResponseMessage> SendGetRequest(string uri, int delayInMs)
         {
             if (delayInMs > 0)
@@ -217,6 +250,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.Api
             var httpResponse = await httpClient_.SendAsync(request);
             //httpResponse.EnsureSuccessStatusCode();
             return httpResponse;
+        }
+
+        public async Task<Result<FormInscription>> FetchFileAsync(string uri)
+        {
+            return await FetchFileByteArrayAsync(uri);
         }
 
         #endregion
