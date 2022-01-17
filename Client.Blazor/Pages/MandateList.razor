@@ -467,6 +467,8 @@
                 }
             }
 
+            await FetchThenSaveFormInscriptions(farmId);
+
             mandateModel.SyncStatus = SyncStatus.Loaded;
         }
 
@@ -499,6 +501,8 @@
 
         await Repository.DeleteFarmAsync(farmId);
         await Repository.DeleteMandateAsync(farmId);
+
+        await EraseFormInscriptions(farmId);
 
         mandateModel.SyncStatus = SyncStatus.Unavailable;
     }
@@ -553,6 +557,7 @@
             await DeleteMandate(mandateModel);
             Toast.Success();
             await MergeFiles();
+            await EraseFormInscriptions(farmId);
         }
         catch (Exception e)
         {
@@ -589,6 +594,37 @@
             // TODO: Delete files
             await db.SaveChanges();
 
+        }
+    }
+
+    private async Task FetchThenSaveFormInscriptions(int farmId)
+    {
+        var result = await Api.FetchFileAsync($"AcordaAutomation/{farmId}");
+
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FormInscriptionDb>())
+        {
+            result.Value.FarmId = farmId;
+            db.FormInscriptions.Add(result.Value);
+
+            Console.WriteLine($"New FormInscription saved in IndexedDB");
+
+            await db.SaveChanges();
+        }
+    }
+
+    private async Task EraseFormInscriptions(int farmId)
+    {
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FormInscriptionDb>())
+        {
+            var filesDelete = db.FormInscriptions
+                                .Where(x => x.FarmId == farmId)
+                                .ToList();
+            foreach (var item in filesDelete)
+            {
+                db.FormInscriptions.Remove(item);
+                Console.WriteLine($"FormInscription {item.FarmId} deleted in IndexedDB");
+            }
+            await db.SaveChanges();
         }
     }
 
