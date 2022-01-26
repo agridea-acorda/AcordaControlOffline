@@ -133,7 +133,7 @@
 
     private async Task<List<Town>> FilterFunction(List<Town> allItems, string filter, System.Threading.CancellationToken token)
     {
-        return allItems.Where(i => i.ZipAndName.Contains(filter)).ToList();
+        return await Task.FromResult(allItems.Where(i => i.ZipAndName.Contains(filter)).ToList());
     }
 
     private async Task SignatureChanged(ChangeEventArgs eventArgs)
