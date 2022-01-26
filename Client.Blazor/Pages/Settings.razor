@@ -91,6 +91,18 @@
             await db.SaveChanges();
         }
 
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FormInscriptionDb>())
+        {
+            var filesDelete = db.FormInscriptions
+                                .ToList();
+            foreach (var item in filesDelete)
+            {
+                db.FormInscriptions.Remove(item);
+                Console.WriteLine($"FormInscription {item.FarmId} deleted in IndexedDB");
+            }
+            await db.SaveChanges();
+        }
+
         Navigation.NavigateTo(Config.BaseUrl + "/", true);
     }
 }
