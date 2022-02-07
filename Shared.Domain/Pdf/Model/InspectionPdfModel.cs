@@ -18,6 +18,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
         public string ActionsOrDocuments { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? DoneOn { get; set; }
+        public DateTime? FirstContactDate { get; set; }
+        public string Mode { get; set; }
         public int DoneInTownZip { get; set; }
         public string DoneInTownName { get; set; }
         public string DoneInTownDisplay => DoneInTownName;
@@ -45,6 +47,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf.Model
                 ActionsOrDocuments = inspection.Compliance.ActionsOrDocuments,
                 DueDate = inspection.Compliance.DueDate,
                 DoneOn = inspection.FinishStatus.DoneOn,
+                FirstContactDate = inspection.Appointment.FirstContactDate,
+                Mode = inspection.Appointment.Mode.Text,
                 //DoneInTownZip = inspection.FinishStatus.DoneInTown?.Zip ?? 0,
                 //DoneInTownName = inspection.FinishStatus.DoneInTown?.Name,
                 HasProxy = inspection.FarmerSignature.HasProxy,
