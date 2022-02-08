@@ -20,7 +20,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Inspection {
         public DateTime? FirstContactDate { get; }
         public DateTime? Date { get; }
 
-        public static Appointment None => new Appointment(null, null, null);
+        public static Appointment None => new Appointment(null, null, InspectionMode.Unscheduled);
         protected override IEnumerable<object> GetEqualityComponents()
         {
             yield return Date;
