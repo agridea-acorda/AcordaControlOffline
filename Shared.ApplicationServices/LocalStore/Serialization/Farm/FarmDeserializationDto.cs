@@ -12,6 +12,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             public string Ktidb { get; set; }
             public string FarmName { get; set; }
             public string Address { get; set; }
+            public int TownZip { get; set; }
             public string FarmType { get; set; }
             public int FarmTypeCode { get; set; }
             public string Email { get; set; }
