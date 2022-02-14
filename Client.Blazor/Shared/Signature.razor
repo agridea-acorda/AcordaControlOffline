@@ -4,11 +4,13 @@
 @using Newtonsoft.Json
 @using Blazorise
 @using Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.ViewModel.Town
+@using Agridea.Acorda.AcordaControlOffline.Client.Blazor.Auth
 @inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
 @inject IRepository Repository
 @inject IJSRuntime JS
 @inject IToastService Toast
+@inject IAuthService AuthService
 
 <EditForm Model="@Model" OnSubmit="@Save">
     <div class="card">
@@ -122,7 +124,7 @@
             else
             {
                 var farm = await Repository.ReadFarmAsync(FarmId);
-                if(farm != null)
+                if (farm != null)
                 {
                     Model.Town = towns.Where(x => x.ZipAndName.StartsWith(farm.TownZip.ToString())).Take(1).ToList();
                 }
@@ -137,7 +139,8 @@
 
         if (!Title.Contains("exploitant") && !Title.Contains("additionnel"))
         {
-            Model.Signatory = inspectorName;
+            var auth = await AuthService.ReadAuthInfo();
+            Model.Signatory = !string.IsNullOrEmpty(inspectorName) ? inspectorName : auth?.Username;
         }
 
     }
