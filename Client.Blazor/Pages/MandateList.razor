@@ -389,6 +389,8 @@
             await TryFetchTownsAndSave();
         }
 
+        await TryFetchInspectorNameAndSave();
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -411,6 +413,7 @@
         mandatesBKFilter = mandates;
         PopulateFilters();
         await TryFetchTownsAndSave();
+        await TryFetchInspectorNameAndSave();
         await SetSyncStatus();
     }
 
@@ -660,7 +663,7 @@
         return result;
     }
 
-    async Task TryFetchMandatesAndSave()
+    async Task TryFetchInspectorNameAndSave()
     {
         loading = true;
         await Task.Delay(1);
@@ -690,6 +693,13 @@
         {
             loading = false;
         }
+    }
+
+    async Task TryFetchMandatesAndSave()
+    {
+        loading = true;
+        await Task.Delay(1);
+        StateHasChanged();
 
         try
         {
