@@ -172,7 +172,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             }
 
             table.AddCustomCell(
-                "L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle.",
+                "L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle. " +
+                "Les conséquences du présent rapport relèvent de la compétence cantonale, ou du mandant lié au domaine contrôlé.",
                 Fonts.Helvetica12BlackBold, colspan: 2, borderWidth: 0);
             table.AddTitleCell(model_.HasProxy
                 ? "[  ] L'exploitant ou [x] son représentant"
