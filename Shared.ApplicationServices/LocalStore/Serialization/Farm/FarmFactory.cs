@@ -34,6 +34,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             SetPropertyValueViaBackingField(typeof(Domain.Farm.Farm), nameof(Domain.Farm.Farm.Ktidb), targetInstance, dto.Ktidb);
             SetPropertyValueViaBackingField(typeof(Domain.Farm.Farm), nameof(Domain.Farm.Farm.FarmName), targetInstance, dto.FarmName);
             SetPropertyValueViaBackingField(typeof(Domain.Farm.Farm), nameof(Domain.Farm.Farm.Address), targetInstance, dto.Address);
+            SetPropertyValueViaBackingField(typeof(Domain.Farm.Farm), nameof(Domain.Farm.Farm.TownZip), targetInstance, dto.TownZip);
             SetPropertyValueViaBackingField(typeof(Domain.Farm.Farm), nameof(Domain.Farm.Farm.FarmType), targetInstance, dto.FarmType);
             SetPropertyValueViaBackingField(typeof(Domain.Farm.Farm), nameof(Domain.Farm.Farm.FarmTypeCode), targetInstance, dto.FarmTypeCode);
             SetPropertyValueViaBackingField(typeof(Domain.Farm.Farm), nameof(Domain.Farm.Farm.Email), targetInstance, dto.Email);

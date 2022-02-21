@@ -52,13 +52,7 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             new Chunk("Point de contrôle non ciblé", Fonts.Helvetica8BlackBoldItalic)
         };
 
-        #region Members
-
         private readonly InspectionPdfModel model_;
-
-        #endregion
-
-        #region Initialization
 
         public InspectionPdf(InspectionPdfModel model, string username, string ktidb, string farmName, string domain, bool showWatermark = false) 
             : base(username, ktidb, farmName, domain)
@@ -74,10 +68,6 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             DarkColor = Colors.Gray;
             PageNumberPosition = 5;
         }
-
-        #endregion
-
-        #region Services
 
         protected override void AddBody(PdfWriter writer, Document document)
         {
@@ -182,7 +172,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             }
 
             table.AddCustomCell(
-                "L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle.",
+                "L'exploitant ou son représentant atteste avoir pris connaissance du présent rapport de contrôle. " +
+                "Les conséquences du présent rapport relèvent de la compétence cantonale, ou du mandant lié au domaine contrôlé.",
                 Fonts.Helvetica12BlackBold, colspan: 2, borderWidth: 0);
             table.AddTitleCell(model_.HasProxy
                 ? "[  ] L'exploitant ou [x] son représentant"
@@ -208,6 +199,11 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             if (model_.DoneOn.HasValue)
                 //table.AddCustomCell($"Fait à {model_.DoneInTownDisplay} le {model_.DoneOn.Value.ToShortDateString()}", colspan: 2);
                 table.AddCustomCell($"Fait le {model_.DoneOn.Value.ToShortDateString()}", colspan: 2);
+
+            string unscheduledMessage = model_.Mode == InspectionMode.Unscheduled.Text ? "Contrôle inopiné" : "";
+            string firstContactMessage = model_.FirstContactDate.HasValue ? $"Prise de contact le {model_.FirstContactDate.Value.ToShortDateString()}" : "";
+            if (!string.IsNullOrWhiteSpace(unscheduledMessage + firstContactMessage))
+                table.AddCustomCell($"{unscheduledMessage}{firstContactMessage}", colspan: 2);
 
             return table;
         }
@@ -493,15 +489,9 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.Domain.Pdf
             table.AddCell(cell);
         }
 
-        #endregion
-
-        #region Helper
-
         public static string Filename(int year, string ktidb, string farmName, string domainShortName)
         {
             return $"Rapport de contrôle {year} {ktidb} {farmName} {domainShortName}.pdf";
         }
-
-        #endregion
     }
 }
