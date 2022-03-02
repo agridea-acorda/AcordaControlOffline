@@ -326,7 +326,7 @@
 
 @code {
 
-        //bool showClosed = false;
+    //bool showClosed = false;
     private Mandate[] mandates;
     private Mandate[] mandatesBKFilter;
     bool loading = false;
@@ -382,6 +382,15 @@
         }
         PopulateFilters();
         await ApplyFilter();
+
+        var towns = await Repository.ReadAllTownsAsync();
+        if (towns == null)
+        {
+            await TryFetchTownsAndSave();
+        }
+
+        await TryFetchInspectorNameAndSave();
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -403,6 +412,8 @@
         mandates = await Repository.ReadAllMandatesAsync() ?? Enumerable.Empty<Mandate>().ToArray();
         mandatesBKFilter = mandates;
         PopulateFilters();
+        await TryFetchTownsAndSave();
+        await TryFetchInspectorNameAndSave();
         await SetSyncStatus();
     }
 
@@ -459,6 +470,8 @@
                 }
             }
 
+            await FetchThenSaveFormInscriptions(farmId);
+
             mandateModel.SyncStatus = SyncStatus.Loaded;
         }
 
@@ -491,6 +504,8 @@
 
         await Repository.DeleteFarmAsync(farmId);
         await Repository.DeleteMandateAsync(farmId);
+
+        await EraseFormInscriptions(farmId);
 
         mandateModel.SyncStatus = SyncStatus.Unavailable;
     }
@@ -545,6 +560,7 @@
             await DeleteMandate(mandateModel);
             Toast.Success();
             await MergeFiles();
+            await EraseFormInscriptions(farmId);
         }
         catch (Exception e)
         {
@@ -584,6 +600,37 @@
         }
     }
 
+    private async Task FetchThenSaveFormInscriptions(int farmId)
+    {
+        var result = await Api.FetchFileAsync($"AcordaAutomation/{farmId}");
+
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FormInscriptionDb>())
+        {
+            result.Value.FarmId = farmId;
+            db.FormInscriptions.Add(result.Value);
+
+            Console.WriteLine($"New FormInscription saved in IndexedDB");
+
+            await db.SaveChanges();
+        }
+    }
+
+    private async Task EraseFormInscriptions(int farmId)
+    {
+        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FormInscriptionDb>())
+        {
+            var filesDelete = db.FormInscriptions
+                                .Where(x => x.FarmId == farmId)
+                                .ToList();
+            foreach (var item in filesDelete)
+            {
+                db.FormInscriptions.Remove(item);
+                Console.WriteLine($"FormInscription {item.FarmId} deleted in IndexedDB");
+            }
+            await db.SaveChanges();
+        }
+    }
+
     private async Task<bool> CancelMerge(int mergeResultId, string mergeState)
     {
         Console.WriteLine("Cancelling merge package...");
@@ -616,7 +663,7 @@
         return result;
     }
 
-    async Task TryFetchMandatesAndSave()
+    async Task TryFetchInspectorNameAndSave()
     {
         loading = true;
         await Task.Delay(1);
@@ -646,6 +693,13 @@
         {
             loading = false;
         }
+    }
+
+    async Task TryFetchMandatesAndSave()
+    {
+        loading = true;
+        await Task.Delay(1);
+        StateHasChanged();
 
         try
         {
@@ -673,6 +727,41 @@
         {
             loading = false;
         }
+    }
+
+    async Task TryFetchTownsAndSave()
+    {
+        Console.WriteLine("Saving towns in localstorage");
+        loading = true;
+        await Task.Delay(1);
+        StateHasChanged();
+
+        try
+        {
+            var auth = await AuthService.ReadAuthInfo();
+            var townsResult = await Api.FetchAllTownsAsync("towns");
+            if (townsResult.IsSuccess)
+            {
+                await Repository.SaveTownsAsync(townsResult.Value);
+            }
+            else
+            {
+                Console.WriteLine(townsResult.ToLogErrorMessage());
+                Toast.Error(townsResult.ToUserErrorMessage());
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToLogErrorMessage());
+            Toast.Error(e.ToUserErrorMessage());
+        }
+        finally
+        {
+            loading = false;
+        }
+
+
     }
 
     async Task SetSyncStatus()

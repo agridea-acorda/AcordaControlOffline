@@ -92,25 +92,26 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             var targetInstance = (Appointment)FormatterServices.GetUninitializedObject(typeof(Appointment));
             SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.Date), targetInstance, dto.Date);
             SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.FirstContactDate), targetInstance, dto.FirstContactDate);
-            // This was coded this way because of lack of knowledge of Domain driven design, I tried to but there was always errors...
-            if (targetInstance.Mode == null)
-            {
-                targetInstance.Mode = InspectionMode.Unscheduled;
-            }
-            targetInstance.Mode.Text = dto.Mode.Text;
-            targetInstance.Mode.Value = dto.Mode.Value;
+            SetPropertyValueViaBackingField(typeof(Appointment), nameof(Appointment.Mode), targetInstance, Parse(dto.Mode));
+            //// This was coded this way because of lack of knowledge of Domain driven design, I tried to but there was always errors...
+            //if (targetInstance.Mode == null)
+            //{
+            //    targetInstance.Mode = InspectionMode.Unscheduled;
+            //}
+            //targetInstance.Mode.Text = dto.Mode.Text;
+            //targetInstance.Mode.Value = dto.Mode.Value;
 
             return targetInstance;
         }
 
-        //private Mode Parse(InspectionDeserializationDto.Mode dto)
-        //{
-        //    if (dto == null) return Mode.None;
-        //    var targetInstance = (Mode)FormatterServices.GetUninitializedObject(typeof(Mode));
-        //    SetPropertyValueViaBackingField(typeof(Mode), nameof(Mode.Text), targetInstance, dto.Text);
-        //    SetPropertyValueViaBackingField(typeof(Mode), nameof(Mode.Value), targetInstance, dto.Value);
-        //    return targetInstance;
-        //}
+        private InspectionMode Parse(InspectionDeserializationDto.Mode dto)
+        {
+            if (dto == null) return InspectionMode.Unscheduled;
+            var targetInstance = (InspectionMode)FormatterServices.GetUninitializedObject(typeof(InspectionMode));
+            SetPropertyValueViaBackingField(typeof(InspectionMode), nameof(InspectionMode.Text), targetInstance, dto.Text);
+            SetPropertyValueViaBackingField(typeof(InspectionMode), nameof(InspectionMode.Value), targetInstance, dto.Value);
+            return targetInstance;
+        }
 
         private InspectionStatus Parse(InspectionDeserializationDto.Status dto)
         {
@@ -137,6 +138,8 @@ namespace Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.LocalSt
             var targetInstance = (Signature)FormatterServices.GetUninitializedObject(typeof(Signature));
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Signatory), targetInstance, dto.Signatory);
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Proxy), targetInstance, dto.Proxy);
+            SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.HasProxy), targetInstance, dto.HasProxy);
+            SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.DoneInTown_Id), targetInstance, dto.DoneInTown_Id);
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.Data), targetInstance, dto.Data);
             SetPropertyValueViaBackingField(typeof(Signature), nameof(Signature.DataUrl), targetInstance, dto.DataUrl);
             return targetInstance;

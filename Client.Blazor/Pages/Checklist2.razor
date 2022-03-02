@@ -255,6 +255,8 @@
     IEnumerable<FileChecklistVm> filesVms = new List<FileChecklistVm>();
     bool loadingFiles = true;
 
+#nullable enable
+
     async Task OnChangedFile(Blazorise.FileChangedEventArgs e)
     {
         loadingFiles = true;
@@ -313,26 +315,24 @@
             foreach (var file in e.Files)
             {
                 // A stream is going to be the destination stream we're writing to.                
-                using (var stream = new MemoryStream())
+                await using var stream = new MemoryStream();
+                // Here we're telling the FileEdit where to write the upload result
+                await file.WriteToStreamAsync(stream);
+
+                // Once we reach this line it means the file is fully uploaded.
+                // In this case we're going to offset to the beginning of file
+                // so we can read it.
+                stream.Seek(0, SeekOrigin.Begin);
+
+                files.Add(new FileChecklist()
                 {
-                    // Here we're telling the FileEdit where to write the upload result
-                    await file.WriteToStreamAsync(stream);
-
-                    // Once we reach this line it means the file is fully uploaded.
-                    // In this case we're going to offset to the beginning of file
-                    // so we can read it.
-                    stream.Seek(0, SeekOrigin.Begin);
-
-                    files.Add(new FileChecklist()
-                    {
-                        FileName = file.Name,
-                        FileType = file.Type,
-                        FileSize = file.Size,
-                        FileData = stream.ToArray(),
-                        IsPicture = false
-                    });
-                    Console.WriteLine("Adding file");
-                }
+                    FileName = file.Name,
+                    FileType = file.Type,
+                    FileSize = file.Size,
+                    FileData = stream.ToArray(),
+                    IsPicture = false
+                });
+                Console.WriteLine("Adding file");
             }
             Console.WriteLine("Files : " + files.Count);
         }
@@ -357,17 +357,15 @@
         StateHasChanged();
         if (files == null || files.Count == 0)
         {
-            using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
-            {
-                filesVms = db.FileChecklists
-                                .Where(x => x.ConjunctElementCode == conjunctElementCodeToEdit && x.FarmInspectionId == FarmInspectionId)
-                                .Select(x => new FileChecklistVm()
-                                {
-                                    Id = x.Id,
-                                    FileName = x.FileName,
-                                    IsPicture = x.IsPicture
-                                });
-            }
+            using var db = await DbFactory.Create<ChecklistDb>();
+            filesVms = db.FileChecklists
+                .Where(x => x.ConjunctElementCode == conjunctElementCodeToEdit && x.FarmInspectionId == FarmInspectionId)
+                .Select(x => new FileChecklistVm()
+                {
+                    Id = x.Id,
+                    FileName = x.FileName,
+                    IsPicture = x.IsPicture
+                });
         }
         else
         {
@@ -387,18 +385,14 @@
 
     async Task DownloadFile(int id)
     {
-        Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FileChecklist fileChecklist;
-        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        FileChecklist? fileChecklist;
+        using (var db = await DbFactory.Create<ChecklistDb>())
         {
-            fileChecklist = db.FileChecklists
-                        .Where(x => x.Id == id)
-                        .SingleOrDefault();
-
+            fileChecklist = db.FileChecklists.SingleOrDefault(x => x.Id == id);
         }
         if (fileChecklist != null)
         {
-            await Js.InvokeVoidAsync(
-              "downloadFromByteArray", new object?[] { fileChecklist.FileData, fileChecklist.FileName, fileChecklist.FileType });
+            await Js.InvokeVoidAsync("downloadFromByteArray", new { fileChecklist.FileData, fileChecklist.FileName, fileChecklist.FileType });
         }
     }
 
@@ -406,7 +400,7 @@
     {
         Console.WriteLine($"Adding file(s) for node {conjunctElementCodeToEdit}...");
 
-        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        using (var db = await DbFactory.Create<ChecklistDb>())
         {
             var filesDelete = db.FileChecklists
                                 .Where(x => x.ConjunctElementCode == conjunctElementCodeToEdit && x.FarmInspectionId == FarmInspectionId && x.IsPicture == isPicture)
@@ -419,7 +413,7 @@
             await db.SaveChanges();
         }
 
-        using (var db = await this.DbFactory.Create<Agridea.Acorda.AcordaControlOffline.Shared.ApplicationServices.IndexedDb.ChecklistDb>())
+        using (var db = await DbFactory.Create<ChecklistDb>())
         {
             Console.WriteLine($"Files saved in IndexedDB : {files.Count}");
             foreach (var file in files)
@@ -434,10 +428,13 @@
                 Console.WriteLine($"New file saved in IndexedDB");
             }
             await db.SaveChanges();
-            files = new List<AcordaControlOffline.Shared.ApplicationServices.IndexedDb.FileChecklist>();
+            files = new List<FileChecklist>();
         }
 
         await Js.InvokeAsync<string>("setFileInputLabel", new object?[] { fileEdit.ElementId, "" });
         StateHasChanged();
     }
+
+#nullable disable
+
 }

@@ -18,10 +18,10 @@ namespace Agridea.ProductInfo
     {
         #region This is changed by the build
 
-        public const string Version = "3.8.22006.0"; // major.minor.0.0. Minor is prototype number.
-        public const string FileVersion = "3.8.22006.0"; // major.minor.{julian date}.{number of commits since the most recent tag}
-        public const string InformationalVersion = "3.8 prod gc35567b"; // major.minor {branch name} {git commit ID truncated to 8 chars}
-        public const string BuildDate = "2022.01.06 20:48:07";
+        public const string Version = "3.9.22061.7"; // major.minor.0.0. Minor is prototype number.
+        public const string FileVersion = "3.9.22061.7"; // major.minor.{julian date}.{number of commits since the most recent tag}
+        public const string InformationalVersion = "3.9 dev g826a9a3"; // major.minor {branch name} {git commit ID truncated to 8 chars}
+        public const string BuildDate = "2022.03.02 10:38:30";
         public const string Product = "AcordaControlOffline";
 
         #endregion
